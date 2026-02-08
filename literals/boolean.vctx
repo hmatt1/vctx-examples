@@ -1,0 +1,9 @@
+sim TestBoolTrue {
+    wire val: bool = true
+    assert(val == true, "Boolean true assertion")
+}
+
+sim TestBoolFalse {
+    wire val: bool = false
+    assert(val == false, "Boolean false assertion")
+}

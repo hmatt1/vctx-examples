@@ -1,0 +1,23 @@
+sim TestSubUnsigned {
+    wire a: u8 = 20
+    wire b: u8 = 10
+    
+    assert(a - b == 10, "20 - 10 = 10")
+    
+    // Test Underflow (Wrap around)
+    // 0 - 1 = 255
+    wire z: u8 = 0
+    assert(z - 1 == 255, "0 - 1 wraps to 255 (u8)")
+}
+
+sim TestSubSigned {
+    wire a: s8 = 10
+    wire b: s8 = 20
+    
+    assert(a - b == -10, "10 - 20 = -10")
+    
+    // Subtracting a negative (double negative)
+    // 10 - (-5) = 15
+    wire c: s8 = -5
+    assert(a - c == 15, "10 - (-5) = 15")
+}

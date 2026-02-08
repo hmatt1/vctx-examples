@@ -1,0 +1,17 @@
+sim TestBitwiseNotUnsigned {
+    wire z: u8 = 0
+    wire x: u8 = 0b10101010 // 170
+    
+    // ~0 in u8 is 255 (0xFF)
+    assert(~z == 255, "Bitwise NOT of 0u8 is 255")
+    
+    // ~10101010 is 01010101 (85)
+    assert(~x == 85,  "Bitwise NOT of 170 is 85")
+}
+
+sim TestBitwiseNotSigned {
+    wire z: s8 = 0
+    
+    // ~0 in two's complement is -1
+    assert(~z == -1, "Bitwise NOT of 0s8 is -1")
+}

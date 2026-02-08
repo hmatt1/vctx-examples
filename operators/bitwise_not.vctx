@@ -1,0 +1,8 @@
+
+sim TestBitwiseNotSigned2 {
+    wire x: s8 = 1
+
+    wire z: s8 = ~x
+
+    assert(z == -2, "Bitwise NOT of 1 is -2")
+}

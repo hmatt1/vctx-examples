@@ -1,0 +1,30 @@
+sim TestNegativeHexSmall {
+    // -0x01 is the strict way to define -1 in hex
+    wire val: s8 = -0x01
+    assert(val == -1, "Negative hex (-0x01) assertion")
+}
+
+sim TestNegativeHex {
+    // -0xA equals -10
+    wire val: s8 = -0xA
+    assert(val == -10, "Negative hex (-0xA) assertion")
+}
+
+sim TestNegativeBinary {
+    // -0b101 equals -5
+    wire val: s8 = -0b101
+    assert(val == -5, "Negative binary (-0b101) assertion")
+}
+
+sim TestNegativeBinaryLarge {
+    // -0b1000_0000 equals -128 (Min s8)
+    wire val: s8 = -0b1000_0000
+    assert(val == -128, "Large negative binary (-128) assertion")
+}
+
+sim TestNegativeHexLarge {
+    // -0xFF equals -255. 
+    // This requires s16, because -255 is too small for s8 (-128 min).
+    wire val: s16 = -0xFF
+    assert(val == -255, "Large negative hex (-0xFF) assertion")
+}

@@ -1,0 +1,27 @@
+sim TestS8Negative {
+    // -1 is valid for s8
+    wire val: s8 = -1
+    assert(val == -1, "s8 (-1) assertion")
+}
+
+sim TestS8Min {
+    // Testing minimum value for 8-bit signed (-128)
+    wire val: s8 = -128
+    assert(val == -128, "s8 min value (-128) assertion")
+}
+
+sim TestS16Negative {
+    // Testing arbitrary negative number
+    wire val: s16 = -12345
+    assert(val == -12345, "s16 (-12345) assertion")
+}
+
+sim TestS32Negative {
+    wire val: s32 = -2000000
+    assert(val == -2000000, "s32 large negative assertion")
+}
+
+sim TestS64Negative {
+    wire val: s64 = -9000000000000
+    assert(val == -9000000000000, "s64 large negative assertion")
+}

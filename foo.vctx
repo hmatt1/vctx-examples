@@ -1,0 +1,35 @@
+import src.utils.math as math
+
+component MyFoo(
+    in sw_input: u8, 
+    out led_result: u8,
+    out status_led: u1
+) {
+    wire current_op: u8 = 0
+    wire ten: u8 = 11
+ 
+    math.Alu(
+        sw_input, 
+        ten,
+        current_op,
+        led_result,
+        status_led
+    )
+}
+
+sim TestBenchName {
+    wire sw_input1: u8 = 0
+    wire led_result1: u8 = 16
+    wire status_led1: u1 = 0
+
+    wire status_led2: u18 = 16
+
+    MyFoo(sw_input1, led_result1, status_led1)
+
+    cycle(1)
+    cycle(1)
+    cycle(1)
+    assert(status_led2 == 16, "blah!")
+    assert((status_led2 + 2) == 14, "blah! 2")
+    assert(led_result1 == 16, "LED is on!")
+}

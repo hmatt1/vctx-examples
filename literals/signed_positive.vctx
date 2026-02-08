@@ -1,0 +1,15 @@
+sim TestS8 {
+    wire val: s8 = 127
+    assert(val == 127, "s8 max value assertion")
+}
+
+sim TestS16 {
+    wire val: s16 = 32000
+    assert(val == 32000, "s16 value assertion")
+}
+
+sim TestSArbitrary {
+    // Testing non-standard signed width (s5 max is 15)
+    wire val: s5 = 15
+    assert(val == 15, "s5 (arbitrary width) assertion")
+}

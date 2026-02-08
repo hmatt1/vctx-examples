@@ -1,0 +1,24 @@
+sim TestNotBool {
+    wire t: bool = true
+    wire f: bool = false
+    
+    assert(!t == false, "NOT true is false")
+    assert(!f == true,  "NOT false is true")
+}
+
+sim TestNotUnsigned {
+    // In VCTX/C, !0 is 1 (true), !non_zero is 0 (false)
+    wire z: u8 = 0
+    wire x: u8 = 42
+    
+    assert(!z == 1, "NOT 0 (unsigned) is 1")
+    assert(!x == 0, "NOT 42 (unsigned) is 0")
+}
+
+sim TestNotSigned {
+    wire z: s8 = 0
+    wire x: s8 = -5
+    
+    assert(!z == 1, "NOT 0 (signed) is 1")
+    assert(!x == 0, "NOT -5 (signed) is 0")
+}

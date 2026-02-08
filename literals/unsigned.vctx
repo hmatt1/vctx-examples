@@ -1,0 +1,42 @@
+sim TestU1 {
+    // Single bit unsigned (0 or 1)
+    wire val: u1 = 1
+    assert(val == 1, "u1 assertion")
+}
+
+sim TestU8 {
+    // Standard byte
+    wire val: u8 = 255
+    assert(val == 255, "u8 max value assertion")
+}
+
+sim TestU8U4 {
+    // Standard byte
+    wire val: u8 = 9
+    assert(val == 9, "u8 max value assertion")
+}
+
+
+sim TestU16 {
+    // 16-bit word
+    wire val: u16 = 65535
+    assert(val == 65535, "u16 max value assertion")
+}
+
+sim TestU32 {
+    // 32-bit word
+    wire val: u32 = 1000000
+    assert(val == 1000000, "u32 value assertion")
+}
+
+sim TestU64 {
+    // 64-bit word
+    wire val: u64 = 1234567890123
+    assert(val == 1234567890123, "u64 value assertion")
+}
+
+sim TestArbitraryWidth {
+    // Testing non-standard width (u5 max is 31)
+    wire val: u5 = 31
+    assert(val == 31, "u5 (arbitrary width) assertion")
+}

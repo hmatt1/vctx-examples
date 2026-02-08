@@ -1,0 +1,23 @@
+sim TestHexLiteral {
+    // 0xFF = 255. Valid for u8.
+    wire val: u8 = 0xFF
+    assert(val == 255, "Hex literal (0xFF) assertion")
+}
+
+sim TestBinaryLiteral {
+    // 0b1010 = 10
+    wire val: u4 = 0b1010
+    assert(val == 10, "Binary literal (0b1010) assertion")
+}
+
+sim TestSeparatorLiteral {
+    // Underscores in numbers (1_000)
+    wire val: u16 = 1_000
+    assert(val == 1000, "Decimal separator (1_000) assertion")
+}
+
+sim TestHexSeparator {
+    // Underscores in Hex (0xAB_CD)
+    wire val: u16 = 0xAB_CD
+    assert(val == 43981, "Hex separator (0xAB_CD) assertion")
+}

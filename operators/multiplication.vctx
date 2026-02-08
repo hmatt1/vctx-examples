@@ -1,0 +1,16 @@
+sim TestMulUnsigned {
+    wire a: u8 = 10
+    wire b: u8 = 10
+    
+    assert(a * b == 100, "10 * 10 = 100")
+}
+
+sim TestMulSigned {
+    wire a: s8 = 2
+    wire b: s8 = -10
+    
+    assert(a * b == -20, "2 * -10 = -20")
+    
+    wire c: s8 = -2
+    assert(c * b == 20, "-2 * -10 = 20")
+}
