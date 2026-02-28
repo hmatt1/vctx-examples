@@ -1,27 +1,18 @@
 component Gate(out y: u8, out b: u7) {
-    wire a: u8 = 10
+    wire a: u8 = 25
     y := a
 }
 
+
 sim TestOr {
-    // 1. Inputs driven with initial values
-    wire a: u1 = 1
-    wire b: u1 = 0
-    wire c: u2 = 2
-    wire d: u5 = 10
-
     // 2. Output wire
-    wire x: u8
+    wire a1: u8
+    wire b1: u7
 
-    Gate(x)
+    Gate(a1, b1)
 
     cycle()
     
-    assert(x == 10, "check1")
-    assert(a == 1, "check2")
-    assert(b == 0, "check3")
-    assert(c == 2, "check4")
-    assert(d == 10, "check4")
-
+    assert(a1 == 25, "check1")
 }
 

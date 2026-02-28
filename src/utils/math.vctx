@@ -5,7 +5,7 @@ component Alu(
     in a: u8, 
     in b: u8, 
     in opcode: u8, 
-    out y: u8, 
+    out y: u9, 
     out is_zero: u1
 ) {
 

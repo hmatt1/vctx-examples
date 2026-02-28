@@ -1,0 +1,138 @@
+// ==========================================
+// 1. Unsigned Width Conversions
+// ==========================================
+
+sim TestCast_Unsigned_Truncation {
+    // Downcasting should strip the upper bits
+    wire a: u16 = 0xABCD
+    wire z: u8 = a as u8
+    assert(z == 0xCD, "Truncating u16 (0xABCD) to u8 keeps only the lower 8 bits (0xCD)")
+    
+    wire b: u8 = 0b1010_1111
+    wire y: u4 = b as u4
+    assert(y == 0b1111, "Truncating u8 to u4 keeps lower nibble")
+}
+
+sim TestCast_Unsigned_Extension {
+    // Upcasting unsigned should zero-extend
+    wire a: u8 = 0xAB
+    wire z: u16 = a as u16
+    assert(z == 0x00AB, "Casting u8 to u16 pads the upper bits with zeros")
+}
+
+// ==========================================
+// 2. Signed Width Conversions
+// ==========================================
+
+sim TestCast_Signed_Truncation {
+    // Downcasting signed should still just strip upper bits
+    wire a: s16 = 257       // 0x0101
+    wire z: s8 = a as s8    // 0x01
+    assert(z == 1, "Truncating s16 (257) to s8 becomes 1")
+
+    wire b: s16 = -255      // 0xFF01
+    wire y: s8 = b as s8    // 0x01
+    assert(y == 1, "Truncating s16 (-255) to s8 becomes 1")
+}
+
+sim TestCast_Signed_Extension {
+    // Upcasting signed MUST sign-extend (copy the MSB)
+    wire positive: s8 = 5
+    wire z_pos: s16 = positive as s16
+    assert(z_pos == 5, "Positive s8 extends with zeros to s16")
+
+    wire negative: s8 = -5
+    wire z_neg: s16 = negative as s16
+    assert(z_neg == -5, "Negative s8 extends with ones to keep value -5 in s16")
+}
+
+// ==========================================
+// 3. Signed/Unsigned Reinterpretation
+// ==========================================
+
+sim TestCast_Signed_To_Unsigned {
+    // Same width, just interpreting the bits differently
+    wire a: s8 = -1
+    wire z: u8 = a as u8
+    assert(z == 255, "Casting s8 -1 to u8 reinterprets bits (11111111) as 255")
+    
+    wire b: s8 = -128
+    wire y: u8 = b as u8
+    assert(y == 128, "Casting s8 -128 to u8 reinterprets bits (10000000) as 128")
+}
+
+sim TestCast_Unsigned_To_Signed {
+    wire a: u8 = 255
+    wire z: s8 = a as s8
+    assert(z == -1, "Casting u8 255 to s8 reinterprets bits (11111111) as -1")
+
+    wire b: u8 = 128
+    wire y: s8 = b as s8
+    assert(y == -128, "Casting u8 128 to s8 reinterprets bits (10000000) as -128")
+}
+
+// ==========================================
+// 4. Mathematical Wrapping (Overflow/Underflow)
+// ==========================================
+
+sim TestCast_Math_Unsigned_Wrap {
+    wire zero: u8 = 0
+    wire max: u8 = 255
+
+    // Underflow
+    wire under: u8 = (zero - 1) as u8
+    assert(under == 255, "0 - 1 cast to u8 wraps to 255")
+
+    // Overflow
+    wire over: u8 = (max + 1) as u8
+    assert(over == 0, "255 + 1 cast to u8 wraps to 0")
+}
+
+sim TestCast_Math_Signed_Wrap {
+    wire max: s8 = 127
+    wire min: s8 = -128
+
+    // Overflow
+    wire over: s8 = (max + 1) as s8
+    assert(over == -128, "127 + 1 cast to s8 wraps to -128 (0x7F + 1 = 0x80)")
+
+    // Underflow
+    wire under: s8 = (min - 1) as s8
+    assert(under == 127, "-128 - 1 cast to s8 wraps to 127 (0x80 - 1 = 0x7F)")
+}
+
+// ==========================================
+// 5. Boolean Conversions
+// ==========================================
+
+sim TestCast_Boolean_Interop {
+    wire bit_high: u1 = 1
+    wire bit_low: u1 = 0
+    
+    // Integer to Bool
+    wire is_true: bool = bit_high as bool
+    wire is_false: bool = bit_low as bool
+    assert(is_true == true, "u1 '1' casts to boolean true")
+    assert(is_false == false, "u1 '0' casts to boolean false")
+
+    // Bool to Integer
+    wire b_true: bool = true
+    wire b_false: bool = false
+    wire num_one: u1 = b_true as u1
+    wire num_zero: u1 = b_false as u1
+    
+    assert(num_one == 1, "boolean true casts to u1 '1'")
+    assert(num_zero == 0, "boolean false casts to u1 '0'")
+}
+
+// ==========================================
+// 6. Direct Literal Casting
+// ==========================================
+
+sim TestCast_Literals {
+    wire a: u8 = -1 as u8
+    assert(a == 255, "-1 literal directly cast to u8 is 255")
+
+    wire b: u16 = 255 as u16
+    assert(b == 0x00FF, "255 literal directly cast to u16 is 0x00FF")
+}

@@ -1,0 +1,6 @@
+sim TestCast_Unsigned_Truncation {
+    // Downcasting should strip the upper bits
+    wire a: u16 = 0xABCD
+    wire z: u8 = a as u8
+    assert(z == 0xCD, "Truncating u16 (0xABCD) to u8 keeps only the lower 8 bits (0xCD)")
+}

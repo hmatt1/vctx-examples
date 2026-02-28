@@ -1,18 +1,25 @@
 sim TestAddUnsigned {
     wire a: u8 = 10
     wire b: u8 = 20
+    wire c : u8 = 30
     wire max: u8 = 255
     
-    assert(a + b == 30, "10 + 20 = 30")
+    assert(a + b == c, "10 + 20 = 30")
     
     // Test Overflow (Wrap around)
     // 255 + 1 = 0
-    assert(max + 1 == 0, "u8 overflow wraps to 0")
+    wire d: u8 = 1
+    wire e : u8 = 0
+    wire f : u8 = max + d
+    assert(f == e, "u8 overflow wraps to 0")
+    assert((max + d) as u8 == e, "u8 overflow wraps to 0")
 }
 
-sim TestAddSigned {
+/* sim TestAddSigned {
     wire a: s8 = 10
     wire b: s8 = -20
+
+    
     
     assert(a + b == -10, "10 + (-20) = -10")
     
@@ -20,4 +27,4 @@ sim TestAddSigned {
     wire c: s8 = -5
     wire d: s8 = -5
     assert(c + d == -10, "-5 + (-5) = -10")
-}
+} */

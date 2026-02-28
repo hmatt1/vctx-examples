@@ -4,10 +4,11 @@ sim TestSubUnsigned {
     
     assert(a - b == 10, "20 - 10 = 10")
     
-    // Test Underflow (Wrap around)
-    // 0 - 1 = 255
+    // Test Underflow
     wire z: u8 = 0
-    assert(z - 1 == 255, "0 - 1 wraps to 255 (u8)")
+    assert(z - 1 == -1, "mathematically, 0 - 1 = -1")
+        
+    assert((z - 1) as u8 == 255, "casting to u8 to wrap to 255")
 }
 
 sim TestSubSigned {
