@@ -1,0 +1,132 @@
+// ==== registers_and_sequential.vctx ====
+
+// ==========================================
+// 1. Basic Sequential Counter Component
+// ==========================================
+
+component Counter(out val: u8) {
+    // Registers are declared with 'reg' and initialized using '='.
+    // This initialization value is also the value applied during a global reset.
+    reg count: u8 = 0
+    
+    // Sequential assignments use '<=' and update on the clock edge.
+    count <= (count + 1) as u8  // Increment count, wrapping around on overflow
+    
+    // Wires/outputs are continuously driven using ':='.
+    val := count
+}
+
+sim TestCounterBasic {
+    wire out_val: u8
+    
+    Counter(out_val)
+    
+    // Initial state before any clock cycles
+    assert(out_val == 0, "Counter should start at initial value 0")
+    
+    // Advance 1 clock cycle
+    cycle(1)
+    assert(out_val == 1, "Counter should increment to 1 after 1 cycle")
+    
+    // Advance multiple clock cycles
+    cycle(5)
+    assert(out_val == 6, "Counter should increment to 6 after 5 more cycles")
+}
+
+sim TestCounterReset {
+    wire out_val: u8
+    
+    Counter(out_val)
+    
+    // Count up to 10
+    cycle()
+    cycle()
+    cycle()
+    cycle()
+    cycle()
+    cycle()
+    cycle()
+    cycle()
+    cycle()
+    cycle()
+    assert(out_val == 10, "Counter reached 10")
+    
+    // Hold the global reset high for 1 cycle
+    reset()
+    
+    // Verify the register returned to its declared initial state '='
+    assert(out_val == 0, "Counter should reset back to 0")
+    
+    // Verify it resumes counting properly after reset is released
+    cycle()
+    cycle()
+    assert(out_val == 2, "Counter should resume counting, reaching 2")
+}
+
+
+// ==========================================
+// 2. Sequential Delay / Pipeline Component
+// ==========================================
+
+component PipelineDelay(in data_in: u8, out data_out: u8) {
+    // Two registers to create a 2-cycle delay pipeline
+    reg stage1: u8 = 0
+    reg stage2: u8 = 0
+    
+    // Values propagate through the registers sequentially
+    stage1 <= data_in
+    stage2 <= stage1
+    
+    data_out := stage2
+}
+
+sim TestPipelineDelay {
+    // Provide a constant input to the pipeline
+    wire input_val: u8 = 42
+    wire output_val: u8
+    
+    PipelineDelay(input_val, output_val)
+    
+    // Cycle 0: No clocks have happened. Output is default 0.
+    assert(output_val == 0, "Pipeline output should initially be 0")
+    
+    // Cycle 1: 'stage1' gets 42, 'stage2' gets 0.
+    cycle(1)
+    assert(output_val == 0, "Pipeline output should still be 0 after 1 cycle")
+    
+    // Cycle 2: 'stage2' gets 42. Output is finally updated.
+    cycle(1)
+    assert(output_val == 42, "Pipeline output should update to 42 after 2 cycles")
+}
+
+
+// ==========================================
+// 3. State Toggling (Booleans)
+// ==========================================
+
+component Toggle(out led: bool) {
+    // Registers can hold boolean states
+    reg state: bool = false
+    
+    // Toggle state on every clock
+    state <= not state
+    
+    led := state
+}
+
+sim TestToggle {
+    wire led_out: bool
+    
+    Toggle(led_out)
+    
+    assert(led_out == false, "Toggle starts false")
+    
+    cycle(1)
+    assert(led_out == true, "Toggle is true after 1 cycle")
+    
+    cycle(1)
+    assert(led_out == false, "Toggle is false after 2 cycles")
+    
+    cycle(1)
+    assert(led_out == true, "Toggle is true after 3 cycles")
+}
