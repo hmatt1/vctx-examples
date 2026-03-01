@@ -10,12 +10,10 @@ sim TestAddUnsigned {
     // 255 + 1 = 0
     wire d: u8 = 1
     wire e : u8 = 0
-    wire f : u8 = max + d
-    assert(f == e, "u8 overflow wraps to 0")
     assert((max + d) as u8 == e, "u8 overflow wraps to 0")
 }
 
-/* sim TestAddSigned {
+sim TestAddSigned {
     wire a: s8 = 10
     wire b: s8 = -20
 
@@ -27,4 +25,4 @@ sim TestAddUnsigned {
     wire c: s8 = -5
     wire d: s8 = -5
     assert(c + d == -10, "-5 + (-5) = -10")
-} */
+}

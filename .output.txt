@@ -803,13 +803,46 @@ sim TestCast_Unsigned_Truncation {
     assert(z == 0xCD, "Truncating u16 (0xABCD) to u8 keeps only the lower 8 bits (0xCD)")
 }
 
+==== C:\Users\Matt\Projects\vctx\vctx-examples\operators\comparators.vctx ====
+sim TestRelational {
+    wire a: u8 = 10
+    wire b: u8 = 20
+    wire c: u8 = 10
+    
+    assert(a < b,   "10 should be less than 20")
+    assert(b > a,   "20 should be greater than 10")
+    assert(a <== c, "10 should be less than or equal to 10")
+    assert(b >== c, "20 should be greater than or equal to 10")
+    assert(a !== b, "10 should not strictly equal 20")
+}
+
+==== C:\Users\Matt\Projects\vctx\vctx-examples\operators\division.vctx ====
+sim TestDivision {
+    wire a: u8 = 20
+    wire b: u8 = 5
+    assert(a / b == 4, "20 / 5 should be 4")
+    
+    // Testing integer truncation
+    wire c: u8 = 23
+    assert(c / b == 4, "23 / 5 should truncate to 4")
+}
+
+sim TestModulo {
+    wire a: u8 = 23
+    wire b: u8 = 5
+    assert(a % b == 3, "23 % 5 should have a remainder of 3")
+    
+    wire c: u8 = 20
+    assert(c % b == 0, "20 % 5 should have a remainder of 0")
+}
+
 ==== C:\Users\Matt\Projects\vctx\vctx-examples\operators\logical_not.vctx ====
 sim TestNotBool {
     wire t: bool = true
     wire f: bool = false
     
-    assert(!t == false, "NOT true is false")
-    assert(!f == true,  "NOT false is true")
+    assert(not t == false, "NOT true is false")
+    assert(not f == true,  "NOT false is true")
 }
 
 sim TestNotUnsigned {
@@ -817,16 +850,30 @@ sim TestNotUnsigned {
     wire z: u8 = 0
     wire x: u8 = 42
     
-    assert(!z == 1, "NOT 0 (unsigned) is 1")
-    assert(!x == 0, "NOT 42 (unsigned) is 0")
+    assert((not z) == 1, "NOT 0 (unsigned) is 1")
+    assert((not x) == 0, "NOT 42 (unsigned) is 0")
 }
 
 sim TestNotSigned {
     wire z: s8 = 0
     wire x: s8 = -5
     
-    assert(!z == 1, "NOT 0 (signed) is 1")
-    assert(!x == 0, "NOT -5 (signed) is 0")
+    assert(not z == 1, "NOT 0 (signed) is 1")
+    assert(not x == 0, "NOT -5 (signed) is 0")
+}
+
+==== C:\Users\Matt\Projects\vctx\vctx-examples\operators\logical.vctx ====
+sim TestLogicalOperators {
+    wire t: bool = true
+    wire f: bool = false
+    
+    assert((t and f) == false, "true and false is false")
+    assert((t or f) == true,  "true or false is true")
+    assert((t and t) == true,  "true and true is true")
+    assert((f or f) == false, "false or false is false")
+    
+    assert(not t == false, "not true is false")
+    assert(not f == true, "not false is true")
 }
 
 ==== C:\Users\Matt\Projects\vctx\vctx-examples\operators\multiplication.vctx ====
@@ -845,6 +892,18 @@ sim TestMulSigned {
     
     wire c: s8 = -2
     assert(c * b == 20, "-2 * -10 = 20")
+}
+
+==== C:\Users\Matt\Projects\vctx\vctx-examples\operators\shifting.vctx ====
+sim TestShiftingUnsigned {
+    wire a: u8 = 0b0000_0001
+    assert((a << 3) == 0b0000_1000, "1 shifted left by 3 should be 8")
+    
+    wire b: u8 = 0b1000_0000
+    assert((b >> 4) == 0b0000_1000, "128 shifted right by 4 should be 8")
+    
+    // Testing shift overflow out of bounds
+    assert((a << 8) == 0, "Shifting out of bounds should zero out the unsigned value")
 }
 
 ==== C:\Users\Matt\Projects\vctx\vctx-examples\operators\subtraction.vctx ====
@@ -871,5 +930,15 @@ sim TestSubSigned {
     // 10 - (-5) = 15
     wire c: s8 = -5
     assert(a - c == 15, "10 - (-5) = 15")
+}
+
+==== C:\Users\Matt\Projects\vctx\vctx-examples\operators\xor.vctx ====
+sim TestBitwiseXor {
+    wire a: u8 = 0b1010
+    wire b: u8 = 0b1100
+    assert((a ^ b) == 0b0110, "1010 ^ 1100 should be 0110")
+    
+    wire c: u8 = 0xFF
+    assert((a ^ c) == 0b1111_0101, "XOR with all 1s acts as a bitwise NOT")
 }
 
