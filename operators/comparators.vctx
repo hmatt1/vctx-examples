@@ -1,0 +1,11 @@
+sim TestRelational {
+    wire a: u8 = 10
+    wire b: u8 = 20
+    wire c: u8 = 10
+    
+    assert(a < b,   "10 should be less than 20")
+    assert(b > a,   "20 should be greater than 10")
+    assert(a <== c, "10 should be less than or equal to 10")
+    assert(b >== c, "20 should be greater than or equal to 10")
+    assert(a !== b, "10 should not strictly equal 20")
+}

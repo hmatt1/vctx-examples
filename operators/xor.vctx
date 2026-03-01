@@ -1,0 +1,8 @@
+sim TestBitwiseXor {
+    wire a: u8 = 0b1010
+    wire b: u8 = 0b1100
+    assert((a ^ b) == 0b0110, "1010 ^ 1100 should be 0110")
+    
+    wire c: u8 = 0xFF
+    assert((a ^ c) == 0b1111_0101, "XOR with all 1s acts as a bitwise NOT")
+}

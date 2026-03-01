@@ -2,8 +2,8 @@ sim TestNotBool {
     wire t: bool = true
     wire f: bool = false
     
-    assert(!t == false, "NOT true is false")
-    assert(!f == true,  "NOT false is true")
+    assert(not t == false, "NOT true is false")
+    assert(not f == true,  "NOT false is true")
 }
 
 sim TestNotUnsigned {
@@ -11,14 +11,14 @@ sim TestNotUnsigned {
     wire z: u8 = 0
     wire x: u8 = 42
     
-    assert(!z == 1, "NOT 0 (unsigned) is 1")
-    assert(!x == 0, "NOT 42 (unsigned) is 0")
+    assert((not z) == 1, "NOT 0 (unsigned) is 1")
+    assert((not x) == 0, "NOT 42 (unsigned) is 0")
 }
 
 sim TestNotSigned {
     wire z: s8 = 0
     wire x: s8 = -5
     
-    assert(!z == 1, "NOT 0 (signed) is 1")
-    assert(!x == 0, "NOT -5 (signed) is 0")
+    assert(not z == 1, "NOT 0 (signed) is 1")
+    assert(not x == 0, "NOT -5 (signed) is 0")
 }

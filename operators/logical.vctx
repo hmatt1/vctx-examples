@@ -1,0 +1,12 @@
+sim TestLogicalOperators {
+    wire t: bool = true
+    wire f: bool = false
+    
+    assert((t and f) == false, "true and false is false")
+    assert((t or f) == true,  "true or false is true")
+    assert((t and t) == true,  "true and true is true")
+    assert((f or f) == false, "false or false is false")
+    
+    assert(not t == false, "not true is false")
+    assert(not f == true, "not false is true")
+}

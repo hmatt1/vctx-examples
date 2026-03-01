@@ -1,0 +1,18 @@
+sim TestDivision {
+    wire a: u8 = 20
+    wire b: u8 = 5
+    assert(a / b == 4, "20 / 5 should be 4")
+    
+    // Testing integer truncation
+    wire c: u8 = 23
+    assert(c / b == 4, "23 / 5 should truncate to 4")
+}
+
+sim TestModulo {
+    wire a: u8 = 23
+    wire b: u8 = 5
+    assert(a % b == 3, "23 % 5 should have a remainder of 3")
+    
+    wire c: u8 = 20
+    assert(c % b == 0, "20 % 5 should have a remainder of 0")
+}

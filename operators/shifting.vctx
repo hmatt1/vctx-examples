@@ -1,0 +1,10 @@
+sim TestShiftingUnsigned {
+    wire a: u8 = 0b0000_0001
+    assert((a << 3) == 0b0000_1000, "1 shifted left by 3 should be 8")
+    
+    wire b: u8 = 0b1000_0000
+    assert((b >> 4) == 0b0000_1000, "128 shifted right by 4 should be 8")
+    
+    // Testing shift overflow out of bounds
+    assert((a << 8) == 0, "Shifting out of bounds should zero out the unsigned value")
+}
