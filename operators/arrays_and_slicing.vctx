@@ -1,0 +1,107 @@
+// ==========================================
+// 1. Single Bit Indexing
+// ==========================================
+
+sim TestBitIndexingUnsigned {
+    wire data: u8 = 0b1010_0101
+    
+    assert(data[0] == 1, "Bit 0 should be 1")
+    assert(data[1] == 0, "Bit 1 should be 0")
+    assert(data[2] == 1, "Bit 2 should be 1")
+    assert(data[7] == 1, "Bit 7 (MSB) should be 1")
+}
+
+sim TestBitIndexingSigned {
+    wire data: s8 = -2
+    
+    assert(data[0] == 0, "Bit 0 of -2 should be 0")
+    assert(data[1] == 1, "Bit 1 of -2 should be 1")
+    assert(data[7] == 1, "Bit 7 (MSB) of -2 should be 1")
+}
+
+// ==========================================
+// 2. Slicing (Descending Order: MSB..LSB)
+// ==========================================
+
+sim TestSlicingByte {
+    wire data: u16 = 0xABCD
+    
+    wire high_byte: u8 = data[15..8]
+    wire low_byte: u8 = data[7..0]
+    
+    assert(high_byte == 0xAB, "Upper byte slice should be 0xAB")
+    assert(low_byte == 0xCD, "Lower byte slice should be 0xCD")
+}
+
+sim TestSlicingNibble {
+    wire data: u8 = 0x4F 
+    
+    wire high_nibble: u4 = data[7..4]
+    wire low_nibble: u4 = data[3..0]
+    
+    assert(high_nibble == 4, "Upper nibble should be 4")
+    assert(low_nibble == 15, "Lower nibble should be 15 (0xF)")
+}
+
+sim TestSlicingArbitrary {
+    wire data: u8 = 0b1101_0100
+    
+    wire mid: u4 = data[5..2]
+    assert(mid == 5, "Middle slice [5..2] should be 5")
+}
+
+// ==========================================
+// 3. Concatenation (Using Intrinsic `concat`)
+// ==========================================
+
+sim TestConcatenationBasic {
+    wire high: u8 = 0xDE
+    wire low: u8 = 0xAD
+    
+    // Combine two u8s into a u16 using the intrinsic function
+    wire combined: u16
+    combined := concat(high, low)
+    
+    assert(combined == 0xDEAD, "Concatenation should combine to 0xDEAD")
+}
+
+sim TestConcatenationMultiple {
+    wire a: u4 = 0xA
+    wire b: u4 = 0xB
+    wire c: u4 = 0xC
+    wire d: u4 = 0xD
+    
+    // concat can accept a variadic number of arguments
+    wire combined: u16 = concat(a, b, c, d)
+    assert(combined == 0xABCD, "Concatenating four u4s should form 0xABCD")
+}
+
+sim TestConcatenationWithLiterals {
+    wire low: u2 = 0b11
+    
+    wire combined: u8 = concat(0xA as u4, low as u4)
+    assert(combined == 0xA3, "Concatenation with casted literal should work")
+}
+
+// ==========================================
+// 4. Combined Slicing and Concatenation
+// ==========================================
+
+sim TestEndianSwap {
+    wire data: u16 = 0x1234
+    
+    // Swap the upper and lower bytes
+    wire swapped: u16 = concat(data[7..0], data[15..8])
+    assert(swapped == 0x3412, "Swapping bytes using slicing and concatenation")
+}
+
+// ==========================================
+// 5. Compiler Error Documentation (Commented)
+// ==========================================
+/*
+sim TestInvalidSliceAscending {
+    wire data: u8 = 0xFF
+    // ERROR: Ranges must be descending. [0..7] is explicitly invalid. 
+    wire bad: u8 = data[0..7] 
+}
+*/

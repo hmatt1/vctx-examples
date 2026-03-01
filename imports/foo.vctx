@@ -1,0 +1,16 @@
+import imports.utils.constant as c
+
+component MyConstOne(
+    out one: u1
+) {
+    c.Constant1(one)
+}
+
+sim TestConstant1 {
+    wire one: u1
+
+    MyConstOne(one)
+
+    cycle(1)
+    assert(one == 1, "Constant1 should output 1")
+}

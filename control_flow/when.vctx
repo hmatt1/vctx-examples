@@ -1,0 +1,189 @@
+
+
+
+component Alu(
+    in a: u8, 
+    in b: u8, 
+    in opcode: u8, 
+    out y: u8, 
+    out is_zero: u1
+) {
+
+    wire OP_ADD : u8 = 0
+    wire OP_SUB : u8 = 1
+    wire OP_AND : u8 = 2
+    wire OP_OR  : u8 = 3
+
+    when (opcode == OP_ADD) {
+        y := (a + b) as u8
+    }
+    elsewhen (opcode == OP_SUB) {
+        y := (a - b) as u8
+    }
+    elsewhen (opcode == OP_AND) {
+        y := a & b
+    }
+    elsewhen (opcode == OP_OR) {
+        y := a | b
+    }
+
+    is_zero := (y == 0)
+}
+
+
+sim TestAddBasic {
+    wire a: u8 = 8
+    wire b: u8 = 16
+    wire op: u8 = 0
+    wire y: u8
+    wire is_zero: u1
+    
+    Alu(a, b, op, y, is_zero)
+    
+    cycle(1)
+    assert(y == 24, "ADD: 8 + 16 should be 24")
+    assert(is_zero == 0, "ADD: 24 is not zero")
+}
+
+sim TestAddZero {
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire op: u8 = 0
+    wire y: u8
+    wire is_zero: u1
+    
+    Alu(a, b, op, y, is_zero)
+    
+    cycle(1)
+    assert(y == 0, "ADD: 0 + 0 should be 0")
+    assert(is_zero == 1, "ADD: is_zero flag should be 1")
+}
+
+sim TestAddOverflow {
+    wire a: u8 = 255
+    wire b: u8 = 1
+    wire op: u8 = 0
+    wire y: u8
+    wire is_zero: u1
+    
+    Alu(a, b, op, y, is_zero)
+    
+    cycle(1)
+    assert(y == 0, "ADD: 255 + 1 should wrap around to 0 in u8")
+    assert(is_zero == 1, "ADD: wrap-around should set is_zero flag to 1")
+}
+
+sim TestSubBasic {
+    wire a: u8 = 20
+    wire b: u8 = 5
+    wire op: u8 = 1
+    wire y: u8
+    wire is_zero: u1
+    
+    Alu(a, b, op, y, is_zero)
+    
+    cycle(1)
+    assert(y == 15, "SUB: 20 - 5 should be 15")
+    assert(is_zero == 0, "SUB: 15 is not zero")
+}
+
+sim TestSubZero {
+    wire a: u8 = 10
+    wire b: u8 = 10
+    wire op: u8 = 1
+    wire y: u8
+    wire is_zero: u1
+    
+    Alu(a, b, op, y, is_zero)
+    
+    cycle(1)
+    assert(y == 0, "SUB: 10 - 10 should be 0")
+    assert(is_zero == 1, "SUB: is_zero flag should be 1")
+}
+
+sim TestSubUnderflow {
+    wire a: u8 = 5
+    wire b: u8 = 10
+    wire op: u8 = 1
+    wire y: u8
+    wire is_zero: u1
+    
+    Alu(a, b, op, y, is_zero)
+    
+    cycle(1)
+    assert(y == 251, "SUB: 5 - 10 should underflow to 251 in u8")
+    assert(is_zero == 0, "SUB: 251 is not zero")
+}
+
+
+sim TestAndMutuallyExclusive {
+    // Using binary literals to easily visualize alternating bits
+    wire a: u8 = 0b1010_1010
+    wire b: u8 = 0b0101_0101
+    wire op: u8 = 2
+    wire y: u8
+    wire is_zero: u1
+    
+    Alu(a, b, op, y, is_zero)
+    
+    cycle(1)
+    assert(y == 0, "AND: Alternating bits should mask to 0")
+    assert(is_zero == 1, "AND: is_zero flag should be 1")
+}
+
+sim TestAndMask {
+    // Using hex literals
+    wire a: u8 = 0xFF
+    wire b: u8 = 0x0F
+    wire op: u8 = 2
+    wire y: u8
+    wire is_zero: u1
+    
+    Alu(a, b, op, y, is_zero)
+    
+    cycle(1)
+    assert(y == 0x0F, "AND: 0xFF & 0x0F should be 0x0F")
+    assert(is_zero == 0, "AND: 0x0F is not zero")
+}
+
+sim TestOrCombine {
+    wire a: u8 = 0b1010_0000
+    wire b: u8 = 0b0000_1010
+    wire op: u8 = 3
+    wire y: u8
+    wire is_zero: u1
+    
+    Alu(a, b, op, y, is_zero)
+    
+    cycle(1)
+    assert(y == 0b1010_1010, "OR: Bits should combine")
+    assert(is_zero == 0, "OR: Result is not zero")
+}
+
+sim TestOrZero {
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire op: u8 = 3
+    wire y: u8
+    wire is_zero: u1
+    
+    Alu(a, b, op, y, is_zero)
+    
+    cycle(1)
+    assert(y == 0, "OR: 0 | 0 should be 0")
+    assert(is_zero == 1, "OR: is_zero flag should be 1")
+}
+
+sim TestInvalidOpcode {
+    wire a: u8 = 255
+    wire b: u8 = 255
+    wire op: u8 = 99 
+    wire y: u8
+    wire is_zero: u1
+    
+    Alu(a, b, op, y, is_zero)
+    
+    cycle(1)
+    assert(y == 0, "INVALID OPCODE: Output should default to 0")
+    assert(is_zero == 1, "INVALID OPCODE: is_zero flag should be 1")
+}

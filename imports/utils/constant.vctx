@@ -1,0 +1,6 @@
+
+component Constant1(
+    out one: u1
+) {
+    one := 1
+}
