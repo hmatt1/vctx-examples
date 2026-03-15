@@ -1,0 +1,435 @@
+// ============================================================
+// ALU16 Operation Codes (u4)
+// ============================================================
+//   0x0  ADD  -  a + b
+//   0x1  SUB  -  a - b
+//   0x2  AND  -  a & b
+//   0x3  OR   -  a | b
+//   0x4  XOR  -  a ^ b
+//   0x5  NOT  -  ~a
+//   0x6  SHL  -  a << 1
+//   0x7  SHR  -  a >> 1
+// ============================================================
+
+component ALU16(
+    in  a:        u16,
+    in  b:        u16,
+    in  op:       u4,
+    out result:   u16,
+    out zero:     bool,
+    out negative: bool,
+    out carry:    bool,
+    out overflow: bool
+) {
+    // u17 captures the carry/borrow bit above the 16-bit result
+    wire add_ext: u17 = a + b
+    wire sub_ext: u17 = a - b
+
+    wire res_add: u16 = add_ext[15..0]
+    wire res_sub: u16 = sub_ext[15..0]
+    wire res_and: u16 = a & b
+    wire res_or:  u16 = a | b
+    wire res_xor: u16 = a ^ b
+    wire res_not: u16 = ~a
+    wire res_shl: u16 = a << 1
+    wire res_shr: u16 = a >> 1
+
+    // Signed overflow detection (same logic, now watching bit 15)
+    //   ADD: same-sign inputs produced a different-sign result
+    //   SUB: different-sign inputs produced a result with wrong sign
+    wire ov_add: u1 = ~(a[15] ^ b[15]) & (a[15] ^ add_ext[15])
+    wire ov_sub: u1 =  (a[15] ^ b[15]) & (a[15] ^ sub_ext[15])
+
+    wire out_raw:  u16  = 0
+    wire carry_w:  bool = false
+    wire ovflow_w: bool = false
+
+    when op == 0 {
+        out_raw  := res_add
+        carry_w  := add_ext[16] as bool
+        ovflow_w := ov_add as bool
+    } elsewhen op == 1 {
+        out_raw  := res_sub
+        carry_w  := sub_ext[16] as bool
+        ovflow_w := ov_sub as bool
+    } elsewhen op == 2 {
+        out_raw := res_and
+    } elsewhen op == 3 {
+        out_raw := res_or
+    } elsewhen op == 4 {
+        out_raw := res_xor
+    } elsewhen op == 5 {
+        out_raw := res_not
+    } elsewhen op == 6 {
+        out_raw := res_shl
+        carry_w := a[15] as bool
+    } elsewhen op == 7 {
+        out_raw := res_shr
+        carry_w := a[0] as bool
+    } otherwise {
+        out_raw := 0
+    }
+
+    result   := out_raw
+    zero     := out_raw == 0
+    negative := out_raw[15] as bool
+    carry    := carry_w
+    overflow := ovflow_w
+}
+
+
+// ============================================================
+// ADD
+// ============================================================
+
+sim TestAdd_NoFlags {
+    wire a: u16 = 1000
+    wire b: u16 = 2000
+    wire op: u4 = 0
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 3000,     "1000 + 2000 = 3000")
+    assert(zero == false,      "result is not zero")
+    assert(negative == false,  "result is positive")
+    assert(carry == false,     "no carry")
+    assert(overflow == false,  "no overflow")
+}
+
+sim TestAdd_Zero {
+    wire a: u16 = 0
+    wire b: u16 = 0
+    wire op: u4 = 0
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0,   "0 + 0 = 0")
+    assert(zero == true,  "zero flag set")
+}
+
+sim TestAdd_CarryOnly {
+    // Both values are "positive" in signed view, but sum exceeds u16
+    wire a: u16 = 60000
+    wire b: u16 = 10000
+    wire op: u4 = 0
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 4464,     "60000 + 10000 wraps to 4464")
+    assert(carry == true,      "carry: exceeded 16 bits")
+    assert(overflow == false,  "no signed overflow: unsigned inputs")
+}
+
+sim TestAdd_OverflowOnly {
+    // Two large positives (signed) sum to a negative
+    // 32767 + 1 = 32768 which is s16 min
+    wire a: u16 = 32767    // s16 max
+    wire b: u16 = 1
+    wire op: u4 = 0
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 32768,    "32767 + 1 = 32768")
+    assert(result as s16 == -32768, "signed view: wraps to s16 min")
+    assert(carry == false,     "no carry: fits in 16 bits")
+    assert(overflow == true,   "overflow: positive + positive = negative")
+    assert(negative == true,   "MSB set")
+}
+
+sim TestAdd_CarryAndOverflow {
+    // -32768 + -32768: both negative, result 0 — signed overflow + carry
+    wire a: u16 = -32768 as u16   // 0x8000
+    wire b: u16 = -32768 as u16   // 0x8000
+    wire op: u4 = 0
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0,        "0x8000 + 0x8000 wraps to 0")
+    assert(zero == true,       "zero flag set")
+    assert(carry == true,      "carry: 65536 exceeds 16 bits")
+    assert(overflow == true,   "overflow: two negatives produced zero (positive)")
+}
+
+
+// ============================================================
+// SUB
+// ============================================================
+
+sim TestSub_NoFlags {
+    wire a: u16 = 5000
+    wire b: u16 = 3000
+    wire op: u4 = 1
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 2000,     "5000 - 3000 = 2000")
+    assert(zero == false,      "result is not zero")
+    assert(negative == false,  "result is positive")
+    assert(carry == false,     "no borrow: a >= b")
+    assert(overflow == false,  "no signed overflow")
+}
+
+sim TestSub_Zero {
+    wire a: u16 = 1234
+    wire b: u16 = 1234
+    wire op: u4 = 1
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0,    "1234 - 1234 = 0")
+    assert(zero == true,   "zero flag set")
+    assert(carry == false, "no borrow: equal values")
+}
+
+sim TestSub_Borrow {
+    // Unsigned underflow: a < b
+    wire a: u16 = 100
+    wire b: u16 = 200
+    wire op: u4 = 1
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 65436,    "100 - 200 underflows to 65436 in u16")
+    assert(carry == true,      "borrow: a < b unsigned")
+    assert(negative == true,   "MSB set on wrapped result")
+    assert(overflow == false,  "no signed overflow")
+}
+
+sim TestSub_OverflowPositive {
+    // Signed: positive - negative overflows into negative
+    // 32767 - (-1) = 32768 which exceeds s16 max
+    wire a: u16 = 32767
+    wire b: u16 = -1 as u16
+    wire op: u4 = 1
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == -32768 as u16, "32767 - (-1) wraps to s16 min")
+    assert(overflow == true,        "overflow: positive - negative = negative")
+    assert(negative == true,        "MSB set")
+}
+
+sim TestSub_OverflowNegative {
+    // Signed: negative - positive overflows into positive
+    // -32768 - 1 = -32769 which underflows s16 min
+    wire a: u16 = -32768 as u16
+    wire b: u16 = 1
+    wire op: u4 = 1
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 32767,    "-32768 - 1 wraps to s16 max (32767)")
+    assert(overflow == true,   "overflow: negative - positive = positive")
+    assert(negative == false,  "MSB clear on wrapped result")
+}
+
+
+// ============================================================
+// Bitwise
+// ============================================================
+
+sim TestAnd {
+    wire a: u16 = 0xFF00
+    wire b: u16 = 0x0FF0
+    wire op: u4 = 2
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0x0F00,   "AND: 0xFF00 & 0x0FF0 = 0x0F00")
+    assert(zero == false,      "result is not zero")
+    assert(carry == false,     "AND never sets carry")
+    assert(overflow == false,  "AND never sets overflow")
+}
+
+sim TestAnd_Zero {
+    wire a: u16 = 0xAAAA
+    wire b: u16 = 0x5555
+    wire op: u4 = 2
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0,   "AND: alternating bits cancel to 0")
+    assert(zero == true,  "zero flag set")
+}
+
+sim TestOr {
+    wire a: u16 = 0xAAAA
+    wire b: u16 = 0x5555
+    wire op: u4 = 3
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0xFFFF, "OR: alternating bits fill to 0xFFFF")
+    assert(zero == false,    "result is not zero")
+    assert(negative == true, "MSB set")
+}
+
+sim TestXor_Cancel {
+    wire a: u16 = 0xDEAD
+    wire b: u16 = 0xDEAD
+    wire op: u4 = 4
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0,   "XOR: a ^ a = 0")
+    assert(zero == true,  "zero flag set")
+}
+
+sim TestNot {
+    wire a: u16 = 0x00FF
+    wire b: u16 = 0
+    wire op: u4 = 5
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0xFF00,   "NOT: ~0x00FF = 0xFF00")
+    assert(negative == true,   "MSB set")
+    assert(zero == false,      "result is not zero")
+}
+
+
+// ============================================================
+// Shifts
+// ============================================================
+
+sim TestShl_NoCarry {
+    wire a: u16 = 0x0001
+    wire b: u16 = 0
+    wire op: u4 = 6
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0x0002, "SHL: 1 << 1 = 2")
+    assert(carry == false,   "no carry: MSB was 0")
+}
+
+sim TestShl_Carry {
+    wire a: u16 = 0x8001
+    wire b: u16 = 0
+    wire op: u4 = 6
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0x0002, "SHL: MSB shifted out, low bits shift left")
+    assert(carry == true,    "carry: MSB was 1")
+}
+
+sim TestShr_Carry {
+    wire a: u16 = 0x8001
+    wire b: u16 = 0
+    wire op: u4 = 7
+    wire result: u16
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU16(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0x4000, "SHR: 0x8001 >> 1 = 0x4000")
+    assert(carry == true,    "carry: LSB was 1")
+    assert(negative == false, "MSB cleared by right shift")
+}

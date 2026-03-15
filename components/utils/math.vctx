@@ -1,0 +1,487 @@
+// ============================================================
+// ALU Operation Codes (u4)
+// ============================================================
+//   0x0  ADD  -  a + b
+//   0x1  SUB  -  a - b
+//   0x2  AND  -  a & b
+//   0x3  OR   -  a | b
+//   0x4  XOR  -  a ^ b
+//   0x5  NOT  -  ~a
+//   0x6  SHL  -  a << 1
+//   0x7  SHR  -  a >> 1
+// ============================================================
+
+component ALU(
+    in  a:        u8,
+    in  b:        u8,
+    in  op:       u4,
+    out result:   u8,
+    out zero:     bool,
+    out negative: bool,
+    out carry:    bool,
+    out overflow: bool
+) {
+    // Extend to 9 bits so bit[8] captures carry (ADD) or borrow (SUB)
+    wire add_ext: u9 = a + b
+    wire sub_ext: u9 = a - b
+
+    // Pre-compute all results combinationally
+    wire res_add: u8 = add_ext[7..0]
+    wire res_sub: u8 = sub_ext[7..0]
+    wire res_and: u8 = a & b
+    wire res_or:  u8 = a | b
+    wire res_xor: u8 = a ^ b
+    wire res_not: u8 = ~a
+    wire res_shl: u8 = a << 1
+    wire res_shr: u8 = a >> 1
+
+    // Signed overflow detection:
+    //   ADD: same-sign inputs produced a different-sign result
+    //   SUB: different-sign inputs produced a result with wrong sign
+    wire ov_add: u1 = ~(a[7] ^ b[7]) & (a[7] ^ add_ext[7])
+    wire ov_sub: u1 =  (a[7] ^ b[7]) & (a[7] ^ sub_ext[7])
+
+    wire out_raw:  u8   = 0
+    wire carry_w:  bool = false
+    wire ovflow_w: bool = false
+
+    when op == 0 {
+        out_raw  := res_add
+        carry_w  := add_ext[8] as bool
+        ovflow_w := ov_add as bool
+    } elsewhen op == 1 {
+        out_raw  := res_sub
+        carry_w  := sub_ext[8] as bool   // borrow: set when a < b (unsigned)
+        ovflow_w := ov_sub as bool
+    } elsewhen op == 2 {
+        out_raw := res_and
+    } elsewhen op == 3 {
+        out_raw := res_or
+    } elsewhen op == 4 {
+        out_raw := res_xor
+    } elsewhen op == 5 {
+        out_raw := res_not
+    } elsewhen op == 6 {
+        out_raw := res_shl
+        carry_w := a[7] as bool          // MSB shifted out
+    } elsewhen op == 7 {
+        out_raw := res_shr
+        carry_w := a[0] as bool          // LSB shifted out
+    } otherwise {
+        out_raw := 0
+    }
+
+    result   := out_raw
+    zero     := out_raw == 0
+    negative := out_raw[7] as bool       // fixed: was hardcoded false
+    carry    := carry_w
+    overflow := ovflow_w
+}
+
+
+// ============================================================
+// ADD tests (existing, improved with signed casting)
+// ============================================================
+
+sim TestAdd_NoFlags {
+    wire a: u8 = 3
+    wire b: u8 = 4
+    wire op: u4 = 0
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 7,        "3 + 4 = 7")
+    assert(zero == false,      "result is not zero")
+    assert(negative == false,  "result is positive")
+    assert(carry == false,     "no carry")
+    assert(overflow == false,  "no overflow")
+}
+
+sim TestAdd_CarryOnly {
+    // 200 and 100 are both "positive" in signed view — no overflow.
+    // But 200 + 100 = 300 which exceeds u8, so carry fires.
+    wire a: u8 = 200
+    wire b: u8 = 100
+    wire op: u4 = 0
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 44,       "200 + 100 wraps to 44")
+    assert(carry == true,      "carry: exceeded 8 bits")
+    assert(overflow == false,  "no overflow: unsigned values cross no signed boundary")
+}
+
+sim TestAdd_OverflowOnly {
+    // Using signed casting to express intent: two positives sum to a negative
+    wire a: u8 = 100
+    wire b: u8 = 100
+    wire op: u4 = 0
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 200,      "100 + 100 = 200")
+    assert(result as s8 == -56, "signed view: wraps to -56")
+    assert(carry == false,     "no carry: fits in 8 bits")
+    assert(overflow == true,   "overflow: two positives produced a negative")
+    assert(negative == true,   "MSB set: looks negative in signed view")
+}
+
+sim TestAdd_CarryAndOverflow {
+    // -128 + -128: both negative, result is 0 (positive) — signed overflow.
+    // Also exceeds 8 bits unsigned, so carry fires too.
+    wire a: u8 = -128 as u8   // 0x80
+    wire b: u8 = -128 as u8   // 0x80
+    wire op: u4 = 0
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0,        "0x80 + 0x80 wraps to 0")
+    assert(zero == true,       "zero flag set")
+    assert(carry == true,      "carry: 256 exceeds 8 bits")
+    assert(overflow == true,   "overflow: two negatives produced a positive")
+}
+
+sim TestAdd_Zero {
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire op: u4 = 0
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0,   "0 + 0 = 0")
+    assert(zero == true,  "zero flag set")
+}
+
+
+// ============================================================
+// SUB tests
+// ============================================================
+
+sim TestSub_NoFlags {
+    wire a: u8 = 20
+    wire b: u8 = 10
+    wire op: u4 = 1
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 10,       "20 - 10 = 10")
+    assert(zero == false,      "result is not zero")
+    assert(negative == false,  "result is positive")
+    assert(carry == false,     "no borrow: a >= b")
+    assert(overflow == false,  "no signed overflow")
+}
+
+sim TestSub_Zero {
+    wire a: u8 = 42
+    wire b: u8 = 42
+    wire op: u4 = 1
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0,    "42 - 42 = 0")
+    assert(zero == true,   "zero flag set")
+    assert(carry == false, "no borrow: equal values")
+}
+
+sim TestSub_Borrow {
+    // Unsigned underflow: a < b, so borrow fires. Result wraps.
+    wire a: u8 = 5
+    wire b: u8 = 10
+    wire op: u4 = 1
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 251,      "5 - 10 underflows to 251 in u8")
+    assert(carry == true,      "borrow: a < b unsigned")
+    assert(negative == true,   "MSB set on wrapped result")
+    assert(overflow == false,  "no signed overflow: different signs, result matches a's sign direction")
+}
+
+sim TestSub_OverflowPositive {
+    // Signed: positive - negative should stay positive.
+    // 100 - (-28) = 128 which flips to negative in s8 -> overflow.
+    wire a: u8 = 100
+    wire b: u8 = -28 as u8    // 0xE4
+    wire op: u4 = 1
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == -128 as u8, "100 - (-28) wraps to 128, which is s8 min")
+    assert(overflow == true,     "overflow: positive - negative produced negative")
+    assert(negative == true,     "MSB set")
+}
+
+sim TestSub_OverflowNegative {
+    // Signed: negative - positive should stay negative.
+    // -100 - 29 = -129 which overflows s8 -> overflow.
+    wire a: u8 = -100 as u8   // 0x9C
+    wire b: u8 = 29
+    wire op: u4 = 1
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 127 as u8,  "-100 - 29 wraps to 127 (s8 max)")
+    assert(overflow == true,     "overflow: negative - positive produced positive")
+    assert(negative == false,    "MSB clear on wrapped result")
+}
+
+
+// ============================================================
+// Bitwise tests
+// ============================================================
+
+sim TestAnd {
+    wire a: u8 = 0b1111_0000
+    wire b: u8 = 0b1010_1010
+    wire op: u4 = 2
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0b1010_0000, "AND: upper nibble masked")
+    assert(zero == false,         "result is not zero")
+    assert(carry == false,        "AND never sets carry")
+    assert(overflow == false,     "AND never sets overflow")
+}
+
+sim TestAnd_Zero {
+    wire a: u8 = 0b1010_1010
+    wire b: u8 = 0b0101_0101
+    wire op: u4 = 2
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0,   "AND: alternating bits cancel to 0")
+    assert(zero == true,  "zero flag set")
+}
+
+sim TestOr {
+    wire a: u8 = 0b1010_1010
+    wire b: u8 = 0b0101_0101
+    wire op: u4 = 3
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0xFF, "OR: alternating bits fill to 0xFF")
+    assert(zero == false,  "result is not zero")
+}
+
+sim TestXor_Cancel {
+    wire a: u8 = 0xAB
+    wire b: u8 = 0xAB
+    wire op: u4 = 4
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0,   "XOR: a ^ a = 0")
+    assert(zero == true,  "zero flag set")
+}
+
+sim TestXor_Flip {
+    wire a: u8 = 0b0000_1111
+    wire b: u8 = 0xFF
+    wire op: u4 = 4
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0b1111_0000, "XOR with 0xFF flips all bits")
+}
+
+sim TestNot {
+    wire a: u8 = 0b1010_1010
+    wire b: u8 = 0            // ignored for NOT
+    wire op: u4 = 5
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0b0101_0101, "NOT: ~0xAA = 0x55")
+    // Confirm signed interpretation: ~(-86) = 85
+    assert(result as s8 == 85,    "signed view: ~(-86) = 85")
+}
+
+sim TestNot_AllZeros {
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire op: u4 = 5
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0xFF,     "NOT 0 = 0xFF")
+    assert(negative == true,   "MSB set")
+    assert(zero == false,      "result is not zero")
+}
+
+
+// ============================================================
+// Shift tests
+// ============================================================
+
+sim TestShl_NoCarry {
+    wire a: u8 = 0b0000_0001
+    wire b: u8 = 0
+    wire op: u4 = 6
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0b0000_0010, "SHL: 1 << 1 = 2")
+    assert(carry == false,        "no carry: MSB was 0")
+}
+
+sim TestShl_Carry {
+    wire a: u8 = 0b1000_0001
+    wire b: u8 = 0
+    wire op: u4 = 6
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0b0000_0010, "SHL: MSB shifted out, remaining bits shift left")
+    assert(carry == true,         "carry: MSB was 1")
+}
+
+sim TestShr_NoCarry {
+    wire a: u8 = 0b1000_0000
+    wire b: u8 = 0
+    wire op: u4 = 7
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0b0100_0000, "SHR: 0x80 >> 1 = 0x40")
+    assert(carry == false,        "no carry: LSB was 0")
+    assert(negative == false,     "MSB is 0 after right shift")
+}
+
+sim TestShr_Carry {
+    wire a: u8 = 0b1000_0001
+    wire b: u8 = 0
+    wire op: u4 = 7
+    wire result: u8
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    ALU(a, b, op, result, zero, negative, carry, overflow)
+    cycle(1)
+
+    assert(result == 0b0100_0000, "SHR: LSB shifted out")
+    assert(carry == true,         "carry: LSB was 1")
+}

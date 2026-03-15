@@ -1,0 +1,28 @@
+
+
+component MyRegisterFile(
+    in data_in_16: u16,
+    in we_pc: bool,
+    out out_pc: u16
+) {
+    reg pc: u16 = 0x0100
+
+    // Program Counter
+    when we_pc {
+        pc <= data_in_16
+    }
+
+    out_pc := pc
+}
+
+sim MyRegTest {
+    wire data_in_16: u16 = 0
+    wire we_pc: bool = false
+    wire out_pc: u16
+
+    MyRegisterFile(data_in_16, we_pc, out_pc)
+
+    // 1. Initial State Check
+    cycle(1)
+    assert(out_pc == 0x0100, "PC initializes to correct boot location")
+}

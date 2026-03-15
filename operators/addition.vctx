@@ -1,7 +1,7 @@
 sim TestAddUnsigned {
     wire a: u8 = 10
     wire b: u8 = 20
-    wire c : u8 = 30
+    wire c: u8 = 30
     wire max: u8 = 255
     
     assert(a + b == c, "10 + 20 = 30")

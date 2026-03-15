@@ -1,35 +1,61 @@
-import src.utils.math as math
+import components.utils.math as math
 
 component MyFoo(
-    in sw_input: u8, 
-    out led_result: u8,
-    out status_led: u1
+    in  a: u8,
+    in  b: u8,
+    in  op: u4,
+    out result: u8,
+    out flags: u4
 ) {
-    wire current_op: u8 = 0
-    wire ten: u8 = 11
- 
-    math.Alu(
-        sw_input, 
-        ten,
-        current_op,
-        led_result,
-        status_led
+
+    wire zero: bool
+    wire negative: bool
+    wire carry: bool
+    wire overflow: bool
+
+    math.ALU(
+        a,
+        b,
+        op,
+        result,
+        zero,
+        negative,
+        carry,
+        overflow
     )
+
+    flags := concat(zero, negative, carry, overflow)
 }
 
-sim TestBenchName {
-    wire sw_input1: u8 = 0
-    wire led_result1: u8 = 16
-    wire status_led1: u1 = 0
 
-    wire status_led2: u18 = 16
+sim TestBenchName1 {
+    wire  a:        u8 = 3
+    wire  b:        u8 = 4
+    wire  op:       u4 = 0
+    wire result: u8
+    wire flags: u4
 
-    MyFoo(sw_input1, led_result1, status_led1)
+    MyFoo(a, b, op, result, flags)
 
     cycle(1)
+    assert(a == 3, "addition")
+    assert(b == 4, "addition")
+    assert(op == 0, "addition")
+    assert(flags == 0, "addition")
+    assert(result == 7, "addition")
+}
+
+
+sim TestBenchName2 {
+    wire  a:        u8 = 200
+    wire  b:        u8 = 80
+    wire  op:       u4 = 0
+    wire result: u8
+    wire flags: u4
+
+    MyFoo(a, b, op, result, flags)
+
     cycle(1)
-    cycle(1)
-    assert(status_led2 == 16, "blah!")
-    assert((status_led2 + 2) == 14, "blah! 2")
-    assert(led_result1 == 16, "LED is on!")
+    assert(flags == 2, "addition overflow")
+    assert(result == 24, "addition")
 }

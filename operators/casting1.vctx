@@ -1,6 +1,180 @@
-sim TestCast_Unsigned_Truncation {
-    // Downcasting should strip the upper bits
-    wire a: u16 = 0xABCD
+// ==========================================
+// Signed <-> Unsigned Casting Tests
+// ==========================================
+
+// ---- Same-width reinterpretation (16-bit) ----
+
+sim TestCast_S16_To_U16 {
+    // -1 in two's complement is all 1s = 65535 unsigned
+    wire a: s16 = -1
+    wire z: u16 = a as u16
+    assert(z == 65535, "s16 -1 reinterpreted as u16 is 65535")
+
+    // s16 min (-32768) = 0x8000 = 32768 unsigned
+    wire b: s16 = -32768
+    wire y: u16 = b as u16
+    assert(y == 32768, "s16 -32768 reinterpreted as u16 is 32768")
+
+    // Positive value: bits are identical
+    wire c: s16 = 1000
+    wire x: u16 = c as u16
+    assert(x == 1000, "Positive s16 1000 reinterpreted as u16 is still 1000")
+}
+
+sim TestCast_U16_To_S16 {
+    // 65535 = 0xFFFF = -1 in signed
+    wire a: u16 = 65535
+    wire z: s16 = a as s16
+    assert(z == -1, "u16 65535 reinterpreted as s16 is -1")
+
+    // 32768 = 0x8000 = s16 min
+    wire b: u16 = 32768
+    wire y: s16 = b as s16
+    assert(y == -32768, "u16 32768 reinterpreted as s16 is -32768")
+
+    // Value in the safe positive range (identical bits)
+    wire c: u16 = 500
+    wire x: s16 = c as s16
+    assert(x == 500, "u16 500 reinterpreted as s16 is still 500")
+}
+
+// ---- Same-width reinterpretation (32-bit) ----
+
+sim TestCast_S32_To_U32 {
+    wire a: s32 = -1
+    wire z: u32 = a as u32
+    assert(z == 4294967295, "s32 -1 reinterpreted as u32 is 4294967295")
+
+    wire b: s32 = -2147483648
+    wire y: u32 = b as u32
+    assert(y == 2147483648, "s32 min reinterpreted as u32 is 2147483648")
+}
+
+sim TestCast_U32_To_S32 {
+    wire a: u32 = 4294967295
+    wire z: s32 = a as s32
+    assert(z == -1, "u32 max reinterpreted as s32 is -1")
+
+    wire b: u32 = 2147483648
+    wire y: s32 = b as s32
+    assert(y == -2147483648, "u32 2147483648 reinterpreted as s32 is s32 min")
+}
+
+// ---- Arbitrary width reinterpretation ----
+
+sim TestCast_S5_To_U5 {
+    // s5 range: -16..15.  -1 = 0b11111 = 31 unsigned
+    wire a: s5 = -1
+    wire z: u5 = a as u5
+    assert(z == 31, "s5 -1 reinterpreted as u5 is 31")
+
+    // s5 min: -16 = 0b10000 = 16 unsigned
+    wire b: s5 = -16
+    wire y: u5 = b as u5
+    assert(y == 16, "s5 -16 reinterpreted as u5 is 16")
+}
+
+sim TestCast_U5_To_S5 {
+    // u5 max: 31 = 0b11111 = -1 signed
+    wire a: u5 = 31
+    wire z: s5 = a as s5
+    assert(z == -1, "u5 31 reinterpreted as s5 is -1")
+
+    wire b: u5 = 16
+    wire y: s5 = b as s5
+    assert(y == -16, "u5 16 reinterpreted as s5 is -16 (s5 min)")
+}
+
+// ---- Cross-width: widening signed -> larger unsigned ----
+// Semantics: sign-extend to target width, then reinterpret as unsigned
+
+sim TestCast_S8_To_U16_Positive {
+    // Positive values: sign extension fills with 0s, same numeric value
+    wire a: s8 = 100
+    wire z: u16 = a as u16
+    assert(z == 100, "Positive s8 100 widened to u16 is 100")
+}
+
+sim TestCast_S8_To_U16_Negative {
+    // Negative: sign-extend to 16 bits, then reinterpret
+    // -1 (s8) = 0xFF -> sign-extend to s16 = 0xFFFF -> as u16 = 65535
+    wire a: s8 = -1
+    wire z: u16 = a as u16
+    assert(z == 65535, "s8 -1 widened to u16 is 65535 (sign-extended)")
+
+    // -128 (s8) = 0x80 -> sign-extend to s16 = 0xFF80 -> as u16 = 65408
+    wire b: s8 = -128
+    wire y: u16 = b as u16
+    assert(y == 65408, "s8 -128 widened to u16 is 65408 (0xFF80)")
+}
+
+// ---- Cross-width: widening unsigned -> larger signed ----
+// Semantics: zero-extend (no sign), so all values fit as positive
+
+sim TestCast_U8_To_S16 {
+    // u8 max (255) zero-extends to 0x00FF in s16 = 255 (positive, fits fine)
+    wire a: u8 = 255
+    wire z: s16 = a as s16
+    assert(z == 255, "u8 255 widened to s16 is 255 (zero-extended)")
+
+    wire b: u8 = 128
+    wire y: s16 = b as s16
+    assert(y == 128, "u8 128 widened to s16 is 128")
+}
+
+// ---- Cross-width: narrowing signed -> smaller unsigned ----
+// Semantics: truncate to target width, reinterpret bits
+
+sim TestCast_S16_To_U8 {
+    // 257 = 0x0101 -> lower 8 bits = 0x01 = 1
+    wire a: s16 = 257
     wire z: u8 = a as u8
-    assert(z == 0xCD, "Truncating u16 (0xABCD) to u8 keeps only the lower 8 bits (0xCD)")
+    assert(z == 1, "s16 257 narrowed to u8 truncates to 1")
+
+    // -1 (s16) = 0xFFFF -> lower 8 bits = 0xFF = 255
+    wire b: s16 = -1
+    wire y: u8 = b as u8
+    assert(y == 255, "s16 -1 narrowed to u8 truncates to 0xFF = 255")
+
+    // -256 (s16) = 0xFF00 -> lower 8 bits = 0x00 = 0
+    wire c: s16 = -256
+    wire x: u8 = c as u8
+    assert(x == 0, "s16 -256 narrowed to u8 truncates to 0x00 = 0")
+}
+
+// ---- Cross-width: narrowing unsigned -> smaller signed ----
+// Semantics: truncate to target width, reinterpret bits
+
+sim TestCast_U16_To_S8 {
+    // 0x01FF -> lower 8 bits = 0xFF = -1 in s8
+    wire a: u16 = 0x01FF
+    wire z: s8 = a as s8
+    assert(z == -1, "u16 0x01FF narrowed to s8 truncates to 0xFF = -1")
+
+    // 0x0080 -> lower 8 bits = 0x80 = -128 in s8
+    wire b: u16 = 0x0080
+    wire y: s8 = b as s8
+    assert(y == -128, "u16 0x0080 narrowed to s8 truncates to 0x80 = -128")
+
+    // 0x0064 = 100 -> lower 8 bits = 100, positive in s8
+    wire c: u16 = 0x0064
+    wire x: s8 = c as s8
+    assert(x == 100, "u16 100 narrowed to s8 is still 100")
+}
+
+// ---- Zero is always zero regardless of signedness or width ----
+
+sim TestCast_Zero_Identity {
+    wire uz: u8 = 0
+    wire sz: s8 = uz as s8
+    assert(sz == 0, "u8 zero reinterpreted as s8 is zero")
+
+    wire sz2: s16 = 0
+    wire uz2: u16 = sz2 as u16
+    assert(uz2 == 0, "s16 zero reinterpreted as u16 is zero")
+
+    wire uz3: u8 = 0
+    wire uz4: u16 = uz3 as u16
+    wire sz3: s8 = uz4 as s8
+    assert(sz3 == 0, "u8 zero widened to u16 then narrowed to s8 is still zero")
 }

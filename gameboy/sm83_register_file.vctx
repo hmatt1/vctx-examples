@@ -1,0 +1,256 @@
+
+component SM83RegisterFile(
+    // --- 8-bit Write Control ---
+    in we_a: bool, in we_f: bool,
+    in we_b: bool, in we_c: bool,
+    in we_d: bool, in we_e: bool,
+    in we_h: bool, in we_l: bool,
+    in data_in_8: u8,
+
+    // --- 16-bit Write Control ---
+    in we_af: bool,
+    in we_bc: bool,
+    in we_de: bool,
+    in we_hl: bool,
+    in we_sp: bool,
+    in we_pc: bool,
+    in data_in_16: u16,
+
+    // --- 8-bit Direct Outputs ---
+    out out_a: u8, out out_f: u8,
+    out out_b: u8, out out_c: u8,
+    out out_d: u8, out out_e: u8,
+    out out_h: u8, out out_l: u8,
+
+    // --- 16-bit Pair Outputs ---
+    out out_af: u16,
+    out out_bc: u16,
+    out out_de: u16,
+    out out_hl: u16,
+    out out_sp: u16,
+    out out_pc: u16,
+
+    // --- Extracted Flags ---
+    out flag_z: bool,
+    out flag_n: bool,
+    out flag_h: bool,
+    out flag_c: bool
+) {
+    // Core 8-bit Registers
+    reg a: u8 = 0
+    reg f: u8 = 0
+    reg b: u8 = 0
+    reg c: u8 = 0
+    reg d: u8 = 0
+    reg e: u8 = 0
+    reg h: u8 = 0
+    reg l: u8 = 0
+    
+    // Core 16-bit Special Registers 
+    // SP and PC usually initialize to these values in a Game Boy boot sequence
+    reg sp: u16 = 0xFFFE 
+    reg pc: u16 = 0x0100
+
+    // ==========================================
+    // Sequential Logic (Clocked Updates)
+    // ==========================================
+
+    // Register A
+    when we_af == true {
+        a <= data_in_16[15..8]
+    } elsewhen we_a == true {
+        a <= data_in_8
+    } otherwise {
+        a <= a
+    }
+
+    // Register F (Lower 4 bits are hardwired to 0)
+    when we_af == true {
+        f <= data_in_16[7..0] & 0xF0
+    } elsewhen we_f == true {
+        f <= data_in_8 & 0xF0
+    } otherwise {
+        f <= f
+    }
+
+    // Register B
+    when we_bc == true {
+        b <= data_in_16[15..8]
+    } elsewhen we_b == true {
+        b <= data_in_8
+    } otherwise {
+        b <= b
+    }
+
+    // Register C
+    when we_bc == true {
+        c <= data_in_16[7..0]
+    } elsewhen we_c == true {
+        c <= data_in_8
+    } otherwise {
+        c <= c
+    }
+
+    // Register D
+    when we_de == true {
+        d <= data_in_16[15..8]
+    } elsewhen we_d == true {
+        d <= data_in_8
+    } otherwise {
+        d <= d
+    }
+
+    // Register E
+    when we_de == true {
+        e <= data_in_16[7..0]
+    } elsewhen we_e == true {
+        e <= data_in_8
+    } otherwise {
+        e <= e
+    }
+
+    // Register H
+    when we_hl == true {
+        h <= data_in_16[15..8]
+    } elsewhen we_h == true {
+        h <= data_in_8
+    } otherwise {
+        h <= h
+    }
+
+    // Register L
+    when we_hl == true {
+        l <= data_in_16[7..0]
+    } elsewhen we_l == true {
+        l <= data_in_8
+    } otherwise {
+        l <= l
+    }
+
+    // Stack Pointer
+    when we_sp == true {
+        sp <= data_in_16
+    } otherwise {
+        sp <= sp
+    }
+
+    // Program Counter
+    when we_pc == true {
+        pc <= data_in_16
+    } otherwise {
+        pc <= pc
+    }
+
+    // ==========================================
+    // Combinational Logic (Continuous Outputs)
+    // ==========================================
+    
+    // 8-bit outputs
+    out_a := a
+    out_f := f
+    out_b := b
+    out_c := c
+    out_d := d
+    out_e := e
+    out_h := h
+    out_l := l
+
+    // 16-bit pair outputs
+    out_af := concat(a, f)
+    out_bc := concat(b, c)
+    out_de := concat(d, e)
+    out_hl := concat(h, l)
+
+    // 16-bit special registers
+    out_sp := sp
+    out_pc := pc
+
+    // Explode the flags for the ALU/Decoder
+    flag_z := f[7] as bool
+    flag_n := f[6] as bool
+    flag_h := f[5] as bool
+    flag_c := f[4] as bool
+}
+
+sim TestSM83RegisterFile {
+    // Control wires
+    wire we_a: bool = false
+    wire we_f: bool = false
+    wire we_b: bool = false
+    wire we_c: bool = false
+    wire we_d: bool = false
+    wire we_e: bool = false
+    wire we_h: bool = false
+    wire we_l: bool = false
+    wire data_in_8: u8 = 0
+    
+    wire we_af: bool = false
+    wire we_bc: bool = false
+    wire we_de: bool = false
+    wire we_hl: bool = false
+    wire we_sp: bool = false
+    wire we_pc: bool = false
+    wire data_in_16: u16 = 0
+
+    // Output wires
+    wire out_a: u8     wire out_f: u8
+    wire out_b: u8     wire out_c: u8
+    wire out_d: u8     wire out_e: u8
+    wire out_h: u8     wire out_l: u8
+    wire out_af: u16   wire out_bc: u16
+    wire out_de: u16   wire out_hl: u16
+    wire out_sp: u16   wire out_pc: u16
+
+    wire flag_z: bool  wire flag_n: bool
+    wire flag_h: bool  wire flag_c: bool
+
+    SM83RegisterFile(
+        we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
+        we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16,
+        out_a, out_f, out_b, out_c, out_d, out_e, out_h, out_l,
+        out_af, out_bc, out_de, out_hl, out_sp, out_pc,
+        flag_z, flag_n, flag_h, flag_c
+    )
+
+    // 1. Initial State Check
+    cycle(1)
+    assert(out_pc == 0x0100, "PC initializes to correct boot location")
+    assert(out_sp == 0xFFFE, "SP initializes to top of RAM")
+    
+    // 2. Test 8-bit independence (Write B, Write C -> Read BC)
+    we_b := true
+    data_in_8 := 0x12
+    cycle(1)
+    we_b := false
+
+    we_c := true
+    data_in_8 := 0x34
+    cycle(1)
+    we_c := false
+
+    assert(out_b == 0x12, "B stored 0x12")
+    assert(out_c == 0x34, "C stored 0x34")
+    assert(out_bc == 0x1234, "BC dynamically concatenated")
+
+    // 3. Test 16-bit split (Write HL -> Read H, Read L)
+    we_hl := true
+    data_in_16 := 0xDEAD
+    cycle(1)
+    we_hl := false
+
+    assert(out_h == 0xDE, "H extracted from 16-bit write")
+    assert(out_l == 0xAD, "L extracted from 16-bit write")
+    assert(out_hl == 0xDEAD, "HL reads correctly")
+
+    // 4. Test Flag Masking
+    we_af := true
+    // Attempting to write 1s to the entire F register
+    data_in_16 := 0xAA_FF 
+    cycle(1)
+    we_af := false
+
+    assert(out_a == 0xAA, "A stored 0xAA")
+    assert(out_f == 0xF0, "F properly masked the lower nibble to 0")
+    assert(flag_z == true, "Z flag evaluates correctly")
+    assert(flag_c == true, "C flag evaluates correctly")
+}
