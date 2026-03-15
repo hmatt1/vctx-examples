@@ -1,28 +1,68 @@
 
 
 component MyRegisterFile(
-    in data_in_16: u16,
     in we_pc: bool,
-    out out_pc: u16
+    in we_af: bool,
+    in we_a: bool,
+    out out_pc: u16,
+    in data_in_16: u16,
+    in data_in_8: u8,
+    out out_a: u8
 ) {
+
+    // Core 8-bit Registers
+    reg a: u8 = 0
+    reg f: u8 = 0
+    reg b: u8 = 0
+    reg c: u8 = 0
+    reg d: u8 = 0
+    reg e: u8 = 0
+    reg h: u8 = 0
+    reg l: u8 = 0
+    
+    // Core 16-bit Special Registers 
+    // SP and PC usually initialize to these values in a Game Boy boot sequence
+    reg sp: u16 = 0xFFFE 
+
     reg pc: u16 = 0x0100
 
     // Program Counter
-    when we_pc {
+    when we_pc == 1 {
+        pc <= 4
+    } otherwise {
         pc <= data_in_16
     }
 
     out_pc := pc
+
+    // Register A
+    when we_af == true {
+        a <= data_in_16[15..8]
+    } elsewhen we_a == true {
+        a <= data_in_8
+    } otherwise {
+        a <= a
+    }
+
+    out_a := a
 }
 
-sim MyRegTest {
-    wire data_in_16: u16 = 0
-    wire we_pc: bool = false
+sim TestFoo32 {
+    wire we_pc: bool = 0
+    wire we_af: bool = 0
+    wire we_a: bool = 1
     wire out_pc: u16
+    wire data_in_16: u16 = 99
+    wire data_in_8: u8 = 34
+    wire a: u8
 
-    MyRegisterFile(data_in_16, we_pc, out_pc)
+    MyRegisterFile(we_pc, we_af, we_a, out_pc, data_in_16, data_in_8, a)
 
-    // 1. Initial State Check
-    cycle(1)
-    assert(out_pc == 0x0100, "PC initializes to correct boot location")
+    assert(we_pc == 0, "we_pc is 0")
+    assert(we_af == 0, "we_af is 0")
+    assert(we_a == 1, "we_a is 0")
+    assert(out_pc == 0, "out_pc check")
+    cycle()
+    assert(out_pc == 99, "out_pc check 2")
+    assert(a == 34, "a check 2")
 }

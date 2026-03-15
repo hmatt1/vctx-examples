@@ -33,6 +33,7 @@ sim TestCounterBasic {
     assert(out_val == 6, "Counter should increment to 6 after 5 more cycles")
 }
 
+
 sim TestCounterReset {
     wire out_val: u8
     
@@ -52,7 +53,7 @@ sim TestCounterReset {
     assert(out_val == 10, "Counter reached 10")
     
     // Hold the global reset high for 1 cycle
-    reset()
+    reset(1)
     
     // Verify the register returned to its declared initial state '='
     assert(out_val == 0, "Counter should reset back to 0")
