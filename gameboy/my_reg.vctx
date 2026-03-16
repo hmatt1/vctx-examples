@@ -61,8 +61,10 @@ sim TestFoo32 {
     assert(we_pc == 0, "we_pc is 0")
     assert(we_af == 0, "we_af is 0")
     assert(we_a == 1, "we_a is 0")
-    assert(out_pc == 0, "out_pc check")
+    assert(out_pc == 0x0100, "out_pc check ")
+    assert(a == 0, "a check")
     cycle()
-    assert(out_pc == 99, "out_pc check 2")
     assert(a == 34, "a check 2")
+    assert(out_pc == 99, "out_pc check 2")
+
 }
