@@ -22,10 +22,14 @@ sim TestFoo {
 
     Foo(enable, num1)
 
-    assert(enable == 0, "enable is 1")
-    assert(num1 == 0, "num check")
+
+    assert(enable == 0, "enable is 0")
+    assert(num1 == 3, "num check")
     cycle()
     assert(num1 == 5, "num check 2")
+    reset()
+    assert(num1 == 3, "num check 3")
+    assert(enable == 1, "enable is 1")
 }
 
 

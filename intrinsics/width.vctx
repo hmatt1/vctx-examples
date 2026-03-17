@@ -1,0 +1,18 @@
+
+component Foo(
+    out num: u32
+) {
+
+    wire b: u16 = 0
+    wire a: u32 
+    a := width(b)
+    num := a
+}
+
+sim TestFoo {
+    wire num1: u32
+
+    Foo(num1)
+
+    assert(num1 == 16, "num check")
+}

@@ -68,3 +68,58 @@ sim TestFoo32 {
     assert(out_pc == 99, "out_pc check 2")
 
 }
+
+sim TestFoo35 {
+    wire we_pc: bool = 0
+    wire we_af: bool = 0
+    wire we_a: bool = 0
+    wire out_pc: u16
+    wire data_in_16: u16 = 99
+    wire data_in_8: u8 = 34
+    wire a: u8
+
+    MyRegisterFile(we_pc, we_af, we_a, out_pc, data_in_16, data_in_8, a)
+
+    // Before any cycle: registers should reflect their reset values
+    assert(out_pc == 0x0100, "pc initializes to 0x0100")
+    assert(a == 0, "a initializes to 0")
+
+    // --- Test we_a path: data_in_8 -> a ---
+    poke(we_a, 1)
+    cycle()
+    assert(a == 34, "we_a loads data_in_8 into a")
+
+    // --- Test we_a still holds when we_a stays high ---
+    poke(data_in_8, 99)
+    cycle()
+    assert(a == 99, "we_a continues latching new data_in_8")
+
+    // --- Test we_af overrides we_a (priority check) ---
+    // data_in_16 = 99 = 0x0063, so bits [15..8] = 0x00
+    poke(we_a, 0)
+    poke(we_af, 1)
+    poke(data_in_16, 0xAB63)
+    cycle()
+    assert(a == 0xAB, "we_af loads data_in_16[15..8] into a")
+
+    // --- Test a holds when neither we_a nor we_af ---
+    poke(we_af, 0)
+    cycle()
+    assert(a == 0xAB, "a holds value when no write enable")
+
+    // --- Test pc: we_pc=0 loads data_in_16 ---
+    // data_in_16 is currently 0xAB63, we_pc=0
+    cycle()
+    assert(out_pc == 0xAB63, "we_pc=0 loads data_in_16 into pc")
+
+    // --- Test pc: we_pc=1 forces pc to 4 ---
+    poke(we_pc, 1)
+    cycle()
+    assert(out_pc == 4, "we_pc=1 forces pc to literal 4")
+
+    // --- Test pc holds the forced value when we_pc goes low (data_in_16 takes over) ---
+    poke(we_pc, 0)
+    poke(data_in_16, 0x0200)
+    cycle()
+    assert(out_pc == 0x0200, "pc follows data_in_16 once we_pc deasserted")
+}

@@ -1,0 +1,35 @@
+
+component Foo(
+    in enable: bool,
+    out num: u4
+) {
+
+    reg a: u4 = 3
+
+    // Program Counter
+    when enable == 1 {
+        a <= 4
+    } otherwise {
+        a <= 5
+    }
+
+    num := a
+}
+
+sim TestFoo {
+    wire enable: bool = 0
+    wire num1: u4
+
+    Foo(enable, num1)
+
+    assert(num1 == 3, "num check")
+    cycle()
+    assert(num1 == 5, "num check")
+    cycle()
+    assert(num1 == 5, "num check")
+    poke(enable, 1)
+    assert(num1 == 5, "num check")
+    cycle()
+    assert(num1 == 4, "must cycle after poke")
+
+}

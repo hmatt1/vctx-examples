@@ -1,0 +1,27 @@
+
+component Foo(
+    out shouldBeSigned: u1,
+    out shouldNotBeSigned: u1
+) {
+
+    wire b: s16 = -1
+    wire a: u1
+    a := is_signed(b)
+    shouldBeSigned := a
+
+    
+    wire d: u16 = 0
+    wire c: u1
+    c := is_signed(d)
+    shouldNotBeSigned := c
+}
+
+sim TestFoo {
+    wire num1: u1
+    wire num2: u1
+
+    Foo(num1, num2)
+
+    assert(num1 == 1, "should be signed")
+    assert(num2 == 0, "should not be signed")
+}

@@ -1,0 +1,28 @@
+
+component Foo(
+    in e: u1,
+    out shouldBeSigned: u1,
+    out shouldNotBeSigned: u1
+) {
+
+    wire b: s16 = -1
+    wire a: u1
+    a := is_comptime(b)
+    shouldBeSigned := a
+
+    wire d: u16
+    wire c: u1
+    c := is_comptime(d)
+    shouldNotBeSigned := c
+}
+
+sim TestFoo {
+    wire e: u1
+    wire num1: u1
+    wire num2: u1
+
+    Foo(e, num1, num2)
+
+    assert(num1 == 1, "should be comptime")
+    assert(num2 == 0, "should not be comptime")
+}
