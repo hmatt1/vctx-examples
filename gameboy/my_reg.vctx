@@ -10,20 +10,8 @@ component MyRegisterFile(
     out out_a: u8
 ) {
 
-    // Core 8-bit Registers
     reg a: u8 = 0
-    reg f: u8 = 0
-    reg b: u8 = 0
-    reg c: u8 = 0
-    reg d: u8 = 0
-    reg e: u8 = 0
-    reg h: u8 = 0
-    reg l: u8 = 0
-    
-    // Core 16-bit Special Registers 
-    // SP and PC usually initialize to these values in a Game Boy boot sequence
     reg sp: u16 = 0xFFFE 
-
     reg pc: u16 = 0x0100
 
     // Program Counter
@@ -36,9 +24,9 @@ component MyRegisterFile(
     out_pc := pc
 
     // Register A
-    when we_af == true {
+    when we_af {
         a <= data_in_16[15..8]
-    } elsewhen we_a == true {
+    } elsewhen we_a {
         a <= data_in_8
     } otherwise {
         a <= a

@@ -177,26 +177,42 @@ component SM83RegisterFile(
 // No writes, just verify boot values
 // ============================================================
 sim TestInitialState {
-    wire we_a: bool = false    wire we_f: bool = false
-    wire we_b: bool = false    wire we_c: bool = false
-    wire we_d: bool = false    wire we_e: bool = false
-    wire we_h: bool = false    wire we_l: bool = false
-    wire data_in_8: u8 = 0
+    wire we_a: bool = false
+    wire we_f: bool = false
+    wire we_b: bool = false    
+    wire we_c: bool = false
+    wire we_d: bool = false    
+    wire we_e: bool = false
+    wire we_h: bool = false    
+    wire we_l: bool = false
+    wire data_in_8: u8 = 0x56
 
-    wire we_af: bool = false   wire we_bc: bool = false
-    wire we_de: bool = false   wire we_hl: bool = false
-    wire we_sp: bool = false   wire we_pc: bool = false
-    wire data_in_16: u16 = 0
+    wire we_af: bool = false   
+    wire we_bc: bool = false
+    wire we_de: bool = false   
+    wire we_hl: bool = false
+    wire we_sp: bool = false   
+    wire we_pc: bool = false
+    wire data_in_16: u16 = 0x1234
 
-    wire out_a: u8     wire out_f: u8
-    wire out_b: u8     wire out_c: u8
-    wire out_d: u8     wire out_e: u8
-    wire out_h: u8     wire out_l: u8
-    wire out_af: u16   wire out_bc: u16
-    wire out_de: u16   wire out_hl: u16
-    wire out_sp: u16   wire out_pc: u16
-    wire flag_z: bool  wire flag_n: bool
-    wire flag_h: bool  wire flag_c: bool
+    wire out_a: u8     
+    wire out_f: u8
+    wire out_b: u8     
+    wire out_c: u8
+    wire out_d: u8     
+    wire out_e: u8
+    wire out_h: u8     
+    wire out_l: u8
+    wire out_af: u16   
+    wire out_bc: u16
+    wire out_de: u16   
+    wire out_hl: u16
+    wire out_sp: u16   
+    wire out_pc: u16
+    wire flag_z: bool  
+    wire flag_n: bool
+    wire flag_h: bool  
+    wire flag_c: bool
 
     SM83RegisterFile(
         we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
@@ -208,125 +224,17 @@ sim TestInitialState {
 
     assert(out_pc == 0x0100, "PC initializes to correct boot location")
     assert(out_sp == 0xFFFE, "SP initializes to top of RAM")
-}
 
-// ============================================================
-// Test 2: 16-bit Write Splits Correctly into 8-bit Registers
-// Write 0x1234 to BC, verify B=0x12 and C=0x34
-// Also validates that the 16-bit output recombines them correctly
-// ============================================================
-sim TestBC16BitSplit {
-    wire we_a: bool = false    wire we_f: bool = false
-    wire we_b: bool = false    wire we_c: bool = false
-    wire we_d: bool = false    wire we_e: bool = false
-    wire we_h: bool = false    wire we_l: bool = false
-    wire data_in_8: u8 = 0
-
-    wire we_af: bool = false   wire we_bc: bool = true
-    wire we_de: bool = false   wire we_hl: bool = false
-    wire we_sp: bool = false   wire we_pc: bool = false
-    wire data_in_16: u16 = 0x1234
-
-    wire out_a: u8     wire out_f: u8
-    wire out_b: u8     wire out_c: u8
-    wire out_d: u8     wire out_e: u8
-    wire out_h: u8     wire out_l: u8
-    wire out_af: u16   wire out_bc: u16
-    wire out_de: u16   wire out_hl: u16
-    wire out_sp: u16   wire out_pc: u16
-    wire flag_z: bool  wire flag_n: bool
-    wire flag_h: bool  wire flag_c: bool
-
-    SM83RegisterFile(
-        we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
-        we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16,
-        out_a, out_f, out_b, out_c, out_d, out_e, out_h, out_l,
-        out_af, out_bc, out_de, out_hl, out_sp, out_pc,
-        flag_z, flag_n, flag_h, flag_c
-    )
-
-    cycle(1)
+    cycle(5)
 
     assert(out_b == 0x12, "B extracted high byte from 16-bit write")
     assert(out_c == 0x34, "C extracted low byte from 16-bit write")
     assert(out_bc == 0x1234, "BC dynamically recombines to original value")
-}
 
-// ============================================================
-// Test 3: 16-bit Write to HL Splits Correctly
-// ============================================================
-sim TestHL16BitSplit {
-    wire we_a: bool = false    wire we_f: bool = false
-    wire we_b: bool = false    wire we_c: bool = false
-    wire we_d: bool = false    wire we_e: bool = false
-    wire we_h: bool = false    wire we_l: bool = false
-    wire data_in_8: u8 = 0
-
-    wire we_af: bool = false   wire we_bc: bool = false
-    wire we_de: bool = false   wire we_hl: bool = true
-    wire we_sp: bool = false   wire we_pc: bool = false
-    wire data_in_16: u16 = 0xDEAD
-
-    wire out_a: u8     wire out_f: u8
-    wire out_b: u8     wire out_c: u8
-    wire out_d: u8     wire out_e: u8
-    wire out_h: u8     wire out_l: u8
-    wire out_af: u16   wire out_bc: u16
-    wire out_de: u16   wire out_hl: u16
-    wire out_sp: u16   wire out_pc: u16
-    wire flag_z: bool  wire flag_n: bool
-    wire flag_h: bool  wire flag_c: bool
-
-    SM83RegisterFile(
-        we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
-        we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16,
-        out_a, out_f, out_b, out_c, out_d, out_e, out_h, out_l,
-        out_af, out_bc, out_de, out_hl, out_sp, out_pc,
-        flag_z, flag_n, flag_h, flag_c
-    )
-
-    cycle(1)
 
     assert(out_h == 0xDE, "H extracted high byte from 16-bit write")
     assert(out_l == 0xAD, "L extracted low byte from 16-bit write")
     assert(out_hl == 0xDEAD, "HL reads back correctly")
-}
-
-// ============================================================
-// Test 4: Flag Register Lower Nibble Masking
-// Writing 0xAAFF to AF — lower nibble of F must be forced to 0
-// ============================================================
-sim TestFlagMasking {
-    wire we_a: bool = false    wire we_f: bool = false
-    wire we_b: bool = false    wire we_c: bool = false
-    wire we_d: bool = false    wire we_e: bool = false
-    wire we_h: bool = false    wire we_l: bool = false
-    wire data_in_8: u8 = 0
-
-    wire we_af: bool = true    wire we_bc: bool = false
-    wire we_de: bool = false   wire we_hl: bool = false
-    wire we_sp: bool = false   wire we_pc: bool = false
-    wire data_in_16: u16 = 0xAAFF
-
-    wire out_a: u8     wire out_f: u8
-    wire out_b: u8     wire out_c: u8
-    wire out_d: u8     wire out_e: u8
-    wire out_h: u8     wire out_l: u8
-    wire out_af: u16   wire out_bc: u16
-    wire out_de: u16   wire out_hl: u16
-    wire out_sp: u16   wire out_pc: u16
-    wire flag_z: bool  wire flag_n: bool
-    wire flag_h: bool  wire flag_c: bool
-
-    SM83RegisterFile(
-        we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
-        we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16,
-        out_a, out_f, out_b, out_c, out_d, out_e, out_h, out_l,
-        out_af, out_bc, out_de, out_hl, out_sp, out_pc,
-        flag_z, flag_n, flag_h, flag_c
-    )
-
-    cycle(1)
 
     assert(out_a == 0xAA, "A stored 0xAA from high byte of AF write")
     assert(out_f == 0xF0, "F lower nibble masked to 0 despite 0xFF input")
