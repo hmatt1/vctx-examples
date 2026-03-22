@@ -1,0 +1,1154 @@
+# Running simulation: TestInitialState
+Registering package: gameboy.sm83_register_file
+Build Queue: ['gameboy.sm83_register_file']
+[StructureBuilder] Building SIM: TestInitialState
+[StructureBuilder]   -> Identified Instance: SM83RegisterFile (component)
+[StructureBuilder]   -> Identified BuiltinCall: assert
+[StructureBuilder]   -> Identified BuiltinCall: assert
+[StructureBuilder]   -> Identified BuiltinCall: cycle
+[StructureBuilder]   -> Identified BuiltinCall: assert
+[StructureBuilder]   -> Identified BuiltinCall: assert
+[StructureBuilder]   -> Identified BuiltinCall: assert
+[StructureBuilder]   -> Identified BuiltinCall: assert
+[StructureBuilder]   -> Identified BuiltinCall: assert
+[StructureBuilder]   -> Identified BuiltinCall: assert
+[StructureBuilder]   -> Identified BuiltinCall: assert
+[StructureBuilder]   -> Identified BuiltinCall: assert
+[StructureBuilder]   -> Identified BuiltinCall: assert
+[StructureBuilder]   -> Identified BuiltinCall: assert
+[StructureBuilder]   -> Identified BuiltinCall: assert
+[StructureBuilder]   -> Identified BuiltinCall: assert
+[StructureBuilder]   -> Found 16 statements in sim block.
+Contents of C:\Users\Matt\Projects\vctx\vctx-examples\build\gameboy.sm83_register_file.mlir
+module {
+  hw.module private @gameboy_sm83_register_file_SM83RegisterFile(in %clk : !seq.clock, in %rst : i1, in %we_a : i1, in %we_f : i1, in %we_b : i1, in %we_c : i1, in %we_d : i1, in %we_e : i1, in %we_h : i1, in %we_l : i1, in %data_in_8 : i8, in %we_af : i1, in %we_bc : i1, in %we_de : i1, in %we_hl : i1, in %we_sp : i1, in %we_pc : i1, in %data_in_16 : i16, out out_a : i8, out out_f : i8, out out_b : i8, out out_c : i8, out out_d : i8, out out_e : i8, out out_h : i8, out out_l : i8, out out_af : i16, out out_bc : i16, out out_de : i16, out out_hl : i16, out out_sp : i16, out out_pc : i16, out flag_z : i1, out flag_n : i1, out flag_h : i1, out flag_c : i1) {
+    %c0_i8 = hw.constant 0 : i8
+    %c0_i8_0 = hw.constant 0 : i8
+    %c0_i8_1 = hw.constant 0 : i8
+    %c0_i8_2 = hw.constant 0 : i8
+    %c0_i8_3 = hw.constant 0 : i8
+    %c0_i8_4 = hw.constant 0 : i8
+    %c0_i8_5 = hw.constant 0 : i8
+    %c0_i8_6 = hw.constant 0 : i8
+    %c0_i16 = hw.constant 0 : i16
+    %c0_i16_7 = hw.constant 0 : i16
+    %c0_i16_8 = hw.constant 0 : i16
+    %c0_i16_9 = hw.constant 0 : i16
+    %c0_i16_10 = hw.constant 0 : i16
+    %c0_i16_11 = hw.constant 0 : i16
+    %false = hw.constant false
+    %false_12 = hw.constant false
+    %false_13 = hw.constant false
+    %false_14 = hw.constant false
+    %0 = hwarith.constant 0 : ui8
+    %1 = hwarith.cast %0 : (ui8) -> i8
+    %c0_i8_15 = hw.constant 0 : i8
+    %a = seq.compreg %230, %clk reset %rst, %1 : i8  
+    %2 = hwarith.constant 0 : ui8
+    %3 = hwarith.cast %2 : (ui8) -> i8
+    %c0_i8_16 = hw.constant 0 : i8
+    %f = seq.compreg %225, %clk reset %rst, %3 : i8  
+    %4 = hwarith.constant 0 : ui8
+    %5 = hwarith.cast %4 : (ui8) -> i8
+    %c0_i8_17 = hw.constant 0 : i8
+    %b = seq.compreg %233, %clk reset %rst, %5 : i8  
+    %6 = hwarith.constant 0 : ui8
+    %7 = hwarith.cast %6 : (ui8) -> i8
+    %c0_i8_18 = hw.constant 0 : i8
+    %c = seq.compreg %227, %clk reset %rst, %7 : i8  
+    %8 = hwarith.constant 0 : ui8
+    %9 = hwarith.cast %8 : (ui8) -> i8
+    %c0_i8_19 = hw.constant 0 : i8
+    %d = seq.compreg %234, %clk reset %rst, %9 : i8  
+    %10 = hwarith.constant 0 : ui8
+    %11 = hwarith.cast %10 : (ui8) -> i8
+    %c0_i8_20 = hw.constant 0 : i8
+    %e = seq.compreg %232, %clk reset %rst, %11 : i8  
+    %12 = hwarith.constant 0 : ui8
+    %13 = hwarith.cast %12 : (ui8) -> i8
+    %c0_i8_21 = hw.constant 0 : i8
+    %h = seq.compreg %228, %clk reset %rst, %13 : i8  
+    %14 = hwarith.constant 0 : ui8
+    %15 = hwarith.cast %14 : (ui8) -> i8
+    %c0_i8_22 = hw.constant 0 : i8
+    %l = seq.compreg %226, %clk reset %rst, %15 : i8  
+    %16 = hwarith.constant 65534 : ui16
+    %17 = hwarith.cast %16 : (ui16) -> i16
+    %c0_i16_23 = hw.constant 0 : i16
+    %sp = seq.compreg %229, %clk reset %rst, %17 : i16  
+    %18 = hwarith.constant 256 : ui16
+    %19 = hwarith.cast %18 : (ui16) -> i16
+    %c0_i16_24 = hw.constant 0 : i16
+    %pc = seq.compreg %231, %clk reset %rst, %19 : i16  
+    %20 = hwarith.constant 1 : ui1
+    %21 = hwarith.cast %20 : (ui1) -> i1
+    %22 = hwarith.cast %we_af : (i1) -> ui1
+    %23 = hwarith.cast %21 : (i1) -> ui1
+    %24 = hwarith.icmp eq %22, %23 : ui1, ui1
+    %25 = comb.extract %data_in_16 from 8 : (i16) -> i8
+    %26 = hwarith.constant 1 : ui1
+    %27 = hwarith.cast %26 : (ui1) -> i1
+    %28 = hwarith.cast %we_a : (i1) -> ui1
+    %29 = hwarith.cast %27 : (i1) -> ui1
+    %30 = hwarith.icmp eq %28, %29 : ui1, ui1
+    %31 = hwarith.constant 1 : ui1
+    %32 = hwarith.cast %31 : (ui1) -> i1
+    %33 = hwarith.cast %we_af : (i1) -> ui1
+    %34 = hwarith.cast %32 : (i1) -> ui1
+    %35 = hwarith.icmp eq %33, %34 : ui1, ui1
+    %36 = comb.extract %data_in_16 from 0 : (i16) -> i8
+    %37 = hwarith.constant 240 : ui8
+    %38 = hwarith.cast %37 : (ui8) -> i8
+    %39 = hwarith.cast %36 : (i8) -> ui8
+    %40 = hwarith.cast %38 : (i8) -> ui8
+    %41 = comb.and %36, %38 : i8
+    %42 = hwarith.constant 1 : ui1
+    %43 = hwarith.cast %42 : (ui1) -> i1
+    %44 = hwarith.cast %we_f : (i1) -> ui1
+    %45 = hwarith.cast %43 : (i1) -> ui1
+    %46 = hwarith.icmp eq %44, %45 : ui1, ui1
+    %47 = hwarith.constant 240 : ui8
+    %48 = hwarith.cast %47 : (ui8) -> i8
+    %49 = hwarith.cast %data_in_8 : (i8) -> ui8
+    %50 = hwarith.cast %48 : (i8) -> ui8
+    %51 = comb.and %data_in_8, %48 : i8
+    %52 = hwarith.constant 1 : ui1
+    %53 = hwarith.cast %52 : (ui1) -> i1
+    %54 = hwarith.cast %we_bc : (i1) -> ui1
+    %55 = hwarith.cast %53 : (i1) -> ui1
+    %56 = hwarith.icmp eq %54, %55 : ui1, ui1
+    %57 = comb.extract %data_in_16 from 8 : (i16) -> i8
+    %58 = hwarith.constant 1 : ui1
+    %59 = hwarith.cast %58 : (ui1) -> i1
+    %60 = hwarith.cast %we_b : (i1) -> ui1
+    %61 = hwarith.cast %59 : (i1) -> ui1
+    %62 = hwarith.icmp eq %60, %61 : ui1, ui1
+    %63 = hwarith.constant 1 : ui1
+    %64 = hwarith.cast %63 : (ui1) -> i1
+    %65 = hwarith.cast %we_bc : (i1) -> ui1
+    %66 = hwarith.cast %64 : (i1) -> ui1
+    %67 = hwarith.icmp eq %65, %66 : ui1, ui1
+    %68 = comb.extract %data_in_16 from 0 : (i16) -> i8
+    %69 = hwarith.constant 1 : ui1
+    %70 = hwarith.cast %69 : (ui1) -> i1
+    %71 = hwarith.cast %we_c : (i1) -> ui1
+    %72 = hwarith.cast %70 : (i1) -> ui1
+    %73 = hwarith.icmp eq %71, %72 : ui1, ui1
+    %74 = hwarith.constant 1 : ui1
+    %75 = hwarith.cast %74 : (ui1) -> i1
+    %76 = hwarith.cast %we_de : (i1) -> ui1
+    %77 = hwarith.cast %75 : (i1) -> ui1
+    %78 = hwarith.icmp eq %76, %77 : ui1, ui1
+    %79 = comb.extract %data_in_16 from 8 : (i16) -> i8
+    %80 = hwarith.constant 1 : ui1
+    %81 = hwarith.cast %80 : (ui1) -> i1
+    %82 = hwarith.cast %we_d : (i1) -> ui1
+    %83 = hwarith.cast %81 : (i1) -> ui1
+    %84 = hwarith.icmp eq %82, %83 : ui1, ui1
+    %85 = hwarith.constant 1 : ui1
+    %86 = hwarith.cast %85 : (ui1) -> i1
+    %87 = hwarith.cast %we_de : (i1) -> ui1
+    %88 = hwarith.cast %86 : (i1) -> ui1
+    %89 = hwarith.icmp eq %87, %88 : ui1, ui1
+    %90 = comb.extract %data_in_16 from 0 : (i16) -> i8
+    %91 = hwarith.constant 1 : ui1
+    %92 = hwarith.cast %91 : (ui1) -> i1
+    %93 = hwarith.cast %we_e : (i1) -> ui1
+    %94 = hwarith.cast %92 : (i1) -> ui1
+    %95 = hwarith.icmp eq %93, %94 : ui1, ui1
+    %96 = hwarith.constant 1 : ui1
+    %97 = hwarith.cast %96 : (ui1) -> i1
+    %98 = hwarith.cast %we_hl : (i1) -> ui1
+    %99 = hwarith.cast %97 : (i1) -> ui1
+    %100 = hwarith.icmp eq %98, %99 : ui1, ui1
+    %101 = comb.extract %data_in_16 from 8 : (i16) -> i8
+    %102 = hwarith.constant 1 : ui1
+    %103 = hwarith.cast %102 : (ui1) -> i1
+    %104 = hwarith.cast %we_h : (i1) -> ui1
+    %105 = hwarith.cast %103 : (i1) -> ui1
+    %106 = hwarith.icmp eq %104, %105 : ui1, ui1
+    %107 = hwarith.constant 1 : ui1
+    %108 = hwarith.cast %107 : (ui1) -> i1
+    %109 = hwarith.cast %we_hl : (i1) -> ui1
+    %110 = hwarith.cast %108 : (i1) -> ui1
+    %111 = hwarith.icmp eq %109, %110 : ui1, ui1
+    %112 = comb.extract %data_in_16 from 0 : (i16) -> i8
+    %113 = hwarith.constant 1 : ui1
+    %114 = hwarith.cast %113 : (ui1) -> i1
+    %115 = hwarith.cast %we_l : (i1) -> ui1
+    %116 = hwarith.cast %114 : (i1) -> ui1
+    %117 = hwarith.icmp eq %115, %116 : ui1, ui1
+    %118 = hwarith.constant 1 : ui1
+    %119 = hwarith.cast %118 : (ui1) -> i1
+    %120 = hwarith.cast %we_sp : (i1) -> ui1
+    %121 = hwarith.cast %119 : (i1) -> ui1
+    %122 = hwarith.icmp eq %120, %121 : ui1, ui1
+    %123 = hwarith.constant 1 : ui1
+    %124 = hwarith.cast %123 : (ui1) -> i1
+    %125 = hwarith.cast %we_pc : (i1) -> ui1
+    %126 = hwarith.cast %124 : (i1) -> ui1
+    %127 = hwarith.icmp eq %125, %126 : ui1, ui1
+    %128 = comb.mux %127, %data_in_16, %pc : i16
+    %129 = comb.mux %122, %data_in_16, %c0_i16_23 : i16
+    %130 = comb.mux %122, %c0_i16_24, %128 : i16
+    %131 = comb.mux %117, %data_in_8, %c0_i8_22 : i8
+    %132 = comb.mux %117, %c0_i16_23, %129 : i16
+    %133 = comb.mux %117, %c0_i16_24, %130 : i16
+    %134 = comb.mux %111, %112, %131 : i8
+    %135 = comb.mux %111, %c0_i16_23, %132 : i16
+    %136 = comb.mux %111, %c0_i16_24, %133 : i16
+    %137 = comb.mux %106, %c0_i8_22, %134 : i8
+    %138 = comb.mux %106, %data_in_8, %c0_i8_21 : i8
+    %139 = comb.mux %106, %c0_i16_23, %135 : i16
+    %140 = comb.mux %106, %c0_i16_24, %136 : i16
+    %141 = comb.mux %100, %c0_i8_22, %137 : i8
+    %142 = comb.mux %100, %101, %138 : i8
+    %143 = comb.mux %100, %c0_i16_23, %139 : i16
+    %144 = comb.mux %100, %c0_i16_24, %140 : i16
+    %145 = comb.mux %95, %c0_i8_22, %141 : i8
+    %146 = comb.mux %95, %c0_i8_21, %142 : i8
+    %147 = comb.mux %95, %c0_i16_23, %143 : i16
+    %148 = comb.mux %95, %c0_i16_24, %144 : i16
+    %149 = comb.mux %95, %data_in_8, %c0_i8_20 : i8
+    %150 = comb.mux %89, %c0_i8_22, %145 : i8
+    %151 = comb.mux %89, %c0_i8_21, %146 : i8
+    %152 = comb.mux %89, %c0_i16_23, %147 : i16
+    %153 = comb.mux %89, %c0_i16_24, %148 : i16
+    %154 = comb.mux %89, %90, %149 : i8
+    %155 = comb.mux %84, %c0_i8_22, %150 : i8
+    %156 = comb.mux %84, %c0_i8_21, %151 : i8
+    %157 = comb.mux %84, %c0_i16_23, %152 : i16
+    %158 = comb.mux %84, %c0_i16_24, %153 : i16
+    %159 = comb.mux %84, %c0_i8_20, %154 : i8
+    %160 = comb.mux %84, %data_in_8, %c0_i8_19 : i8
+    %161 = comb.mux %78, %c0_i8_22, %155 : i8
+    %162 = comb.mux %78, %c0_i8_21, %156 : i8
+    %163 = comb.mux %78, %c0_i16_23, %157 : i16
+    %164 = comb.mux %78, %c0_i16_24, %158 : i16
+    %165 = comb.mux %78, %c0_i8_20, %159 : i8
+    %166 = comb.mux %78, %79, %160 : i8
+    %167 = comb.mux %73, %c0_i8_22, %161 : i8
+    %168 = comb.mux %73, %data_in_8, %c0_i8_18 : i8
+    %169 = comb.mux %73, %c0_i8_21, %162 : i8
+    %170 = comb.mux %73, %c0_i16_23, %163 : i16
+    %171 = comb.mux %73, %c0_i16_24, %164 : i16
+    %172 = comb.mux %73, %c0_i8_20, %165 : i8
+    %173 = comb.mux %73, %c0_i8_19, %166 : i8
+    %174 = comb.mux %67, %c0_i8_22, %167 : i8
+    %175 = comb.mux %67, %68, %168 : i8
+    %176 = comb.mux %67, %c0_i8_21, %169 : i8
+    %177 = comb.mux %67, %c0_i16_23, %170 : i16
+    %178 = comb.mux %67, %c0_i16_24, %171 : i16
+    %179 = comb.mux %67, %c0_i8_20, %172 : i8
+    %180 = comb.mux %67, %c0_i8_19, %173 : i8
+    %181 = comb.mux %62, %c0_i8_22, %174 : i8
+    %182 = comb.mux %62, %c0_i8_18, %175 : i8
+    %183 = comb.mux %62, %c0_i8_21, %176 : i8
+    %184 = comb.mux %62, %c0_i16_23, %177 : i16
+    %185 = comb.mux %62, %c0_i16_24, %178 : i16
+    %186 = comb.mux %62, %c0_i8_20, %179 : i8
+    %187 = comb.mux %62, %data_in_8, %c0_i8_17 : i8
+    %188 = comb.mux %62, %c0_i8_19, %180 : i8
+    %189 = comb.mux %56, %c0_i8_22, %181 : i8
+    %190 = comb.mux %56, %c0_i8_18, %182 : i8
+    %191 = comb.mux %56, %c0_i8_21, %183 : i8
+    %192 = comb.mux %56, %c0_i16_23, %184 : i16
+    %193 = comb.mux %56, %c0_i16_24, %185 : i16
+    %194 = comb.mux %56, %c0_i8_20, %186 : i8
+    %195 = comb.mux %56, %57, %187 : i8
+    %196 = comb.mux %56, %c0_i8_19, %188 : i8
+    %197 = comb.mux %46, %51, %c0_i8_16 : i8
+    %198 = comb.mux %46, %c0_i8_22, %189 : i8
+    %199 = comb.mux %46, %c0_i8_18, %190 : i8
+    %200 = comb.mux %46, %c0_i8_21, %191 : i8
+    %201 = comb.mux %46, %c0_i16_23, %192 : i16
+    %202 = comb.mux %46, %c0_i16_24, %193 : i16
+    %203 = comb.mux %46, %c0_i8_20, %194 : i8
+    %204 = comb.mux %46, %c0_i8_17, %195 : i8
+    %205 = comb.mux %46, %c0_i8_19, %196 : i8
+    %206 = comb.mux %35, %41, %197 : i8
+    %207 = comb.mux %35, %c0_i8_22, %198 : i8
+    %208 = comb.mux %35, %c0_i8_18, %199 : i8
+    %209 = comb.mux %35, %c0_i8_21, %200 : i8
+    %210 = comb.mux %35, %c0_i16_23, %201 : i16
+    %211 = comb.mux %35, %c0_i16_24, %202 : i16
+    %212 = comb.mux %35, %c0_i8_20, %203 : i8
+    %213 = comb.mux %35, %c0_i8_17, %204 : i8
+    %214 = comb.mux %35, %c0_i8_19, %205 : i8
+    %215 = comb.mux %30, %c0_i8_16, %206 : i8
+    %216 = comb.mux %30, %c0_i8_22, %207 : i8
+    %217 = comb.mux %30, %c0_i8_18, %208 : i8
+    %218 = comb.mux %30, %c0_i8_21, %209 : i8
+    %219 = comb.mux %30, %c0_i16_23, %210 : i16
+    %220 = comb.mux %30, %data_in_8, %c0_i8_15 : i8
+    %221 = comb.mux %30, %c0_i16_24, %211 : i16
+    %222 = comb.mux %30, %c0_i8_20, %212 : i8
+    %223 = comb.mux %30, %c0_i8_17, %213 : i8
+    %224 = comb.mux %30, %c0_i8_19, %214 : i8
+    %225 = comb.mux %24, %c0_i8_16, %215 : i8
+    %226 = comb.mux %24, %c0_i8_22, %216 : i8
+    %227 = comb.mux %24, %c0_i8_18, %217 : i8
+    %228 = comb.mux %24, %c0_i8_21, %218 : i8
+    %229 = comb.mux %24, %c0_i16_23, %219 : i16
+    %230 = comb.mux %24, %25, %220 : i8
+    %231 = comb.mux %24, %c0_i16_24, %221 : i16
+    %232 = comb.mux %24, %c0_i8_20, %222 : i8
+    %233 = comb.mux %24, %c0_i8_17, %223 : i8
+    %234 = comb.mux %24, %c0_i8_19, %224 : i8
+    %235 = comb.concat %a, %f : i8, i8
+    %236 = comb.concat %b, %c : i8, i8
+    %237 = comb.concat %d, %e : i8, i8
+    %238 = comb.concat %h, %l : i8, i8
+    %239 = comb.extract %f from 7 : (i8) -> i1
+    %240 = comb.extract %f from 6 : (i8) -> i1
+    %241 = comb.extract %f from 5 : (i8) -> i1
+    %242 = comb.extract %f from 4 : (i8) -> i1
+    hw.output %a, %f, %b, %c, %d, %e, %h, %l, %235, %236, %237, %238, %sp, %pc, %239, %240, %241, %242 : i8, i8, i8, i8, i8, i8, i8, i8, i16, i16, i16, i16, i16, i16, i1, i1, i1, i1
+  }
+  hw.module @TestInitialState_Harness(in %clk : !seq.clock, in %rst : i1, in %data_in_16 : i16, in %data_in_8 : i8, in %we_a : i1, in %we_af : i1, in %we_b : i1, in %we_bc : i1, in %we_c : i1, in %we_d : i1, in %we_de : i1, in %we_e : i1, in %we_f : i1, in %we_h : i1, in %we_hl : i1, in %we_l : i1, in %we_pc : i1, in %we_sp : i1, out data_in_16 : i16, out data_in_8 : i8, out flag_c : i1, out flag_h : i1, out flag_n : i1, out flag_z : i1, out out_a : i8, out out_af : i16, out out_b : i8, out out_bc : i16, out out_c : i8, out out_d : i8, out out_de : i16, out out_e : i8, out out_f : i8, out out_h : i8, out out_hl : i16, out out_l : i8, out out_pc : i16, out out_sp : i16, out we_a : i1, out we_af : i1, out we_b : i1, out we_bc : i1, out we_c : i1, out we_d : i1, out we_de : i1, out we_e : i1, out we_f : i1, out we_h : i1, out we_hl : i1, out we_l : i1, out we_pc : i1, out we_sp : i1) {
+    %SM83RegisterFile_inst_2228806932080.out_a, %SM83RegisterFile_inst_2228806932080.out_f, %SM83RegisterFile_inst_2228806932080.out_b, %SM83RegisterFile_inst_2228806932080.out_c, %SM83RegisterFile_inst_2228806932080.out_d, %SM83RegisterFile_inst_2228806932080.out_e, %SM83RegisterFile_inst_2228806932080.out_h, %SM83RegisterFile_inst_2228806932080.out_l, %SM83RegisterFile_inst_2228806932080.out_af, %SM83RegisterFile_inst_2228806932080.out_bc, %SM83RegisterFile_inst_2228806932080.out_de, %SM83RegisterFile_inst_2228806932080.out_hl, %SM83RegisterFile_inst_2228806932080.out_sp, %SM83RegisterFile_inst_2228806932080.out_pc, %SM83RegisterFile_inst_2228806932080.flag_z, %SM83RegisterFile_inst_2228806932080.flag_n, %SM83RegisterFile_inst_2228806932080.flag_h, %SM83RegisterFile_inst_2228806932080.flag_c = hw.instance "SM83RegisterFile_inst_2228806932080" sym @SM83RegisterFile_inst_2228806932080 @gameboy_sm83_register_file_SM83RegisterFile(clk: %clk: !seq.clock, rst: %rst: i1, we_a: %we_a: i1, we_f: %we_f: i1, we_b: %we_b: i1, we_c: %we_c: i1, we_d: %we_d: i1, we_e: %we_e: i1, we_h: %we_h: i1, we_l: %we_l: i1, data_in_8: %data_in_8: i8, we_af: %we_af: i1, we_bc: %we_bc: i1, we_de: %we_de: i1, we_hl: %we_hl: i1, we_sp: %we_sp: i1, we_pc: %we_pc: i1, data_in_16: %data_in_16: i16) -> (out_a: i8, out_f: i8, out_b: i8, out_c: i8, out_d: i8, out_e: i8, out_h: i8, out_l: i8, out_af: i16, out_bc: i16, out_de: i16, out_hl: i16, out_sp: i16, out_pc: i16, flag_z: i1, flag_n: i1, flag_h: i1, flag_c: i1)
+    hw.output %data_in_16, %data_in_8, %SM83RegisterFile_inst_2228806932080.flag_c, %SM83RegisterFile_inst_2228806932080.flag_h, %SM83RegisterFile_inst_2228806932080.flag_n, %SM83RegisterFile_inst_2228806932080.flag_z, %SM83RegisterFile_inst_2228806932080.out_a, %SM83RegisterFile_inst_2228806932080.out_af, %SM83RegisterFile_inst_2228806932080.out_b, %SM83RegisterFile_inst_2228806932080.out_bc, %SM83RegisterFile_inst_2228806932080.out_c, %SM83RegisterFile_inst_2228806932080.out_d, %SM83RegisterFile_inst_2228806932080.out_de, %SM83RegisterFile_inst_2228806932080.out_e, %SM83RegisterFile_inst_2228806932080.out_f, %SM83RegisterFile_inst_2228806932080.out_h, %SM83RegisterFile_inst_2228806932080.out_hl, %SM83RegisterFile_inst_2228806932080.out_l, %SM83RegisterFile_inst_2228806932080.out_pc, %SM83RegisterFile_inst_2228806932080.out_sp, %we_a, %we_af, %we_b, %we_bc, %we_c, %we_d, %we_de, %we_e, %we_f, %we_h, %we_hl, %we_l, %we_pc, %we_sp : i16, i8, i1, i1, i1, i1, i8, i16, i8, i16, i8, i8, i16, i8, i8, i8, i16, i8, i16, i16, i1, i1, i1, i1, i1, i1, i1, i1, i1, i1, i1, i1, i1, i1
+  }
+  func.func @entry() {
+    %true = hw.constant true
+    %false = hw.constant false
+    %0 = seq.to_clock %true
+    %1 = seq.to_clock %false
+    arc.sim.instantiate @TestInitialState_Harness as %arg0 {
+      arc.sim.set_input %arg0, "rst" = %true : i1, !arc.sim.instance<@TestInitialState_Harness>
+      %2 = hwarith.constant 0 : ui1
+      %3 = hwarith.cast %2 : (ui1) -> i1
+      arc.sim.set_input %arg0, "we_a" = %3 : i1, !arc.sim.instance<@TestInitialState_Harness>
+      %4 = hwarith.constant 0 : ui1
+      %5 = hwarith.cast %4 : (ui1) -> i1
+      arc.sim.set_input %arg0, "we_f" = %5 : i1, !arc.sim.instance<@TestInitialState_Harness>
+      %6 = hwarith.constant 0 : ui1
+      %7 = hwarith.cast %6 : (ui1) -> i1
+      arc.sim.set_input %arg0, "we_b" = %7 : i1, !arc.sim.instance<@TestInitialState_Harness>
+      %8 = hwarith.constant 0 : ui1
+      %9 = hwarith.cast %8 : (ui1) -> i1
+      arc.sim.set_input %arg0, "we_c" = %9 : i1, !arc.sim.instance<@TestInitialState_Harness>
+      %10 = hwarith.constant 0 : ui1
+      %11 = hwarith.cast %10 : (ui1) -> i1
+      arc.sim.set_input %arg0, "we_d" = %11 : i1, !arc.sim.instance<@TestInitialState_Harness>
+      %12 = hwarith.constant 0 : ui1
+      %13 = hwarith.cast %12 : (ui1) -> i1
+      arc.sim.set_input %arg0, "we_e" = %13 : i1, !arc.sim.instance<@TestInitialState_Harness>
+      %14 = hwarith.constant 0 : ui1
+      %15 = hwarith.cast %14 : (ui1) -> i1
+      arc.sim.set_input %arg0, "we_h" = %15 : i1, !arc.sim.instance<@TestInitialState_Harness>
+      %16 = hwarith.constant 0 : ui1
+      %17 = hwarith.cast %16 : (ui1) -> i1
+      arc.sim.set_input %arg0, "we_l" = %17 : i1, !arc.sim.instance<@TestInitialState_Harness>
+      %18 = hwarith.constant 86 : ui8
+      %19 = hwarith.cast %18 : (ui8) -> i8
+      arc.sim.set_input %arg0, "data_in_8" = %19 : i8, !arc.sim.instance<@TestInitialState_Harness>
+      %20 = hwarith.constant 0 : ui1
+      %21 = hwarith.cast %20 : (ui1) -> i1
+      arc.sim.set_input %arg0, "we_af" = %21 : i1, !arc.sim.instance<@TestInitialState_Harness>
+      %22 = hwarith.constant 0 : ui1
+      %23 = hwarith.cast %22 : (ui1) -> i1
+      arc.sim.set_input %arg0, "we_bc" = %23 : i1, !arc.sim.instance<@TestInitialState_Harness>
+      %24 = hwarith.constant 0 : ui1
+      %25 = hwarith.cast %24 : (ui1) -> i1
+      arc.sim.set_input %arg0, "we_de" = %25 : i1, !arc.sim.instance<@TestInitialState_Harness>
+      %26 = hwarith.constant 0 : ui1
+      %27 = hwarith.cast %26 : (ui1) -> i1
+      arc.sim.set_input %arg0, "we_hl" = %27 : i1, !arc.sim.instance<@TestInitialState_Harness>
+      %28 = hwarith.constant 0 : ui1
+      %29 = hwarith.cast %28 : (ui1) -> i1
+      arc.sim.set_input %arg0, "we_sp" = %29 : i1, !arc.sim.instance<@TestInitialState_Harness>
+      %30 = hwarith.constant 0 : ui1
+      %31 = hwarith.cast %30 : (ui1) -> i1
+      arc.sim.set_input %arg0, "we_pc" = %31 : i1, !arc.sim.instance<@TestInitialState_Harness>
+      %32 = hwarith.constant 4660 : ui16
+      %33 = hwarith.cast %32 : (ui16) -> i16
+      arc.sim.set_input %arg0, "data_in_16" = %33 : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.set_input %arg0, "clk" = %1 : !seq.clock, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.set_input %arg0, "clk" = %0 : !seq.clock, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.set_input %arg0, "rst" = %false : i1, !arc.sim.instance<@TestInitialState_Harness>
+      %34 = arc.sim.get_port %arg0, "out_pc" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22out_pc\22}", %34 : i16
+      %35 = hwarith.constant 256 : ui9
+      %36 = hwarith.cast %35 : (ui9) -> i9
+      %37 = hwarith.cast %36 : (i9) -> ui9
+      %38 = hwarith.cast %37 : (ui9) -> ui16
+      %39 = hwarith.cast %38 : (ui16) -> i16
+      %40 = hwarith.cast %34 : (i16) -> ui16
+      %41 = hwarith.cast %39 : (i16) -> ui16
+      %42 = hwarith.icmp eq %40, %41 : ui16, ui16
+      arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22PC initializes to correct boot location\22, \22line\22: 225, \22column\22: 12, \22condition\22: \22out_pc == 0x0100\22, \22scope\22: \22TestInitialState\22}", %42 : i1
+      %43 = arc.sim.get_port %arg0, "out_sp" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22out_sp\22}", %43 : i16
+      %44 = hwarith.constant 65534 : ui16
+      %45 = hwarith.cast %44 : (ui16) -> i16
+      %46 = hwarith.cast %43 : (i16) -> ui16
+      %47 = hwarith.cast %45 : (i16) -> ui16
+      %48 = hwarith.icmp eq %46, %47 : ui16, ui16
+      arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22SP initializes to top of RAM\22, \22line\22: 226, \22column\22: 12, \22condition\22: \22out_sp == 0xFFFE\22, \22scope\22: \22TestInitialState\22}", %48 : i1
+      arc.sim.set_input %arg0, "clk" = %1 : !seq.clock, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.set_input %arg0, "clk" = %0 : !seq.clock, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@TestInitialState_Harness>
+      %49 = arc.sim.get_port %arg0, "we_a" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_a", %49 : i1
+      %50 = arc.sim.get_port %arg0, "we_f" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_f", %50 : i1
+      %51 = arc.sim.get_port %arg0, "we_b" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_b", %51 : i1
+      %52 = arc.sim.get_port %arg0, "we_c" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_c", %52 : i1
+      %53 = arc.sim.get_port %arg0, "we_d" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_d", %53 : i1
+      %54 = arc.sim.get_port %arg0, "we_e" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_e", %54 : i1
+      %55 = arc.sim.get_port %arg0, "we_h" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_h", %55 : i1
+      %56 = arc.sim.get_port %arg0, "we_l" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_l", %56 : i1
+      %57 = arc.sim.get_port %arg0, "data_in_8" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "data_in_8", %57 : i8
+      %58 = arc.sim.get_port %arg0, "we_af" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_af", %58 : i1
+      %59 = arc.sim.get_port %arg0, "we_bc" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_bc", %59 : i1
+      %60 = arc.sim.get_port %arg0, "we_de" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_de", %60 : i1
+      %61 = arc.sim.get_port %arg0, "we_hl" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_hl", %61 : i1
+      %62 = arc.sim.get_port %arg0, "we_sp" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_sp", %62 : i1
+      %63 = arc.sim.get_port %arg0, "we_pc" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_pc", %63 : i1
+      %64 = arc.sim.get_port %arg0, "data_in_16" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "data_in_16", %64 : i16
+      %65 = arc.sim.get_port %arg0, "out_a" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_a", %65 : i8
+      %66 = arc.sim.get_port %arg0, "out_f" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_f", %66 : i8
+      %67 = arc.sim.get_port %arg0, "out_b" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_b", %67 : i8
+      %68 = arc.sim.get_port %arg0, "out_c" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_c", %68 : i8
+      %69 = arc.sim.get_port %arg0, "out_d" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_d", %69 : i8
+      %70 = arc.sim.get_port %arg0, "out_e" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_e", %70 : i8
+      %71 = arc.sim.get_port %arg0, "out_h" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_h", %71 : i8
+      %72 = arc.sim.get_port %arg0, "out_l" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_l", %72 : i8
+      %73 = arc.sim.get_port %arg0, "out_af" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_af", %73 : i16
+      %74 = arc.sim.get_port %arg0, "out_bc" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_bc", %74 : i16
+      %75 = arc.sim.get_port %arg0, "out_de" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_de", %75 : i16
+      %76 = arc.sim.get_port %arg0, "out_hl" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_hl", %76 : i16
+      %77 = arc.sim.get_port %arg0, "out_sp" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_sp", %77 : i16
+      %78 = arc.sim.get_port %arg0, "out_pc" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_pc", %78 : i16
+      %79 = arc.sim.get_port %arg0, "flag_z" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_z", %79 : i1
+      %80 = arc.sim.get_port %arg0, "flag_n" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_n", %80 : i1
+      %81 = arc.sim.get_port %arg0, "flag_h" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_h", %81 : i1
+      %82 = arc.sim.get_port %arg0, "flag_c" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_c", %82 : i1
+      arc.sim.set_input %arg0, "clk" = %1 : !seq.clock, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.set_input %arg0, "clk" = %0 : !seq.clock, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@TestInitialState_Harness>
+      %83 = arc.sim.get_port %arg0, "we_a" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_a", %83 : i1
+      %84 = arc.sim.get_port %arg0, "we_f" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_f", %84 : i1
+      %85 = arc.sim.get_port %arg0, "we_b" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_b", %85 : i1
+      %86 = arc.sim.get_port %arg0, "we_c" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_c", %86 : i1
+      %87 = arc.sim.get_port %arg0, "we_d" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_d", %87 : i1
+      %88 = arc.sim.get_port %arg0, "we_e" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_e", %88 : i1
+      %89 = arc.sim.get_port %arg0, "we_h" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_h", %89 : i1
+      %90 = arc.sim.get_port %arg0, "we_l" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_l", %90 : i1
+      %91 = arc.sim.get_port %arg0, "data_in_8" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "data_in_8", %91 : i8
+      %92 = arc.sim.get_port %arg0, "we_af" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_af", %92 : i1
+      %93 = arc.sim.get_port %arg0, "we_bc" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_bc", %93 : i1
+      %94 = arc.sim.get_port %arg0, "we_de" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_de", %94 : i1
+      %95 = arc.sim.get_port %arg0, "we_hl" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_hl", %95 : i1
+      %96 = arc.sim.get_port %arg0, "we_sp" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_sp", %96 : i1
+      %97 = arc.sim.get_port %arg0, "we_pc" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_pc", %97 : i1
+      %98 = arc.sim.get_port %arg0, "data_in_16" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "data_in_16", %98 : i16
+      %99 = arc.sim.get_port %arg0, "out_a" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_a", %99 : i8
+      %100 = arc.sim.get_port %arg0, "out_f" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_f", %100 : i8
+      %101 = arc.sim.get_port %arg0, "out_b" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_b", %101 : i8
+      %102 = arc.sim.get_port %arg0, "out_c" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_c", %102 : i8
+      %103 = arc.sim.get_port %arg0, "out_d" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_d", %103 : i8
+      %104 = arc.sim.get_port %arg0, "out_e" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_e", %104 : i8
+      %105 = arc.sim.get_port %arg0, "out_h" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_h", %105 : i8
+      %106 = arc.sim.get_port %arg0, "out_l" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_l", %106 : i8
+      %107 = arc.sim.get_port %arg0, "out_af" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_af", %107 : i16
+      %108 = arc.sim.get_port %arg0, "out_bc" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_bc", %108 : i16
+      %109 = arc.sim.get_port %arg0, "out_de" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_de", %109 : i16
+      %110 = arc.sim.get_port %arg0, "out_hl" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_hl", %110 : i16
+      %111 = arc.sim.get_port %arg0, "out_sp" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_sp", %111 : i16
+      %112 = arc.sim.get_port %arg0, "out_pc" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_pc", %112 : i16
+      %113 = arc.sim.get_port %arg0, "flag_z" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_z", %113 : i1
+      %114 = arc.sim.get_port %arg0, "flag_n" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_n", %114 : i1
+      %115 = arc.sim.get_port %arg0, "flag_h" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_h", %115 : i1
+      %116 = arc.sim.get_port %arg0, "flag_c" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_c", %116 : i1
+      arc.sim.set_input %arg0, "clk" = %1 : !seq.clock, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.set_input %arg0, "clk" = %0 : !seq.clock, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@TestInitialState_Harness>
+      %117 = arc.sim.get_port %arg0, "we_a" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_a", %117 : i1
+      %118 = arc.sim.get_port %arg0, "we_f" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_f", %118 : i1
+      %119 = arc.sim.get_port %arg0, "we_b" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_b", %119 : i1
+      %120 = arc.sim.get_port %arg0, "we_c" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_c", %120 : i1
+      %121 = arc.sim.get_port %arg0, "we_d" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_d", %121 : i1
+      %122 = arc.sim.get_port %arg0, "we_e" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_e", %122 : i1
+      %123 = arc.sim.get_port %arg0, "we_h" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_h", %123 : i1
+      %124 = arc.sim.get_port %arg0, "we_l" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_l", %124 : i1
+      %125 = arc.sim.get_port %arg0, "data_in_8" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "data_in_8", %125 : i8
+      %126 = arc.sim.get_port %arg0, "we_af" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_af", %126 : i1
+      %127 = arc.sim.get_port %arg0, "we_bc" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_bc", %127 : i1
+      %128 = arc.sim.get_port %arg0, "we_de" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_de", %128 : i1
+      %129 = arc.sim.get_port %arg0, "we_hl" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_hl", %129 : i1
+      %130 = arc.sim.get_port %arg0, "we_sp" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_sp", %130 : i1
+      %131 = arc.sim.get_port %arg0, "we_pc" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_pc", %131 : i1
+      %132 = arc.sim.get_port %arg0, "data_in_16" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "data_in_16", %132 : i16
+      %133 = arc.sim.get_port %arg0, "out_a" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_a", %133 : i8
+      %134 = arc.sim.get_port %arg0, "out_f" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_f", %134 : i8
+      %135 = arc.sim.get_port %arg0, "out_b" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_b", %135 : i8
+      %136 = arc.sim.get_port %arg0, "out_c" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_c", %136 : i8
+      %137 = arc.sim.get_port %arg0, "out_d" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_d", %137 : i8
+      %138 = arc.sim.get_port %arg0, "out_e" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_e", %138 : i8
+      %139 = arc.sim.get_port %arg0, "out_h" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_h", %139 : i8
+      %140 = arc.sim.get_port %arg0, "out_l" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_l", %140 : i8
+      %141 = arc.sim.get_port %arg0, "out_af" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_af", %141 : i16
+      %142 = arc.sim.get_port %arg0, "out_bc" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_bc", %142 : i16
+      %143 = arc.sim.get_port %arg0, "out_de" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_de", %143 : i16
+      %144 = arc.sim.get_port %arg0, "out_hl" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_hl", %144 : i16
+      %145 = arc.sim.get_port %arg0, "out_sp" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_sp", %145 : i16
+      %146 = arc.sim.get_port %arg0, "out_pc" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_pc", %146 : i16
+      %147 = arc.sim.get_port %arg0, "flag_z" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_z", %147 : i1
+      %148 = arc.sim.get_port %arg0, "flag_n" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_n", %148 : i1
+      %149 = arc.sim.get_port %arg0, "flag_h" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_h", %149 : i1
+      %150 = arc.sim.get_port %arg0, "flag_c" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_c", %150 : i1
+      arc.sim.set_input %arg0, "clk" = %1 : !seq.clock, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.set_input %arg0, "clk" = %0 : !seq.clock, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@TestInitialState_Harness>
+      %151 = arc.sim.get_port %arg0, "we_a" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_a", %151 : i1
+      %152 = arc.sim.get_port %arg0, "we_f" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_f", %152 : i1
+      %153 = arc.sim.get_port %arg0, "we_b" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_b", %153 : i1
+      %154 = arc.sim.get_port %arg0, "we_c" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_c", %154 : i1
+      %155 = arc.sim.get_port %arg0, "we_d" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_d", %155 : i1
+      %156 = arc.sim.get_port %arg0, "we_e" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_e", %156 : i1
+      %157 = arc.sim.get_port %arg0, "we_h" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_h", %157 : i1
+      %158 = arc.sim.get_port %arg0, "we_l" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_l", %158 : i1
+      %159 = arc.sim.get_port %arg0, "data_in_8" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "data_in_8", %159 : i8
+      %160 = arc.sim.get_port %arg0, "we_af" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_af", %160 : i1
+      %161 = arc.sim.get_port %arg0, "we_bc" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_bc", %161 : i1
+      %162 = arc.sim.get_port %arg0, "we_de" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_de", %162 : i1
+      %163 = arc.sim.get_port %arg0, "we_hl" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_hl", %163 : i1
+      %164 = arc.sim.get_port %arg0, "we_sp" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_sp", %164 : i1
+      %165 = arc.sim.get_port %arg0, "we_pc" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_pc", %165 : i1
+      %166 = arc.sim.get_port %arg0, "data_in_16" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "data_in_16", %166 : i16
+      %167 = arc.sim.get_port %arg0, "out_a" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_a", %167 : i8
+      %168 = arc.sim.get_port %arg0, "out_f" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_f", %168 : i8
+      %169 = arc.sim.get_port %arg0, "out_b" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_b", %169 : i8
+      %170 = arc.sim.get_port %arg0, "out_c" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_c", %170 : i8
+      %171 = arc.sim.get_port %arg0, "out_d" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_d", %171 : i8
+      %172 = arc.sim.get_port %arg0, "out_e" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_e", %172 : i8
+      %173 = arc.sim.get_port %arg0, "out_h" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_h", %173 : i8
+      %174 = arc.sim.get_port %arg0, "out_l" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_l", %174 : i8
+      %175 = arc.sim.get_port %arg0, "out_af" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_af", %175 : i16
+      %176 = arc.sim.get_port %arg0, "out_bc" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_bc", %176 : i16
+      %177 = arc.sim.get_port %arg0, "out_de" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_de", %177 : i16
+      %178 = arc.sim.get_port %arg0, "out_hl" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_hl", %178 : i16
+      %179 = arc.sim.get_port %arg0, "out_sp" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_sp", %179 : i16
+      %180 = arc.sim.get_port %arg0, "out_pc" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_pc", %180 : i16
+      %181 = arc.sim.get_port %arg0, "flag_z" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_z", %181 : i1
+      %182 = arc.sim.get_port %arg0, "flag_n" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_n", %182 : i1
+      %183 = arc.sim.get_port %arg0, "flag_h" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_h", %183 : i1
+      %184 = arc.sim.get_port %arg0, "flag_c" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_c", %184 : i1
+      arc.sim.set_input %arg0, "clk" = %1 : !seq.clock, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.set_input %arg0, "clk" = %0 : !seq.clock, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@TestInitialState_Harness>
+      %185 = arc.sim.get_port %arg0, "we_a" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_a", %185 : i1
+      %186 = arc.sim.get_port %arg0, "we_f" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_f", %186 : i1
+      %187 = arc.sim.get_port %arg0, "we_b" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_b", %187 : i1
+      %188 = arc.sim.get_port %arg0, "we_c" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_c", %188 : i1
+      %189 = arc.sim.get_port %arg0, "we_d" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_d", %189 : i1
+      %190 = arc.sim.get_port %arg0, "we_e" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_e", %190 : i1
+      %191 = arc.sim.get_port %arg0, "we_h" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_h", %191 : i1
+      %192 = arc.sim.get_port %arg0, "we_l" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_l", %192 : i1
+      %193 = arc.sim.get_port %arg0, "data_in_8" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "data_in_8", %193 : i8
+      %194 = arc.sim.get_port %arg0, "we_af" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_af", %194 : i1
+      %195 = arc.sim.get_port %arg0, "we_bc" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_bc", %195 : i1
+      %196 = arc.sim.get_port %arg0, "we_de" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_de", %196 : i1
+      %197 = arc.sim.get_port %arg0, "we_hl" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_hl", %197 : i1
+      %198 = arc.sim.get_port %arg0, "we_sp" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_sp", %198 : i1
+      %199 = arc.sim.get_port %arg0, "we_pc" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "we_pc", %199 : i1
+      %200 = arc.sim.get_port %arg0, "data_in_16" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "data_in_16", %200 : i16
+      %201 = arc.sim.get_port %arg0, "out_a" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_a", %201 : i8
+      %202 = arc.sim.get_port %arg0, "out_f" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_f", %202 : i8
+      %203 = arc.sim.get_port %arg0, "out_b" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_b", %203 : i8
+      %204 = arc.sim.get_port %arg0, "out_c" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_c", %204 : i8
+      %205 = arc.sim.get_port %arg0, "out_d" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_d", %205 : i8
+      %206 = arc.sim.get_port %arg0, "out_e" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_e", %206 : i8
+      %207 = arc.sim.get_port %arg0, "out_h" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_h", %207 : i8
+      %208 = arc.sim.get_port %arg0, "out_l" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_l", %208 : i8
+      %209 = arc.sim.get_port %arg0, "out_af" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_af", %209 : i16
+      %210 = arc.sim.get_port %arg0, "out_bc" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_bc", %210 : i16
+      %211 = arc.sim.get_port %arg0, "out_de" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_de", %211 : i16
+      %212 = arc.sim.get_port %arg0, "out_hl" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_hl", %212 : i16
+      %213 = arc.sim.get_port %arg0, "out_sp" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_sp", %213 : i16
+      %214 = arc.sim.get_port %arg0, "out_pc" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "out_pc", %214 : i16
+      %215 = arc.sim.get_port %arg0, "flag_z" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_z", %215 : i1
+      %216 = arc.sim.get_port %arg0, "flag_n" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_n", %216 : i1
+      %217 = arc.sim.get_port %arg0, "flag_h" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_h", %217 : i1
+      %218 = arc.sim.get_port %arg0, "flag_c" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "flag_c", %218 : i1
+      %219 = arc.sim.get_port %arg0, "out_b" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22out_b\22}", %219 : i8
+      %220 = hwarith.constant 18 : ui5
+      %221 = hwarith.cast %220 : (ui5) -> i5
+      %222 = hwarith.cast %221 : (i5) -> ui5
+      %223 = hwarith.cast %222 : (ui5) -> ui8
+      %224 = hwarith.cast %223 : (ui8) -> i8
+      %225 = hwarith.cast %219 : (i8) -> ui8
+      %226 = hwarith.cast %224 : (i8) -> ui8
+      %227 = hwarith.icmp eq %225, %226 : ui8, ui8
+      arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22B extracted high byte from 16-bit write\22, \22line\22: 230, \22column\22: 12, \22condition\22: \22out_b == 0x12\22, \22scope\22: \22TestInitialState\22}", %227 : i1
+      %228 = arc.sim.get_port %arg0, "out_c" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22out_c\22}", %228 : i8
+      %229 = hwarith.constant 52 : ui6
+      %230 = hwarith.cast %229 : (ui6) -> i6
+      %231 = hwarith.cast %230 : (i6) -> ui6
+      %232 = hwarith.cast %231 : (ui6) -> ui8
+      %233 = hwarith.cast %232 : (ui8) -> i8
+      %234 = hwarith.cast %228 : (i8) -> ui8
+      %235 = hwarith.cast %233 : (i8) -> ui8
+      %236 = hwarith.icmp eq %234, %235 : ui8, ui8
+      arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22C extracted low byte from 16-bit write\22, \22line\22: 231, \22column\22: 12, \22condition\22: \22out_c == 0x34\22, \22scope\22: \22TestInitialState\22}", %236 : i1
+      %237 = arc.sim.get_port %arg0, "out_bc" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22out_bc\22}", %237 : i16
+      %238 = hwarith.constant 4660 : ui13
+      %239 = hwarith.cast %238 : (ui13) -> i13
+      %240 = hwarith.cast %239 : (i13) -> ui13
+      %241 = hwarith.cast %240 : (ui13) -> ui16
+      %242 = hwarith.cast %241 : (ui16) -> i16
+      %243 = hwarith.cast %237 : (i16) -> ui16
+      %244 = hwarith.cast %242 : (i16) -> ui16
+      %245 = hwarith.icmp eq %243, %244 : ui16, ui16
+      arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22BC dynamically recombines to original value\22, \22line\22: 232, \22column\22: 12, \22condition\22: \22out_bc == 0x1234\22, \22scope\22: \22TestInitialState\22}", %245 : i1
+      %246 = arc.sim.get_port %arg0, "out_h" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22out_h\22}", %246 : i8
+      %247 = hwarith.constant 222 : ui8
+      %248 = hwarith.cast %247 : (ui8) -> i8
+      %249 = hwarith.cast %246 : (i8) -> ui8
+      %250 = hwarith.cast %248 : (i8) -> ui8
+      %251 = hwarith.icmp eq %249, %250 : ui8, ui8
+      arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22H extracted high byte from 16-bit write\22, \22line\22: 235, \22column\22: 12, \22condition\22: \22out_h == 0xDE\22, \22scope\22: \22TestInitialState\22}", %251 : i1
+      %252 = arc.sim.get_port %arg0, "out_l" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22out_l\22}", %252 : i8
+      %253 = hwarith.constant 173 : ui8
+      %254 = hwarith.cast %253 : (ui8) -> i8
+      %255 = hwarith.cast %252 : (i8) -> ui8
+      %256 = hwarith.cast %254 : (i8) -> ui8
+      %257 = hwarith.icmp eq %255, %256 : ui8, ui8
+      arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22L extracted low byte from 16-bit write\22, \22line\22: 236, \22column\22: 12, \22condition\22: \22out_l == 0xAD\22, \22scope\22: \22TestInitialState\22}", %257 : i1
+      %258 = arc.sim.get_port %arg0, "out_hl" : i16, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22out_hl\22}", %258 : i16
+      %259 = hwarith.constant 57005 : ui16
+      %260 = hwarith.cast %259 : (ui16) -> i16
+      %261 = hwarith.cast %258 : (i16) -> ui16
+      %262 = hwarith.cast %260 : (i16) -> ui16
+      %263 = hwarith.icmp eq %261, %262 : ui16, ui16
+      arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22HL reads back correctly\22, \22line\22: 237, \22column\22: 12, \22condition\22: \22out_hl == 0xDEAD\22, \22scope\22: \22TestInitialState\22}", %263 : i1
+      %264 = arc.sim.get_port %arg0, "out_a" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22out_a\22}", %264 : i8
+      %265 = hwarith.constant 170 : ui8
+      %266 = hwarith.cast %265 : (ui8) -> i8
+      %267 = hwarith.cast %264 : (i8) -> ui8
+      %268 = hwarith.cast %266 : (i8) -> ui8
+      %269 = hwarith.icmp eq %267, %268 : ui8, ui8
+      arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22A stored 0xAA from high byte of AF write\22, \22line\22: 239, \22column\22: 12, \22condition\22: \22out_a == 0xAA\22, \22scope\22: \22TestInitialState\22}", %269 : i1
+      %270 = arc.sim.get_port %arg0, "out_f" : i8, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22out_f\22}", %270 : i8
+      %271 = hwarith.constant 240 : ui8
+      %272 = hwarith.cast %271 : (ui8) -> i8
+      %273 = hwarith.cast %270 : (i8) -> ui8
+      %274 = hwarith.cast %272 : (i8) -> ui8
+      %275 = hwarith.icmp eq %273, %274 : ui8, ui8
+      arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22F lower nibble masked to 0 despite 0xFF input\22, \22line\22: 240, \22column\22: 12, \22condition\22: \22out_f == 0xF0\22, \22scope\22: \22TestInitialState\22}", %275 : i1
+      %276 = arc.sim.get_port %arg0, "flag_z" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22flag_z\22}", %276 : i1
+      %277 = hwarith.constant 1 : ui1
+      %278 = hwarith.cast %277 : (ui1) -> i1
+      %279 = hwarith.cast %276 : (i1) -> ui1
+      %280 = hwarith.cast %278 : (i1) -> ui1
+      %281 = hwarith.icmp eq %279, %280 : ui1, ui1
+      arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22Z flag (bit 7) reads correctly\22, \22line\22: 241, \22column\22: 12, \22condition\22: \22flag_z == true\22, \22scope\22: \22TestInitialState\22}", %281 : i1
+      %282 = arc.sim.get_port %arg0, "flag_n" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22flag_n\22}", %282 : i1
+      %283 = hwarith.constant 1 : ui1
+      %284 = hwarith.cast %283 : (ui1) -> i1
+      %285 = hwarith.cast %282 : (i1) -> ui1
+      %286 = hwarith.cast %284 : (i1) -> ui1
+      %287 = hwarith.icmp eq %285, %286 : ui1, ui1
+      arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22N flag (bit 6) reads correctly\22, \22line\22: 242, \22column\22: 12, \22condition\22: \22flag_n == true\22, \22scope\22: \22TestInitialState\22}", %287 : i1
+      %288 = arc.sim.get_port %arg0, "flag_h" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22flag_h\22}", %288 : i1
+      %289 = hwarith.constant 1 : ui1
+      %290 = hwarith.cast %289 : (ui1) -> i1
+      %291 = hwarith.cast %288 : (i1) -> ui1
+      %292 = hwarith.cast %290 : (i1) -> ui1
+      %293 = hwarith.icmp eq %291, %292 : ui1, ui1
+      arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22H flag (bit 5) reads correctly\22, \22line\22: 243, \22column\22: 12, \22condition\22: \22flag_h == true\22, \22scope\22: \22TestInitialState\22}", %293 : i1
+      %294 = arc.sim.get_port %arg0, "flag_c" : i1, !arc.sim.instance<@TestInitialState_Harness>
+      arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22flag_c\22}", %294 : i1
+      %295 = hwarith.constant 1 : ui1
+      %296 = hwarith.cast %295 : (ui1) -> i1
+      %297 = hwarith.cast %294 : (i1) -> ui1
+      %298 = hwarith.cast %296 : (i1) -> ui1
+      %299 = hwarith.icmp eq %297, %298 : ui1, ui1
+      arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22C flag (bit 4) reads correctly\22, \22line\22: 244, \22column\22: 12, \22condition\22: \22flag_c == true\22, \22scope\22: \22TestInitialState\22}", %299 : i1
+    }
+    return
+  }
+}
+
+# arcilator C:\Users\Matt\Projects\vctx\vctx-examples\build\sim_gameboy_sm83_register_file_TestInitialState.mlir --run --jit-entry=entry
+1..14
+ok 1 - PC initializes to correct boot location, out_pc == 0x0100
+ok 2 - SP initializes to top of RAM, out_sp == 0xFFFE
+not ok 3 - B extracted high byte from 16-bit write, out_b == 0x12
+  ---
+  message: 'Assertion Failed'
+  severity: fail
+  at:
+    file: .\gameboy\sm83_register_file.vctx:TestInitialState
+    line: 230
+    column: 12
+  source_code: "out_b == 0x12"
+  ...
+not ok 4 - C extracted low byte from 16-bit write, out_c == 0x34
+  ---
+  message: 'Assertion Failed'
+  severity: fail
+  at:
+    file: .\gameboy\sm83_register_file.vctx:TestInitialState
+    line: 231
+    column: 12
+  source_code: "out_c == 0x34"
+  ...
+not ok 5 - BC dynamically recombines to original value, out_bc == 0x1234
+  ---
+  message: 'Assertion Failed'
+  severity: fail
+  at:
+    file: .\gameboy\sm83_register_file.vctx:TestInitialState
+    line: 232
+    column: 12
+  source_code: "out_bc == 0x1234"
+  ...
+not ok 6 - H extracted high byte from 16-bit write, out_h == 0xDE
+  ---
+  message: 'Assertion Failed'
+  severity: fail
+  at:
+    file: .\gameboy\sm83_register_file.vctx:TestInitialState
+    line: 235
+    column: 12
+  source_code: "out_h == 0xDE"
+  ...
+not ok 7 - L extracted low byte from 16-bit write, out_l == 0xAD
+  ---
+  message: 'Assertion Failed'
+  severity: fail
+  at:
+    file: .\gameboy\sm83_register_file.vctx:TestInitialState
+    line: 236
+    column: 12
+  source_code: "out_l == 0xAD"
+  ...
+not ok 8 - HL reads back correctly, out_hl == 0xDEAD
+  ---
+  message: 'Assertion Failed'
+  severity: fail
+  at:
+    file: .\gameboy\sm83_register_file.vctx:TestInitialState
+    line: 237
+    column: 12
+  source_code: "out_hl == 0xDEAD"
+  ...
+not ok 9 - A stored 0xAA from high byte of AF write, out_a == 0xAA
+  ---
+  message: 'Assertion Failed'
+  severity: fail
+  at:
+    file: .\gameboy\sm83_register_file.vctx:TestInitialState
+    line: 239
+    column: 12
+  source_code: "out_a == 0xAA"
+  ...
+not ok 10 - F lower nibble masked to 0 despite 0xFF input, out_f == 0xF0
+  ---
+  message: 'Assertion Failed'
+  severity: fail
+  at:
+    file: .\gameboy\sm83_register_file.vctx:TestInitialState
+    line: 240
+    column: 12
+  source_code: "out_f == 0xF0"
+  ...
+not ok 11 - Z flag (bit 7) reads correctly, flag_z == true
+  ---
+  message: 'Assertion Failed'
+  severity: fail
+  at:
+    file: .\gameboy\sm83_register_file.vctx:TestInitialState
+    line: 241
+    column: 12
+  source_code: "flag_z == true"
+  ...
+not ok 12 - N flag (bit 6) reads correctly, flag_n == true
+  ---
+  message: 'Assertion Failed'
+  severity: fail
+  at:
+    file: .\gameboy\sm83_register_file.vctx:TestInitialState
+    line: 242
+    column: 12
+  source_code: "flag_n == true"
+  ...
+not ok 13 - H flag (bit 5) reads correctly, flag_h == true
+  ---
+  message: 'Assertion Failed'
+  severity: fail
+  at:
+    file: .\gameboy\sm83_register_file.vctx:TestInitialState
+    line: 243
+    column: 12
+  source_code: "flag_h == true"
+  ...
+not ok 14 - C flag (bit 4) reads correctly, flag_c == true
+  ---
+  message: 'Assertion Failed'
+  severity: fail
+  at:
+    file: .\gameboy\sm83_register_file.vctx:TestInitialState
+    line: 244
+    column: 12
+  source_code: "flag_c == true"
+  ...
+# we_a = 0
+# we_f = 0
+# we_b = 0
+# we_c = 0
+# we_d = 0
+# we_e = 0
+# we_h = 0
+# we_l = 0
+# data_in_8 = 56
+# we_af = 0
+# we_bc = 0
+# we_de = 0
+# we_hl = 0
+# we_sp = 0
+# we_pc = 0
+# data_in_16 = 1234
+# out_a = 00
+# out_f = 00
+# out_b = 00
+# out_c = 00
+# out_d = 00
+# out_e = 00
+# out_h = 00
+# out_l = 00
+# out_af = 0000
+# out_bc = 0000
+# out_de = 0000
+# out_hl = 0000
+# out_sp = 0000
+# out_pc = 0100
+# flag_z = 0
+# flag_n = 0
+# flag_h = 0
+# flag_c = 0
+# we_a = 0
+# we_f = 0
+# we_b = 0
+# we_c = 0
+# we_d = 0
+# we_e = 0
+# we_h = 0
+# we_l = 0
+# data_in_8 = 56
+# we_af = 0
+# we_bc = 0
+# we_de = 0
+# we_hl = 0
+# we_sp = 0
+# we_pc = 0
+# data_in_16 = 1234
+# out_a = 00
+# out_f = 00
+# out_b = 00
+# out_c = 00
+# out_d = 00
+# out_e = 00
+# out_h = 00
+# out_l = 00
+# out_af = 0000
+# out_bc = 0000
+# out_de = 0000
+# out_hl = 0000
+# out_sp = 0000
+# out_pc = 0100
+# flag_z = 0
+# flag_n = 0
+# flag_h = 0
+# flag_c = 0
+# we_a = 0
+# we_f = 0
+# we_b = 0
+# we_c = 0
+# we_d = 0
+# we_e = 0
+# we_h = 0
+# we_l = 0
+# data_in_8 = 56
+# we_af = 0
+# we_bc = 0
+# we_de = 0
+# we_hl = 0
+# we_sp = 0
+# we_pc = 0
+# data_in_16 = 1234
+# out_a = 00
+# out_f = 00
+# out_b = 00
+# out_c = 00
+# out_d = 00
+# out_e = 00
+# out_h = 00
+# out_l = 00
+# out_af = 0000
+# out_bc = 0000
+# out_de = 0000
+# out_hl = 0000
+# out_sp = 0000
+# out_pc = 0100
+# flag_z = 0
+# flag_n = 0
+# flag_h = 0
+# flag_c = 0
+# we_a = 0
+# we_f = 0
+# we_b = 0
+# we_c = 0
+# we_d = 0
+# we_e = 0
+# we_h = 0
+# we_l = 0
+# data_in_8 = 56
+# we_af = 0
+# we_bc = 0
+# we_de = 0
+# we_hl = 0
+# we_sp = 0
+# we_pc = 0
+# data_in_16 = 1234
+# out_a = 00
+# out_f = 00
+# out_b = 00
+# out_c = 00
+# out_d = 00
+# out_e = 00
+# out_h = 00
+# out_l = 00
+# out_af = 0000
+# out_bc = 0000
+# out_de = 0000
+# out_hl = 0000
+# out_sp = 0000
+# out_pc = 0100
+# flag_z = 0
+# flag_n = 0
+# flag_h = 0
+# flag_c = 0
+# we_a = 0
+# we_f = 0
+# we_b = 0
+# we_c = 0
+# we_d = 0
+# we_e = 0
+# we_h = 0
+# we_l = 0
+# data_in_8 = 56
+# we_af = 0
+# we_bc = 0
+# we_de = 0
+# we_hl = 0
+# we_sp = 0
+# we_pc = 0
+# data_in_16 = 1234
+# out_a = 00
+# out_f = 00
+# out_b = 00
+# out_c = 00
+# out_d = 00
+# out_e = 00
+# out_h = 00
+# out_l = 00
+# out_af = 0000
+# out_bc = 0000
+# out_de = 0000
+# out_hl = 0000
+# out_sp = 0000
+# out_pc = 0100
+# flag_z = 0
+# flag_n = 0
+# flag_h = 0
+# flag_c = 0
