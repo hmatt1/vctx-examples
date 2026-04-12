@@ -1,0 +1,21 @@
+// Wish #5: Familiar relational syntax or targeted errors (`<=` vs `<==`)
+//
+// In vctx, `<=` is **register next-state** (sequential), not "less than or equal".
+// For comparisons, use `<` `>` `==` `!==` and the chained spellings **`<==`** and **`>==`**
+// for inclusive bounds.
+//
+// Mixing these up is a common mistake when coming from C or Verilog.
+
+sim RelationalInclusiveBounds {
+    wire a: u16 = 0xC000
+    wire lo: u16 = 0xC000
+    wire hi: u16 = 0xC00F
+    assert((a >== lo) & (a <== hi), "0xC000 is inside [0xC000, 0xC00F]")
+}
+
+sim RelationalStrict {
+    wire x: u8 = 5
+    wire y: u8 = 10
+    assert(x < y, "strict less-than")
+    assert(y > x, "strict greater-than")
+}

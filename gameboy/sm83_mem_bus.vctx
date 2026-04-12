@@ -1,0 +1,562 @@
+// 8-bit memory bus (SM83 / Game Boy style): 16-bit address, byte-wide data, ren/wen.
+//
+// Provides: cartridge test ROM images, a gated read port, and small writable stubs:
+//   WRAM: 16 bytes at 0xC000–0xC00F (subset of real 0xC000–0xDFFF)
+//   HRAM: 16 bytes at 0xFF80–0xFF8F (subset of real 0xFF80–0xFFFE)
+//
+// WRAM/HRAM use Regs+Read subcomponents (writes vs read-decode) so simulation matches
+// the Sm83CtlSeqReg/Comb split pattern.
+//
+// Decode priority for reads: WRAM window, else HRAM window, else cart ROM table.
+// Writes: WRAM/HRAM decode on addr inside each stub; cart is read-only. Use Sm83MemBusSysWramOnly
+// when the CPU only needs WRAM (no cart/HRAM in the path).
+
+// ---------------------------------------------------------------------------
+// Test ROM images (same bytes as former Sm83InsnRom* in the sequencer package)
+// ---------------------------------------------------------------------------
+
+component Sm83MemMapAddProg(in addr: u16, out rdata: u8) {
+    when addr == 0x0100 {
+        rdata := 0x06 as u8
+    } elsewhen addr == 0x0101 {
+        rdata := 0x02 as u8
+    } elsewhen addr == 0x0102 {
+        rdata := 0x3E as u8
+    } elsewhen addr == 0x0103 {
+        rdata := 0x1E as u8
+    } elsewhen addr == 0x0104 {
+        rdata := 0x80 as u8
+    } elsewhen addr == 0x0105 {
+        rdata := 0x00 as u8
+    } otherwise {
+        rdata := 0x00 as u8
+    }
+}
+
+component Sm83MemMapCpProg(in addr: u16, out rdata: u8) {
+    when addr == 0x0100 {
+        rdata := 0x3E as u8
+    } elsewhen addr == 0x0101 {
+        rdata := 0x10 as u8
+    } elsewhen addr == 0x0102 {
+        rdata := 0x06 as u8
+    } elsewhen addr == 0x0103 {
+        rdata := 0x20 as u8
+    } elsewhen addr == 0x0104 {
+        rdata := 0xB8 as u8
+    } elsewhen addr == 0x0105 {
+        rdata := 0x00 as u8
+    } otherwise {
+        rdata := 0x00 as u8
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Read port: combinational decode + output enable (bus idle / turnaround)
+// ---------------------------------------------------------------------------
+
+component Sm83MemBusReadPort(
+    in ren: bool,
+    in data_raw: u8,
+    out rdata: u8
+) {
+    when ren {
+        rdata := data_raw
+    } otherwise {
+        rdata := 0 as u8
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 16-byte WRAM stub (0xC000–0xC00F)
+// Split Reg (writes) vs Comb (read decode): one module with both when-trees breaks
+// arcilator sim for register updates; same pattern as Sm83CtlSeqReg vs Comb.
+// ---------------------------------------------------------------------------
+
+component Sm83MemWramStub16Regs(
+    in addr: u16,
+    in wen: bool,
+    in wdata: u8,
+    out v0: u8,
+    out v1: u8,
+    out v2: u8,
+    out v3: u8,
+    out v4: u8,
+    out v5: u8,
+    out v6: u8,
+    out v7: u8,
+    out v8: u8,
+    out v9: u8,
+    out v10: u8,
+    out v11: u8,
+    out v12: u8,
+    out v13: u8,
+    out v14: u8,
+    out v15: u8
+) {
+    reg m0: u8 = 0
+    reg m1: u8 = 0
+    reg m2: u8 = 0
+    reg m3: u8 = 0
+    reg m4: u8 = 0
+    reg m5: u8 = 0
+    reg m6: u8 = 0
+    reg m7: u8 = 0
+    reg m8: u8 = 0
+    reg m9: u8 = 0
+    reg m10: u8 = 0
+    reg m11: u8 = 0
+    reg m12: u8 = 0
+    reg m13: u8 = 0
+    reg m14: u8 = 0
+    reg m15: u8 = 0
+
+    when wen & (addr == 0xC000) {
+        m0 <= wdata
+    } elsewhen wen & (addr == 0xC001) {
+        m1 <= wdata
+    } elsewhen wen & (addr == 0xC002) {
+        m2 <= wdata
+    } elsewhen wen & (addr == 0xC003) {
+        m3 <= wdata
+    } elsewhen wen & (addr == 0xC004) {
+        m4 <= wdata
+    } elsewhen wen & (addr == 0xC005) {
+        m5 <= wdata
+    } elsewhen wen & (addr == 0xC006) {
+        m6 <= wdata
+    } elsewhen wen & (addr == 0xC007) {
+        m7 <= wdata
+    } elsewhen wen & (addr == 0xC008) {
+        m8 <= wdata
+    } elsewhen wen & (addr == 0xC009) {
+        m9 <= wdata
+    } elsewhen wen & (addr == 0xC00A) {
+        m10 <= wdata
+    } elsewhen wen & (addr == 0xC00B) {
+        m11 <= wdata
+    } elsewhen wen & (addr == 0xC00C) {
+        m12 <= wdata
+    } elsewhen wen & (addr == 0xC00D) {
+        m13 <= wdata
+    } elsewhen wen & (addr == 0xC00E) {
+        m14 <= wdata
+    } elsewhen wen & (addr == 0xC00F) {
+        m15 <= wdata
+    } otherwise {
+        m0 <= m0
+        m1 <= m1
+        m2 <= m2
+        m3 <= m3
+        m4 <= m4
+        m5 <= m5
+        m6 <= m6
+        m7 <= m7
+        m8 <= m8
+        m9 <= m9
+        m10 <= m10
+        m11 <= m11
+        m12 <= m12
+        m13 <= m13
+        m14 <= m14
+        m15 <= m15
+    }
+
+    v0 := m0
+    v1 := m1
+    v2 := m2
+    v3 := m3
+    v4 := m4
+    v5 := m5
+    v6 := m6
+    v7 := m7
+    v8 := m8
+    v9 := m9
+    v10 := m10
+    v11 := m11
+    v12 := m12
+    v13 := m13
+    v14 := m14
+    v15 := m15
+}
+
+component Sm83MemWramStub16Read(
+    in addr: u16,
+    in v0: u8,
+    in v1: u8,
+    in v2: u8,
+    in v3: u8,
+    in v4: u8,
+    in v5: u8,
+    in v6: u8,
+    in v7: u8,
+    in v8: u8,
+    in v9: u8,
+    in v10: u8,
+    in v11: u8,
+    in v12: u8,
+    in v13: u8,
+    in v14: u8,
+    in v15: u8,
+    out raw: u8
+) {
+    when addr == 0xC000 {
+        raw := v0
+    } elsewhen addr == 0xC001 {
+        raw := v1
+    } elsewhen addr == 0xC002 {
+        raw := v2
+    } elsewhen addr == 0xC003 {
+        raw := v3
+    } elsewhen addr == 0xC004 {
+        raw := v4
+    } elsewhen addr == 0xC005 {
+        raw := v5
+    } elsewhen addr == 0xC006 {
+        raw := v6
+    } elsewhen addr == 0xC007 {
+        raw := v7
+    } elsewhen addr == 0xC008 {
+        raw := v8
+    } elsewhen addr == 0xC009 {
+        raw := v9
+    } elsewhen addr == 0xC00A {
+        raw := v10
+    } elsewhen addr == 0xC00B {
+        raw := v11
+    } elsewhen addr == 0xC00C {
+        raw := v12
+    } elsewhen addr == 0xC00D {
+        raw := v13
+    } elsewhen addr == 0xC00E {
+        raw := v14
+    } elsewhen addr == 0xC00F {
+        raw := v15
+    } otherwise {
+        raw := 0 as u8
+    }
+}
+
+component Sm83MemWramStub16(in addr: u16, in wen: bool, in wdata: u8, out raw: u8) {
+    wire wv0: u8
+    wire wv1: u8
+    wire wv2: u8
+    wire wv3: u8
+    wire wv4: u8
+    wire wv5: u8
+    wire wv6: u8
+    wire wv7: u8
+    wire wv8: u8
+    wire wv9: u8
+    wire wv10: u8
+    wire wv11: u8
+    wire wv12: u8
+    wire wv13: u8
+    wire wv14: u8
+    wire wv15: u8
+    Sm83MemWramStub16Regs(addr, wen, wdata, wv0, wv1, wv2, wv3, wv4, wv5, wv6, wv7, wv8, wv9, wv10, wv11, wv12, wv13, wv14, wv15)
+    Sm83MemWramStub16Read(addr, wv0, wv1, wv2, wv3, wv4, wv5, wv6, wv7, wv8, wv9, wv10, wv11, wv12, wv13, wv14, wv15, raw)
+}
+
+// ---------------------------------------------------------------------------
+// 16-byte HRAM stub (0xFF80–0xFF8F)
+// ---------------------------------------------------------------------------
+
+component Sm83MemHramStub16Regs(
+    in addr: u16,
+    in wen: bool,
+    in wdata: u8,
+    out v0: u8,
+    out v1: u8,
+    out v2: u8,
+    out v3: u8,
+    out v4: u8,
+    out v5: u8,
+    out v6: u8,
+    out v7: u8,
+    out v8: u8,
+    out v9: u8,
+    out v10: u8,
+    out v11: u8,
+    out v12: u8,
+    out v13: u8,
+    out v14: u8,
+    out v15: u8
+) {
+    reg m0: u8 = 0
+    reg m1: u8 = 0
+    reg m2: u8 = 0
+    reg m3: u8 = 0
+    reg m4: u8 = 0
+    reg m5: u8 = 0
+    reg m6: u8 = 0
+    reg m7: u8 = 0
+    reg m8: u8 = 0
+    reg m9: u8 = 0
+    reg m10: u8 = 0
+    reg m11: u8 = 0
+    reg m12: u8 = 0
+    reg m13: u8 = 0
+    reg m14: u8 = 0
+    reg m15: u8 = 0
+
+    when wen & (addr == 0xFF80) {
+        m0 <= wdata
+    } elsewhen wen & (addr == 0xFF81) {
+        m1 <= wdata
+    } elsewhen wen & (addr == 0xFF82) {
+        m2 <= wdata
+    } elsewhen wen & (addr == 0xFF83) {
+        m3 <= wdata
+    } elsewhen wen & (addr == 0xFF84) {
+        m4 <= wdata
+    } elsewhen wen & (addr == 0xFF85) {
+        m5 <= wdata
+    } elsewhen wen & (addr == 0xFF86) {
+        m6 <= wdata
+    } elsewhen wen & (addr == 0xFF87) {
+        m7 <= wdata
+    } elsewhen wen & (addr == 0xFF88) {
+        m8 <= wdata
+    } elsewhen wen & (addr == 0xFF89) {
+        m9 <= wdata
+    } elsewhen wen & (addr == 0xFF8A) {
+        m10 <= wdata
+    } elsewhen wen & (addr == 0xFF8B) {
+        m11 <= wdata
+    } elsewhen wen & (addr == 0xFF8C) {
+        m12 <= wdata
+    } elsewhen wen & (addr == 0xFF8D) {
+        m13 <= wdata
+    } elsewhen wen & (addr == 0xFF8E) {
+        m14 <= wdata
+    } elsewhen wen & (addr == 0xFF8F) {
+        m15 <= wdata
+    } otherwise {
+        m0 <= m0
+        m1 <= m1
+        m2 <= m2
+        m3 <= m3
+        m4 <= m4
+        m5 <= m5
+        m6 <= m6
+        m7 <= m7
+        m8 <= m8
+        m9 <= m9
+        m10 <= m10
+        m11 <= m11
+        m12 <= m12
+        m13 <= m13
+        m14 <= m14
+        m15 <= m15
+    }
+
+    v0 := m0
+    v1 := m1
+    v2 := m2
+    v3 := m3
+    v4 := m4
+    v5 := m5
+    v6 := m6
+    v7 := m7
+    v8 := m8
+    v9 := m9
+    v10 := m10
+    v11 := m11
+    v12 := m12
+    v13 := m13
+    v14 := m14
+    v15 := m15
+}
+
+component Sm83MemHramStub16Read(
+    in addr: u16,
+    in v0: u8,
+    in v1: u8,
+    in v2: u8,
+    in v3: u8,
+    in v4: u8,
+    in v5: u8,
+    in v6: u8,
+    in v7: u8,
+    in v8: u8,
+    in v9: u8,
+    in v10: u8,
+    in v11: u8,
+    in v12: u8,
+    in v13: u8,
+    in v14: u8,
+    in v15: u8,
+    out raw: u8
+) {
+    when addr == 0xFF80 {
+        raw := v0
+    } elsewhen addr == 0xFF81 {
+        raw := v1
+    } elsewhen addr == 0xFF82 {
+        raw := v2
+    } elsewhen addr == 0xFF83 {
+        raw := v3
+    } elsewhen addr == 0xFF84 {
+        raw := v4
+    } elsewhen addr == 0xFF85 {
+        raw := v5
+    } elsewhen addr == 0xFF86 {
+        raw := v6
+    } elsewhen addr == 0xFF87 {
+        raw := v7
+    } elsewhen addr == 0xFF88 {
+        raw := v8
+    } elsewhen addr == 0xFF89 {
+        raw := v9
+    } elsewhen addr == 0xFF8A {
+        raw := v10
+    } elsewhen addr == 0xFF8B {
+        raw := v11
+    } elsewhen addr == 0xFF8C {
+        raw := v12
+    } elsewhen addr == 0xFF8D {
+        raw := v13
+    } elsewhen addr == 0xFF8E {
+        raw := v14
+    } elsewhen addr == 0xFF8F {
+        raw := v15
+    } otherwise {
+        raw := 0 as u8
+    }
+}
+
+component Sm83MemHramStub16(in addr: u16, in wen: bool, in wdata: u8, out raw: u8) {
+    wire hv0: u8
+    wire hv1: u8
+    wire hv2: u8
+    wire hv3: u8
+    wire hv4: u8
+    wire hv5: u8
+    wire hv6: u8
+    wire hv7: u8
+    wire hv8: u8
+    wire hv9: u8
+    wire hv10: u8
+    wire hv11: u8
+    wire hv12: u8
+    wire hv13: u8
+    wire hv14: u8
+    wire hv15: u8
+    Sm83MemHramStub16Regs(addr, wen, wdata, hv0, hv1, hv2, hv3, hv4, hv5, hv6, hv7, hv8, hv9, hv10, hv11, hv12, hv13, hv14, hv15)
+    Sm83MemHramStub16Read(addr, hv0, hv1, hv2, hv3, hv4, hv5, hv6, hv7, hv8, hv9, hv10, hv11, hv12, hv13, hv14, hv15, raw)
+}
+
+// WRAM-only path (for tests / bring-up); full system below adds cart + HRAM mux.
+component Sm83MemBusSysWramOnly(
+    in addr: u16,
+    in ren: bool,
+    in wen: bool,
+    in wdata: u8,
+    out rdata: u8
+) {
+    wire w_raw: u8
+    Sm83MemWramStub16(addr, wen, wdata, w_raw)
+    Sm83MemBusReadPort(ren, w_raw, rdata)
+}
+
+// ---------------------------------------------------------------------------
+// Full system (cart ROM + WRAM + HRAM stubs)
+// ---------------------------------------------------------------------------
+
+component Sm83MemBusSysAddProg(
+    in addr: u16,
+    in ren: bool,
+    in wen: bool,
+    in wdata: u8,
+    out rdata: u8
+) {
+    wire cart_raw: u8
+    wire w_raw: u8
+    wire h_raw: u8
+    wire raw_sel: u8
+    wire w_sel: bool = (addr >== 0xC000) & (addr <== 0xC00F)
+    wire h_sel: bool = (addr >== 0xFF80) & (addr <== 0xFF8F)
+
+    Sm83MemMapAddProg(addr, cart_raw)
+    Sm83MemWramStub16(addr, wen, wdata, w_raw)
+    Sm83MemHramStub16(addr, wen, wdata, h_raw)
+
+    when w_sel {
+        raw_sel := w_raw
+    } elsewhen h_sel {
+        raw_sel := h_raw
+    } otherwise {
+        raw_sel := cart_raw
+    }
+    Sm83MemBusReadPort(ren, raw_sel, rdata)
+}
+
+component Sm83MemBusSysCpProg(
+    in addr: u16,
+    in ren: bool,
+    in wen: bool,
+    in wdata: u8,
+    out rdata: u8
+) {
+    wire cart_raw: u8
+    wire w_raw: u8
+    wire h_raw: u8
+    wire raw_sel: u8
+    wire w_sel: bool = (addr >== 0xC000) & (addr <== 0xC00F)
+    wire h_sel: bool = (addr >== 0xFF80) & (addr <== 0xFF8F)
+
+    Sm83MemMapCpProg(addr, cart_raw)
+    Sm83MemWramStub16(addr, wen, wdata, w_raw)
+    Sm83MemHramStub16(addr, wen, wdata, h_raw)
+
+    when w_sel {
+        raw_sel := w_raw
+    } elsewhen h_sel {
+        raw_sel := h_raw
+    } otherwise {
+        raw_sel := cart_raw
+    }
+    Sm83MemBusReadPort(ren, raw_sel, rdata)
+}
+
+// Cartridge-facing wrappers (same names as before; added wen / wdata for stores).
+component Sm83MemBusCartAdd(in addr: u16, in ren: bool, in wen: bool, in wdata: u8, out rdata: u8) {
+    Sm83MemBusSysAddProg(addr, ren, wen, wdata, rdata)
+}
+
+component Sm83MemBusCartCp(in addr: u16, in ren: bool, in wen: bool, in wdata: u8, out rdata: u8) {
+    Sm83MemBusSysCpProg(addr, ren, wen, wdata, rdata)
+}
+
+// ---------------------------------------------------------------------------
+// Sim: cart read through full mux; WRAM stub write visible (Regs+Read split)
+// ---------------------------------------------------------------------------
+
+sim TestReadPortPassthrough {
+    wire r: u8
+    wire x: u8 = 0x42 as u8
+    Sm83MemBusReadPort(true, x, r)
+    assert(r == 0x42 as u8, "ren high passes data_raw")
+}
+
+sim TestWramStubSingleWrite {
+    wire raw: u8
+    wire a: u16 = 0xC000
+    wire w: bool = true
+    wire d: u8 = 0xA5 as u8
+    Sm83MemWramStub16(a, w, d, raw)
+    cycle()
+    assert(raw == 0xA5 as u8, "stub reg write visible after one cycle")
+}
+
+sim TestMemBusCartThroughSys {
+    wire d: u8
+    wire a: u16 = 0x0100
+    wire ren: bool = true
+    wire wen: bool = false
+    wire wd: u8 = 0 as u8
+    Sm83MemBusSysAddProg(a, ren, wen, wd, d)
+    assert(d == 0x06 as u8, "LD B,d8 opcode byte through system mux")
+}
+

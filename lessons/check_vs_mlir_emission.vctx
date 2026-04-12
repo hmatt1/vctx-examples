@@ -1,0 +1,23 @@
+// `vctx check` runs the same combinational dataflow scheduling analysis as MLIR emission.
+// Pure combinational cycles are rejected in both (no more "check passes, emit fails").
+//
+// Illegal pattern (would fail `check` and `mlir` / `sim` if uncommented):
+//
+//   component CombLoopIllegal(out o: u1) {
+//       wire a: u1
+//       wire b: u1
+//       a := b
+//       b := a
+//       o := a
+//   }
+
+component EmitsOk(out o: u8) {
+    o := 1 as u8
+}
+
+sim CheckPassesAndEmitShouldSucceed {
+    wire x: u8
+    EmitsOk(x)
+    cycle()
+    assert(x == 1 as u8, "constant drive; scheduler and emitter agree")
+}

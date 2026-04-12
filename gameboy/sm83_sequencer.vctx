@@ -1,6 +1,6 @@
 // SM83 instruction decoder + micro-sequencer (fetch + execute) for a subset of opcodes.
 //
-// Fetches one byte per cycle at PC (combinational ROM), then runs 1–2 execute cycles for
+// Fetches one byte per cycle at PC (cartridge read via sm83_mem_bus), then runs 1–2 execute cycles for
 // ALU ops that use the existing two-phase latch/commit path in Sm83Datapath.
 //
 // Supported opcodes (same numbering as gameboy.alu8 ALU8):
@@ -11,48 +11,11 @@
 //   0xB8       CP B       (flags only write-back: alu_wb_kind == 2)
 //
 // Unknown opcodes are treated as NOP (execute cycle returns to fetch).
+//
+// Instruction / immediate bytes come from gameboy.sm83_mem_bus (see Sm83MemBusCart*).
 
 import gameboy.sm83_datapath as dp_pkg
-
-// ---------------------------------------------------------------------------
-// Combinational program ROMs (test images starting at reset PC 0x0100)
-// ---------------------------------------------------------------------------
-
-component Sm83InsnRomAddProg(in addr: u16, out data: u8) {
-    when addr == 0x0100 {
-        data := 0x06 as u8
-    } elsewhen addr == 0x0101 {
-        data := 0x02 as u8
-    } elsewhen addr == 0x0102 {
-        data := 0x3E as u8
-    } elsewhen addr == 0x0103 {
-        data := 0x1E as u8
-    } elsewhen addr == 0x0104 {
-        data := 0x80 as u8
-    } elsewhen addr == 0x0105 {
-        data := 0x00 as u8
-    } otherwise {
-        data := 0x00 as u8
-    }
-}
-
-component Sm83InsnRomCpProg(in addr: u16, out data: u8) {
-    when addr == 0x0100 {
-        data := 0x3E as u8
-    } elsewhen addr == 0x0101 {
-        data := 0x10 as u8
-    } elsewhen addr == 0x0102 {
-        data := 0x06 as u8
-    } elsewhen addr == 0x0103 {
-        data := 0x20 as u8
-    } elsewhen addr == 0x0104 {
-        data := 0xB8 as u8
-    } elsewhen addr == 0x0105 {
-        data := 0x00 as u8
-    } otherwise {
-        data := 0x00 as u8
-    }
-}
+import gameboy.sm83_mem_bus as mem_pkg
 
 // ---------------------------------------------------------------------------
 // Micro-sequencer: sub 0 = fetch opcode into IR and bump PC; sub 1 = first execute;
@@ -70,13 +33,18 @@ component Sm83CtlSeqRegAdd(
     out sub_o: u8,
     out ir_o: u8,
     out pc_track_o: u16,
-    out rom_at_pc: u8
+    out mem_rdata: u8
 ) {
     reg sub: u8 = 0
     reg ir: u8 = 0
     reg pc_track: u16 = 0x0100
 
-    Sm83InsnRomAddProg(pc_track, rom_at_pc)
+    // Bus read only on opcode fetch and LD d8 immediate byte (otherwise idle / rdata = 0).
+    wire ren_mem: bool =
+        (sub == 0) | (sub == 1 & ((ir == 0x06) | (ir == 0x3E)))
+    wire wen_mem: bool = false
+    wire wdata_mem: u8 = 0 as u8
+    mem_pkg.Sm83MemBusCartAdd(pc_track, ren_mem, wen_mem, wdata_mem, mem_rdata)
 
     seq_pc := pc_track
     sub_o := sub
@@ -84,7 +52,7 @@ component Sm83CtlSeqRegAdd(
     pc_track_o := pc_track
 
     when sub == 0 {
-        ir <= rom_at_pc
+        ir <= mem_rdata
         sub <= 1
         pc_track <= (pc_track + (1 as u16)) as u16
     } elsewhen sub == 1 & (ir == 0x00) {
@@ -119,13 +87,17 @@ component Sm83CtlSeqRegCp(
     out sub_o: u8,
     out ir_o: u8,
     out pc_track_o: u16,
-    out rom_at_pc: u8
+    out mem_rdata: u8
 ) {
     reg sub: u8 = 0
     reg ir: u8 = 0
     reg pc_track: u16 = 0x0100
 
-    Sm83InsnRomCpProg(pc_track, rom_at_pc)
+    wire ren_mem: bool =
+        (sub == 0) | (sub == 1 & ((ir == 0x06) | (ir == 0x3E)))
+    wire wen_mem: bool = false
+    wire wdata_mem: u8 = 0 as u8
+    mem_pkg.Sm83MemBusCartCp(pc_track, ren_mem, wen_mem, wdata_mem, mem_rdata)
 
     seq_pc := pc_track
     sub_o := sub
@@ -133,7 +105,7 @@ component Sm83CtlSeqRegCp(
     pc_track_o := pc_track
 
     when sub == 0 {
-        ir <= rom_at_pc
+        ir <= mem_rdata
         sub <= 1
         pc_track <= (pc_track + (1 as u16)) as u16
     } elsewhen sub == 1 & (ir == 0x00) {
@@ -167,7 +139,7 @@ component Sm83CtlSeqComb(
     in sub: u8,
     in ir: u8,
     in pc_track: u16,
-    in rom_at_pc: u8,
+    in mem_rdata: u8,
 
     out we_a: bool,
     out we_f: bool,
@@ -228,7 +200,7 @@ component Sm83CtlSeqComb(
         we_e := false
         we_h := false
         we_l := false
-        data_in_8 := rom_at_pc
+        data_in_8 := mem_rdata
         we_af := false
         we_bc := false
         we_de := false
@@ -252,7 +224,7 @@ component Sm83CtlSeqComb(
         we_e := false
         we_h := false
         we_l := false
-        data_in_8 := rom_at_pc
+        data_in_8 := mem_rdata
         we_af := false
         we_bc := false
         we_de := false
@@ -419,9 +391,9 @@ component Sm83CtlSeqAdd(
     wire sub_w: u8
     wire ir_w: u8
     wire pc_w: u16
-    wire rom_w: u8
-    Sm83CtlSeqRegAdd(seq_pc, sub_w, ir_w, pc_w, rom_w)
-    Sm83CtlSeqComb(sub_w, ir_w, pc_w, rom_w, we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8, we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16, alu_op, alu_b, alu_c_in, alu_wb_kind, alu_latch, alu_commit, alu_b_from_gpr_b)
+    wire mem_w: u8
+    Sm83CtlSeqRegAdd(seq_pc, sub_w, ir_w, pc_w, mem_w)
+    Sm83CtlSeqComb(sub_w, ir_w, pc_w, mem_w, we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8, we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16, alu_op, alu_b, alu_c_in, alu_wb_kind, alu_latch, alu_commit, alu_b_from_gpr_b)
 }
 
 component Sm83CtlSeqCp(
@@ -453,9 +425,9 @@ component Sm83CtlSeqCp(
     wire sub_w: u8
     wire ir_w: u8
     wire pc_w: u16
-    wire rom_w: u8
-    Sm83CtlSeqRegCp(seq_pc, sub_w, ir_w, pc_w, rom_w)
-    Sm83CtlSeqComb(sub_w, ir_w, pc_w, rom_w, we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8, we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16, alu_op, alu_b, alu_c_in, alu_wb_kind, alu_latch, alu_commit, alu_b_from_gpr_b)
+    wire mem_w: u8
+    Sm83CtlSeqRegCp(seq_pc, sub_w, ir_w, pc_w, mem_w)
+    Sm83CtlSeqComb(sub_w, ir_w, pc_w, mem_w, we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8, we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16, alu_op, alu_b, alu_c_in, alu_wb_kind, alu_latch, alu_commit, alu_b_from_gpr_b)
 }
 
 // ---------------------------------------------------------------------------

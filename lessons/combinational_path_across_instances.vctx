@@ -1,0 +1,43 @@
+// Wish #2: Richer diagnostics for combinational cycles, especially across instances
+//
+// When a parent wires: slave_read(addr_from_reg_out) -> rdata -> reg_next_state, the
+// emitter may report an unsatisfiable order if `addr_from_reg_out` is not cleanly the
+// register's *current* Q output (same idea as "don't close ROM → seq → PC → ROM").
+//
+// Lesson (workaround): the address into a combinational ROM/map should come from the
+// owning block's *registered* PC (or equivalent), not from a wire that is still being
+// solved in the same combinational cloud as `rdata`.
+//
+// Below: `PcOnly` exposes current `pc`; `TinyRom` is purely combinational in `addr`.
+// No feedback through the parent beyond addr → rom → insn (insn does not determine addr
+// in the same instant).
+
+component TinyRom(in addr: u16, out rdata: u8) {
+    when addr == 0x0100 {
+        rdata := 0x06 as u8
+    } otherwise {
+        rdata := 0 as u8
+    }
+}
+
+component PcOnly(out pc: u16) {
+    reg p: u16 = 0x0100
+    when true {
+        p <= (p + (1 as u16)) as u16
+    } otherwise {
+        p <= p
+    }
+    pc := p
+}
+
+component LegalFetchPath(out insn: u8) {
+    wire addr: u16
+    PcOnly(addr)
+    TinyRom(addr, insn)
+}
+
+sim LegalPathCompiles {
+    wire op: u8
+    LegalFetchPath(op)
+    assert(op == 0x06 as u8, "combinational read: pc reg init 0x0100 drives TinyRom")
+}

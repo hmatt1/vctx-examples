@@ -1,0 +1,56 @@
+// Wish #4: First-class block RAM or array-backed `reg` for modeling WRAM/HRAM/cart RAM
+//
+// Today, small memories are often spelled as many scalar `reg` lines and a mux tree.
+// That is correct HDL-wise but verbose and error-prone at scale.
+//
+// This lesson shows the **explicit** style: two cells, explicit decode. A future array
+// type could collapse this to `reg mem: u8[2]` (or a `memory` keyword) with well-defined
+// read/write ports for emission and sim.
+
+component TwoByteRamRegs(
+    in addr: u16,
+    in wen: bool,
+    in wdata: u8,
+    out v0: u8,
+    out v1: u8
+) {
+    reg m0: u8 = 0
+    reg m1: u8 = 0
+    when wen & (addr == 0xC000) {
+        m0 <= wdata
+    } elsewhen wen & (addr == 0xC001) {
+        m1 <= wdata
+    } otherwise {
+        m0 <= m0
+        m1 <= m1
+    }
+    v0 := m0
+    v1 := m1
+}
+
+component TwoByteRamRead(in addr: u16, in v0: u8, in v1: u8, out raw: u8) {
+    when addr == 0xC000 {
+        raw := v0
+    } elsewhen addr == 0xC001 {
+        raw := v1
+    } otherwise {
+        raw := 0 as u8
+    }
+}
+
+component TwoByteRam(in addr: u16, in wen: bool, in wdata: u8, out raw: u8) {
+    wire b0: u8
+    wire b1: u8
+    TwoByteRamRegs(addr, wen, wdata, b0, b1)
+    TwoByteRamRead(addr, b0, b1, raw)
+}
+
+sim TwoCellRamSmoke {
+    wire r: u8
+    wire a: u16 = 0xC001
+    wire w: bool = true
+    wire d: u8 = 0x77 as u8
+    TwoByteRam(a, w, d, r)
+    cycle()
+    assert(r == 0x77 as u8, "second explicit cell holds write")
+}

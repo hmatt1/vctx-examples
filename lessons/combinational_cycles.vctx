@@ -8,8 +8,7 @@
 // This compiler schedules statements for MLIR so producers dominate consumers. A pure
 // combinational loop has no valid schedule, so emission fails with:
 //   "combinational cycle or unsatisfiable statement ordering ... (MLIR emission ...)"
-// That is reported when you build MLIR (e.g. `vctx-cli.py mlir this_file.vctx`), not
-// necessarily during `check`, which does not run the emitter for every path.
+// That is reported by `vctx check` and when you build MLIR (e.g. `vctx-cli.py mlir`).
 //
 // A *register* breaks the loop in time: each cycle you read the *current* stored value
 // (Q) while the *next* value (D) is computed. Sequential updates use `<=` on `reg`

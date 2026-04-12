@@ -1,0 +1,46 @@
+// Wish #6: Easier debugging when a reg-driven harness + combinational bus misbehaves in sim
+//
+// Symptom seen in bring-up: a small FSM toggling `ren`/`wen`/`addr` into a subsystem that
+// muxes ROM + RAM + `Sm83MemBusReadPort` sometimes never showed the expected read data,
+// while a **direct** instance of the RAM stub (same `wen`/`addr`/`wdata`) worked.
+//
+// Likely causes overlap wishes (2) and (3): ordering across instances, and read vs reg
+// split. There is no single minimal repro mandated here — this file documents the
+// **debugging order**:
+//
+//   1. Prove the leaf (RAM stub or ROM) with **wires only** + `cycle()` (see
+//      `reg_read_when_split.vctx`).
+//   2. Add **one** layer (e.g. `ren` gating via `Sm83MemBusReadPort`).
+//   3. Only then add the full address mux + multiple slaves.
+//
+// If step (1) passes and step (3) fails, split slaves or move address generation inside
+// the owning register block before assuming the simulator is wrong.
+
+component ReadGate(in ren: bool, in raw: u8, out rdata: u8) {
+    when ren {
+        rdata := raw
+    } otherwise {
+        rdata := 0 as u8
+    }
+}
+
+component LeafThenGate(out q: u8) {
+    reg m: u8 = 0
+    wire stored: u8
+    wire gated: u8
+    when true {
+        m <= 0x33 as u8
+    } otherwise {
+        m <= m
+    }
+    stored := m
+    ReadGate(true, stored, gated)
+    q := gated
+}
+
+sim HarnessStyleLeafFirst {
+    wire x: u8
+    LeafThenGate(x)
+    cycle()
+    assert(x == 0x33 as u8, "reg -> read path -> ren gate: one layer at a time")
+}
