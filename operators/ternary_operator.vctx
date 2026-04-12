@@ -1,0 +1,160 @@
+// Ternary conditional: `condition ? true_expr : false_expr`
+//
+// This is a structural 2:1 mux (same family as `when` / `otherwise`, but as an expression).
+// Use it when both arms are simple expressions; use `when` when you are wiring whole blocks.
+//
+// Examples below emphasize *non-constant* conditions and branch values (wires, ports, `poke`).
+
+// --- Components (hardware muxes) -----------------------------------------------------------
+
+component MuxU8(in sel: bool, in a: u8, in b: u8, out y: u8) {
+    y := sel ? a : b
+}
+
+component MuxBool(in sel: bool, in a: bool, in b: bool, out y: bool) {
+    y := sel ? a : b
+}
+
+component MaxU8(in x: u8, in y: u8, out m: u8) {
+    m := (x > y) ? x : y
+}
+
+component AbsDiffU4(in a: u4, in b: u4, out d: u4) {
+    d := (a > b) ? ((a - b) as u4) : ((b - a) as u4)
+}
+
+component NestedPriority(in sel_hi: bool, in sel_lo: bool, in v0: u2, in v1: u2, in v2: u2, out q: u2) {
+    // Right-associative: sel_hi ? v0 : (sel_lo ? v1 : v2)
+    q := sel_hi ? v0 : (sel_lo ? v1 : v2)
+}
+
+component TernaryWithRegBitBranch(in data: u8, out bit: bool) {
+    reg idx: u3 = 0
+    idx <= (idx + 1) as u3
+    // When idx is odd, expose `data[idx]`; otherwise drive low (mux + dynamic bit-select).
+    bit := idx[0] ? data[idx] : false
+}
+
+// --- sim: mostly dynamic wires / poke ------------------------------------------------------
+
+sim TestTernaryConstBool {
+    wire c: bool = true
+    wire a: u8 = 0x10
+    wire b: u8 = 0x20
+    wire y: u8 = c ? a : b
+    assert(y == 0x10, "true selects first arm")
+}
+
+sim TestTernaryWireSelect {
+    wire c: bool = false
+    wire a: u8 = 0xAA
+    wire b: u8 = 0x55
+    wire y: u8 = c ? a : b
+    assert(y == 0x55, "false selects second arm")
+}
+
+sim TestTernaryPokeCondition {
+    wire c: bool = false
+    wire a: u8 = 3
+    wire b: u8 = 9
+    wire y: u8
+    MuxU8(c, a, b, y)
+    cycle()
+    assert(y == 9, "initially low selects b")
+    poke(c, true)
+    cycle()
+    assert(y == 3, "high selects a")
+}
+
+sim TestTernaryPokeBranches {
+    wire c: bool = true
+    wire a: u8 = 1
+    wire b: u8 = 2
+    wire y: u8
+    MuxU8(c, a, b, y)
+    cycle()
+    assert(y == 1, "a path")
+    poke(a, 0xEE as u8)
+    cycle()
+    assert(y == 0xEE as u8, "true arm follows a")
+    poke(c, false)
+    cycle()
+    assert(y == 2, "false arm is b")
+    poke(b, 0xDD as u8)
+    cycle()
+    assert(y == 0xDD as u8, "false arm follows b")
+}
+
+sim TestTernaryComparisonMax {
+    wire x: u8 = 0x40
+    wire z: u8 = 0x41
+    wire m: u8
+    MaxU8(x, z, m)
+    cycle()
+    assert(m == 0x41, "max picks larger")
+    poke(x, 0xFF as u8)
+    cycle()
+    assert(m == 0xFF as u8, "max tracks poke on x")
+}
+
+sim TestTernaryAbsDiff {
+    wire p: u4 = 7
+    wire q: u4 = 2
+    wire d: u4
+    AbsDiffU4(p, q, d)
+    cycle()
+    assert(d == 5, "|7-2|")
+    poke(p, 2 as u4)
+    poke(q, 9 as u4)
+    cycle()
+    assert(d == 7, "|2-9|")
+}
+
+sim TestTernaryNestedPriority {
+    wire h: bool = false
+    wire l: bool = false
+    wire o: u2
+    NestedPriority(h, l, 1 as u2, 2 as u2, 3 as u2, o)
+    cycle()
+    assert(o == 3 as u2, "both false -> v2")
+    poke(l, true)
+    cycle()
+    assert(o == 2 as u2, "lo true -> v1")
+    poke(h, true)
+    cycle()
+    assert(o == 1 as u2, "hi overrides -> v0")
+}
+
+sim TestTernaryBoolArms {
+    wire s: bool = true
+    wire p: bool = false
+    wire q: bool = true
+    wire r: bool
+    MuxBool(s, p, q, r)
+    cycle()
+    assert(r == false, "bool mux: true picks first (false)")
+    poke(s, false)
+    cycle()
+    assert(r == true, "bool mux: false picks second")
+}
+
+sim TestTernaryRegBitBranch {
+    // 0xA5 = 0b1010_0101; after each cycle `idx` has advanced (see dynamic_index_extract).
+    wire d: u8 = 0b1010_0101
+    wire b: bool
+    TernaryWithRegBitBranch(d, b)
+    cycle()
+    assert(b == false, "idx 1 odd -> data[1] is 0")
+    cycle()
+    assert(b == false, "idx 2 even -> mux forces false")
+    cycle()
+    assert(b == false, "idx 3 odd -> data[3] is 0")
+    cycle()
+    assert(b == false, "idx 4 even -> false")
+    cycle()
+    assert(b == true, "idx 5 odd -> data[5] is 1")
+    cycle()
+    assert(b == false, "idx 6 even -> false")
+    cycle()
+    assert(b == true, "idx 7 odd -> data[7] is 1")
+}
