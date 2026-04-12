@@ -1,0 +1,429 @@
+// Authentic8-bit SM83-style ALU (Game Boy CPU).
+// https://gbdev.io/pandocs/CPU_Registers_and_Flags.html
+//
+// Inputs:
+//   a, b     — operands (b ignored for unary / INC/DEC / rotates on a only)
+//   op       — operation (see table below)
+//   c_in     — carry in (ADC/SBC, RLA/RRA, RL/RR through-carry)
+//   fz/fn/fh/fc_in — previous F bits (INC/DEC preserve C; CPL preserves Z,C;
+//                    SCF/CCF preserve Z; RLA/RRA/RLCA/RRCA force Z=0)
+//
+// Outputs: result, z, n, h, c
+//
+// op (u8, values 0–20):
+//   0  ADD      Z,N,H,C from 8-bit add
+//   1  ADC      includes c_in
+//   2  SUB      N=1; C=borrow; H half-borrow
+//   3  SBC      N=1; c_in is previous carry (1 = borrow)
+//   4  CP same flags as SUB; result = a - b (discard in CPU)
+//   5  AND      Z; N=0; H=1; C=0
+//   6  OR       Z; N=0; H=0; C=0
+//   7  XOR      Z; N=0; H=0; C=0
+//   8  INC      Z,N,H; C ← fc_in (unchanged)
+//   9  DEC      Z,N,H; C ← fc_in
+//   10 RLCA     rotate A left; Z=N=H=0; C←A[7]
+//11 RRCA     rotate A right; Z=N=H=0; C←A[0]
+//   12 RLA      rotate A left through c_in; Z=N=H=0; C←A[7]
+//   13 RRA      rotate A right through c_in; Z=N=H=0; C←A[0]
+//   14 RLC      rotate left; Z if result==0; N=H=0; C←A[7]
+//   15 RRC      rotate right; Z if result==0; N=H=0; C←A[0]
+//   16 RL       rotate left through c_in; Z if result==0; N=H=0; C←A[7]
+//   17 RR       rotate right through c_in; Z if result==0; N=H=0; C←A[0]
+//   18 CPL      result = ~a; N=H=1; Z,C unchanged
+//   19 SCF      result = a; N=H=0; C=1; Z unchanged
+//   20 CCF      result = a; N=H=0; C = ~fc_in; Z unchanged
+
+component ALU8(
+    in a: u8,
+    in b: u8,
+    in op: u8,
+    in c_in: bool,
+    in fz_in: bool,
+    in fn_in: bool,
+    in fh_in: bool,
+    in fc_in: bool,
+    out result: u8,
+    out z: bool,
+    out n: bool,
+    out h: bool,
+    out c: bool
+) {
+    wire cin_u: u8 = c_in as u8
+    wire fc_u: u8 = fc_in as u8
+
+    wire sum_lo: u17 = (a as u16) + (b as u16)
+    wire sum_ad: u17 = (a + b  + c_in) as u17
+
+    wire res_add: u8 = sum_lo[7..0]
+    wire res_adc: u8 = sum_ad[7..0]
+    wire c_add: bool = sum_lo[8] as bool
+    wire c_adc: bool = sum_ad[8] as bool
+
+    wire res_sub_full: u9 = a - b
+    wire res_sub: u8 = res_sub_full[7..0]
+    wire sbc_full: u9 = a - b - cin_u
+    wire res_sbc: u8 = sbc_full[7..0]
+    wire c_sub: bool = a < b
+    wire c_sbc: bool = a < b + cin_u
+
+    wire h_arith_add: bool = ((a ^ b ^ res_add) & 0x10) == 0x10
+    wire h_arith_adc: bool = ((a ^ b ^ res_adc) & 0x10) == 0x10
+    wire h_arith_sub: bool = ((a ^ b ^ res_sub) & 0x10) == 0x10
+    wire h_arith_sbc: bool = ((a ^ b ^ res_sbc) & 0x10) == 0x10
+
+    wire inc_full: u9 = a + 1
+    wire res_inc: u8 = inc_full[7..0]
+    wire dec_full: u9 = a + 255
+    wire res_dec: u8 = dec_full[7..0]
+    wire h_inc: bool = (a & 0x0F) == 0x0F
+    wire h_dec: bool = (a & 0x0F) == 0x00
+
+    wire rlca: u8 = (a << 1) | (a >> 7)
+    wire rrca: u8 = (a >> 1) | (a << 7)
+    wire rla: u8 = (a << 1) | fc_u
+    wire rra: u8 = (a >> 1) | (fc_u << 7)
+    wire rlc: u8 = rlca
+    wire rrc: u8 = rrca
+    wire rl: u8 = (a << 1) | fc_u
+    wire rr: u8 = (a >> 1) | (fc_u << 7)
+
+    when op == 0 {
+        result := res_add
+        z := res_add == 0
+        n := false
+        h := h_arith_add
+        c := c_add
+    } elsewhen op == 1 {
+        result := res_adc
+        z := res_adc == 0
+        n := false
+        h := h_arith_adc
+        c := c_adc
+    } elsewhen op == 2 {
+        result := res_sub
+        z := res_sub == 0
+        n := true
+        h := h_arith_sub
+        c := c_sub
+    } elsewhen op == 3 {
+        result := res_sbc
+        z := res_sbc == 0
+        n := true
+        h := h_arith_sbc
+        c := c_sbc
+    } elsewhen op == 4 {
+        result := res_sub
+        z := res_sub == 0
+        n := true
+        h := h_arith_sub
+        c := c_sub
+    } elsewhen op == 5 {
+        result := a & b
+        z := (a & b) == 0
+        n := false
+        h := true
+        c := false
+    } elsewhen op == 6 {
+        result := a | b
+        z := (a | b) == 0
+        n := false
+        h := false
+        c := false
+    } elsewhen op == 7 {
+        result := a ^ b
+        z := (a ^ b) == 0
+        n := false
+        h := false
+        c := false
+    } elsewhen op == 8 {
+        result := res_inc
+        z := res_inc == 0
+        n := false
+        h := h_inc
+        c := fc_in
+    } elsewhen op == 9 {
+        result := res_dec
+        z := res_dec == 0
+        n := true
+        h := h_dec
+        c := fc_in
+    } elsewhen op == 10 {
+        result := rlca
+        z := false
+        n := false
+        h := false
+        c := a[7] as bool
+    } elsewhen op == 11 {
+        result := rrca
+        z := false
+        n := false
+        h := false
+        c := a[0] as bool
+    } elsewhen op == 12 {
+        result := rla
+        z := false
+        n := false
+        h := false
+        c := a[7] as bool
+    } elsewhen op == 13 {
+        result := rra
+        z := false
+        n := false
+        h := false
+        c := a[0] as bool
+    } elsewhen op == 14 {
+        result := rlc
+        z := rlc == 0
+        n := false
+        h := false
+        c := a[7] as bool
+    } elsewhen op == 15 {
+        result := rrc
+        z := rrc == 0
+        n := false
+        h := false
+        c := a[0] as bool
+    } elsewhen op == 16 {
+        result := rl
+        z := rl == 0
+        n := false
+        h := false
+        c := a[7] as bool
+    } elsewhen op == 17 {
+        result := rr
+        z := rr == 0
+        n := false
+        h := false
+        c := a[0] as bool
+    } elsewhen op == 18 {
+        result := ~a
+        z := fz_in
+        n := true
+        h := true
+        c := fc_in
+    } elsewhen op == 19 {
+        result := a
+        z := fz_in
+        n := false
+        h := false
+        c := true
+    } elsewhen op == 20 {
+        result := a
+        z := fz_in
+        n := false
+        h := false
+        c := not fc_in
+    } otherwise {
+        result := 0
+        z := false
+        n := false
+        h := false
+        c := false
+    }
+}
+
+sim TestAddHalfCarry {
+    wire a: u8 = 0x1E
+    wire b: u8 = 0x02
+    wire op: u8 = 0
+    wire c_in: bool = false
+    wire fz_in: bool = false
+    wire fn_in: bool = false
+    wire fh_in: bool = false
+    wire fc_in: bool = false
+    wire r: u8
+    wire z: bool
+    wire n: bool
+    wire h: bool
+    wire c: bool
+    ALU8(a, b, op, c_in, fz_in, fn_in, fh_in, fc_in, r, z, n, h, c)
+    cycle()
+    assert(r == 0x20, "ADD result")
+    assert(h == true, "half carry 0xE+0x2")
+    assert(c == false, "no full carry")
+    assert(z == false, "not zero")
+    assert(n == false, "add N=0")
+}
+
+sim TestAdcWithCarry {
+    wire a: u8 = 0xFF
+    wire b: u8 = 0x01
+    wire op: u8 = 1
+    wire c_in: bool = true
+    wire fz_in: bool = false
+    wire fn_in: bool = false
+    wire fh_in: bool = false
+    wire fc_in: bool = false
+    wire r: u8
+    wire z: bool
+    wire n: bool
+    wire h: bool
+    wire c: bool
+    ALU8(a, b, op, c_in, fz_in, fn_in, fh_in, fc_in, r, z, n, h, c)
+    cycle()
+    assert(r == 0x01, "FF+1+1 wraps")
+    assert(c == true, "carry out")
+    assert(z == false, "result not zero")
+}
+
+sim TestSubBorrow {
+    wire a: u8 = 0x10
+    wire b: u8 = 0x20
+    wire op: u8 = 2
+    wire c_in: bool = false
+    wire fz_in: bool = false
+    wire fn_in: bool = false
+    wire fh_in: bool = false
+    wire fc_in: bool = false
+    wire r: u8
+    wire z: bool
+    wire n: bool
+    wire h: bool
+    wire c: bool
+    ALU8(a, b, op, c_in, fz_in, fn_in, fh_in, fc_in, r, z, n, h, c)
+    cycle()
+    assert(n == true, "sub N=1")
+    assert(c == true, "borrow")
+}
+
+sim TestAndSetsH {
+    wire a: u8 = 0xF0
+    wire b: u8 = 0xF0
+    wire op: u8 = 5
+    wire c_in: bool = false
+    wire fz_in: bool = false
+    wire fn_in: bool = false
+    wire fh_in: bool = false
+    wire fc_in: bool = false
+    wire r: u8
+    wire z: bool
+    wire n: bool
+    wire h: bool
+    wire c: bool
+    ALU8(a, b, op, c_in, fz_in, fn_in, fh_in, fc_in, r, z, n, h, c)
+    cycle()
+    assert(r == 0xF0, "AND result")
+    assert(h == true, "AND sets H on GB")
+    assert(c == false, "AND clears C")
+    assert(n == false, "AND clears N")
+}
+
+sim TestIncPreservesCarry {
+    wire a: u8 = 0x0F
+    wire b: u8 = 0
+    wire op: u8 = 8
+    wire c_in: bool = false
+    wire fz_in: bool = false
+    wire fn_in: bool = false
+    wire fh_in: bool = false
+    wire fc_in: bool = true
+    wire r: u8
+    wire z: bool
+    wire n: bool
+    wire h: bool
+    wire c: bool
+    ALU8(a, b, op, c_in, fz_in, fn_in, fh_in, fc_in, r, z, n, h, c)
+    cycle()
+    assert(r == 0x10, "INC")
+    assert(h == true, "INC half from0xF")
+    assert(c == true, "C preserved")
+}
+
+sim TestRLCA {
+    wire a: u8 = 0x85
+    wire b: u8 = 0
+    wire op: u8 = 10
+    wire c_in: bool = false
+    wire fz_in: bool = true
+    wire fn_in: bool = true
+    wire fh_in: bool = true
+    wire fc_in: bool = false
+    wire r: u8
+    wire z: bool
+    wire n: bool
+    wire h: bool
+    wire c: bool
+    ALU8(a, b, op, c_in, fz_in, fn_in, fh_in, fc_in, r, z, n, h, c)
+    cycle()
+    assert(r == 0x0B, "RLCA rotate")
+    assert(z == false, "RLCA clears Z")
+    assert(n == false, "RLCA clears N")
+    assert(h == false, "RLCA clears H")
+    assert(c == true, "C from old A[7]")
+}
+
+sim TestRLCZWhenZero {
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire op: u8 = 14
+    wire c_in: bool = false
+    wire fz_in: bool = false
+    wire fn_in: bool = false
+    wire fh_in: bool = false
+    wire fc_in: bool = false
+    wire r: u8
+    wire z: bool
+    wire n: bool
+    wire h: bool
+    wire c: bool
+    ALU8(a, b, op, c_in, fz_in, fn_in, fh_in, fc_in, r, z, n, h, c)
+    cycle()
+    assert(r == 0, "RLC 0 stays 0")
+    assert(z == true, "RLC sets Z when result 0")
+    assert(c == false, "C from bit shifted out")
+}
+
+sim TestCpl {
+    wire a: u8 = 0x3C
+    wire b: u8 = 0
+    wire op: u8 = 18
+    wire c_in: bool = false
+    wire fz_in: bool = true
+    wire fn_in: bool = false
+    wire fh_in: bool = false
+    wire fc_in: bool = true
+    wire r: u8
+    wire z: bool
+    wire n: bool
+    wire h: bool
+    wire c: bool
+    ALU8(a, b, op, c_in, fz_in, fn_in, fh_in, fc_in, r, z, n, h, c)
+    cycle()
+    assert(r == 0xC3, "CPL")
+    assert(z == true, "Z preserved")
+    assert(n == true, "CPL N=1")
+    assert(h == true, "CPL H=1")
+    assert(c == true, "C preserved")
+}
+
+sim TestScfCcf {
+    wire a: u8 = 0x55
+    wire b: u8 = 0
+    wire op_scf: u8 = 19
+    wire op_ccf: u8 = 20
+    wire c_in: bool = false
+    wire fz_in: bool = true
+    wire fn_in: bool = false
+    wire fh_in: bool = false
+    wire fc_in: bool = false
+    wire r1: u8
+    wire z1: bool
+    wire n1: bool
+    wire h1: bool
+    wire c1: bool
+    wire r2: u8
+    wire z2: bool
+    wire n2: bool
+    wire h2: bool
+    wire c2: bool
+    ALU8(a, b, op_scf, c_in, fz_in, fn_in, fh_in, fc_in, r1, z1, n1, h1, c1)
+    cycle()
+    assert(r1 == 0x55, "SCF keeps A")
+    assert(c1 == true, "SCF sets C")
+    assert(z1 == true, "Z preserved")
+
+    ALU8(a, b, op_ccf, c_in, fz_in, fn_in, fh_in, c1, r2, z2, n2, h2, c2)
+    cycle()
+    assert(c2 == false, "CCF toggles C")
+    assert(r2 == 0x55, "CCF keeps A")
+}
