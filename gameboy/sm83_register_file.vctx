@@ -1,13 +1,101 @@
+// SM83 (Game Boy) register file: A, F, B, C, D, E, H, L, SP, PC.
+// https://gbdev.io/pandocs/CPU_Registers_and_Flags.html
+//
+// Split into subcomponents so each has one when-tree: the vctx MLIR backend
+// currently ORs later register next-state muxes with actives from earlier
+// when-trees in the same module, which breaks multi-pair files.
+
+component Sm83GprPair(
+    in we_pair: bool,
+    in we_hi: bool,
+    in we_lo: bool,
+    in d8: u8,
+    in d16: u16,
+    out hi: u8,
+    out lo: u8,
+    out pair: u16
+) {
+    reg rh: u8 = 0
+    reg rl: u8 = 0
+
+    when we_pair {
+        rh <= d16[15..8]
+        rl <= d16[7..0]
+    } elsewhen we_hi {
+        rh <= d8
+    } elsewhen we_lo {
+        rl <= d8
+    } otherwise {
+        rh <= rh
+        rl <= rl
+    }
+
+    hi := rh
+    lo := rl
+    pair := concat(rh, rl)
+}
+
+component Sm83AfPair(
+    in we_af: bool,
+    in we_a: bool,
+    in we_f: bool,
+    in d8: u8,
+    in d16: u16,
+    out out_a: u8,
+    out out_f: u8,
+    out out_af: u16
+) {
+    reg a: u8 = 0
+    reg f: u8 = 0
+
+    when we_af {
+        a <= d16[15..8]
+        f <= d16[7..0] & 0xF0
+    } elsewhen we_a {
+        a <= d8
+    } elsewhen we_f {
+        f <= d8 & 0xF0
+    } otherwise {
+        a <= a
+        f <= f
+    }
+
+    out_a := a
+    out_f := f
+    out_af := concat(a, f)
+}
+
+component Sm83SpReg(in we: bool, in d: u16, out q: u16) {
+    reg r: u16 = 0xFFFE
+    when we {
+        r <= d
+    } otherwise {
+        r <= r
+    }
+    q := r
+}
+
+component Sm83PcReg(in we: bool, in d: u16, out q: u16) {
+    reg r: u16 = 0x0100
+    when we {
+        r <= d
+    } otherwise {
+        r <= r
+    }
+    q := r
+}
 
 component SM83RegisterFile(
-    // --- 8-bit Write Control ---
-    in we_a: bool, in we_f: bool,
-    in we_b: bool, in we_c: bool,
-    in we_d: bool, in we_e: bool,
-    in we_h: bool, in we_l: bool,
+    in we_a: bool,
+    in we_f: bool,
+    in we_b: bool,
+    in we_c: bool,
+    in we_d: bool,
+    in we_e: bool,
+    in we_h: bool,
+    in we_l: bool,
     in data_in_8: u8,
 
-    // --- 16-bit Write Control ---
     in we_af: bool,
     in we_bc: bool,
     in we_de: bool,
@@ -16,13 +104,15 @@ component SM83RegisterFile(
     in we_pc: bool,
     in data_in_16: u16,
 
-    // --- 8-bit Direct Outputs ---
-    out out_a: u8, out out_f: u8,
-    out out_b: u8, out out_c: u8,
-    out out_d: u8, out out_e: u8,
-    out out_h: u8, out out_l: u8,
+    out out_a: u8,
+    out out_f: u8,
+    out out_b: u8,
+    out out_c: u8,
+    out out_d: u8,
+    out out_e: u8,
+    out out_h: u8,
+    out out_l: u8,
 
-    // --- 16-bit Pair Outputs ---
     out out_af: u16,
     out out_bc: u16,
     out out_de: u16,
@@ -30,153 +120,25 @@ component SM83RegisterFile(
     out out_sp: u16,
     out out_pc: u16,
 
-    // --- Extracted Flags ---
     out flag_z: bool,
     out flag_n: bool,
     out flag_h: bool,
     out flag_c: bool
 ) {
-    // Core 8-bit Registers
-    reg a: u8 = 0
-    reg f: u8 = 0
-    reg b: u8 = 0
-    reg c: u8 = 0
-    reg d: u8 = 0
-    reg e: u8 = 0
-    reg h: u8 = 0
-    reg l: u8 = 0
-    
-    // Core 16-bit Special Registers 
-    // SP and PC usually initialize to these values in a Game Boy boot sequence
-    reg sp: u16 = 0xFFFE 
-    reg pc: u16 = 0x0100
+    Sm83GprPair(we_bc, we_b, we_c, data_in_8, data_in_16, out_b, out_c, out_bc)
+    Sm83GprPair(we_de, we_d, we_e, data_in_8, data_in_16, out_d, out_e, out_de)
+    Sm83GprPair(we_hl, we_h, we_l, data_in_8, data_in_16, out_h, out_l, out_hl)
+    Sm83AfPair(we_af, we_a, we_f, data_in_8, data_in_16, out_a, out_f, out_af)
+    Sm83SpReg(we_sp, data_in_16, out_sp)
+    Sm83PcReg(we_pc, data_in_16, out_pc)
 
-    // ==========================================
-    // Sequential Logic (Clocked Updates)
-    // ==========================================
-
-    // Register A
-    when we_af == true {
-        a <= data_in_16[15..8]
-    } elsewhen we_a == true {
-        a <= data_in_8
-    } otherwise {
-        a <= a
-    }
-
-    // Register F (Lower 4 bits are hardwired to 0)
-    when we_af == true {
-        f <= data_in_16[7..0] & 0xF0
-    } elsewhen we_f == true {
-        f <= data_in_8 & 0xF0
-    } otherwise {
-        f <= f
-    }
-
-    // Register B
-    when we_bc == true {
-        b <= data_in_16[15..8]
-    } elsewhen we_b == true {
-        b <= data_in_8
-    } otherwise {
-        b <= b
-    }
-
-    // Register C
-    when we_bc == true {
-        c <= data_in_16[7..0]
-    } elsewhen we_c == true {
-        c <= data_in_8
-    } otherwise {
-        c <= c
-    }
-
-    // Register D
-    when we_de == true {
-        d <= data_in_16[15..8]
-    } elsewhen we_d == true {
-        d <= data_in_8
-    } otherwise {
-        d <= d
-    }
-
-    // Register E
-    when we_de == true {
-        e <= data_in_16[7..0]
-    } elsewhen we_e == true {
-        e <= data_in_8
-    } otherwise {
-        e <= e
-    }
-
-    // Register H
-    when we_hl == true {
-        h <= data_in_16[15..8]
-    } elsewhen we_h == true {
-        h <= data_in_8
-    } otherwise {
-        h <= h
-    }
-
-    // Register L
-    when we_hl == true {
-        l <= data_in_16[7..0]
-    } elsewhen we_l == true {
-        l <= data_in_8
-    } otherwise {
-        l <= l
-    }
-
-    // Stack Pointer
-    when we_sp == true {
-        sp <= data_in_16
-    } otherwise {
-        sp <= sp
-    }
-
-    // Program Counter
-    when we_pc == true {
-        pc <= data_in_16
-    } otherwise {
-        pc <= pc
-    }
-
-    // ==========================================
-    // Combinational Logic (Continuous Outputs)
-    // ==========================================
-    
-    // 8-bit outputs
-    out_a := a
-    out_f := f
-    out_b := b
-    out_c := c
-    out_d := d
-    out_e := e
-    out_h := h
-    out_l := l
-
-    // 16-bit pair outputs
-    out_af := concat(a, f)
-    out_bc := concat(b, c)
-    out_de := concat(d, e)
-    out_hl := concat(h, l)
-
-    // 16-bit special registers
-    out_sp := sp
-    out_pc := pc
-
-    // Explode the flags for the ALU/Decoder
-    flag_z := f[7] as bool
-    flag_n := f[6] as bool
-    flag_h := f[5] as bool
-    flag_c := f[4] as bool
+    flag_z := out_f[7] as bool
+    flag_n := out_f[6] as bool
+    flag_h := out_f[5] as bool
+    flag_c := out_f[4] as bool
 }
 
-
-// ============================================================
-// Test 1: Initial State & 16-bit Writes
-// ============================================================
-sim TestInitialState {
+sim TestBootDefaults {
     wire we_a: bool = false
     wire we_f: bool = false
     wire we_b: bool = false
@@ -185,7 +147,7 @@ sim TestInitialState {
     wire we_e: bool = false
     wire we_h: bool = false
     wire we_l: bool = false
-    wire data_in_8: u8 = 0x00
+    wire data_in_8: u8 = 0
 
     wire we_af: bool = false
     wire we_bc: bool = false
@@ -193,7 +155,7 @@ sim TestInitialState {
     wire we_hl: bool = false
     wire we_sp: bool = false
     wire we_pc: bool = false
-    wire data_in_16: u16 = 0x0000
+    wire data_in_16: u16 = 0
 
     wire out_a: u8
     wire out_f: u8
@@ -222,41 +184,437 @@ sim TestInitialState {
         flag_z, flag_n, flag_h, flag_c
     )
 
-    // --- 1. Verify Boot Values (Before any clock cycles) ---
-    assert(out_pc == 0x0100, "PC initializes to correct boot location")
-    assert(out_sp == 0xFFFE, "SP initializes to top of RAM")
+    assert(out_pc == 0x0100, "PC reset")
+    assert(out_sp == 0xFFFE, "SP reset")
+    assert(out_a == 0, "A zero at reset")
+    assert(out_f == 0, "F zero at reset")
+    assert(out_b == 0, "B zero at reset")
+    assert(out_c == 0, "C zero at reset")
+    assert(out_d == 0, "D zero at reset")
+    assert(out_e == 0, "E zero at reset")
+    assert(out_h == 0, "H zero at reset")
+    assert(out_l == 0, "L zero at reset")
+    assert(out_af == 0, "AF zero at reset")
+    assert(out_bc == 0, "BC zero at reset")
+    assert(out_de == 0, "DE zero at reset")
+    assert(out_hl == 0, "HL zero at reset")
+    assert(flag_z == false, "Z clear at reset")
+    assert(flag_n == false, "N clear at reset")
+    assert(flag_h == false, "H flag clear at reset")
+    assert(flag_c == false, "C flag clear at reset")
+}
 
-    // --- 2. Test BC Recombination ---
-    poke(we_bc, 1)
+sim TestPairWritesBcDeHlAf {
+    wire we_a: bool = false
+    wire we_f: bool = false
+    wire we_b: bool = false
+    wire we_c: bool = false
+    wire we_d: bool = false
+    wire we_e: bool = false
+    wire we_h: bool = false
+    wire we_l: bool = false
+    wire data_in_8: u8 = 0
+
+    wire we_af: bool = false
+    wire we_bc: bool = false
+    wire we_de: bool = false
+    wire we_hl: bool = false
+    wire we_sp: bool = false
+    wire we_pc: bool = false
+    wire data_in_16: u16 = 0
+
+    wire out_a: u8
+    wire out_f: u8
+    wire out_b: u8
+    wire out_c: u8
+    wire out_d: u8
+    wire out_e: u8
+    wire out_h: u8
+    wire out_l: u8
+    wire out_af: u16
+    wire out_bc: u16
+    wire out_de: u16
+    wire out_hl: u16
+    wire out_sp: u16
+    wire out_pc: u16
+    wire flag_z: bool
+    wire flag_n: bool
+    wire flag_h: bool
+    wire flag_c: bool
+
+    SM83RegisterFile(
+        we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
+        we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16,
+        out_a, out_f, out_b, out_c, out_d, out_e, out_h, out_l,
+        out_af, out_bc, out_de, out_hl, out_sp, out_pc,
+        flag_z, flag_n, flag_h, flag_c
+    )
+
+    poke(we_bc, true)
     poke(data_in_16, 0x1234)
     cycle()
-    poke(we_bc, 0) // Clean up the write enable
+    poke(we_bc, false)
+    assert(out_b == 0x12, "BC pair high")
+    assert(out_c == 0x34, "BC pair low")
+    assert(out_bc == 0x1234, "BC pair 16-bit")
 
-    assert(out_b == 0x12, "B extracted high byte from 16-bit write")
-    assert(out_c == 0x34, "C extracted low byte from 16-bit write")
-    assert(out_bc == 0x1234, "BC dynamically recombines to original value")
+    poke(we_de, true)
+    poke(data_in_16, 0xABCD)
+    cycle()
+    poke(we_de, false)
+    assert(out_d == 0xAB, "DE pair high")
+    assert(out_e == 0xCD, "DE pair low")
+    assert(out_de == 0xABCD, "DE pair 16-bit")
 
-    // --- 3. Test HL Recombination ---
-    poke(we_hl, 1)
+    poke(we_hl, true)
     poke(data_in_16, 0xDEAD)
     cycle()
-    poke(we_hl, 0) // Clean up the write enable
+    poke(we_hl, false)
+    assert(out_h == 0xDE, "HL pair high")
+    assert(out_l == 0xAD, "HL pair low")
+    assert(out_hl == 0xDEAD, "HL pair 16-bit")
 
-    assert(out_h == 0xDE, "H extracted high byte from 16-bit write")
-    assert(out_l == 0xAD, "L extracted low byte from 16-bit write")
-    assert(out_hl == 0xDEAD, "HL reads back correctly")
-
-    // --- 4. Test AF and Flag Masking ---
-    // We input 0xAAFF to test if the lower nibble of F gets masked to 0
-    poke(we_af, 1)
-    poke(data_in_16, 0xAAFF) 
+    poke(we_af, true)
+    poke(data_in_16, 0xAAFF)
     cycle()
-    poke(we_af, 0) // Clean up the write enable
+    poke(we_af, false)
+    assert(out_a == 0xAA, "A from AF high byte")
+    assert(out_f == 0xF0, "F masks lower nibble")
+    assert(out_af == 0xAAF0, "AF concat")
+    assert(flag_z == true, "Z from 0xF0")
+    assert(flag_n == true, "N from 0xF0")
+    assert(flag_h == true, "H from 0xF0")
+    assert(flag_c == true, "C from 0xF0")
+}
 
-    assert(out_a == 0xAA, "A stored 0xAA from high byte of AF write")
-    assert(out_f == 0xF0, "F lower nibble masked to 0 despite 0xFF input")
-    assert(flag_z == true, "Z flag (bit 7) reads correctly")
-    assert(flag_n == true, "N flag (bit 6) reads correctly")
-    assert(flag_h == true, "H flag (bit 5) reads correctly")
-    assert(flag_c == true, "C flag (bit 4) reads correctly")
+sim Test8BitGprWrites {
+    wire we_a: bool = false
+    wire we_f: bool = false
+    wire we_b: bool = false
+    wire we_c: bool = false
+    wire we_d: bool = false
+    wire we_e: bool = false
+    wire we_h: bool = false
+    wire we_l: bool = false
+    wire data_in_8: u8 = 0
+
+    wire we_af: bool = false
+    wire we_bc: bool = false
+    wire we_de: bool = false
+    wire we_hl: bool = false
+    wire we_sp: bool = false
+    wire we_pc: bool = false
+    wire data_in_16: u16 = 0
+
+    wire out_a: u8
+    wire out_f: u8
+    wire out_b: u8
+    wire out_c: u8
+    wire out_d: u8
+    wire out_e: u8
+    wire out_h: u8
+    wire out_l: u8
+    wire out_af: u16
+    wire out_bc: u16
+    wire out_de: u16
+    wire out_hl: u16
+    wire out_sp: u16
+    wire out_pc: u16
+    wire flag_z: bool
+    wire flag_n: bool
+    wire flag_h: bool
+    wire flag_c: bool
+
+    SM83RegisterFile(
+        we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
+        we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16,
+        out_a, out_f, out_b, out_c, out_d, out_e, out_h, out_l,
+        out_af, out_bc, out_de, out_hl, out_sp, out_pc,
+        flag_z, flag_n, flag_h, flag_c
+    )
+
+    poke(we_a, true)
+    poke(data_in_8, 0x11)
+    cycle()
+    poke(we_a, false)
+    assert(out_a == 0x11, "A 8-bit")
+
+    poke(we_b, true)
+    poke(data_in_8, 0x22)
+    cycle()
+    poke(we_b, false)
+    assert(out_b == 0x22, "B 8-bit")
+
+    poke(we_c, true)
+    poke(data_in_8, 0x33)
+    cycle()
+    poke(we_c, false)
+    assert(out_c == 0x33, "C 8-bit")
+
+    poke(we_d, true)
+    poke(data_in_8, 0x44)
+    cycle()
+    poke(we_d, false)
+    assert(out_d == 0x44, "D 8-bit")
+
+    poke(we_e, true)
+    poke(data_in_8, 0x55)
+    cycle()
+    poke(we_e, false)
+    assert(out_e == 0x55, "E 8-bit")
+
+    poke(we_h, true)
+    poke(data_in_8, 0x66)
+    cycle()
+    poke(we_h, false)
+    assert(out_h == 0x66, "H 8-bit")
+
+    poke(we_l, true)
+    poke(data_in_8, 0x77)
+    cycle()
+    poke(we_l, false)
+    assert(out_l == 0x77, "L 8-bit")
+
+    assert(out_bc == concat(0x22 as u8, 0x33 as u8), "BC recombines")
+    assert(out_de == concat(0x44 as u8, 0x55 as u8), "DE recombines")
+    assert(out_hl == concat(0x66 as u8, 0x77 as u8), "HL recombines")
+}
+
+sim TestFWriteMasking {
+    wire we_a: bool = false
+    wire we_f: bool = false
+    wire we_b: bool = false
+    wire we_c: bool = false
+    wire we_d: bool = false
+    wire we_e: bool = false
+    wire we_h: bool = false
+    wire we_l: bool = false
+    wire data_in_8: u8 = 0
+
+    wire we_af: bool = false
+    wire we_bc: bool = false
+    wire we_de: bool = false
+    wire we_hl: bool = false
+    wire we_sp: bool = false
+    wire we_pc: bool = false
+    wire data_in_16: u16 = 0
+
+    wire out_a: u8
+    wire out_f: u8
+    wire out_b: u8
+    wire out_c: u8
+    wire out_d: u8
+    wire out_e: u8
+    wire out_h: u8
+    wire out_l: u8
+    wire out_af: u16
+    wire out_bc: u16
+    wire out_de: u16
+    wire out_hl: u16
+    wire out_sp: u16
+    wire out_pc: u16
+    wire flag_z: bool
+    wire flag_n: bool
+    wire flag_h: bool
+    wire flag_c: bool
+
+    SM83RegisterFile(
+        we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
+        we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16,
+        out_a, out_f, out_b, out_c, out_d, out_e, out_h, out_l,
+        out_af, out_bc, out_de, out_hl, out_sp, out_pc,
+        flag_z, flag_n, flag_h, flag_c
+    )
+
+    poke(we_f, true)
+    poke(data_in_8, 0x5F)
+    cycle()
+    poke(we_f, false)
+    assert(out_f == 0x50, "F clears lower nibble (0x5F -> 0x50)")
+    assert(flag_z == false, "Z from 0x50")
+    assert(flag_n == true, "N from 0x50")
+    assert(flag_h == false, "H from 0x50")
+    assert(flag_c == true, "C from 0x50")
+
+    poke(we_f, true)
+    poke(data_in_8, 0x00)
+    cycle()
+    poke(we_f, false)
+    assert(out_f == 0, "F cleared")
+    assert(flag_z == false, "Z after clear F")
+    assert(flag_n == false, "N after clear F")
+    assert(flag_h == false, "H after clear F")
+    assert(flag_c == false, "C after clear F")
+}
+
+sim TestSpPcWrites {
+    wire we_a: bool = false
+    wire we_f: bool = false
+    wire we_b: bool = false
+    wire we_c: bool = false
+    wire we_d: bool = false
+    wire we_e: bool = false
+    wire we_h: bool = false
+    wire we_l: bool = false
+    wire data_in_8: u8 = 0
+
+    wire we_af: bool = false
+    wire we_bc: bool = false
+    wire we_de: bool = false
+    wire we_hl: bool = false
+    wire we_sp: bool = false
+    wire we_pc: bool = false
+    wire data_in_16: u16 = 0
+
+    wire out_a: u8
+    wire out_f: u8
+    wire out_b: u8
+    wire out_c: u8
+    wire out_d: u8
+    wire out_e: u8
+    wire out_h: u8
+    wire out_l: u8
+    wire out_af: u16
+    wire out_bc: u16
+    wire out_de: u16
+    wire out_hl: u16
+    wire out_sp: u16
+    wire out_pc: u16
+    wire flag_z: bool
+    wire flag_n: bool
+    wire flag_h: bool
+    wire flag_c: bool
+
+    SM83RegisterFile(
+        we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
+        we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16,
+        out_a, out_f, out_b, out_c, out_d, out_e, out_h, out_l,
+        out_af, out_bc, out_de, out_hl, out_sp, out_pc,
+        flag_z, flag_n, flag_h, flag_c
+    )
+
+    poke(we_sp, true)
+    poke(data_in_16, 0xC000)
+    cycle()
+    poke(we_sp, false)
+    assert(out_sp == 0xC000, "SP load")
+
+    poke(we_pc, true)
+    poke(data_in_16, 0x0150)
+    cycle()
+    poke(we_pc, false)
+    assert(out_pc == 0x0150, "PC load")
+}
+
+sim TestWeAfPriorityOverWeA {
+    wire we_a: bool = false
+    wire we_f: bool = false
+    wire we_b: bool = false
+    wire we_c: bool = false
+    wire we_d: bool = false
+    wire we_e: bool = false
+    wire we_h: bool = false
+    wire we_l: bool = false
+    wire data_in_8: u8 = 0x99
+
+    wire we_af: bool = false
+    wire we_bc: bool = false
+    wire we_de: bool = false
+    wire we_hl: bool = false
+    wire we_sp: bool = false
+    wire we_pc: bool = false
+    wire data_in_16: u16 = 0xBEEF
+
+    wire out_a: u8
+    wire out_f: u8
+    wire out_b: u8
+    wire out_c: u8
+    wire out_d: u8
+    wire out_e: u8
+    wire out_h: u8
+    wire out_l: u8
+    wire out_af: u16
+    wire out_bc: u16
+    wire out_de: u16
+    wire out_hl: u16
+    wire out_sp: u16
+    wire out_pc: u16
+    wire flag_z: bool
+    wire flag_n: bool
+    wire flag_h: bool
+    wire flag_c: bool
+
+    SM83RegisterFile(
+        we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
+        we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16,
+        out_a, out_f, out_b, out_c, out_d, out_e, out_h, out_l,
+        out_af, out_bc, out_de, out_hl, out_sp, out_pc,
+        flag_z, flag_n, flag_h, flag_c
+    )
+
+    poke(we_a, true)
+    poke(we_af, true)
+    cycle()
+    poke(we_a, false)
+    poke(we_af, false)
+    assert(out_a == 0xBE, "we_af wins over we_a (high byte of 0xBEEF)")
+    assert(out_f == 0xE0, "F from low byte 0xEF masked to 0xE0")
+}
+
+sim TestHoldWhenNoWriteEnables {
+    wire we_a: bool = false
+    wire we_f: bool = false
+    wire we_b: bool = false
+    wire we_c: bool = false
+    wire we_d: bool = false
+    wire we_e: bool = false
+    wire we_h: bool = false
+    wire we_l: bool = false
+    wire data_in_8: u8 = 0xFF
+
+    wire we_af: bool = false
+    wire we_bc: bool = false
+    wire we_de: bool = false
+    wire we_hl: bool = false
+    wire we_sp: bool = false
+    wire we_pc: bool = false
+    wire data_in_16: u16 = 0xFFFF
+
+    wire out_a: u8
+    wire out_f: u8
+    wire out_b: u8
+    wire out_c: u8
+    wire out_d: u8
+    wire out_e: u8
+    wire out_h: u8
+    wire out_l: u8
+    wire out_af: u16
+    wire out_bc: u16
+    wire out_de: u16
+    wire out_hl: u16
+    wire out_sp: u16
+    wire out_pc: u16
+    wire flag_z: bool
+    wire flag_n: bool
+    wire flag_h: bool
+    wire flag_c: bool
+
+    SM83RegisterFile(
+        we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
+        we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16,
+        out_a, out_f, out_b, out_c, out_d, out_e, out_h, out_l,
+        out_af, out_bc, out_de, out_hl, out_sp, out_pc,
+        flag_z, flag_n, flag_h, flag_c
+    )
+
+    poke(we_a, true)
+    poke(data_in_8, 0x42)
+    cycle()
+    poke(we_a, false)
+
+    poke(data_in_8, 0x00)
+    poke(data_in_16, 0x0000)
+    cycle()
+    cycle()
+    assert(out_a == 0x42, "A holds with no strobes")
 }
