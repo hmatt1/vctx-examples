@@ -104,6 +104,12 @@ component SM83RegisterFile(
     in we_pc: bool,
     in data_in_16: u16,
 
+    // Execute / ALU write-back (muxed inside so ports do not depend on reg outputs).
+    in exec_wr_af: bool,
+    in exec_wr_f: bool,
+    in exec_d16: u16,
+    in exec_f_byte: u8,
+
     out out_a: u8,
     out out_f: u8,
     out out_b: u8,
@@ -125,10 +131,27 @@ component SM83RegisterFile(
     out flag_h: bool,
     out flag_c: bool
 ) {
+    wire we_af_e: bool = we_af | exec_wr_af
+    wire we_f_e: bool = we_f | exec_wr_f
+
+    wire data_in_16_e: u16
+    when exec_wr_af {
+        data_in_16_e := exec_d16
+    } otherwise {
+        data_in_16_e := data_in_16
+    }
+
+    wire d8_for_af: u8
+    when exec_wr_f {
+        d8_for_af := exec_f_byte
+    } otherwise {
+        d8_for_af := data_in_8
+    }
+
     Sm83GprPair(we_bc, we_b, we_c, data_in_8, data_in_16, out_b, out_c, out_bc)
     Sm83GprPair(we_de, we_d, we_e, data_in_8, data_in_16, out_d, out_e, out_de)
     Sm83GprPair(we_hl, we_h, we_l, data_in_8, data_in_16, out_h, out_l, out_hl)
-    Sm83AfPair(we_af, we_a, we_f, data_in_8, data_in_16, out_a, out_f, out_af)
+    Sm83AfPair(we_af_e, we_a, we_f_e, d8_for_af, data_in_16_e, out_a, out_f, out_af)
     Sm83SpReg(we_sp, data_in_16, out_sp)
     Sm83PcReg(we_pc, data_in_16, out_pc)
 
@@ -179,6 +202,7 @@ sim TestBootDefaults {
     SM83RegisterFile(
         we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
         we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16,
+        false, false, 0 as u16, 0 as u8,
         out_a, out_f, out_b, out_c, out_d, out_e, out_h, out_l,
         out_af, out_bc, out_de, out_hl, out_sp, out_pc,
         flag_z, flag_n, flag_h, flag_c
@@ -245,6 +269,7 @@ sim TestPairWritesBcDeHlAf {
     SM83RegisterFile(
         we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
         we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16,
+        false, false, 0 as u16, 0 as u8,
         out_a, out_f, out_b, out_c, out_d, out_e, out_h, out_l,
         out_af, out_bc, out_de, out_hl, out_sp, out_pc,
         flag_z, flag_n, flag_h, flag_c
@@ -328,6 +353,7 @@ sim Test8BitGprWrites {
     SM83RegisterFile(
         we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
         we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16,
+        false, false, 0 as u16, 0 as u8,
         out_a, out_f, out_b, out_c, out_d, out_e, out_h, out_l,
         out_af, out_bc, out_de, out_hl, out_sp, out_pc,
         flag_z, flag_n, flag_h, flag_c
@@ -421,6 +447,7 @@ sim TestFWriteMasking {
     SM83RegisterFile(
         we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
         we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16,
+        false, false, 0 as u16, 0 as u8,
         out_a, out_f, out_b, out_c, out_d, out_e, out_h, out_l,
         out_af, out_bc, out_de, out_hl, out_sp, out_pc,
         flag_z, flag_n, flag_h, flag_c
@@ -488,6 +515,7 @@ sim TestSpPcWrites {
     SM83RegisterFile(
         we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
         we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16,
+        false, false, 0 as u16, 0 as u8,
         out_a, out_f, out_b, out_c, out_d, out_e, out_h, out_l,
         out_af, out_bc, out_de, out_hl, out_sp, out_pc,
         flag_z, flag_n, flag_h, flag_c
@@ -547,6 +575,7 @@ sim TestWeAfPriorityOverWeA {
     SM83RegisterFile(
         we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
         we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16,
+        false, false, 0 as u16, 0 as u8,
         out_a, out_f, out_b, out_c, out_d, out_e, out_h, out_l,
         out_af, out_bc, out_de, out_hl, out_sp, out_pc,
         flag_z, flag_n, flag_h, flag_c
@@ -602,6 +631,7 @@ sim TestHoldWhenNoWriteEnables {
     SM83RegisterFile(
         we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8,
         we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16,
+        false, false, 0 as u16, 0 as u8,
         out_a, out_f, out_b, out_c, out_d, out_e, out_h, out_l,
         out_af, out_bc, out_de, out_hl, out_sp, out_pc,
         flag_z, flag_n, flag_h, flag_c

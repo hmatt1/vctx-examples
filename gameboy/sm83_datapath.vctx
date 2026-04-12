@@ -1,0 +1,391 @@
+// SM83 execute slice: register file + ALU8 + ALU→RF exec ports.
+//
+// The register file muxes exec_d16 / exec_f_byte on the bus (see SM83RegisterFile).
+// Because the MLIR emitter fixes instance input values when the instance is emitted,
+// pending ALU results are held in registers and committed on a later cycle.
+//
+// Two-phase micro-op (typical):
+//   1) alu_latch = true, alu_commit = false — sample ALU result into hold_d16 / hold_f.
+//   2) alu_latch = false, alu_commit = true, alu_wb_kind = 1 (AF) or 2 (F only) —
+//      RF performs exec_wr_af / exec_wr_f using the latched bytes.
+//
+// alu_wb_kind: 0 = no exec write; 1 = write latched AF pair; 2 = write latched F only.
+
+import gameboy.alu8 as alu_pkg
+import gameboy.sm83_register_file as gpr_pkg
+
+component Sm83Datapath(
+    in we_a: bool,
+    in we_f: bool,
+    in we_b: bool,
+    in we_c: bool,
+    in we_d: bool,
+    in we_e: bool,
+    in we_h: bool,
+    in we_l: bool,
+    in data_in_8: u8,
+
+    in we_af: bool,
+    in we_bc: bool,
+    in we_de: bool,
+    in we_hl: bool,
+    in we_sp: bool,
+    in we_pc: bool,
+    in data_in_16: u16,
+
+    in alu_op: u8,
+    in alu_b: u8,
+    in alu_c_in: bool,
+    in alu_wb_kind: u8,
+    in alu_latch: bool,
+    in alu_commit: bool,
+
+    out out_a: u8,
+    out out_f: u8,
+    out out_b: u8,
+    out out_c: u8,
+    out out_d: u8,
+    out out_e: u8,
+    out out_h: u8,
+    out out_l: u8,
+
+    out out_af: u16,
+    out out_bc: u16,
+    out out_de: u16,
+    out out_hl: u16,
+    out out_sp: u16,
+    out out_pc: u16,
+
+    out flag_z: bool,
+    out flag_n: bool,
+    out flag_h: bool,
+    out flag_c: bool,
+
+    out alu_result: u8
+) {
+    reg hold_d16: u16 = 0
+    reg hold_f: u8 = 0
+
+    wire exec_wr_af: bool = alu_commit & (alu_wb_kind == 1)
+    wire exec_wr_f: bool = alu_commit & (alu_wb_kind == 2)
+
+    gpr_pkg.SM83RegisterFile(
+        we_a,
+        we_f,
+        we_b,
+        we_c,
+        we_d,
+        we_e,
+        we_h,
+        we_l,
+        data_in_8,
+        we_af,
+        we_bc,
+        we_de,
+        we_hl,
+        we_sp,
+        we_pc,
+        data_in_16,
+        exec_wr_af,
+        exec_wr_f,
+        hold_d16,
+        hold_f,
+        out_a,
+        out_f,
+        out_b,
+        out_c,
+        out_d,
+        out_e,
+        out_h,
+        out_l,
+        out_af,
+        out_bc,
+        out_de,
+        out_hl,
+        out_sp,
+        out_pc,
+        flag_z,
+        flag_n,
+        flag_h,
+        flag_c
+    )
+
+    wire alu_y: u8
+    wire alu_qz: bool
+    wire alu_qn: bool
+    wire alu_qh: bool
+    wire alu_qc: bool
+    alu_pkg.ALU8(
+        out_a,
+        alu_b,
+        alu_op,
+        alu_c_in,
+        flag_z,
+        flag_n,
+        flag_h,
+        flag_c,
+        alu_y,
+        alu_qz,
+        alu_qn,
+        alu_qh,
+        alu_qc
+    )
+
+    // Pack ALU flags inside the register when (not as top-level wire init):
+    // wire initializers are scanned before instances, so alu_q* would still be 0.
+    when alu_latch & (alu_wb_kind == 1) {
+        hold_d16 <= concat(
+            alu_y,
+            (((alu_qz as u8) << 7) | ((alu_qn as u8) << 6))
+                | (((alu_qh as u8) << 5) | ((alu_qc as u8) << 4))
+        )
+        hold_f <= hold_f
+    } elsewhen alu_latch & (alu_wb_kind == 2) {
+        hold_d16 <= hold_d16
+        hold_f <= (((alu_qz as u8) << 7) | ((alu_qn as u8) << 6))
+            | (((alu_qh as u8) << 5) | ((alu_qc as u8) << 4))
+    } otherwise {
+        hold_d16 <= hold_d16
+        hold_f <= hold_f
+    }
+
+    alu_result := alu_y
+}
+
+sim TestDatapathAddTwoPhase {
+    wire we_a: bool = false
+    wire we_f: bool = false
+    wire we_b: bool = false
+    wire we_c: bool = false
+    wire we_d: bool = false
+    wire we_e: bool = false
+    wire we_h: bool = false
+    wire we_l: bool = false
+    wire data_in_8: u8 = 0
+
+    wire we_af: bool = false
+    wire we_bc: bool = false
+    wire we_de: bool = false
+    wire we_hl: bool = false
+    wire we_sp: bool = false
+    wire we_pc: bool = false
+    wire data_in_16: u16 = 0
+
+    wire alu_op: u8 = 0
+    wire alu_b: u8 = 0
+    wire alu_c_in: bool = false
+    wire alu_wb_kind: u8 = 0
+    wire alu_latch: bool = false
+    wire alu_commit: bool = false
+
+    wire out_a: u8
+    wire out_f: u8
+    wire out_b: u8
+    wire out_c: u8
+    wire out_d: u8
+    wire out_e: u8
+    wire out_h: u8
+    wire out_l: u8
+    wire out_af: u16
+    wire out_bc: u16
+    wire out_de: u16
+    wire out_hl: u16
+    wire out_sp: u16
+    wire out_pc: u16
+    wire flag_z: bool
+    wire flag_n: bool
+    wire flag_h: bool
+    wire flag_c: bool
+    wire alu_result: u8
+
+    Sm83Datapath(
+        we_a,
+        we_f,
+        we_b,
+        we_c,
+        we_d,
+        we_e,
+        we_h,
+        we_l,
+        data_in_8,
+        we_af,
+        we_bc,
+        we_de,
+        we_hl,
+        we_sp,
+        we_pc,
+        data_in_16,
+        alu_op,
+        alu_b,
+        alu_c_in,
+        alu_wb_kind,
+        alu_latch,
+        alu_commit,
+        out_a,
+        out_f,
+        out_b,
+        out_c,
+        out_d,
+        out_e,
+        out_h,
+        out_l,
+        out_af,
+        out_bc,
+        out_de,
+        out_hl,
+        out_sp,
+        out_pc,
+        flag_z,
+        flag_n,
+        flag_h,
+        flag_c,
+        alu_result
+    )
+
+    poke(we_a, true)
+    poke(data_in_8, 0x1E)
+    cycle()
+    poke(we_a, false)
+
+    poke(we_b, true)
+    poke(data_in_8, 0x02)
+    cycle()
+    poke(we_b, false)
+
+    poke(alu_op, 0)
+    poke(alu_b, 0x02)
+    poke(alu_c_in, false)
+    poke(alu_wb_kind, 1)
+    poke(alu_latch, true)
+    poke(alu_commit, false)
+    cycle()
+    poke(alu_latch, false)
+
+    poke(alu_commit, true)
+    cycle()
+    poke(alu_commit, false)
+    poke(alu_wb_kind, 0)
+
+    assert(out_a == 0x20, "ADD A,B write-back")
+    assert(flag_h == true, "half-carry 0xE + 0x2")
+    assert(flag_z == false, "nonzero result")
+    assert(flag_n == false, "ADD N=0")
+}
+
+sim TestDatapathCpTwoPhase {
+    wire we_a: bool = false
+    wire we_f: bool = false
+    wire we_b: bool = false
+    wire we_c: bool = false
+    wire we_d: bool = false
+    wire we_e: bool = false
+    wire we_h: bool = false
+    wire we_l: bool = false
+    wire data_in_8: u8 = 0
+
+    wire we_af: bool = false
+    wire we_bc: bool = false
+    wire we_de: bool = false
+    wire we_hl: bool = false
+    wire we_sp: bool = false
+    wire we_pc: bool = false
+    wire data_in_16: u16 = 0
+
+    wire alu_op: u8 = 4
+    wire alu_b: u8 = 0
+    wire alu_c_in: bool = false
+    wire alu_wb_kind: u8 = 0
+    wire alu_latch: bool = false
+    wire alu_commit: bool = false
+
+    wire out_a: u8
+    wire out_f: u8
+    wire out_b: u8
+    wire out_c: u8
+    wire out_d: u8
+    wire out_e: u8
+    wire out_h: u8
+    wire out_l: u8
+    wire out_af: u16
+    wire out_bc: u16
+    wire out_de: u16
+    wire out_hl: u16
+    wire out_sp: u16
+    wire out_pc: u16
+    wire flag_z: bool
+    wire flag_n: bool
+    wire flag_h: bool
+    wire flag_c: bool
+    wire alu_result: u8
+
+    Sm83Datapath(
+        we_a,
+        we_f,
+        we_b,
+        we_c,
+        we_d,
+        we_e,
+        we_h,
+        we_l,
+        data_in_8,
+        we_af,
+        we_bc,
+        we_de,
+        we_hl,
+        we_sp,
+        we_pc,
+        data_in_16,
+        alu_op,
+        alu_b,
+        alu_c_in,
+        alu_wb_kind,
+        alu_latch,
+        alu_commit,
+        out_a,
+        out_f,
+        out_b,
+        out_c,
+        out_d,
+        out_e,
+        out_h,
+        out_l,
+        out_af,
+        out_bc,
+        out_de,
+        out_hl,
+        out_sp,
+        out_pc,
+        flag_z,
+        flag_n,
+        flag_h,
+        flag_c,
+        alu_result
+    )
+
+    poke(we_a, true)
+    poke(data_in_8, 0x10)
+    cycle()
+    poke(we_a, false)
+
+    poke(we_b, true)
+    poke(data_in_8, 0x20)
+    cycle()
+    poke(we_b, false)
+
+    poke(alu_op, 4)
+    poke(alu_b, 0x20)
+    poke(alu_wb_kind, 2)
+    poke(alu_latch, true)
+    poke(alu_commit, false)
+    cycle()
+    poke(alu_latch, false)
+
+    poke(alu_commit, true)
+    cycle()
+    poke(alu_commit, false)
+    poke(alu_wb_kind, 0)
+
+    assert(out_a == 0x10, "CP does not change A")
+    assert(flag_n == true, "CP is subtract compare")
+    assert(flag_c == true, "borrow 0x10 - 0x20")
+}
