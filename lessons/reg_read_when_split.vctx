@@ -7,7 +7,24 @@
 //   **Regs** — only sequential updates + expose `v := r` to the outside
 //   **Read** — only combinational decode from those exposed values
 //
-// This lesson shows the **split** pattern with a 1-byte RAM and proves a write then read.
+// This lesson shows both shapes with a 1-byte RAM at 0xC000: **combined** (risky in some sims)
+// vs **split** (reliable). The sim below exercises only the split top-level.
+
+// Same behavior as SplitRamAtC000, but one component: two `when` trees — one for `m <=`,
+// one for `raw :=` from `m`. This is the pattern Wish #3 calls out (can mis-schedule).
+component CombinedRamAtC000(in addr: u16, in wen: bool, in wdata: u8, out raw: u8) {
+    reg m: u8 = 0
+    when wen {
+        m <= wdata
+    } otherwise {
+        m <= m
+    }
+    when addr == 0xC000 {
+        raw := m
+    } otherwise {
+        raw := 0 as u8
+    }
+}
 
 component OneByteRegs(in wen: bool, in wdata: u8, out q: u8) {
     reg m: u8 = 0
@@ -39,6 +56,16 @@ sim SplitRamWriteThenRead {
     wire w: bool = true
     wire d: u8 = 0x5A as u8
     SplitRamAtC000(a, w, d, r)
+    cycle()
+    assert(r == 0x5A as u8, "Regs + separate read decode: store visible after one cycle")
+}
+
+sim CombinedRamWriteThenRead {
+    wire r: u8
+    wire a: u16 = 0xC000
+    wire w: bool = true
+    wire d: u8 = 0x5A as u8
+    CombinedRamAtC000(a, w, d, r)
     cycle()
     assert(r == 0x5A as u8, "Regs + separate read decode: store visible after one cycle")
 }

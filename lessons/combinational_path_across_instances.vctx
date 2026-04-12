@@ -1,16 +1,11 @@
-// Wish #2: Richer diagnostics for combinational cycles, especially across instances
+// Combinational fetch split across instances: shared `PcOnly` (registered PC) and
+// combinational `TinyRom`. The datapath is always: current PC (register Q) → address into
+// ROM → instruction byte. None of these patterns closes a combinational loop; insn only
+// feeds *next* state inside `PcOnly`, not `addr` in the same cycle.
 //
-// When a parent wires: slave_read(addr_from_reg_out) -> rdata -> reg_next_state, the
-// emitter may report an unsatisfiable order if `addr_from_reg_out` is not cleanly the
-// register's *current* Q output (same idea as "don't close ROM → seq → PC → ROM").
-//
-// Lesson (workaround): the address into a combinational ROM/map should come from the
-// owning block's *registered* PC (or equivalent), not from a wire that is still being
-// solved in the same combinational cloud as `rdata`.
-//
-// Below: `PcOnly` exposes current `pc`; `TinyRom` is purely combinational in `addr`.
-// No feedback through the parent beyond addr → rom → insn (insn does not determine addr
-// in the same instant).
+// Below are several reasonable HDL-style spellings of the same idea (extra wires, extra
+// `:=`, instance order, different net names). They are all accepted by this toolchain
+// (`vctx check`, simulation, MLIR emission).
 
 component TinyRom(in addr: u16, out rdata: u8) {
     when addr == 0x0100 {
@@ -23,21 +18,68 @@ component TinyRom(in addr: u16, out rdata: u8) {
 component PcOnly(out pc: u16) {
     reg p: u16 = 0x0100
     when true {
-        p <= (p + (1 as u16)) as u16
+        p <= (p + 1) as u16
     } otherwise {
         p <= p
     }
     pc := p
 }
 
-component LegalFetchPath(out insn: u8) {
+// Pattern 1 — one shared address wire between instances (minimal parent).
+component FetchPattern1(out insn: u8) {
     wire addr: u16
     PcOnly(addr)
     TinyRom(addr, insn)
 }
 
-sim LegalPathCompiles {
+// Pattern 2 — separate `pc_q` net and an explicit combinational `addr := pc_q` in the
+// parent (like `assign rom_addr = pc_current` in RTL).
+component FetchPattern2(out insn: u8) {
+    wire addr: u16
+    wire pc_q: u16
+    PcOnly(pc_q)
+    addr := pc_q
+    TinyRom(addr, insn)
+}
+
+// Pattern 3 — `TinyRom` appears above `PcOnly` in the file; the scheduler still emits a
+// valid operand order (same nets as pattern 1).
+component FetchPattern3(out insn: u8) {
+    wire addr: u16
+    TinyRom(addr, insn)
+    PcOnly(addr)
+}
+
+// Pattern 4 — reversed instance order *and* explicit forwarding from `pc_q` (combines
+// the ideas in patterns 2 and 3).
+component FetchPattern4(out insn: u8) {
+    wire addr: u16
+    wire pc_q: u16
+    TinyRom(addr, insn)
+    PcOnly(pc_q)
+    addr := pc_q
+}
+
+sim FetchPattern1Check {
     wire op: u8
-    LegalFetchPath(op)
-    assert(op == 0x06 as u8, "combinational read: pc reg init 0x0100 drives TinyRom")
+    FetchPattern1(op)
+    assert(op == 0x06 as u8, "pattern 1: shared addr wire")
+}
+
+sim FetchPattern2Check {
+    wire op: u8
+    FetchPattern2(op)
+    assert(op == 0x06 as u8, "pattern 2: explicit addr := pc_q")
+}
+
+sim FetchPattern3Check {
+    wire op: u8
+    FetchPattern3(op)
+    assert(op == 0x06 as u8, "pattern 3: ROM before PC in source order")
+}
+
+sim FetchPattern4Check {
+    wire op: u8
+    FetchPattern4(op)
+    assert(op == 0x06 as u8, "pattern 4: ROM before PC plus addr := pc_q")
 }
