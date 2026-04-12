@@ -1,0 +1,5 @@
+// Small reusable mux: imported by other packages under `imports.deps.*`.
+
+component Pick(in sel: bool, in a: u8, in b: u8, out y: u8) {
+    y := sel ? a : b
+}

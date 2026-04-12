@@ -1,0 +1,15 @@
+// Bare `import path` (no `as`) records the dependency under the full dotted name; add a second
+// line with `as` to get a short prefix for instances (identifier checks require the alias form).
+
+import imports.deps.mux_lib
+import imports.deps.mux_lib as mx
+
+sim TestBareImportRecordsDepThenAliasInstantiate {
+    wire s: bool = false
+    wire a: u8 = 0xAA
+    wire b: u8 = 0xBB
+    wire y: u8
+    mx.Pick(s, a, b, y)
+    cycle()
+    assert(y == 0xBB as u8, "mux via alias after bare import line")
+}

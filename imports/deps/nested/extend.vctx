@@ -1,0 +1,5 @@
+// Nested package `imports.deps.nested.extend` — exercises deeper path + alias in consumers.
+
+component PadLoNibble(in hi: u4, out word: u8) {
+    word := concat(hi, 0 as u4)
+}

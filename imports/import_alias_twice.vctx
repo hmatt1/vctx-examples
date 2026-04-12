@@ -1,0 +1,19 @@
+// The same package may be imported under two aliases (e.g. generated vs hand-written names).
+
+import imports.deps.mux_lib as m1
+import imports.deps.mux_lib as m2
+
+sim TestTwoAliasesSamePackage {
+    wire s: bool = false
+    wire p: u8 = 0x10
+    wire q: u8 = 0x20
+    wire r1: u8
+    wire r2: u8
+    m1.Pick(s, p, q, r1)
+    m2.Pick(s, p, q, r2)
+    cycle()
+    assert(r1 == 0x20 as u8 and r2 == 0x20 as u8, "parallel picks agree on false branch")
+    poke(s, true)
+    cycle()
+    assert(r1 == 0x10 as u8 and r2 == 0x10 as u8, "both aliases track poke on select")
+}

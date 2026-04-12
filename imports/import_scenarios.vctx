@@ -1,0 +1,77 @@
+// Import scenarios with `sim` tests (aliases, nested paths, transitive deps).
+//
+// Existing `imports/foo.vctx` + `imports/utils/constant.vctx` stay minimal; this file is the
+// richer cookbook.
+//
+// **Qualified names must start with an import alias** (e.g. `mx.Pick`). Starting a reference
+// with the first path segment alone (e.g. `imports.deps...`) fails the identifier checker
+// because it validates the leading `IDENT` in isolation — use `import ... as alias` and then
+// `alias.Component` (same pattern as `gameboy` examples).
+
+import imports.deps.mux_lib as mx
+import imports.deps.nested.extend as pad
+import imports.deps.lane_pair as lanes
+import imports.utils.constant as k
+
+// Two different aliases in one component (local composition, not the `lane_pair` facade).
+
+// Mix a legacy util package (`imports.utils.*`) with new `imports.deps.*` modules.
+
+component GatedConstant(in en: bool, out bit: u1) {
+    wire hi: u1
+    k.Constant1(hi)
+    bit := en ? hi : (0 as u1)
+}
+
+component LocalDualImport(in sel: bool, in x: u4, in y: u4, out w: u8) {
+    wire zx: u8
+    wire zy: u8
+    pad.PadLoNibble(x, zx)
+    pad.PadLoNibble(y, zy)
+    mx.Pick(sel, zx, zy, w)
+}
+
+// ---------------------------------------------------------------------------
+// sim: dynamic-ish harnesses (`poke`, distinct packages)
+// ---------------------------------------------------------------------------
+
+sim TestDualAliasCompose {
+    wire s: bool = false
+    wire xh: u4 = 0xA
+    wire yh: u4 = 0xB
+    wire w: u8
+    LocalDualImport(s, xh, yh, w)
+    cycle()
+    assert(w == 0xB0 as u8, "sel 0 -> y padded (low nibble 0)")
+    poke(s, true)
+    cycle()
+    assert(w == 0xA0 as u8, "sel 1 -> x padded")
+    poke(xh, 1 as u4)
+    cycle()
+    assert(w == 0x10 as u8, "true arm tracks poked x")
+}
+
+sim TestMixUtilsTreeWithDeps {
+    wire en: bool = false
+    wire o: u1
+    GatedConstant(en, o)
+    cycle()
+    assert(o == 0 as u1, "ternary off -> 0")
+    poke(en, true)
+    cycle()
+    assert(o == 1 as u1, "imported Constant1 into ternary true arm")
+}
+
+sim TestTransitiveLaneMerge {
+    // Only `lanes` is imported here at top level; `lane_pair` itself imports mux + extend.
+    wire s: bool = true
+    wire a: u4 = 0xC
+    wire b: u4 = 0xD
+    wire o: u8
+    lanes.LaneMerge(s, a, b, o)
+    cycle()
+    assert(o == 0xC0 as u8, "sel 1 -> left lane (0xC in high nibble)")
+    poke(s, false)
+    cycle()
+    assert(o == 0xD0 as u8, "sel 0 -> right lane")
+}

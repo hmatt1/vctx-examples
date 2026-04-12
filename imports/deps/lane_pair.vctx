@@ -1,0 +1,12 @@
+// Transitive import chain: this file pulls in mux + nested extend; sims can import only `lane_pair`.
+
+import imports.deps.mux_lib as mx
+import imports.deps.nested.extend as pad
+
+component LaneMerge(in sel: bool, in ah: u4, in bh: u4, out out_word: u8) {
+    wire za: u8
+    wire zb: u8
+    pad.PadLoNibble(ah, za)
+    pad.PadLoNibble(bh, zb)
+    mx.Pick(sel, za, zb, out_word)
+}
