@@ -1,28 +1,22 @@
-// Illustrates how the MLIR emitter binds submodule *instance* input operands when the
-// instance is emitted. A `wire` that still holds the declaration-time default (0) at
-// that moment stays wired into the instance — later `when` / assignments that update the
-// same name in `env` do not rewrite already-created IR operands.
+// Regression: component body statements are scheduled for MLIR emission in dataflow order
+// so `hw.instance` operands see the same combinational network as in typical HDL, even when
+// a consumer instance appears textually before a producer or before a `when` that drives
+// an intermediate wire.
 //
-// Related compiler behavior (simplified):
-//   1) All `wire`/`reg` symbols are scanned first. Wires without `= ...` get default 0
-//      in the emission environment; wires *with* `= expr` may be evaluated while
-//      submodule results are not hooked up yet (also unsafe).
-//   2) Body statements run in source order. `hw.instance` operands are fixed using the
-//      current `Value` for each connected signal.
-//
-// So: if a consumer instance appears *before* the signal it should read is driven from
-// a producer instance (or from a mux in `when`), the consumer often sees 0 forever.
+// Previously, operands were fixed at emit time from the environment; a wire could still be
+// the declaration default (0) when the instance was emitted, and later `when` updates did
+// not rewrite the instance. The emitter now topologically sorts top-level statements by
+// defs/uses (excluding register next-state assigns as "defs" so reads still see Q).
 
 component ConstByte(out q: u8) {
-    q := 0x42 as u8
+    q := 66
 }
 
 component Echo(in d: u8, out q: u8) {
     q := d
 }
 
-// Consumer instance is emitted while `bridge` is still the default 0 — the later
-// `when` updates `bridge` in the map used for later expressions, but not Echo's input.
+// Consumer before producer + when: should still see 0x42 on `observed` after scheduling.
 component OrderingTrap(out observed: u8) {
     wire bridge: u8
     Echo(bridge, observed)
@@ -43,11 +37,11 @@ component OrderingOk(out observed: u8) {
     Echo(src_byte, observed)
 }
 
-sim ExpectTrapShowsZeroNot42 {
+sim ExpectOrderingTrapCombinesCorrectly {
     wire y: u8
     OrderingTrap(y)
     cycle()
-    assert(y == 0, "Echo saw frozen default 0, not 0x42 — instance input not rewired")
+    assert(y == 0x42, "Dataflow order: Echo sees muxed bridge, not stale default 0")
 }
 
 sim ExpectDirectWiringWorks {

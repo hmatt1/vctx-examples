@@ -1,0 +1,50 @@
+// Combinational cycles vs sequential feedback (HDL-aligned mental model)
+//
+// A *wire* is a combinational net: its value is a pure function of its drivers *in the
+// same cycle*. If you follow dependencies in a circle (a depends on b, b depends on a)
+// with only wires and combinational logic, you have a *combinational loop*. Real silicon
+// cannot settle to a unique Boolean value; simulators and synthesis tools reject or warn.
+//
+// This compiler schedules statements for MLIR so producers dominate consumers. A pure
+// combinational loop has no valid schedule, so emission fails with:
+//   "combinational cycle or unsatisfiable statement ordering ... (MLIR emission ...)"
+// That is reported when you build MLIR (e.g. `vctx-cli.py mlir this_file.vctx`), not
+// necessarily during `check`, which does not run the emitter for every path.
+//
+// A *register* breaks the loop in time: each cycle you read the *current* stored value
+// (Q) while the *next* value (D) is computed. Sequential updates use `<=` on `reg`
+// (`a <= b` is next-state, not a combinational wire tie). That is next-state feedback,
+// not "both wires in the same instant," so scheduling stays valid.
+//
+// --- Illegal example (copy into its own small .vctx package and run `vctx-cli.py mlir`):
+//
+//   component CombLoopIllegal(out o: u1) {
+//       wire a: u1
+//       wire b: u1
+//       a := b
+//       b := a
+//       o := a
+//   }
+//
+// You should see the combinational-cycle / unsatisfiable-ordering error above.
+//
+// --- Legal example (below): same mutual dependency on `reg` outputs; next state is
+// well-defined each clock. Default reset keeps a and b low; after `cycle()`, output is 0.
+
+component RegMutualFeedback(out o: u1) {
+    reg a: u1
+    reg b: u1
+    when true { a <= b } otherwise { a <= 0 as u1 }
+    when true { b <= a } otherwise { b <= 0 as u1 }
+    o := a
+}
+
+sim RegFeedbackNoCombCycle {
+    wire x: u1
+    RegMutualFeedback(x)
+    cycle()
+    assert(
+        x == 0,
+        "regs hold 0; next state uses Q not a zero-delay wire loop"
+    )
+}

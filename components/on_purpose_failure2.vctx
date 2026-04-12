@@ -1,0 +1,13 @@
+// Intentional misuse: `:=` is for combinational drives (`wire`, driving `out` ports).
+// Registers must use `<=` so next-state is explicit. The compiler should error on `:=`
+// to a `reg` with a clear message (parser allows both operators).
+
+component AccidentalCombAssignToReg(out q: u8) {
+    reg acc: u8
+    when true {
+        acc := 1 as u8
+    } otherwise {
+        acc := 0 as u8
+    }
+    q := acc
+}
