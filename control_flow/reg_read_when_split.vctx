@@ -1,17 +1,4 @@
-// Wish #3: Clear semantics (or a warning) when one component mixes:
-//   - one `when` tree for `reg` next-state (`<=`), and
-//   - another `when` tree driving combinational outputs (`:=`) from those regs
-//
-// In some sim paths this can mis-schedule: writes appear not to stick, or reads stay at 0.
-// The reliable workaround (same idea as splitting Sm83CtlSeqReg vs Sm83CtlSeqComb) is:
-//   **Regs** — only sequential updates + expose `v := r` to the outside
-//   **Read** — only combinational decode from those exposed values
-//
-// This lesson shows both shapes with a 1-byte RAM at 0xC000: **combined** (risky in some sims)
-// vs **split** (reliable). The sim below exercises only the split top-level.
 
-// Same behavior as SplitRamAtC000, but one component: two `when` trees — one for `m <=`,
-// one for `raw :=` from `m`. This is the pattern Wish #3 calls out (can mis-schedule).
 component CombinedRamAtC000(in addr: u16, in wen: bool, in wdata: u8, out raw: u8) {
     reg m: u8 = 0
     when wen {
