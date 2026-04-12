@@ -10,6 +10,9 @@
 //      RF performs exec_wr_af / exec_wr_f using the latched bytes.
 //
 // alu_wb_kind: 0 = no exec write; 1 = write latched AF pair; 2 = write latched F only.
+//
+// alu_b_from_gpr_b: when true, ALU operand B is the B register (out_b) so the control path
+// does not need to read out_b outside the datapath (avoids MLIR feedback cycles with a sequencer).
 
 import gameboy.alu8 as alu_pkg
 import gameboy.sm83_register_file as gpr_pkg
@@ -39,6 +42,8 @@ component Sm83Datapath(
     in alu_wb_kind: u8,
     in alu_latch: bool,
     in alu_commit: bool,
+    // When true, ALU operand B is taken from the B GPR (out_b) instead of alu_b.
+    in alu_b_from_gpr_b: bool,
 
     out out_a: u8,
     out out_f: u8,
@@ -115,9 +120,15 @@ component Sm83Datapath(
     wire alu_qn: bool
     wire alu_qh: bool
     wire alu_qc: bool
+    wire alu_b_mux: u8
+    when alu_b_from_gpr_b {
+        alu_b_mux := out_b
+    } otherwise {
+        alu_b_mux := alu_b
+    }
     alu_pkg.ALU8(
         out_a,
-        alu_b,
+        alu_b_mux,
         alu_op,
         alu_c_in,
         flag_z,
@@ -177,6 +188,7 @@ sim TestDatapathAddTwoPhase {
     wire alu_wb_kind: u8 = 0
     wire alu_latch: bool = false
     wire alu_commit: bool = false
+    wire alu_b_from_gpr_b: bool = false
 
     wire out_a: u8
     wire out_f: u8
@@ -221,6 +233,7 @@ sim TestDatapathAddTwoPhase {
         alu_wb_kind,
         alu_latch,
         alu_commit,
+        alu_b_from_gpr_b,
         out_a,
         out_f,
         out_b,
@@ -297,6 +310,7 @@ sim TestDatapathCpTwoPhase {
     wire alu_wb_kind: u8 = 0
     wire alu_latch: bool = false
     wire alu_commit: bool = false
+    wire alu_b_from_gpr_b: bool = false
 
     wire out_a: u8
     wire out_f: u8
@@ -341,6 +355,7 @@ sim TestDatapathCpTwoPhase {
         alu_wb_kind,
         alu_latch,
         alu_commit,
+        alu_b_from_gpr_b,
         out_a,
         out_f,
         out_b,

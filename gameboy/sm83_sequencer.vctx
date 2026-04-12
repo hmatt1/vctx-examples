@@ -1,0 +1,764 @@
+// SM83 instruction decoder + micro-sequencer (fetch + execute) for a subset of opcodes.
+//
+// Fetches one byte per cycle at PC (combinational ROM), then runs 1–2 execute cycles for
+// ALU ops that use the existing two-phase latch/commit path in Sm83Datapath.
+//
+// Supported opcodes (same numbering as gameboy.alu8 ALU8):
+//   0x00       NOP
+//   0x06       LD B, d8   (immediate follows opcode; PC advanced after load)
+//   0x3E       LD A, d8
+//   0x80       ADD A, B
+//   0xB8       CP B       (flags only write-back: alu_wb_kind == 2)
+//
+// Unknown opcodes are treated as NOP (execute cycle returns to fetch).
+
+import gameboy.sm83_datapath as dp_pkg
+
+// ---------------------------------------------------------------------------
+// Combinational program ROMs (test images starting at reset PC 0x0100)
+// ---------------------------------------------------------------------------
+
+component Sm83InsnRomAddProg(in addr: u16, out data: u8) {
+    when addr == 0x0100 {
+        data := 0x06 as u8
+    } elsewhen addr == 0x0101 {
+        data := 0x02 as u8
+    } elsewhen addr == 0x0102 {
+        data := 0x3E as u8
+    } elsewhen addr == 0x0103 {
+        data := 0x1E as u8
+    } elsewhen addr == 0x0104 {
+        data := 0x80 as u8
+    } elsewhen addr == 0x0105 {
+        data := 0x00 as u8
+    } otherwise {
+        data := 0x00 as u8
+    }
+}
+
+component Sm83InsnRomCpProg(in addr: u16, out data: u8) {
+    when addr == 0x0100 {
+        data := 0x3E as u8
+    } elsewhen addr == 0x0101 {
+        data := 0x10 as u8
+    } elsewhen addr == 0x0102 {
+        data := 0x06 as u8
+    } elsewhen addr == 0x0103 {
+        data := 0x20 as u8
+    } elsewhen addr == 0x0104 {
+        data := 0xB8 as u8
+    } elsewhen addr == 0x0105 {
+        data := 0x00 as u8
+    } otherwise {
+        data := 0x00 as u8
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Micro-sequencer: sub 0 = fetch opcode into IR and bump PC; sub 1 = first execute;
+// sub 2 = ALU commit cycle for two-phase ops.
+//
+// PC for fetch/immediates is tracked in `seq_pc` (mirrors the datapath PC when we assert
+// we_pc + data_in_16) so instruction ROM does not combinationaly read `out_pc` from the
+// datapath — that created an MLIR scheduling cycle (Rom → seq → RF → out_pc → Rom).
+//
+// Register next-state and combinational decode are split (like SM83RegisterFile) so the
+// MLIR backend does not OR separate when-trees incorrectly.
+
+component Sm83CtlSeqRegAdd(
+    out seq_pc: u16,
+    out sub_o: u8,
+    out ir_o: u8,
+    out pc_track_o: u16,
+    out rom_at_pc: u8
+) {
+    reg sub: u8 = 0
+    reg ir: u8 = 0
+    reg pc_track: u16 = 0x0100
+
+    Sm83InsnRomAddProg(pc_track, rom_at_pc)
+
+    seq_pc := pc_track
+    sub_o := sub
+    ir_o := ir
+    pc_track_o := pc_track
+
+    when sub == 0 {
+        ir <= rom_at_pc
+        sub <= 1
+        pc_track <= (pc_track + (1 as u16)) as u16
+    } elsewhen sub == 1 & (ir == 0x00) {
+        sub <= 0
+        pc_track <= pc_track
+    } elsewhen sub == 1 & (ir == 0x06) {
+        sub <= 0
+        pc_track <= (pc_track + (1 as u16)) as u16
+    } elsewhen sub == 1 & (ir == 0x3E) {
+        sub <= 0
+        pc_track <= (pc_track + (1 as u16)) as u16
+    } elsewhen sub == 1 & (ir == 0x80) {
+        sub <= 2
+        pc_track <= pc_track
+    } elsewhen sub == 1 & (ir == 0xB8) {
+        sub <= 2
+        pc_track <= pc_track
+    } elsewhen sub == 1 {
+        sub <= 0
+        pc_track <= pc_track
+    } elsewhen sub == 2 {
+        sub <= 0
+        pc_track <= pc_track
+    } otherwise {
+        sub <= 0
+        pc_track <= pc_track
+    }
+}
+
+component Sm83CtlSeqRegCp(
+    out seq_pc: u16,
+    out sub_o: u8,
+    out ir_o: u8,
+    out pc_track_o: u16,
+    out rom_at_pc: u8
+) {
+    reg sub: u8 = 0
+    reg ir: u8 = 0
+    reg pc_track: u16 = 0x0100
+
+    Sm83InsnRomCpProg(pc_track, rom_at_pc)
+
+    seq_pc := pc_track
+    sub_o := sub
+    ir_o := ir
+    pc_track_o := pc_track
+
+    when sub == 0 {
+        ir <= rom_at_pc
+        sub <= 1
+        pc_track <= (pc_track + (1 as u16)) as u16
+    } elsewhen sub == 1 & (ir == 0x00) {
+        sub <= 0
+        pc_track <= pc_track
+    } elsewhen sub == 1 & (ir == 0x06) {
+        sub <= 0
+        pc_track <= (pc_track + (1 as u16)) as u16
+    } elsewhen sub == 1 & (ir == 0x3E) {
+        sub <= 0
+        pc_track <= (pc_track + (1 as u16)) as u16
+    } elsewhen sub == 1 & (ir == 0x80) {
+        sub <= 2
+        pc_track <= pc_track
+    } elsewhen sub == 1 & (ir == 0xB8) {
+        sub <= 2
+        pc_track <= pc_track
+    } elsewhen sub == 1 {
+        sub <= 0
+        pc_track <= pc_track
+    } elsewhen sub == 2 {
+        sub <= 0
+        pc_track <= pc_track
+    } otherwise {
+        sub <= 0
+        pc_track <= pc_track
+    }
+}
+
+component Sm83CtlSeqComb(
+    in sub: u8,
+    in ir: u8,
+    in pc_track: u16,
+    in rom_at_pc: u8,
+
+    out we_a: bool,
+    out we_f: bool,
+    out we_b: bool,
+    out we_c: bool,
+    out we_d: bool,
+    out we_e: bool,
+    out we_h: bool,
+    out we_l: bool,
+    out data_in_8: u8,
+
+    out we_af: bool,
+    out we_bc: bool,
+    out we_de: bool,
+    out we_hl: bool,
+    out we_sp: bool,
+    out we_pc: bool,
+    out data_in_16: u16,
+
+    out alu_op: u8,
+    out alu_b: u8,
+    out alu_c_in: bool,
+    out alu_wb_kind: u8,
+    out alu_latch: bool,
+    out alu_commit: bool,
+    out alu_b_from_gpr_b: bool
+) {
+    when sub == 0 {
+        we_a := false
+        we_f := false
+        we_b := false
+        we_c := false
+        we_d := false
+        we_e := false
+        we_h := false
+        we_l := false
+        data_in_8 := 0 as u8
+        we_af := false
+        we_bc := false
+        we_de := false
+        we_hl := false
+        we_sp := false
+        we_pc := true
+        data_in_16 := (pc_track + (1 as u16)) as u16
+        alu_op := 0 as u8
+        alu_b := 0 as u8
+        alu_c_in := false
+        alu_wb_kind := 0 as u8
+        alu_latch := false
+        alu_commit := false
+        alu_b_from_gpr_b := false
+    } elsewhen sub == 1 & (ir == 0x06) {
+        we_a := false
+        we_f := false
+        we_b := true
+        we_c := false
+        we_d := false
+        we_e := false
+        we_h := false
+        we_l := false
+        data_in_8 := rom_at_pc
+        we_af := false
+        we_bc := false
+        we_de := false
+        we_hl := false
+        we_sp := false
+        we_pc := true
+        data_in_16 := (pc_track + (1 as u16)) as u16
+        alu_op := 0 as u8
+        alu_b := 0 as u8
+        alu_c_in := false
+        alu_wb_kind := 0 as u8
+        alu_latch := false
+        alu_commit := false
+        alu_b_from_gpr_b := false
+    } elsewhen sub == 1 & (ir == 0x3E) {
+        we_a := true
+        we_f := false
+        we_b := false
+        we_c := false
+        we_d := false
+        we_e := false
+        we_h := false
+        we_l := false
+        data_in_8 := rom_at_pc
+        we_af := false
+        we_bc := false
+        we_de := false
+        we_hl := false
+        we_sp := false
+        we_pc := true
+        data_in_16 := (pc_track + (1 as u16)) as u16
+        alu_op := 0 as u8
+        alu_b := 0 as u8
+        alu_c_in := false
+        alu_wb_kind := 0 as u8
+        alu_latch := false
+        alu_commit := false
+        alu_b_from_gpr_b := false
+    } elsewhen sub == 1 & (ir == 0x80) {
+        we_a := false
+        we_f := false
+        we_b := false
+        we_c := false
+        we_d := false
+        we_e := false
+        we_h := false
+        we_l := false
+        data_in_8 := 0 as u8
+        we_af := false
+        we_bc := false
+        we_de := false
+        we_hl := false
+        we_sp := false
+        we_pc := false
+        data_in_16 := 0 as u16
+        alu_op := 0 as u8
+        alu_b := 0 as u8
+        alu_c_in := false
+        alu_wb_kind := 1 as u8
+        alu_latch := true
+        alu_commit := false
+        alu_b_from_gpr_b := true
+    } elsewhen sub == 1 & (ir == 0xB8) {
+        we_a := false
+        we_f := false
+        we_b := false
+        we_c := false
+        we_d := false
+        we_e := false
+        we_h := false
+        we_l := false
+        data_in_8 := 0 as u8
+        we_af := false
+        we_bc := false
+        we_de := false
+        we_hl := false
+        we_sp := false
+        we_pc := false
+        data_in_16 := 0 as u16
+        alu_op := 4 as u8
+        alu_b := 0 as u8
+        alu_c_in := false
+        alu_wb_kind := 2 as u8
+        alu_latch := true
+        alu_commit := false
+        alu_b_from_gpr_b := true
+    } elsewhen sub == 2 & (ir == 0x80) {
+        we_a := false
+        we_f := false
+        we_b := false
+        we_c := false
+        we_d := false
+        we_e := false
+        we_h := false
+        we_l := false
+        data_in_8 := 0 as u8
+        we_af := false
+        we_bc := false
+        we_de := false
+        we_hl := false
+        we_sp := false
+        we_pc := false
+        data_in_16 := 0 as u16
+        alu_op := 0 as u8
+        alu_b := 0 as u8
+        alu_c_in := false
+        alu_wb_kind := 1 as u8
+        alu_latch := false
+        alu_commit := true
+        alu_b_from_gpr_b := true
+    } elsewhen sub == 2 & (ir == 0xB8) {
+        we_a := false
+        we_f := false
+        we_b := false
+        we_c := false
+        we_d := false
+        we_e := false
+        we_h := false
+        we_l := false
+        data_in_8 := 0 as u8
+        we_af := false
+        we_bc := false
+        we_de := false
+        we_hl := false
+        we_sp := false
+        we_pc := false
+        data_in_16 := 0 as u16
+        alu_op := 4 as u8
+        alu_b := 0 as u8
+        alu_c_in := false
+        alu_wb_kind := 2 as u8
+        alu_latch := false
+        alu_commit := true
+        alu_b_from_gpr_b := true
+    } otherwise {
+        we_a := false
+        we_f := false
+        we_b := false
+        we_c := false
+        we_d := false
+        we_e := false
+        we_h := false
+        we_l := false
+        data_in_8 := 0 as u8
+        we_af := false
+        we_bc := false
+        we_de := false
+        we_hl := false
+        we_sp := false
+        we_pc := false
+        data_in_16 := 0 as u16
+        alu_op := 0 as u8
+        alu_b := 0 as u8
+        alu_c_in := false
+        alu_wb_kind := 0 as u8
+        alu_latch := false
+        alu_commit := false
+        alu_b_from_gpr_b := false
+    }
+}
+
+component Sm83CtlSeqAdd(
+    out seq_pc: u16,
+    out we_a: bool,
+    out we_f: bool,
+    out we_b: bool,
+    out we_c: bool,
+    out we_d: bool,
+    out we_e: bool,
+    out we_h: bool,
+    out we_l: bool,
+    out data_in_8: u8,
+    out we_af: bool,
+    out we_bc: bool,
+    out we_de: bool,
+    out we_hl: bool,
+    out we_sp: bool,
+    out we_pc: bool,
+    out data_in_16: u16,
+    out alu_op: u8,
+    out alu_b: u8,
+    out alu_c_in: bool,
+    out alu_wb_kind: u8,
+    out alu_latch: bool,
+    out alu_commit: bool,
+    out alu_b_from_gpr_b: bool
+) {
+    wire sub_w: u8
+    wire ir_w: u8
+    wire pc_w: u16
+    wire rom_w: u8
+    Sm83CtlSeqRegAdd(seq_pc, sub_w, ir_w, pc_w, rom_w)
+    Sm83CtlSeqComb(sub_w, ir_w, pc_w, rom_w, we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8, we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16, alu_op, alu_b, alu_c_in, alu_wb_kind, alu_latch, alu_commit, alu_b_from_gpr_b)
+}
+
+component Sm83CtlSeqCp(
+    out seq_pc: u16,
+    out we_a: bool,
+    out we_f: bool,
+    out we_b: bool,
+    out we_c: bool,
+    out we_d: bool,
+    out we_e: bool,
+    out we_h: bool,
+    out we_l: bool,
+    out data_in_8: u8,
+    out we_af: bool,
+    out we_bc: bool,
+    out we_de: bool,
+    out we_hl: bool,
+    out we_sp: bool,
+    out we_pc: bool,
+    out data_in_16: u16,
+    out alu_op: u8,
+    out alu_b: u8,
+    out alu_c_in: bool,
+    out alu_wb_kind: u8,
+    out alu_latch: bool,
+    out alu_commit: bool,
+    out alu_b_from_gpr_b: bool
+) {
+    wire sub_w: u8
+    wire ir_w: u8
+    wire pc_w: u16
+    wire rom_w: u8
+    Sm83CtlSeqRegCp(seq_pc, sub_w, ir_w, pc_w, rom_w)
+    Sm83CtlSeqComb(sub_w, ir_w, pc_w, rom_w, we_a, we_f, we_b, we_c, we_d, we_e, we_h, we_l, data_in_8, we_af, we_bc, we_de, we_hl, we_sp, we_pc, data_in_16, alu_op, alu_b, alu_c_in, alu_wb_kind, alu_latch, alu_commit, alu_b_from_gpr_b)
+}
+
+// ---------------------------------------------------------------------------
+// Integrated CPU shells (ROM variant + datapath + sequencer)
+// ---------------------------------------------------------------------------
+
+component Sm83CpuAddProg(
+    out out_a: u8,
+    out out_f: u8,
+    out out_b: u8,
+    out out_pc: u16,
+    out flag_z: bool,
+    out flag_n: bool,
+    out flag_h: bool,
+    out flag_c: bool
+) {
+    wire we_a: bool
+    wire we_f: bool
+    wire we_b: bool
+    wire we_c: bool
+    wire we_d: bool
+    wire we_e: bool
+    wire we_h: bool
+    wire we_l: bool
+    wire data_in_8: u8
+
+    wire we_af: bool
+    wire we_bc: bool
+    wire we_de: bool
+    wire we_hl: bool
+    wire we_sp: bool
+    wire we_pc: bool
+    wire data_in_16: u16
+
+    wire alu_op: u8
+    wire alu_b: u8
+    wire alu_c_in: bool
+    wire alu_wb_kind: u8
+    wire alu_latch: bool
+    wire alu_commit: bool
+    wire alu_b_from_gpr_b: bool
+
+    wire out_c: u8
+    wire out_d: u8
+    wire out_e: u8
+    wire out_h: u8
+    wire out_l: u8
+    wire out_af: u16
+    wire out_bc: u16
+    wire out_de: u16
+    wire out_hl: u16
+    wire out_sp: u16
+    wire alu_result: u8
+
+    wire seq_pc_out: u16
+    Sm83CtlSeqAdd(
+        seq_pc_out,
+        we_a,
+        we_f,
+        we_b,
+        we_c,
+        we_d,
+        we_e,
+        we_h,
+        we_l,
+        data_in_8,
+        we_af,
+        we_bc,
+        we_de,
+        we_hl,
+        we_sp,
+        we_pc,
+        data_in_16,
+        alu_op,
+        alu_b,
+        alu_c_in,
+        alu_wb_kind,
+        alu_latch,
+        alu_commit,
+        alu_b_from_gpr_b
+    )
+    dp_pkg.Sm83Datapath(
+        we_a,
+        we_f,
+        we_b,
+        we_c,
+        we_d,
+        we_e,
+        we_h,
+        we_l,
+        data_in_8,
+        we_af,
+        we_bc,
+        we_de,
+        we_hl,
+        we_sp,
+        we_pc,
+        data_in_16,
+        alu_op,
+        alu_b,
+        alu_c_in,
+        alu_wb_kind,
+        alu_latch,
+        alu_commit,
+        alu_b_from_gpr_b,
+        out_a,
+        out_f,
+        out_b,
+        out_c,
+        out_d,
+        out_e,
+        out_h,
+        out_l,
+        out_af,
+        out_bc,
+        out_de,
+        out_hl,
+        out_sp,
+        out_pc,
+        flag_z,
+        flag_n,
+        flag_h,
+        flag_c,
+        alu_result
+    )
+}
+
+component Sm83CpuCpProg(
+    out out_a: u8,
+    out out_f: u8,
+    out out_b: u8,
+    out out_pc: u16,
+    out flag_z: bool,
+    out flag_n: bool,
+    out flag_h: bool,
+    out flag_c: bool
+) {
+    wire we_a: bool
+    wire we_f: bool
+    wire we_b: bool
+    wire we_c: bool
+    wire we_d: bool
+    wire we_e: bool
+    wire we_h: bool
+    wire we_l: bool
+    wire data_in_8: u8
+
+    wire we_af: bool
+    wire we_bc: bool
+    wire we_de: bool
+    wire we_hl: bool
+    wire we_sp: bool
+    wire we_pc: bool
+    wire data_in_16: u16
+
+    wire alu_op: u8
+    wire alu_b: u8
+    wire alu_c_in: bool
+    wire alu_wb_kind: u8
+    wire alu_latch: bool
+    wire alu_commit: bool
+    wire alu_b_from_gpr_b: bool
+
+    wire out_c: u8
+    wire out_d: u8
+    wire out_e: u8
+    wire out_h: u8
+    wire out_l: u8
+    wire out_af: u16
+    wire out_bc: u16
+    wire out_de: u16
+    wire out_hl: u16
+    wire out_sp: u16
+    wire alu_result: u8
+
+    wire seq_pc_out: u16
+    Sm83CtlSeqCp(
+        seq_pc_out,
+        we_a,
+        we_f,
+        we_b,
+        we_c,
+        we_d,
+        we_e,
+        we_h,
+        we_l,
+        data_in_8,
+        we_af,
+        we_bc,
+        we_de,
+        we_hl,
+        we_sp,
+        we_pc,
+        data_in_16,
+        alu_op,
+        alu_b,
+        alu_c_in,
+        alu_wb_kind,
+        alu_latch,
+        alu_commit,
+        alu_b_from_gpr_b
+    )
+    dp_pkg.Sm83Datapath(
+        we_a,
+        we_f,
+        we_b,
+        we_c,
+        we_d,
+        we_e,
+        we_h,
+        we_l,
+        data_in_8,
+        we_af,
+        we_bc,
+        we_de,
+        we_hl,
+        we_sp,
+        we_pc,
+        data_in_16,
+        alu_op,
+        alu_b,
+        alu_c_in,
+        alu_wb_kind,
+        alu_latch,
+        alu_commit,
+        alu_b_from_gpr_b,
+        out_a,
+        out_f,
+        out_b,
+        out_c,
+        out_d,
+        out_e,
+        out_h,
+        out_l,
+        out_af,
+        out_bc,
+        out_de,
+        out_hl,
+        out_sp,
+        out_pc,
+        flag_z,
+        flag_n,
+        flag_h,
+        flag_c,
+        alu_result
+    )
+}
+
+// LD B,2 ; LD A,0x1E ; ADD A,B -> A = 0x20 ; then fetch NOP at 0x0105
+sim TestSequencerLdLdAdd {
+    wire out_a: u8
+    wire out_f: u8
+    wire out_b: u8
+    wire out_pc: u16
+    wire flag_z: bool
+    wire flag_n: bool
+    wire flag_h: bool
+    wire flag_c: bool
+
+    Sm83CpuAddProg(out_a, out_f, out_b, out_pc, flag_z, flag_n, flag_h, flag_c)
+
+    assert(out_pc == 0x0100, "reset PC")
+    cycle()
+    cycle()
+    cycle()
+    cycle()
+    cycle()
+    cycle()
+    cycle()
+
+    assert(out_a == 0x20, "ADD A,B result")
+    assert(flag_h == true, "half-carry 0x1E + 0x02")
+    assert(flag_z == false, "nonzero result")
+    assert(flag_n == false, "ADD N=0")
+    assert(out_pc == 0x0105, "PC before NOP fetch")
+
+    cycle()
+    assert(out_pc == 0x0106, "after NOP fetch")
+}
+
+// LD A,0x10 ; LD B,0x20 ; CP B (A unchanged, borrow -> C)
+sim TestSequencerCpB {
+    wire out_a: u8
+    wire out_f: u8
+    wire out_b: u8
+    wire out_pc: u16
+    wire flag_z: bool
+    wire flag_n: bool
+    wire flag_h: bool
+    wire flag_c: bool
+
+    Sm83CpuCpProg(out_a, out_f, out_b, out_pc, flag_z, flag_n, flag_h, flag_c)
+
+    cycle()
+    cycle()
+    cycle()
+    cycle()
+    cycle()
+    cycle()
+    cycle()
+
+    assert(out_a == 0x10, "CP does not change A")
+    assert(flag_n == true, "CP is subtract compare")
+    assert(flag_c == true, "borrow 0x10 - 0x20")
+    assert(out_pc == 0x0105, "PC before NOP fetch")
+}
