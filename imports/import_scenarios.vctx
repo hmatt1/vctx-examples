@@ -3,10 +3,8 @@
 // Existing `imports/foo.vctx` + `imports/utils/constant.vctx` stay minimal; this file is the
 // richer cookbook.
 //
-// **Qualified names must start with an import alias** (e.g. `mx.Pick`). Starting a reference
-// with the first path segment alone (e.g. `imports.deps...`) fails the identifier checker
-// because it validates the leading `IDENT` in isolation — use `import ... as alias` and then
-// `alias.Component` (same pattern as `gameboy` examples).
+// Prefer `import … as` for short names; fully-qualified references like
+// `imports.deps.mux_lib.Pick` also work (see `import_fqn_only.vctx`).
 
 import imports.deps.mux_lib as mx
 import imports.deps.nested.extend as pad

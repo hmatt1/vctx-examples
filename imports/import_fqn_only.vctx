@@ -1,0 +1,14 @@
+// No `import` lines: instantiate with the fully-qualified component name.
+
+sim TestFqnMuxNoImportDecl {
+    wire s: bool = true
+    wire p: u8 = 0x33
+    wire q: u8 = 0x44
+    wire r: u8
+    imports.deps.mux_lib.Pick(s, p, q, r)
+    cycle()
+    assert(r == 0x33 as u8, "FQN instantiation without import decl")
+    poke(s, false)
+    cycle()
+    assert(r == 0x44 as u8, "FQN mux reacts to poke")
+}
