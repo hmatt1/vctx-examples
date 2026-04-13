@@ -1,0 +1,5 @@
+// Root-level package so `import bare_leaf` is a single-segment path (`bare_leaf.*`).
+
+component Thru(in x: u8, out y: u8) {
+    y := x
+}

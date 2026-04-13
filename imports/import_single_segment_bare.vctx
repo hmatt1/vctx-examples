@@ -1,0 +1,14 @@
+// Single-segment bare import: symbol name is `bare_leaf`, so `bare_leaf.Thru` resolves.
+
+import bare_leaf
+
+sim TestSingleSegmentBareThru {
+    wire a: u8 = 0x55
+    wire b: u8
+    bare_leaf.Thru(a, b)
+    cycle()
+    assert(b == 0x55 as u8, "bare_leaf prefix from one-segment import")
+    poke(a, 0xAA as u8)
+    cycle()
+    assert(b == 0xAA as u8, "thru tracks poke")
+}

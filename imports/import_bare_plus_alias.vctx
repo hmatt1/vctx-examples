@@ -1,5 +1,5 @@
-// Bare `import path` (no `as`) records the dependency under the full dotted name; add a second
-// line with `as` to get a short prefix for instances (identifier checks require the alias form).
+// Bare `import path` (no `as`) records the dependency under the full dotted name; a second line
+// with `as` gives a short prefix. See `import_bare_longname_only.vctx` for bare-only `path.Component`.
 
 import imports.deps.mux_lib
 import imports.deps.mux_lib as mx

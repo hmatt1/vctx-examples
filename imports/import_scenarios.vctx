@@ -4,7 +4,8 @@
 // richer cookbook.
 //
 // Prefer `import … as` for short names; fully-qualified references like
-// `imports.deps.mux_lib.Pick` also work (see `import_fqn_only.vctx`).
+// `imports.deps.mux_lib.Pick` also work (see `import_fqn_only.vctx`, `import_bare_longname_only.vctx`).
+// Single-segment bare import: `import_single_segment_bare.vctx` + root `bare_leaf.vctx`.
 
 import imports.deps.mux_lib as mx
 import imports.deps.nested.extend as pad

@@ -1,0 +1,16 @@
+// Bare import only (no `as`): instantiate with the full dotted import path as prefix.
+
+import imports.deps.mux_lib
+
+sim TestBareLongnameMuxOnly {
+    wire s: bool = false
+    wire a: u8 = 0xCC
+    wire b: u8 = 0xDD
+    wire y: u8
+    imports.deps.mux_lib.Pick(s, a, b, y)
+    cycle()
+    assert(y == 0xDD as u8, "mux false branch via full bare import name")
+    poke(s, true)
+    cycle()
+    assert(y == 0xCC as u8, "mux true branch")
+}
