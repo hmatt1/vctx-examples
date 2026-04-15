@@ -1,0 +1,19 @@
+// User-defined functions: pure combinational logic, inlined at each call site.
+
+function add_one(x: u8) -> u8 {
+    return x + 1 as u8
+}
+
+component AddOne(in x: u8, out y: u8) {
+    y := add_one(x)
+}
+
+sim TestAddOne {
+    wire x: u8 = 10
+    wire y: u8
+
+    AddOne(x, y)
+
+    cycle()
+    assert(y == 11, "add_one should increment")
+}

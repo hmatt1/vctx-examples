@@ -1,0 +1,80 @@
+// User functions may contain `when`, `reg` (sequential updates), and component instances.
+// Each call site inlines a copy; registers and instances are duplicated per call.
+
+component PassThru8(in x: u8, out y: u8) {
+    y := x
+}
+
+function mux_u8(sel: bool, a: u8, b: u8) -> u8 {
+    wire r: u8
+
+    when sel {
+        r := a
+    } otherwise {
+        r := b
+    }
+
+    return r
+}
+
+function gated_reg(en: bool, d: u8) -> u8 {
+    reg q: u8 = 0
+
+    when en {
+        q <= d
+    }
+
+    return q
+}
+
+function via_pass8(x: u8) -> u8 {
+    wire y: u8
+
+    PassThru8(x, y)
+
+    return y
+}
+
+component DemoFnAdvanced(
+    in sel: bool,
+    in a: u8,
+    in b: u8,
+    in en: bool,
+    in d: u8,
+    in raw: u8,
+    out m: u8,
+    out r: u8,
+    out p: u8
+) {
+    m := mux_u8(sel, a, b)
+    r := gated_reg(en, d)
+    p := via_pass8(raw)
+}
+
+sim TestFnRegWhenInstance {
+    wire sel: bool = 1
+    wire a: u8 = 3
+    wire b: u8 = 9
+    wire en: bool = 1
+    wire d: u8 = 7
+    wire raw: u8 = 0x42
+    wire m: u8
+    wire r: u8
+    wire p: u8
+
+    DemoFnAdvanced(sel, a, b, en, d, raw, m, r, p)
+
+    cycle()
+    assert(m == 3 as u8, "mux selects a when sel")
+    assert(r == 7 as u8, "reg loads when en")
+    assert(p == 0x42 as u8, "instance passthrough")
+
+    poke(sel, 0)
+    cycle()
+    assert(m == 9 as u8, "mux selects b when not sel")
+
+    poke(en, 0)
+    poke(d, 1)
+    cycle()
+    assert(r == 7 as u8, "reg holds when en low even if d changes")
+}

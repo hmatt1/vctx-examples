@@ -1,0 +1,33 @@
+// Multi-statement function body with local wires (same pattern as the docs).
+
+function parity_u8(data: u8) -> bool {
+    wire p0: bool
+    wire p1: bool
+    wire p2: bool
+    wire p3: bool
+
+    p0 := data[0] ^ data[1]
+    p1 := data[2] ^ data[3]
+    p2 := data[4] ^ data[5]
+    p3 := data[6] ^ data[7]
+
+    return p0 ^ p1 ^ p2 ^ p3
+}
+
+component ParityU8(in data: u8, out odd: bool) {
+    odd := parity_u8(data)
+}
+
+sim TestParityU8 {
+    wire d: u8 = 0b0000_0001
+    wire o: bool
+
+    ParityU8(d, o)
+
+    cycle()
+    assert(o == 1 as bool, "odd parity for single 1-bit")
+
+    poke(d, 0b1111_1111 as u8)
+    cycle()
+    assert(o == 0 as bool, "xor of eight 1s is 0")
+}

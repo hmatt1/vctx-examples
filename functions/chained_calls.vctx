@@ -1,0 +1,23 @@
+// Nested user function calls (each call is inlined at the use site).
+
+function half_u8(x: u8) -> u8 {
+    return x >> 1 as u8
+}
+
+function bump_twice(x: u8) -> u8 {
+    return half_u8(half_u8(x)) + 3 as u8
+}
+
+component ChainedDemo(in x: u8, out y: u8) {
+    y := bump_twice(x)
+}
+
+sim TestChainedCalls {
+    wire x: u8 = 8
+    wire y: u8
+
+    ChainedDemo(x, y)
+
+    cycle()
+    assert(y == 5 as u8, "half(half(8)) + 3 == 5")
+}
