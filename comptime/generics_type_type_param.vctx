@@ -1,0 +1,17 @@
+// Type-parameter component: ``Type T`` substitutes into port types at each instance.
+
+component Identity<Type T>(in x: T, out y: T) {
+    y := x
+}
+
+component BytePassthrough(in a: u8, out b: u8) {
+    Identity<u8>(x -- a, y -- b)
+}
+
+sim SimTypeGenericIdentity {
+    wire u: u8 = 7
+    wire v: u8
+    BytePassthrough(a -- u, b -- v)
+    cycle()
+    assert(v == 7 as u8, "Identity<u8> forwards data")
+}

@@ -28,15 +28,31 @@ component SliceThreeBytes(in word: u32, out hi: u8, out mid: u8, out lo: u8) {
 
 // --- Unknown width: Slice(...) component; use .bits / .span -----------------
 
-component SliceDynamicSpan(in word: u32, in i: u3, out payload: u32, out span: u8) {
+component SliceDynamicSpan(in word: u32, in i: u3, out payload: u32, out span: u8, out narrow: u8) {
     s: Slice(word, (i + 7), i)
 
     payload := s.bits
     span := s.span
+    // Affine bounds ⇒ known_width 8 ⇒ `s as u8` is legal (proposal §4)
+    narrow := s as u8
+}
 
-    // Illegal (should not typecheck): `known_width` unknown → cannot prove u8
-    // wire bad: u8
-    // bad := s as u8
+// `s as u8` with proven span 8; `s` is the same payload carrier as `s.bits`.
+component SliceNarrowingCast(in word: u32, in i: u3, out payload: u32, out as_u8: u8) {
+    s: Slice(word, (i + 7), i)
+    payload := s.bits
+    as_u8 := s as u8
+}
+
+// Call form `Slice(w, hi, lo)` is the same payload as `s.bits` / statement Slice (then cast).
+component SliceExprNarrowingCast(in word: u32, in i: u3, out as_u8: u8) {
+    as_u8 := Slice(word, (i + 7), i) as u8
+}
+
+// Postfix `.bits` / `.span` on the call (same as `s.bits` / `s.span` on `s: Slice(...)`).
+component SliceExprPostfixFields(in word: u32, in i: u3, out payload: u32, out span: u8) {
+    payload := Slice(word, (i + 7), i).bits
+    span := Slice(word, (i + 7), i).span
 }
 
 // --- Generic **Int** N fixes bounds → known_width 8 → plain u8 ---------------
@@ -77,12 +93,45 @@ sim SimSliceDynamicSpan {
     wire i: u3 = 0
     wire payload: u32
     wire span: u8
-    SliceDynamicSpan(w, i, payload, span)
+    wire narrow: u8
+    SliceDynamicSpan(w, i, payload, span, narrow)
     cycle()
     assert(span == 8 as u8, "8-bit window → span 8 once Slice is lowered")
+    assert(narrow == 0xA5 as u8, "s as u8 narrows with i = 0")
     poke(i, 4 as u3)
     cycle()
     assert(span == 8 as u8, "aligned sliding window keeps span 8")
+    assert(narrow == 0x5A as u8, "s as u8 tracks sliding window at i = 4")
+}
+
+sim SimSliceNarrowingCast {
+    wire w: u32 = 0xA5A5A5A5
+    wire i: u3 = 0
+    wire payload: u32
+    wire as_u8: u8
+    SliceNarrowingCast(w, i, payload, as_u8)
+    cycle()
+    assert(as_u8 == 0xA5 as u8, "s as u8 narrows payload to known span 8")
+}
+
+sim SimSliceExprNarrowingCast {
+    wire w: u32 = 0xA5A5A5A5
+    wire i: u3 = 0
+    wire as_u8: u8
+    SliceExprNarrowingCast(w, i, as_u8)
+    cycle()
+    assert(as_u8 == 0xA5 as u8, "Slice(...) as u8 matches statement Slice + cast")
+}
+
+sim SimSliceExprPostfixFields {
+    wire w: u32 = 0xA5A5A5A5
+    wire i: u3 = 0
+    wire payload: u32
+    wire span: u8
+    SliceExprPostfixFields(w, i, payload, span)
+    cycle()
+    assert(span == 8 as u8, "Slice(...).span is comptime span width")
+    assert(payload == 0xA5 as u32, "Slice(...).bits is word-typed carrier; low byte is window")
 }
 
 sim SimSliceFromComptimeIndex {

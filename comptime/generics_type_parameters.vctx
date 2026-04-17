@@ -11,6 +11,7 @@
 //   component Name<P, Q, ...>( ports using u<P>, … ) { ... }
 //   function name<P, ...>(...) -> ...
 //   Instantiation: Target<arg, ...>( ... )
+//   Generic function call: name<arg, ...>( value args ) — explicit `<...>` required today.
 //   Use parentheses for compound args: Adder<(W + 1)>(...) so `>` is not comparison.
 //
 // Comptime **evaluation** (§9.1): each `<...>` argument list is folded in the constant
@@ -131,4 +132,12 @@ sim SimFixedWidthPipeline {
     FixedWidthPipeline(v, w)
     cycle()
     assert(w == 0xABC as u12, "two-stage Pass<12> is identity for data")
+}
+
+sim SimZeroExtendGeneric {
+    wire nibble: u4 = 3
+    wire wide: u8
+    wide := zero_extend<8>(nibble)
+    cycle()
+    assert(wide == 3 as u8, "zero_extend<8> widens without changing value")
 }
