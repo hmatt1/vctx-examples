@@ -1,0 +1,81 @@
+// =============================================================================
+// Language position: ARRAY TYPE DIMENSION
+// Syntax: base_type "[" dimension_expr "]"  (repeatable for future rank > 1)
+// Examples: u8[4],  bool[1],  s16[256]
+// Vision: vctx-lang/kinds-types-wire-reg.md — dimension is an **Int**; not a
+// **wire**/**reg** temporal value (§2). Carrier `u8` vs `u<WIDTH>` both use the
+// same bracket rules for rank-1 arrays.
+// =============================================================================
+//
+// MUST be comptime-known:
+//   The dimension_expr must fold to a fixed non-negative integer before the
+//   array type is real hardware. Storage size is inner_width * dim.
+//
+// Allowed forms (target — some may not fold in the compiler yet):
+//   - Decimal literal: 4, 1_000
+//   - Hex literal: 0x10 (value must be usable as dimension)
+//   - Binary literal: 0b1000
+//   - Parenthesized comptime expr: (2 + 2), ((3 * 4) + 1)
+//   - Calls that are comptime-pure: width(some_wire)  (returns known width)
+//
+// Signedness:
+//   Dimension is a *size*; treat as unsigned counting number. If the folded
+//   value is negative, that is an error. Signed types (s8, etc.) describe
+//   element bit pattern, not the bracket size — the bracket still holds a
+//   size, not a two’s-complement “count” unless you explicitly allow it.
+//
+// ILLEGAL (should be rejected — examples for reviewer; may be commented so this
+// file still parses):
+//   wire a: u8[my_reg]           // reg / runtime
+//   wire b: u8[my_input_port]   // port
+//   wire c: u8[-1]              // negative size
+//
+// =============================================================================
+
+component ArrayDimLiterals(out lo: u1, out mid: u1, out hi: u1) {
+    // Dimension 0 is usually rejected (no storage); not exercised here.
+    wire a1: u8[1]
+    wire a4: u8[4]
+    wire a256: u8[256]
+    wire sep: u16[1_000]
+
+    lo := a1[0]
+    mid := a4[0]
+    hi := a256[0]
+}
+
+component ArrayDimHexBinary(out x: u8) {
+    wire h: u8[0x10]
+    wire b: u8[0b1000]
+    x := h[0] | b[0]
+}
+
+component ArrayDimExpr(out x: u8) {
+    wire e: u8[(2 + 2)]
+    x := e[0]
+}
+
+sim SimArrayDimLiterals {
+    wire lo: u1
+    wire mid: u1
+    wire hi: u1
+    ArrayDimLiterals(lo, mid, hi)
+    cycle()
+    assert(lo == 0 as u1, "u8[1] element defaults")
+    assert(mid == 0 as u1, "u8[4] element defaults")
+    assert(hi == 0 as u1, "u8[256] element defaults")
+}
+
+sim SimArrayDimHexBinary {
+    wire x: u8
+    ArrayDimHexBinary(x)
+    cycle()
+    assert(x == 0 as u8, "hex/binary dimension arrays default to zero")
+}
+
+sim SimArrayDimExpr {
+    wire x: u8
+    ArrayDimExpr(x)
+    cycle()
+    assert(x == 0 as u8, "folded dim (2+2) elaborates as u8[4]")
+}

@@ -1,0 +1,55 @@
+// =============================================================================
+// Language position (FUTURE / SPEC): ATTRIBUTES with COMPTIME ARGUMENTS
+// Example: @frequency(50_000_000), @keep_hierarchy
+// Vision: vctx-lang/kinds-types-wire-reg.md §3 — attribute numerics are **Int** /
+// elaboration-time constants, not **Wire**/**Reg** nets (they vanish before silicon).
+// =============================================================================
+//
+// When an attribute takes a parenthesized expression, that expression is a
+// comptime-only position in many toolchains: synthesis frequency, memory depth
+// hints, etc.
+//
+// Allowed forms (target):
+//   - Integer literals and underscores
+//   - Comptime-only arithmetic if the compiler folds attributes
+//
+// Signedness:
+//   Frequency / counts are non-negative integers unless a specific attribute
+//   documents otherwise.
+//
+// ILLEGAL:
+//   @frequency(clk_count)  // if clk_count is a reg
+//
+// ---------------------------------------------------------------------------
+// vctx today: parse attributes on components; evaluation semantics TBD.
+// This stub keeps the file valid without asserting a particular @-syntax value.
+// ---------------------------------------------------------------------------
+
+@top
+component AttribComptimeStub(out led: u1) {
+    // `reg` = **Reg<u27>** (state); `<=` schedules next value (§2 temporal contract).
+    reg c: u27 = 0
+    c <= (c + 1) as u27
+    led := c[24]
+}
+
+// Small counter for sim: `@top` LED above toggles only after ~2^24 cycles.
+component AttribComptimeSimFast(out led: u1) {
+    reg c: u5 = 0
+    c <= (c + 1) as u5
+    led := c[4]
+}
+
+sim SimAttribComptimeStub {
+    wire led: u1
+    AttribComptimeStub(led)
+    cycle()
+    assert(led == 0 as u1, "bit 24 of counter still 0 after one cycle")
+}
+
+sim SimAttribComptimeSimFast {
+    wire led: u1
+    AttribComptimeSimFast(led)
+    cycle(16)
+    assert(led == 1 as u1, "u5 counter reaches 16 → bit 4 high")
+}

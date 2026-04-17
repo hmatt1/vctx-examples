@@ -1,0 +1,32 @@
+// =============================================================================
+// Kind **Component** (L3): functor `Wrap` with inner template **M**
+// See: vctx-lang/kinds-types-wire-reg.md §6, §8.2 D — **Outer<M>** with
+// `inner: M(...)`; no runtime component “value,” only compile-time abstraction.
+//
+// **Concrete** stand-in (today): inner module has a **fixed** name so the file
+// elaborates. The vision generalization:
+//
+//   component Wrap<M>(in x: u8, out y: u8) {
+//       inner: M(x -- x, y -- y)   // M must match port shape after monomorphize
+//   }
+//   user: Wrap<CoreDup>(...)
+//
+// **Comptime** effect: resolve **M** → specialize **Wrap** → one **inner**
+// instance per specialization (§9.2), not constant folding.
+// =============================================================================
+
+component CoreDup(in x: u8, out y: u8) {
+    y := (x + x) as u8
+}
+
+component WrapCoreDup(in x: u8, out y: u8) {
+    inner: CoreDup(x -- x, y -- y)
+}
+
+sim SimWrapCoreDup {
+    wire x: u8 = 3
+    wire y: u8
+    WrapCoreDup(x, y)
+    cycle()
+    assert(y == 6 as u8, "wrapped CoreDup doubles")
+}

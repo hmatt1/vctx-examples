@@ -1,0 +1,77 @@
+// =============================================================================
+// Language position: BUILT-INS THAT QUERY COMPTIME FACTS
+// Intrinsics: width(expr), is_signed(expr), is_comptime(expr)
+// Vision: vctx-lang/kinds-types-wire-reg.md — `width` / type queries yield **Int**
+// (or bool) in the constant folder when the carrier type is known; they classify
+// **L2** shape, not L0 per-cycle values.
+// =============================================================================
+//
+// These return values that are comptime-known when their arguments are typed:
+//   - width(x): bit width of x’s type → **Int** (documented as u32 carrier in places)
+//   - is_signed(x): 1 if signed scalar type
+//   - is_comptime(x): 1 iff the *expression* folded to a constant value
+//
+// Allowed:
+//   Use inside other comptime expressions once the compiler threads const
+//   through all call sites, e.g. u1[width(port) == 8] (illustrative).
+//
+// Signedness:
+//   width / is_comptime results are unsigned small integers in the current model.
+//
+// Pitfall — `reg`:
+//   `is_comptime(r)` for a `reg` r is 0: the read is **Reg<T>** **state** (L0),
+//   not an **Int**, even if `r` has a reset literal or only ever holds small
+//   integers. Compare with `is_comptime(0 as u8)` or a `wire` driven by literals.
+//
+// =============================================================================
+
+component IntrinsicWidth(in a: u16, in b: s8, out wa: u32, out wb: u32) {
+    wa := width(a)
+    wb := width(b)
+}
+
+component RegVersusLiteralComptime(
+    out lit_is_ct: u1,
+    out reg_is_ct: u1
+) {
+    reg acc: u8 = 5
+    acc <= acc
+
+    lit_is_ct := is_comptime(0 as u8)
+    reg_is_ct := is_comptime(acc)
+}
+
+sim IntrinsicsComptimeHarness {
+    wire k: u8 = 3
+    wire ic: u1
+    wire iz: u1
+
+    ic := is_comptime(k)
+    iz := is_comptime(42)
+
+    cycle()
+    assert(ic == 1, "wire driven from literal — folds for is_comptime")
+    assert(iz == 1, "bare literal is comptime")
+}
+
+sim IntrinsicsRegNotComptime {
+    wire a: u1
+    wire b: u1
+
+    RegVersusLiteralComptime(a, b)
+
+    cycle()
+    assert(a == 1, "literal 0 as u8 is comptime")
+    assert(b == 0, "reg read is not comptime — pitfall vs reset value 5")
+}
+
+sim SimIntrinsicWidth {
+    wire a: u16 = 0
+    wire b: s8 = -1
+    wire wa: u32
+    wire wb: u32
+    IntrinsicWidth(a, b, wa, wb)
+    cycle()
+    assert(wa == 16 as u32, "width(u16)")
+    assert(wb == 8 as u32, "width(s8)")
+}

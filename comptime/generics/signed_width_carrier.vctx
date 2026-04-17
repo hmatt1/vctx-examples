@@ -1,0 +1,28 @@
+// =============================================================================
+// §4.1 **Signed** parameterized carriers: **`s<WIDTH>`**
+// See: vctx-lang/kinds-types-wire-reg.md — same angle-bracket story as **`u<WIDTH>`**;
+// **`s8`**, **`s16`** are fixed special cases.
+//
+// Target:
+//   component SignedAlu<WIDTH>(in a: s<WIDTH>, in b: s<WIDTH>, out s: s<WIDTH>) { ... }
+//
+// **Comptime**: **WIDTH** is an **Int**; carrier shape is fixed per specialization.
+// **`wire` / `reg`** still carry the **temporal** contract for those carriers (§4.2).
+//
+// Below: fixed **`s8`** only so today’s toolchain can typecheck arithmetic.
+// =============================================================================
+
+component SignedAdd8(in a: s8, in b: s8, out sum: s8) {
+    sum := (a + b) as s8
+}
+
+// Vision (comment): SignedAdd<WIDTH> with `s<WIDTH>` ports and `as s<WIDTH>` casts.
+
+sim SimSignedAdd8 {
+    wire a: s8 = 10
+    wire b: s8 = -3
+    wire sum: s8
+    SignedAdd8(a, b, sum)
+    cycle()
+    assert(sum == 7 as s8, "signed add at fixed width")
+}

@@ -1,0 +1,134 @@
+// =============================================================================
+// Language position: GENERIC PARAMETERS (spec-first; see vctx-lang/kinds-types-wire-reg.md)
+//
+// Kinds (L3): WIDTH, W, IN_W, … here are **Int** — compile-time integers used in types
+// (e.g. `u<WIDTH>`), not `wire`/`reg`. They disappear at elaboration (§3 of that doc).
+//
+// Types (L2): `u<WIDTH>` is the **carrier** width; ports use **`wire`/`reg`** at the
+// L1–L0 boundary for the **temporal contract** (§2, §4.2).
+//
+// Syntax:
+//   component Name<P, Q, ...>( ports using u<P>, … ) { ... }
+//   function name<P, ...>(...) -> ...
+//   Instantiation: Target<arg, ...>( ... )
+//   Use parentheses for compound args: Adder<(W + 1)>(...) so `>` is not comparison.
+//
+// Comptime **evaluation** (§9.1): each `<...>` argument list is folded in the constant
+// folder before monomorphization. That is **not** the same as **component
+// instantiation** (§9.2), which allocates hierarchy after specialization.
+// =============================================================================
+//
+// MUST be comptime-known at each instantiation:
+//   Every specialization (`Adder<8>`, `Adder<(4+4)>`, …) folds its arguments
+//   before monomorphizing (one generated module per distinct argument tuple).
+//
+// Allowed forms (target):
+//   - Literals: 8, 0x10
+//   - Parenthesized arithmetic: (4 + 4)
+//   - Name of an enclosing generic **Int** parameter when nesting instantiations
+//
+// Signedness:
+//   WIDTH in `u<WIDTH>` is a *bit width* (count). It must fold to a positive
+//   integer. Zero or negative width → compile error.
+//
+// NOT allowed:
+//   - `Adder<count_reg>` where `count_reg` is a `reg` or unspecialized port
+//
+// Note: The toolchain may not accept `u<WIDTH>` until the parser/typechecker
+// implements parameterized carrier types with angle brackets.
+// =============================================================================
+
+// --- Parameterized width ------------------------------------------------------
+
+component Adder<WIDTH>(
+    in a: u<WIDTH>,
+    in b: u<WIDTH>,
+    out sum: u<WIDTH>
+) {
+    sum := (a + b) as u<WIDTH>
+}
+
+component WidenThenAdd<IN_W, OUT_W>(
+    in x: u<IN_W>,
+    in y: u<IN_W>,
+    out z: u<OUT_W>
+) {
+    z := (x as u<OUT_W>) + (y as u<OUT_W>)
+}
+
+// --- Generic function: W is an **Int** in parameter / return types ------------
+
+function zero_extend<W>(nibble: u4) -> u<W> {
+    return nibble as u<W>
+}
+
+// --- Instantiations (every `<...>` argument must fold at comptime) ------------
+
+component GenericUser(
+    in xa: u8,
+    in xb: u8,
+    in xc: u4,
+    in xd: u4,
+    out sum8: u8,
+    out sum16: u16,
+    out widened: u8
+) {
+    add8: Adder<8>(a -- xa, b -- xb, sum -- sum8)
+
+    add16: Adder<(8 + 8)>(
+        a -- (xa as u16),
+        b -- (xb as u16),
+        sum -- sum16
+    )
+
+    WidenThenAdd<4, 8>(x -- xc, y -- xd, z -- widened)
+}
+
+// --- Nested reference: inner instance reuses outer generic Int W --------------
+
+component Pass<W>(in inp: u<W>, out outp: u<W>) {
+    outp := inp
+}
+
+component PipelineStage<W>(in x: u<W>, out y: u<W>) {
+    wire t: u<W>
+    Pass<W>(inp -- x, outp -- t)
+    Pass<W>(inp -- t, outp -- y)
+}
+
+component FixedWidthPipeline(in v: u12, out w: u12) {
+    PipelineStage<12>(x -- v, y -- w)
+}
+
+sim SimAdderWidth8 {
+    wire av: u8 = 3
+    wire bv: u8 = 5
+    wire sv: u8
+    Adder<8>(a -- av, b -- bv, sum -- sv)
+    cycle()
+    assert(sv == 8 as u8, "3+5 with Adder<8>")
+}
+
+sim SimGenericUser {
+    wire xa: u8 = 3
+    wire xb: u8 = 5
+    wire xc: u4 = 1
+    wire xd: u4 = 2
+    wire sum8: u8
+    wire sum16: u16
+    wire widened: u8
+
+    GenericUser(xa, xb, xc, xd, sum8, sum16, widened)
+    cycle()
+    assert(sum8 == 8 as u8, "8-bit adder lane")
+    assert(sum16 == 8 as u16, "16-bit adder lane (3+5)")
+    assert(widened == 3 as u8, "WidenThenAdd<4,8>: 1+2")
+}
+
+sim SimFixedWidthPipeline {
+    wire v: u12 = 0xABC
+    wire w: u12
+    FixedWidthPipeline(v, w)
+    cycle()
+    assert(w == 0xABC as u12, "two-stage Pass<12> is identity for data")
+}

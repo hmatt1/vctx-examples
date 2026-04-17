@@ -1,0 +1,46 @@
+// =============================================================================
+// CHECKLIST: RUNTIME VALUES THAT MUST *NOT* SATISFY COMPTIME POSITIONS
+// (Some lines stay commented so this package can parse before diagnostics exist;
+//  uncomment when testing errors.)
+// Vision: vctx-lang/kinds-types-wire-reg.md — **Int** / type args fold in the
+// constant folder; they are not **Wire**/**Reg** (L0) values.
+// =============================================================================
+//
+// Array dimension:
+//   // reg r: u8 = 0
+//   // wire bad: u8[r]
+//
+// Generic argument (must be comptime-**Int** or allowed literal, not a net):
+//   // reg r: u8 = 0
+//   // Adder<r>(...)
+//
+// Attribute numeric argument:
+//   // reg r: u8 = 0
+//   // @depth(r)
+//
+// Slice — narrowing when `known_width` is unknown (dynamic bounds):
+//   // component BadDynamicCast(in word: u32, in i: u3, out o: u8) {
+//   //     s: Slice(word, (i + 7), i)
+//   //     o := s as u8   // ERROR: span not statically known → cannot prove u8
+//   // }
+//
+//   Use `.bits` / `.span`, or only `as uK` when hi/lo fold so known_width == K.
+//   Prefer **`Slice(word, hi, lo)`** for the dynamic case; see dynamic_slicing_proposal.md.
+//
+// Why it matters:
+//   Comptime positions size hardware before elaboration; a **reg** read or port
+//   **signal** is an L0 value that varies per cycle — it cannot stand in for an
+//   **Int** used in `u<WIDTH>`, array sizes, or templates.
+//
+// =============================================================================
+
+component ForbiddenRuntimeDocStub(out z: u1) {
+    z := 0
+}
+
+sim SimForbiddenRuntimeDocStub {
+    wire z: u1
+    ForbiddenRuntimeDocStub(z)
+    cycle()
+    assert(z == 0 as u1, "documentation stub still elaborates and drives low")
+}

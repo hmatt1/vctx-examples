@@ -1,0 +1,36 @@
+// =============================================================================
+// §8.1 **Function** vs **component** with the same width idea
+// See: vctx-lang/kinds-types-wire-reg.md — **function** ≈ inlined recipe (§9.1
+// when args comptime); **component** ≈ **ports** + hierarchy (§9.2).
+//
+// **`scale_u8`**: expression reuse (inlined at each **`:=`**). **`Scaler8`**:
+// same math behind **named ports** — a small **structural** boundary.
+//
+// Vision (spec): **`function scale_uW<W>(...)`** + **`Scaler<W>`** with **`u<W>`**;
+// today’s grammar calls functions as **`name(x, k)`** only (no **`f<8>(...)`**),
+// so this file uses fixed **`u8`** and documents the generic form in comments.
+// =============================================================================
+
+function scale_u8(x: u8, k: u8) -> u8 {
+    return (x * k) as u8
+}
+
+component Scaler8(in x: u8, in k: u8, out y: u8) {
+    y := scale_u8(x, k)
+}
+
+component FunctionVsComponent8(in x: u8, in k: u8, out from_fn: u8, out from_comp: u8) {
+    from_fn := scale_u8(x, k)
+    u8scaler: Scaler8(x, k, from_comp)
+}
+
+sim SimFunctionVsComponent8 {
+    wire x: u8 = 2
+    wire k: u8 = 3
+    wire from_fn: u8
+    wire from_comp: u8
+    FunctionVsComponent8(x, k, from_fn, from_comp)
+    cycle()
+    assert(from_fn == 6 as u8, "inlined scale_u8")
+    assert(from_comp == 6 as u8, "Scaler8 instance matches")
+}

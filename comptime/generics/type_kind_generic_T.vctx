@@ -1,0 +1,30 @@
+// =============================================================================
+// Kind **Type** (L3): generic data-carrier parameter **T**
+// See: vctx-lang/kinds-types-wire-reg.md §3, §6 — `T` classifies *types* (`u8`,
+// structs, …); it is not an **Int** and not a **Component**.
+//
+// Target surface (spec — full **Type** generics when the checker supports them):
+//   component Buf<T>(in x: T, out y: T) { y := x }
+//   buf_u8: Buf<u8>(a, b)   // or named connections once `Buf<u8>` specializes
+//
+// **Comptime** here: each specialization `Buf<u8>`, `Buf<u16>`, … is chosen at
+// instantiate time; the **carrier** `T` is fixed before elaboration (§9.2).
+//
+// Stand-in: **`BufU8`** (concrete) so **`vctx check`** exercises ports and **sim**.
+// =============================================================================
+
+component BufU8(in x: u8, out y: u8) {
+    y := x
+}
+
+component BufUser_u8(in a: u8, out b: u8) {
+    stage: BufU8(a, b)
+}
+
+sim SimBufUser_u8 {
+    wire a: u8 = 0x5A
+    wire b: u8
+    BufUser_u8(a, b)
+    cycle()
+    assert(b == 0x5A as u8, "identity buffer lane")
+}

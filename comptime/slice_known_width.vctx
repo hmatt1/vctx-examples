@@ -1,0 +1,103 @@
+// =============================================================================
+// Slicing + comptime (spec-first)
+// See: vctx-lang/kinds-types-wire-reg.md §7, vctx-lang/dynamic_slicing_proposal.md
+//
+// When `hi..lo` has **known_width == K** at comptime, a bracket slice may appear as a
+// plain **`uK`** on a **`wire`** (declaration = name + carrier + **temporal** contract:
+// **`wire` ⇒ combinational / `:=`**).
+//
+// When **known_width** is unknown (dynamic bounds), use **builtin component**
+// **`Slice(word, hi, lo)`** — elaboration / hierarchy (§9.2), not the constant folder.
+// Prefer instance syntax `s: Slice(...)` over `wire s: Slice := …` as the main story.
+//
+// Single-bit `x[i]` stays a separate construct; this file is about **`[hi..lo]`**.
+// =============================================================================
+
+// --- Known width: result is plain uK on a wire --------------------------------
+
+component SliceConstantFolded(in word: u32, out byte: u8) {
+    // Same as: wire byte: u8 = word[7..0]  (Wire<u8> discipline via `out` port rules)
+    byte := word[7..0]
+}
+
+component SliceThreeBytes(in word: u32, out hi: u8, out mid: u8, out lo: u8) {
+    hi := word[31..24]
+    mid := word[23..16]
+    lo := word[15..8]
+}
+
+// --- Unknown width: Slice(...) component; use .bits / .span -----------------
+
+component SliceDynamicSpan(in word: u32, in i: u3, out payload: u32, out span: u8) {
+    s: Slice(word, (i + 7), i)
+
+    payload := s.bits
+    span := s.span
+
+    // Illegal (should not typecheck): `known_width` unknown → cannot prove u8
+    // wire bad: u8
+    // bad := s as u8
+}
+
+// --- Generic **Int** N fixes bounds → known_width 8 → plain u8 ---------------
+
+component SliceFromComptimeIndex<N>(in bus: u32, out field: u8) {
+    wire f: u8 = bus[(N + 7)..N]
+    field := f
+}
+
+component SliceWidthMismatchForbidden(in word: u32, out ok: u1) {
+    // Legal: `wire good: u8 = word[7..0]` (known_width 8).
+    // Illegal (typechecker): `wire bad: u8 = word[15..0]` — known_width 16 vs u8.
+    ok := 1 as u1
+}
+
+sim SimSliceConstantFolded {
+    wire w: u32 = 0xDEADBEEF
+    wire b: u8
+    SliceConstantFolded(w, b)
+    cycle()
+    assert(b == 0xEF as u8, "word[7..0] low byte")
+}
+
+sim SimSliceThreeBytes {
+    wire w: u32 = 0x11223344
+    wire hi: u8
+    wire mid: u8
+    wire lo: u8
+    SliceThreeBytes(w, hi, mid, lo)
+    cycle()
+    assert(hi == 0x11 as u8, "MSB byte")
+    assert(mid == 0x22 as u8, "middle byte")
+    assert(lo == 0x33 as u8, "third byte")
+}
+
+sim SimSliceDynamicSpan {
+    wire w: u32 = 0xA5A5A5A5
+    wire i: u3 = 0
+    wire payload: u32
+    wire span: u8
+    SliceDynamicSpan(w, i, payload, span)
+    cycle()
+    assert(span == 8 as u8, "8-bit window → span 8 once Slice is lowered")
+    poke(i, 4 as u3)
+    cycle()
+    assert(span == 8 as u8, "aligned sliding window keeps span 8")
+}
+
+sim SimSliceFromComptimeIndex {
+    wire bus: u32 = 0x00FF00CC
+    wire field: u8
+    // N=0 → bus[(0+7)..0] == bus[7..0] == 0xCC
+    SliceFromComptimeIndex<0>(bus, field)
+    cycle()
+    assert(field == 0xCC as u8, "comptime Int N in slice bounds")
+}
+
+sim SimSliceWidthMismatchForbidden {
+    wire w: u32 = 0
+    wire ok: u1
+    SliceWidthMismatchForbidden(w, ok)
+    cycle()
+    assert(ok == 1 as u1, "component elaborates; width mismatch stays commented")
+}

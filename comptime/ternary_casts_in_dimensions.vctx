@@ -1,0 +1,91 @@
+// =============================================================================
+// Ternary `cond ? a : b` — COMPTIME vs RUNTIME
+// Vision: vctx-lang/kinds-types-wire-reg.md §9 — folded ternary in a dimension
+// is **constant-folder** work (**Int**). Runtime ternary on signals is **L1**
+// hardware (mux); **reg** reads participate as **Reg<T>** current value (L0).
+// =============================================================================
+//
+// COMPTIME (array dimensions, generic **Int** args, etc.):
+//   When `cond`, `a`, and `b` all fold to constants, the whole expression folds.
+//   Use for parameterized sizes: `u8[true ? 8 : 4]`, `u8[(W == 8) ? 4 : 2]` when
+//   W is a generic **Int**.
+//
+// RUNTIME (normal hardware mux):
+//   When `cond` is a **`wire`** / port / **`reg`** read, the ternary is a 2:1 mux;
+//   both arms are evaluated as hardware; no folding. Same family as `when` for
+//   simple scalar muxes.
+//
+// Casts in dimensions (`expr as uN`):
+//   Dimension must be a comptime integer after trunc/extend; final value ≥ 0.
+//
+// =============================================================================
+
+// --- Comptime: condition is manifest (e.g. bool literal or folded compare) -----
+
+component DimTernaryConst(out x: u8) {
+    wire t: u8[true ? 8 : 4]
+    x := t[0]
+}
+
+component DimCastNarrow(out x: u8) {
+    wire wide: u16[0x00FF]
+    wire c: u8[(0x1234 as u8)]
+    x := wide[0] | c[0]
+}
+
+// --- Runtime: condition is a signal — builds a mux, not a folded array size ----
+
+component RuntimeTernaryMux(in sel: bool, in a: u8, in b: u8, out y: u8) {
+    y := sel ? a : b
+}
+
+component RuntimeTernaryWide(in sel: bool, in p: u4, in q: u4, out m: u8) {
+    m := sel ? (p as u8) : (q as u8)
+}
+
+sim RuntimeTernarySmoke {
+    wire s: bool = 0
+    wire x: u8 = 0x10
+    wire z: u8 = 0x20
+    wire y: u8
+
+    RuntimeTernaryMux(s, x, z, y)
+
+    cycle()
+    assert(y == 0x20 as u8, "sel false picks second arm")
+
+    poke(s, 1)
+    cycle()
+    assert(y == 0x10 as u8, "sel true picks first arm")
+
+    poke(x, 0xAA as u8)
+    cycle()
+    assert(y == 0xAA as u8, "mux tracks updated a when sel high")
+}
+
+sim SimDimTernaryConst {
+    wire x: u8
+    DimTernaryConst(x)
+    cycle()
+    assert(x == 0 as u8, "u8[true?8:4] defaults to zero at index 0")
+}
+
+sim SimDimCastNarrow {
+    wire x: u8
+    DimCastNarrow(x)
+    cycle()
+    assert(x == 0 as u8, "wide[0]|narrowcast[0] with default storage")
+}
+
+sim SimRuntimeTernaryWide {
+    wire s: bool = 0
+    wire p: u4 = 0xC
+    wire q: u4 = 0x3
+    wire m: u8
+    RuntimeTernaryWide(s, p, q, m)
+    cycle()
+    assert(m == 0x3 as u8, "false → q as u8")
+    poke(s, 1)
+    cycle()
+    assert(m == 0xC as u8, "true → p as u8")
+}

@@ -1,0 +1,60 @@
+// =============================================================================
+// §9.2 **Conditional structure** at elaboration time
+// See: vctx-lang/kinds-types-wire-reg.md — if **`N > 4`** pick **BigFifo** else
+// **SmallFifo**; the **branch** is resolved **comptime**; the discarded arm
+// need not appear in the final netlist.
+//
+// Target surface (illustrative — exact `if`/`generate` syntax TBD):
+//
+//   component PickFifo<N>(in d: u1, out q: u1) {
+//       if (N > 4) {
+//           big: BigFifo<N>(...)
+//       } else {
+//           small: SmallFifo<N>(...)
+//       }
+//   }
+//
+// This is **structural elaboration**, not a runtime mux between two fifos (unless
+// you intentionally build both and select — different design).
+//
+// **Stand-ins**: two small components with **different** storage widths; each
+// `sim` picks one. Replace with a single generic **`PickFifo<N>`** when the
+// elaborator supports comptime branches.
+// =============================================================================
+
+component FifoSmallStub(out level: u4) {
+    reg r: u4 = 0
+    r <= r
+    level := r
+}
+
+component FifoBigStub(out level: u8) {
+    reg r: u8 = 0
+    r <= r
+    level := r
+}
+
+component ConditionalElabDocStub(out flag: u1) {
+    flag := 1 as u1
+}
+
+sim SimFifoSmallStub {
+    wire level: u4
+    FifoSmallStub(level)
+    cycle()
+    assert(level == 0 as u4, "small stub reg starts at 0")
+}
+
+sim SimFifoBigStub {
+    wire level: u8
+    FifoBigStub(level)
+    cycle()
+    assert(level == 0 as u8, "big stub reg starts at 0")
+}
+
+sim SimConditionalElabDocStub {
+    wire flag: u1
+    ConditionalElabDocStub(flag)
+    cycle()
+    assert(flag == 1 as u1, "doc stub drives high")
+}
