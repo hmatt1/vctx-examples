@@ -1,0 +1,9 @@
+// Smoke: L3 ``Int N`` generic parameter syntax + symbol ``generic_params`` metadata.
+// Instantiates with a comptime Int argument (no parametric port types in this file).
+
+component WithExplicit<Int N>() {
+}
+
+component User() {
+    ex: WithExplicit<8>()
+}
