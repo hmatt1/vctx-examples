@@ -3,6 +3,9 @@
 // for inclusive bounds.
 //
 // Mixing these up is a common mistake when coming from C or Verilog.
+//
+// Less-than uses a spaced ``<`` (``x < y``). A ``<`` touching the previous character
+// opens generics (``Adder<8>``). Unspaced ``(a<b)`` inside parentheses is not supported.
 
 sim RelationalInclusiveBounds {
     wire a: u16 = 0xC000

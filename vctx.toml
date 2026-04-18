@@ -1,2 +1,5 @@
 [project]
 name = "vctx-examples"
+# Omit from bulk ``vctx sim`` and ``vctx check`` file discovery. Targeted runs still work:
+#   vctx sim on_purpose_failures/on_purpose_failure.vctx:TestOr
+exclude_path_parts = ["on_purpose_failures"]
