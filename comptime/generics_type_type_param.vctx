@@ -8,10 +8,23 @@ component BytePassthrough(in a: u8, out b: u8) {
     Identity<u8>(x -- a, y -- b)
 }
 
+
+component WordPassthrough(in a: u32, out b: u32) {
+    Identity<u32>(x -- a, y -- b)
+}
+
 sim SimTypeGenericIdentity {
     wire u: u8 = 7
     wire v: u8
-    BytePassthrough(a -- u, b -- v)
+    BytePassthrough(u, v)
     cycle()
     assert(v == 7 as u8, "Identity<u8> forwards data")
+}
+
+sim SimTypeGenericIdentityWord {
+    wire u: u32 = 12345
+    wire v: u32
+    WordPassthrough(u, v)
+    cycle()
+    assert(v == 12345, "Identity<u8> forwards data")
 }
