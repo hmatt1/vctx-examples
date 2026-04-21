@@ -28,7 +28,7 @@ Values driven from **`reg`** (L0 **state**), input ports (**Wire** discipline fr
 
 ### 5) Diagnostics
 
-Each comptime position should eventually get a dedicated error at the offending expression (e.g. “array size must be a compile-time constant”), not a late width/unknown-type error elsewhere.
+Each comptime-required position should get a dedicated error at the offending expression (e.g. “array dimension (comptime-required): … must fold …”), not a late width/unknown-type error elsewhere.
 
 ### 6) Components vs expressions
 

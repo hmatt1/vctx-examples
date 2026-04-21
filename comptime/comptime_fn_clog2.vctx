@@ -1,0 +1,19 @@
+// Step 5: comptime function (comptime_fold_interpreter_design.md).
+
+import std.comptime_math as std
+
+comptime clog2_int(n: Int) -> u32 {
+    return std.clog2(n)
+}
+
+component Clog2Demo(out w: u32) {
+    w := clog2_int(16)
+}
+
+sim SimClog2ComptimeFn {
+    wire w: u32
+    Clog2Demo(w)
+
+    cycle()
+    assert(w == 4 as u32, "clog2_int(16) == 4")
+}

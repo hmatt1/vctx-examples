@@ -7,7 +7,7 @@
 //
 // COMPTIME (array dimensions, generic **Int** args, etc.):
 //   When `cond`, `a`, and `b` all fold to constants, the whole expression folds.
-//   Use for parameterized sizes: `u8[true ? 8 : 4]`, `u8[(W == 8) ? 4 : 2]` when
+//   Use for parameterized sizes: `u8[(true ? 8 : 4)]`, `u8[((W == 8) ? 4 : 2)]` when
 //   W is a generic **Int**.
 //
 // RUNTIME (normal hardware mux):
@@ -23,7 +23,7 @@
 // --- Comptime: condition is manifest (e.g. bool literal or folded compare) -----
 
 component DimTernaryConst(out x: u8) {
-    wire t: u8[true ? 8 : 4]
+    wire t: u8[(true ? 8 : 4)]
     x := t[0]
 }
 
@@ -67,7 +67,7 @@ sim SimDimTernaryConst {
     wire x: u8
     DimTernaryConst(x)
     cycle()
-    assert(x == 0 as u8, "u8[true?8:4] defaults to zero at index 0")
+    assert(x == 0 as u8, "u8[(true?8:4)] defaults to zero at index 0")
 }
 
 sim SimDimCastNarrow {

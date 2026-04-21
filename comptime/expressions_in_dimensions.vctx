@@ -37,8 +37,6 @@
 //
 // =============================================================================
 
-import std.math
-
 component DimExprAddSubMul(out x: u8) {
     wire a: u8[(3 + 5)]
     wire b: u8[(10 - 2)]

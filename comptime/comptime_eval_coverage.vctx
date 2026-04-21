@@ -1,0 +1,66 @@
+// Coverage: comptime v1 statements + direct expression evaluator coverage.
+
+comptime eval_cov(n: Int) -> u32 {
+    // let + while + assignment + comparison + division
+    let x: Int = n
+    let r: Int = 0
+    while (x > 0) {
+        x = x / 2
+        r = r + 1
+    }
+
+    // unary + bitwise + shift + equality
+    assert((~0) !== 0, "bitwise invert")
+    assert(((1 << 3) == 8), "shift left")
+    assert(((8 >> 2) == 2), "shift right")
+    assert(((5 & 3) == 1), "bitwise and")
+    assert(((5 | 2) == 7), "bitwise or")
+    assert(((5 ^ 1) == 4), "bitwise xor")
+
+    // logical and/or + ternary
+    let t: Int = ((n > 0) and (n > 0)) ? 1 : 0
+    assert((t == 1), "ternary/logical")
+
+    // cast
+    return (r as u32)
+}
+
+comptime loop_control() -> u32 {
+    let i: Int = 0
+    let s: Int = 0
+    while (true) {
+        i = i + 1
+        if (i == 2) {
+            continue
+        }
+        if (i == 4) {
+            break
+        }
+        s = s + i
+    }
+    // i ran 1..3, skipping 2 => s = 1 + 3 = 4
+    return (s as u32)
+}
+
+component ComptimeEvalCoverage(out w: u32) {
+    w := eval_cov(16)
+}
+
+component ComptimeLoopControl(out w: u32) {
+    w := loop_control()
+}
+
+sim SimComptimeEvalCoverage {
+    wire w: u32
+    ComptimeEvalCoverage(w)
+    cycle()
+    assert(w == 5 as u32, "eval_cov(16) == 5")
+}
+
+sim SimComptimeLoopControl {
+    wire w: u32
+    ComptimeLoopControl(w)
+    cycle()
+    assert(w == 4 as u32, "break/continue")
+}
+
