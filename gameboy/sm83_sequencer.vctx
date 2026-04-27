@@ -734,3 +734,21 @@ sim TestSequencerCpB {
     assert(flag_c == true, "borrow 0x10 - 0x20")
     assert(out_pc == 0x0105, "PC before NOP fetch")
 }
+
+// Smoke: verify reset PC then single fetch increments PC.
+sim TestSequencerResetFetch {
+    wire out_a: u8
+    wire out_f: u8
+    wire out_b: u8
+    wire out_pc: u16
+    wire flag_z: bool
+    wire flag_n: bool
+    wire flag_h: bool
+    wire flag_c: bool
+
+    Sm83CpuAddProg(out_a, out_f, out_b, out_pc, flag_z, flag_n, flag_h, flag_c)
+
+    assert(out_pc == 0x0100, "reset PC")
+    cycle()
+    assert(out_pc == 0x0101, "after opcode fetch")
+}
