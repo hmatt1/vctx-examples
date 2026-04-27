@@ -1,0 +1,10 @@
+// Expected-to-fail check: pure combinational loop (no registers)
+
+component CombLoopIllegal(out o: u1) {
+    wire a: u1
+    wire b: u1
+    a := b
+    b := a
+    o := a
+}
+

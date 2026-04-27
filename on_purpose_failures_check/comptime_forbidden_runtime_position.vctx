@@ -1,0 +1,9 @@
+// Expected failure: a runtime value is used in a comptime-required position.
+// This should produce a "comptime-required" style diagnostic (not a later width/type error).
+
+component ComptimeForbiddenRuntimePosition(in n: u8, out y: u1) {
+    // Carrier widths `u<...>` must fold at comptime; using an input port is forbidden.
+    wire x: u<n>
+    y := 0 as u1
+}
+

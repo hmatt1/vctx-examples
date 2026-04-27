@@ -1,0 +1,15 @@
+// Expected failure: one failing assert surrounded by passing asserts.
+
+component ConstOne(out y: u1) {
+    y := 1 as u1
+}
+
+sim OneFailAmongPasses2 {
+    wire x: u1
+    ConstOne(x)
+    cycle()
+    assert(x == 1, "sanity pass")
+    assert(x == 0, "on purpose failure")
+    assert(x == 1, "sanity pass again")
+}
+

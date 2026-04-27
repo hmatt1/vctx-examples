@@ -1,0 +1,8 @@
+// Expected failure: minimal boolean `not` assertion failure.
+
+sim FailBoolNot {
+    wire t: bool = true
+    cycle()
+    assert((not t) == true, "on purpose failure: not true is false")
+}
+

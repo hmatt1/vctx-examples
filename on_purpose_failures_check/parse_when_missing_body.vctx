@@ -1,0 +1,9 @@
+// Expected failure: `when <cond>` must be followed by a `{ ... }` body.
+
+component WhenMissingBody(out y: u1) {
+    wire a: u1 = 1
+    // Missing closing brace for the `when` body should fail parse.
+    when true {
+        y := a
+}
+

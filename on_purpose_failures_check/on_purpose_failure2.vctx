@@ -11,3 +11,4 @@ component AccidentalCombAssignToReg(out q: u8) {
     }
     q := acc
 }
+

@@ -1,0 +1,8 @@
+// Expected failure: carrier width `u<WIDTH>` is comptime-required and must fold.
+// Here WIDTH depends on a runtime input port.
+
+component ComptimeNonFoldableCarrierWidth(in n: u8, out y: u1) {
+    wire x: u<n>
+    y := 0 as u1
+}
+

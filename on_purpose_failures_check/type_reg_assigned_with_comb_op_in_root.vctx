@@ -1,0 +1,9 @@
+// Expected failure: `:=` (combinational assignment) is not valid for `reg`.
+// This variant exercises the rule outside of any `when` arm.
+
+component RegAssignedWithCombOpInRoot(out q: u8) {
+    reg r: u8
+    r := 1 as u8
+    q := r
+}
+

@@ -1,0 +1,13 @@
+// Expected failure: combinational cycle expressed through `when`-driven wires.
+// In the `when true` arms, `a` depends on `b` and `b` depends on `a` in the same cycle.
+
+component CombLoopWhenVariant(out o: u1) {
+    wire a: u1
+    wire b: u1
+
+    when true { a := b } otherwise { a := 0 as u1 }
+    when true { b := a } otherwise { b := 0 as u1 }
+
+    o := a
+}
+

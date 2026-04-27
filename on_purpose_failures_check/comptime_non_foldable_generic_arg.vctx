@@ -1,0 +1,12 @@
+// Expected failure: generic arguments are comptime-required and must fold.
+// Here the generic argument depends on a runtime input port.
+
+component Id<WIDTH>(in a: u<WIDTH>, out y: u<WIDTH>) {
+    y := a
+}
+
+component ComptimeNonFoldableGenericArg(in n: u8, in a: u8, out y: u8) {
+    // `n` is runtime, so `Id<n>` must be rejected as a generic argument.
+    Id<n>(a, y)
+}
+

@@ -7,7 +7,7 @@ sim TestNotBool {
 }
 
 sim TestNotUnsigned {
-    // In VCTX/C, !0 is 1 (true), !non_zero is 0 (false)
+    // In VCTX/C, `not 0` is 1 (true), `not non_zero` is 0 (false)
     wire z: u8 = 0
     wire x: u8 = 42
     

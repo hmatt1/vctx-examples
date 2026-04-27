@@ -1,0 +1,12 @@
+// Expected failure: pure combinational loop (alternate shape: 3-node cycle).
+
+component CombLoopIllegal3(out o: u1) {
+    wire a: u1
+    wire b: u1
+    wire c: u1
+    a := b
+    b := c
+    c := a
+    o := a
+}
+

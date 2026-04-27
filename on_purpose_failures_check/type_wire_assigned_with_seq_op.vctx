@@ -1,0 +1,8 @@
+// Expected failure: `<=` (sequential assignment) is not valid for `wire`.
+
+component WireAssignedWithSeqOp(out q: u8) {
+    wire w: u8
+    w <= 1 as u8
+    q := w
+}
+

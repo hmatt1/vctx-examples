@@ -1,0 +1,25 @@
+// Expected failure: assertion only fails after multiple cycles.
+
+component Counter2(out y: u2) {
+    reg r: u2 = 0 as u2
+    // Cast forces the increment result back to u2.
+    r <= (r + 1 as u2) as u2
+    y := r
+}
+
+sim FailAfterMultipleCycles {
+    wire y: u2
+    Counter2(y)
+
+    // Cycle 1: y was 0 (init) in this cycle, updates next.
+    cycle()
+    // Cycle 2: y should now be 1.
+    cycle()
+    // Cycle 3: y should now be 2.
+    cycle()
+
+    // On purpose failure: after 3 cycles, y should be 2 (or 3 depending on model),
+    // but we assert an impossible value to ensure this fails late.
+    assert(y == 0, "on purpose failure after multiple cycles")
+}
+

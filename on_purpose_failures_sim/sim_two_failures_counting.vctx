@@ -1,0 +1,17 @@
+// Expected failure: two failing asserts to validate counting/reporting.
+
+component ConstOne(out y: u1) {
+    y := 1 as u1
+}
+
+sim TwoFailuresCounting {
+    wire x: u1
+    ConstOne(x)
+    cycle()
+
+    assert(x == 1, "pass 1")
+    assert(x == 0, "fail 1 (on purpose)")
+    assert(x == 0, "fail 2 (on purpose)")
+    assert(x == 1, "pass 2")
+}
+

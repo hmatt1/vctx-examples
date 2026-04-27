@@ -1,0 +1,8 @@
+// Expected failure: import a package path that does not exist.
+
+import does.not.exist
+
+component ImportMissingPackage(out y: u1) {
+    y := 0 as u1
+}
+

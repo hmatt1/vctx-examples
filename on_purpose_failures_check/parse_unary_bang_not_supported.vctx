@@ -1,0 +1,8 @@
+// Expected failure: unary `!` is not supported in vctx (use `not` or `~`).
+
+component UnaryBangNotSupported(out y: u1) {
+    wire a: u1 = 0
+    // This should fail parse.
+    y := !a
+}
+

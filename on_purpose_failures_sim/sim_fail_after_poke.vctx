@@ -1,0 +1,23 @@
+// Expected failure: pass initially, then poke causes an assertion failure.
+
+component PokeDut(in a: u4, out y: u4) {
+    y := a
+}
+
+sim FailAfterPoke {
+    wire a: u4 = 3
+    wire y: u4
+    PokeDut(a, y)
+
+    // sanity before poke
+    assert(y == 3, "initial y")
+    cycle()
+
+    // Change input at runtime.
+    poke(a, 4)
+    cycle()
+
+    // On purpose failure: y should now be 4.
+    assert(y == 3, "on purpose failure after poke")
+}
+

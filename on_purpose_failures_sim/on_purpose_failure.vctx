@@ -1,0 +1,28 @@
+component OrGate(in a: u1, in b: u1, out y: u1) {
+    y := a | b 
+    wire y2: u1 = a | b 
+    /* y3: u1 = a | b  */
+}
+
+sim TestOr {
+    // 1. Inputs driven with initial values
+    wire a: u1 = 1
+    wire b: u1 = 0
+
+    // 2. Output wire
+    wire x: u1
+
+    // 3. Instantiate the component
+    // Connect inputs 'a', 'b' and output 'y'
+    OrGate(a, b, x)
+
+    cycle()
+    cycle()
+    cycle()
+    
+    assert(x == 1, "assert 1 | 0 should result in 1")
+    assert(x == 2, "on purpose error to test failure reporting")
+    assert(x == 1, "assert 1 | 0 should result in 1")
+
+}
+

@@ -1,0 +1,9 @@
+// Expected failure: `elsewhen` cannot appear without a leading `when`.
+
+component ElsewhenWithoutWhen(out y: u1) {
+    wire a: u1 = 1
+    elsewhen true {
+        y := a
+    }
+}
+

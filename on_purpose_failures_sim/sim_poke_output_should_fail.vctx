@@ -1,0 +1,19 @@
+// Expected failure: attempt to `poke` a DUT output (should be rejected by sim runtime).
+
+component PassThru(in a: u4, out y: u4) {
+    y := a
+}
+
+sim PokeDutOutputShouldFail {
+    wire a: u4 = 1
+    wire y: u4
+    PassThru(a, y)
+    cycle()
+
+    // On purpose misuse: y is driven by DUT output.
+    poke(y, 2 as u4)
+
+    // If the runtime doesn't fail on the poke, this assertion forces failure anyway.
+    assert(y == 1 as u4, "y should remain 1 (poke to output should not be allowed)")
+}
+

@@ -1,0 +1,8 @@
+// Expected failure: malformed slice syntax (`x[..3]` is not valid).
+
+component MalformedSliceSyntax(out y: u1) {
+    wire a: u8 = 0xAA
+    // Missing high bound should fail parse.
+    y := a[..3]
+}
+

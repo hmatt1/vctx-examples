@@ -1,0 +1,8 @@
+// Expected failure: array dimension is comptime-required and must fold.
+// Here the dimension depends on a runtime input port.
+
+component ComptimeNonFoldableArrayDim(in n: u8, out y: u1) {
+    wire a: u1[n]
+    y := 0 as u1
+}
+

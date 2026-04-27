@@ -1,0 +1,7 @@
+// Expected failure: reference to an unknown identifier.
+
+component UnknownIdentifier(out y: u1) {
+    // `nope` is not declared anywhere in this component or imports.
+    y := nope
+}
+

@@ -1,0 +1,10 @@
+// Expected failure: import a real package, then reference a missing symbol from it.
+
+import imports.foo as f
+
+component ImportSymbolNotFound(out y: u1) {
+    // `DoesNotExist` is not defined in `imports.foo`.
+    // Reference it in an expression position so the checker must resolve it.
+    y := f.DoesNotExist
+}
+

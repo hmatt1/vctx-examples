@@ -1,0 +1,14 @@
+// Expected failure: port connection width mismatch.
+
+component TakeU8(in a: u8, out y: u8) {
+    y := a
+}
+
+component BadPortConnectionWidth(out y: u8) {
+    wire wide: u16 = 0x1234
+    wire outv: u8
+    // Connecting u16 to a u8 input without an explicit cast should fail.
+    TakeU8(wide, outv)
+    y := outv
+}
+

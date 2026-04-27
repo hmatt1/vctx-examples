@@ -1,0 +1,8 @@
+// Expected failure: width mismatch on assignment without an explicit cast.
+
+component WidthMismatchAssignment(out q: u8) {
+    wire a: u16 = 0x1234
+    // Assigning u16 to u8 without a cast should fail.
+    q := a
+}
+

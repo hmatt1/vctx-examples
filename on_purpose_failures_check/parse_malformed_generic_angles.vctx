@@ -1,0 +1,9 @@
+// Expected failure: malformed generic argument list (`Foo<>(...)` has no args).
+
+component MalformedGenericAngles(out y: u1) {
+    wire a: u1 = 1
+    // Empty generic arg list should fail parse.
+    // (Also intentionally uses generic syntax on a component instantiation.)
+    OrGate<>(a, a, y)
+}
+
