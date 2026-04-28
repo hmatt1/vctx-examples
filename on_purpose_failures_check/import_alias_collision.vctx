@@ -1,0 +1,8 @@
+// Expected failure: two imports use the same local binding name.
+
+import on_purpose_failures_check.resolve_unknown_identifier as d
+import on_purpose_failures_check.type_width_mismatch_assignment as d
+
+component Unused(out o: u1) {
+    o := 0 as u1
+}

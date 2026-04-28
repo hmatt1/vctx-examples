@@ -1,4 +1,4 @@
-// Expected failure: attempt to `poke` a DUT output (should be rejected by sim runtime).
+// Expected failure: attempt to `poke` a DUT output — compile-time ``[E_SIM_POKE_TARGET_INVALID]``.
 
 component PassThru(in a: u4, out y: u4) {
     y := a
@@ -10,10 +10,7 @@ sim PokeDutOutputShouldFail {
     PassThru(a, y)
     cycle()
 
-    // On purpose misuse: y is driven by DUT output.
+    // On purpose misuse: y is driven by DUT output — ``[E_SIM_POKE_TARGET_INVALID]``.
     poke(y, 2 as u4)
-
-    // If the runtime doesn't fail on the poke, this assertion forces failure anyway.
-    assert(y == 1 as u4, "y should remain 1 (poke to output should not be allowed)")
 }
 

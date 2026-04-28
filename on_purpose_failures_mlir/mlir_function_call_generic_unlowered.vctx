@@ -1,0 +1,14 @@
+// Expected: ``vctx check`` succeeds; ``vctx mlir`` fails with
+// ``[E_MLIR_FUNCTION_COMPONENT_GENERIC_UNSUPPORTED]`` (``function`` + ``Component`` generic: no MLIR lowering yet).
+
+component PassThrough(in x: u8, out y: u8) {
+    y := x
+}
+
+function use_c<Component C>(x: u8) -> u8 {
+    return x
+}
+
+component MlirGenericFnHarness(in x: u8, out y: u8) {
+    y := use_c<PassThrough>(x)
+}

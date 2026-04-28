@@ -1,0 +1,10 @@
+// Expected failure: poke() is not allowed inside a hardware when arm.
+
+component WhenPoke(out o: u1) {
+    wire a: u8 = 0
+    when true {
+        poke(a, 0)
+    } otherwise {
+        o := 0 as u1
+    }
+}

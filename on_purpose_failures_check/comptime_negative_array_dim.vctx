@@ -1,0 +1,6 @@
+// Expected failure: array dimension folds to a non-positive integer.
+
+component BadDim(out o: u1) {
+    wire t: u8[(0 - 1)]
+    o := 0 as u1
+}

@@ -1,0 +1,6 @@
+// Expected failure: parametric carrier width folds to a non-positive integer.
+
+component BadWidth(out o: u1) {
+    wire w: u<(0 - 1)>
+    o := 0 as u1
+}

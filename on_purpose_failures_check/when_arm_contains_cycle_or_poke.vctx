@@ -1,0 +1,9 @@
+// Expected failure: cycle() is not allowed inside a hardware when arm.
+
+component WhenCycle(out o: u1) {
+    when true {
+        cycle()
+    } otherwise {
+        o := 0 as u1
+    }
+}

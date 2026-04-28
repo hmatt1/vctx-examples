@@ -1,0 +1,6 @@
+// Expected: ``vctx check`` succeeds; ``vctx mlir`` fails with
+// ``[E_MLIR_FIELD_ACCESS_UNSUPPORTED]`` (unknown ``Slice`` postfix field: only ``.bits`` / ``.span`` lower today).
+
+component MlirFieldAccessHarness(in w: u32, in i: u8, out z: u8) {
+  z := Slice(w, (i + 7), i).oops as u8
+}

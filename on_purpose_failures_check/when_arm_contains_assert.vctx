@@ -1,0 +1,9 @@
+// Expected failure: assert() is not allowed inside a hardware when arm.
+
+component WhenAssert(out o: u1) {
+    when true {
+        assert(true, "not allowed here")
+    } otherwise {
+        o := 0 as u1
+    }
+}

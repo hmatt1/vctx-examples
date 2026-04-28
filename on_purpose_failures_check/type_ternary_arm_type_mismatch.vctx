@@ -1,0 +1,5 @@
+// Expected failure: runtime ternary with incompatible arm types (u8 vs u16).
+
+component TernaryArms(in sel: bool, in a: u8, in b: u16, out y: u16) {
+    y := sel ? a : b
+}

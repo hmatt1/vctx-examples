@@ -1,0 +1,16 @@
+// Expected failure: first argument to poke() must resolve to a pokeable harness wire.
+// Here `ghost` does not resolve — diagnosed as an unknown identifier before MLIR.
+
+component PassThru2(in a: u4, out y: u4) {
+    y := a
+}
+
+sim PokeUnknownNameShouldFail {
+    wire a: u4 = 1
+    wire y: u4
+    PassThru2(a, y)
+    cycle()
+
+    // `ghost` is not declared in this sim block.
+    poke(ghost, 0 as u4)
+}

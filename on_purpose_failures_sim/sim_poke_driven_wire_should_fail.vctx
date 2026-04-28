@@ -1,16 +1,11 @@
-// Expected failure: attempt to `poke` a non-pokeable wire that is driven in the sim.
+// Expected failure: ``poke`` on a wire driven by ``:=`` in the testbench (compile error,
+// ``[E_SIM_POKE_TARGET_INVALID]`` — not a pokeable testbench input).
 
 sim PokeDrivenWireShouldFail {
     wire a: u4 = 1
     wire b: u4
-    // b is driven by combinational assignment, so it should not be pokeable.
     b := a
     cycle()
-
-    // On purpose misuse: try to poke a driven wire.
     poke(b, 2 as u4)
-
-    // If the runtime doesn't fail on the poke, this assertion forces failure anyway.
-    assert(b == 1 as u4, "b should remain 1 (poke to driven wire should not be allowed)")
 }
 
