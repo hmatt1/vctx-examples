@@ -92,6 +92,7 @@ From the `vctx-examples` repo root:
   - `python ..\vctx-lang\vctx-cli.py sim <file>` **must exit nonzero**
 - Or run everything:
   - `run_on_purpose_failures.bat` should exit 0 (no unexpected passes).
+- **Error codes:** every xfail run’s combined stdout/stderr must include at least one machine id of the form `[E_SNAKE_CASE]` (static checks, sim pipeline, or sim assertion). This is enforced by `vctx-lang/tests/test_on_purpose_error_codes.py` when `vctx-examples` sits next to `vctx-lang`.
 
 ## Future: optional third suite for MLIR-only expected failures
 
