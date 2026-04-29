@@ -1,0 +1,15 @@
+// Expected failure: is_comptime() should report 1 for constant-folded expressions.
+
+sim IntrinsicsIsComptimeShouldWork {
+    wire k: u8 = 3
+    wire ic: u1
+    wire iz: u1
+
+    ic := is_comptime(k)
+    iz := is_comptime(42)
+
+    cycle()
+    assert(ic == 1, "wire driven from literal — folds for is_comptime")
+    assert(iz == 1, "bare literal is comptime")
+}
+

@@ -1,0 +1,14 @@
+// Expected failure: generic function call should resolve + behave like a cast widening.
+
+function zero_extend<W>(nibble: u4) -> u8 {
+    return nibble as u8
+}
+
+sim ZeroExtendGenericShouldWork {
+    wire nibble: u4 = 3
+    wire wide: u8
+    wide := zero_extend<8>(nibble)
+    cycle()
+    assert(wide == 3 as u8, "zero_extend<8> widens without changing value")
+}
+

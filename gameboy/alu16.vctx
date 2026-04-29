@@ -162,8 +162,9 @@ sim TestAdd_OverflowOnly {
 
 sim TestAdd_CarryAndOverflow {
     // -32768 + -32768: both negative, result 0 — signed overflow + carry
-    wire a: u16 = -32768 as u16   // 0x8000
-    wire b: u16 = -32768 as u16   // 0x8000
+    // Use explicit unsigned literals (avoid signedness-mismatch in some typecheckers).
+    wire a: u16 = 0x8000 as u16
+    wire b: u16 = 0x8000 as u16
     wire op: u4 = 0
     wire result: u16
     wire zero: bool
@@ -247,7 +248,7 @@ sim TestSub_OverflowPositive {
     // Signed: positive - negative overflows into negative
     // 32767 - (-1) = 32768 which exceeds s16 max
     wire a: u16 = 32767
-    wire b: u16 = -1 as u16
+    wire b: u16 = 0xFFFF as u16   // -1 in u16
     wire op: u4 = 1
     wire result: u16
     wire zero: bool
@@ -266,7 +267,7 @@ sim TestSub_OverflowPositive {
 sim TestSub_OverflowNegative {
     // Signed: negative - positive overflows into positive
     // -32768 - 1 = -32769 which underflows s16 min
-    wire a: u16 = -32768 as u16
+    wire a: u16 = 0x8000 as u16   // -32768 in u16
     wire b: u16 = 1
     wire op: u4 = 1
     wire result: u16

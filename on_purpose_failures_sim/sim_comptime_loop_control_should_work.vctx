@@ -1,0 +1,29 @@
+// Expected failure: comptime statement evaluator should handle break/continue in loops.
+
+comptime loop_control() -> u32 {
+    let i: Int = 0
+    let s: Int = 0
+    while (true) {
+        i = i + 1
+        if (i == 2) {
+            continue
+        }
+        if (i == 4) {
+            break
+        }
+        s = s + i
+    }
+    return (s as u32)
+}
+
+component ComptimeLoopControl(out w: u32) {
+    w := loop_control()
+}
+
+sim ComptimeLoopControlShouldWork {
+    wire w: u32
+    ComptimeLoopControl(w)
+    cycle()
+    assert(w == 4 as u32, "break/continue")
+}
+

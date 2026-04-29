@@ -85,6 +85,13 @@ Covered as **check** xfail (not MLIR-only): dynamic **bracket slice** with non-c
 - [x] `sim_fail_after_poke.vctx`: `poke`, then fail (exercises trace/emit order)
 - [x] `sim_fail_after_multiple_cycles.vctx`: only fails after N cycles (reg/sequential visibility)
 - [x] `sim_fail_bool_not.vctx`: minimal boolean negation failure
+- [x] `sim_concat_basic_should_work.vctx`: `concat(high, low)` should pack into a wider integer (known failing feature)
+- [x] `sim_intrinsics_is_comptime_should_work.vctx`: `is_comptime(...)` should be 1 for folded constants (known failing feature)
+- [x] `sim_comptime_clog2_should_fold.vctx`: comptime function call (via `std.clog2`) should fold (known failing feature)
+- [x] `sim_comptime_eval_cov_should_work.vctx`: comptime loop/arithmetic should evaluate (known failing feature)
+- [x] `sim_comptime_loop_control_should_work.vctx`: comptime `break`/`continue` should evaluate (known failing feature)
+- [x] `sim_comptime_value_containers_should_work.vctx`: comptime Array/Map indexing should work (known failing feature)
+- [x] `sim_zero_extend_generic_should_work.vctx`: generic function call should resolve + widen (known failing feature)
 
 ### Harness misuse (only if sim enforces these at runtime)
 - [x] `sim_poke_output_should_fail.vctx`: attempt to `poke` a DUT output → `[E_SIM_POKE_TARGET_INVALID]` at sim compile

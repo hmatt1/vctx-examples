@@ -1,0 +1,13 @@
+// Expected failure: concat(high, low) should pack into a wider integer.
+
+sim ConcatBasicShouldWork {
+    wire high: u8 = 0xDE
+    wire low: u8 = 0xAD
+
+    wire combined: u16
+    combined := concat(high, low)
+
+    cycle()
+    assert(combined == 0xDEAD, "Concatenation should combine to 0xDEAD")
+}
+

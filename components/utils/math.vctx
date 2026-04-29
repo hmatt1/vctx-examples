@@ -147,8 +147,9 @@ sim TestAdd_OverflowOnly {
 sim TestAdd_CarryAndOverflow {
     // -128 + -128: both negative, result is 0 (positive) — signed overflow.
     // Also exceeds 8 bits unsigned, so carry fires too.
-    wire a: u8 = -128 as u8   // 0x80
-    wire b: u8 = -128 as u8   // 0x80
+    // Use explicit unsigned literals (avoid signedness-mismatch in some typecheckers).
+    wire a: u8 = 0x80 as u8
+    wire b: u8 = 0x80 as u8
     wire op: u4 = 0
     wire result: u8
     wire zero: bool
@@ -249,7 +250,7 @@ sim TestSub_OverflowPositive {
     // Signed: positive - negative should stay positive.
     // 100 - (-28) = 128 which flips to negative in s8 -> overflow.
     wire a: u8 = 100
-    wire b: u8 = -28 as u8    // 0xE4
+    wire b: u8 = 0xE4 as u8   // -28 in u8
     wire op: u4 = 1
     wire result: u8
     wire zero: bool
@@ -268,7 +269,7 @@ sim TestSub_OverflowPositive {
 sim TestSub_OverflowNegative {
     // Signed: negative - positive should stay negative.
     // -100 - 29 = -129 which overflows s8 -> overflow.
-    wire a: u8 = -100 as u8   // 0x9C
+    wire a: u8 = 0x9C as u8   // -100 in u8
     wire b: u8 = 29
     wire op: u4 = 1
     wire result: u8

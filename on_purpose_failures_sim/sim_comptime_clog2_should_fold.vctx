@@ -1,0 +1,20 @@
+// Expected failure: comptime function call should fold to a constant.
+// Currently tracked as a known gap/regression: `clog2_int(16)` does not yield 4.
+
+import std.comptime_math as std
+
+comptime clog2_int(n: Int) -> u32 {
+    return std.clog2(n)
+}
+
+component Clog2Demo(out w: u32) {
+    w := clog2_int(16)
+}
+
+sim ComptimeClog2ShouldFold {
+    wire w: u32
+    Clog2Demo(w)
+    cycle()
+    assert(w == 4 as u32, "clog2_int(16) == 4")
+}
+
