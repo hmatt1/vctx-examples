@@ -1,0 +1,15 @@
+// Concat: concat(high, low) packs into a wider integer.
+//
+// Graduated from: on_purpose_failures_sim/sim_concat_basic_should_work.vctx
+
+sim ConcatBasic {
+    wire high: u8 = 0xDE
+    wire low: u8 = 0xAD
+
+    wire combined: u16
+    combined := concat(high, low)
+
+    cycle()
+    assert(combined == 0xDEAD, "Concatenation should combine to 0xDEAD")
+}
+

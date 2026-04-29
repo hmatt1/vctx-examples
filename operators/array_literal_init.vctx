@@ -1,0 +1,6 @@
+sim ArrayLiteralInit {
+    wire bits: u8[4] = [1, 2, 3, 4]
+    cycle()
+    assert(bits[2] == 3 as u8, "index 2 of literal array is 3")
+}
+

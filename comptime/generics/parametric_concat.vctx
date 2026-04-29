@@ -1,0 +1,17 @@
+// Parametric carriers: `concat(u<W>, u<W>)` specializes to `u<(W+W)>`.
+//
+// Graduated from: on_purpose_failures_sim/sim_parametric_concat_should_work.vctx
+
+component ParametricConcat<W>(in a: u<W>, in b: u<W>, out y: u<(W + W)>) {
+    y := concat(a, b)
+}
+
+sim SimParametricConcat {
+    wire a: u4 = 0xA
+    wire b: u4 = 0xB
+    wire y: u8
+    ParametricConcat<4>(a -- a, b -- b, y -- y)
+    cycle()
+    assert(y == 0xAB as u8, "concat(u4,u4) under generic W should yield 0xAB")
+}
+

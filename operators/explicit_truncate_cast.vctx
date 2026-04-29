@@ -1,0 +1,12 @@
+component WideToNarrowExplicit(in wide: u16, out narrow: u8) {
+    narrow := wide as u8
+}
+
+sim ExplicitTruncateCast {
+    wire w: u16 = 0x00FF as u16
+    wire n: u8
+    WideToNarrowExplicit(w, n)
+    cycle()
+    assert(n == 0xFF as u8, "explicit cast documents truncation intent")
+}
+

@@ -1,0 +1,20 @@
+// Parametric carriers: function signatures specialize (`u<W>`).
+//
+// Graduated from: on_purpose_failures_sim/sim_parametric_carrier_function_should_work.vctx
+
+function id_n<W>(x: u<W>) -> u<W> {
+    return x
+}
+
+component UseParametricFunction(in a: u8, out y: u8) {
+    y := id_n<8>(a)
+}
+
+sim ParametricCarrierFunction {
+    wire a: u8 = 9
+    wire y: u8
+    UseParametricFunction(a, y)
+    cycle()
+    assert(y == 9 as u8, "id_n<8>(9) should return 9")
+}
+

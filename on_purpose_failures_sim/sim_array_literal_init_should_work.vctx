@@ -1,9 +1,0 @@
-// Expected failure: `wire` with array type initialized from a literal (precheck: `E_TYPE_UNKNOWN` — literal vs `u8[4]` not unified; diagnostic may show nested-array confusion).
-// Promotion: when array-literal initialization on `wire` (or the canonical spelling) typechecks and indexes work in sim.
-// Candidate: move to a normal passing example package after promotion; then drop from `_SIM_FIRST` / `_SIM_ALSO`.
-
-sim ArrayLiteralInitShouldWork {
-    wire bits: u8[4] = [1, 2, 3, 4]
-    cycle()
-    assert(bits[2] == 3 as u8, "index 2 of literal array is 3")
-}

@@ -1,0 +1,173 @@
+component CastU8ToU16(in a: u8, out y: u16) {
+    y := a as u16
+}
+
+component CastU16ToU8(in a: u16, out y: u8) {
+    y := a as u8
+}
+
+component CastS8ToU8(in a: s8, out y: u8) {
+    y := a as u8
+}
+
+component CastU8ToS8(in a: u8, out y: s8) {
+    y := a as s8
+}
+
+component CastS16ToU8(in a: s16, out y: u8) {
+    y := a as u8
+}
+
+component OutputSignednessExplicit(out y: u8) {
+    wire s: s8 = -1 as s8
+    y := s as u8
+}
+
+component OutputWidthExplicit(out y: u8) {
+    wire w: u16 = 0x00AA as u16
+    y := w as u8
+}
+
+component UnsignedSource(out v: u8) {
+    v := 7 as u8
+}
+
+component SignedInput(in din: s8, out y: s8) {
+    y := din
+}
+
+component WideInput(in din: u16, out y: u16) {
+    y := din
+}
+
+component WideSource(out v: u16) {
+    v := 0x00AB as u16
+}
+
+component NarrowInput(in din: u8, out y: u8) {
+    y := din
+}
+
+component SignedWideSource(out v: s16) {
+    v := -1 as s16
+}
+
+component UnsignedNarrowInput(in din: u8, out y: u8) {
+    y := din
+}
+
+component WideProducer(out v: u16) {
+    v := 0x00CC as u16
+}
+
+component SignedWideProducer(out v: s16) {
+    v := -1 as s16
+}
+
+component SignedSrc(out v: s8) {
+    v := -1 as s8
+}
+
+component UnsignedSink(in d: u8, out y: u8) {
+    y := d
+}
+
+component SixteenOut(out x: u16) {
+    x := 0x00FF as u16
+}
+
+sim SimOutputSignednessExplicit {
+    wire y: u8
+    OutputSignednessExplicit(y)
+    cycle()
+    assert(y == 255 as u8, "explicit cast at output boundary")
+}
+
+sim SimOutputWidthExplicit {
+    wire y: u8
+    OutputWidthExplicit(y)
+    cycle()
+    assert(y == 0xAA as u8, "explicit truncation at output boundary")
+}
+
+sim SimPortInputSignednessReverseAdapted {
+    wire u: u8
+    wire s: s8
+    wire y: s8
+    UnsignedSource(u)
+    CastU8ToS8(u, s)
+    SignedInput(s, y)
+    cycle()
+    assert(y == 7 as s8, "explicit cast at signed input boundary")
+}
+
+sim SimPortInputWidthWidened {
+    wire n: u8 = 0x7F as u8
+    wire w: u16
+    wire y: u16
+    CastU8ToU16(n, w)
+    WideInput(w, y)
+    cycle()
+    assert(y == 0x007F as u16, "explicit widen at input boundary")
+}
+
+sim SimPortInputWidthNarrowed {
+    wire w: u16
+    wire n: u8
+    wire y: u8
+    WideSource(w)
+    CastU16ToU8(w, n)
+    NarrowInput(n, y)
+    cycle()
+    assert(y == 0xAB as u8, "explicit narrow at input boundary")
+}
+
+sim SimPortInputWidthSignednessComboAdapted {
+    wire s: s16
+    wire y: u8
+    wire u: u8
+    SignedWideSource(s)
+    CastS16ToU8(s, u)
+    UnsignedNarrowInput(u, y)
+    cycle()
+    assert(y == 255 as u8, "explicit adapt width+signedness at input")
+}
+
+sim SimPortOutputWidthAdapted {
+    wire w: u16
+    wire n: u8
+    WideProducer(w)
+    CastU16ToU8(w, n)
+    cycle()
+    assert(n == 0xCC as u8, "explicit narrow at sink boundary")
+}
+
+sim SimPortOutputWidthSignednessComboAdapted {
+    wire s: s16
+    wire u: u8
+    SignedWideProducer(s)
+    CastS16ToU8(s, u)
+    cycle()
+    assert(u == 255 as u8, "explicit adapt width+signedness at sink")
+}
+
+sim SimPortSignednessInstanceAdapted {
+    wire s: s8
+    wire u: u8
+    wire y: u8
+    SignedSrc(s)
+    CastS8ToU8(s, u)
+    UnsignedSink(u, y)
+    cycle()
+    assert(y == 255 as u8, "explicit cast at instance boundary")
+}
+
+sim SimPortWidthMismatchCompileFixed {
+    wire w16: u16
+    wire w: u8
+    SixteenOut(w16)
+    CastU16ToU8(w16, w)
+    cycle()
+    assert(w == 0xFF as u8, "explicit adapter makes wiring legal")
+}
+

@@ -1,0 +1,16 @@
+// Parametric carriers: `width(u<W>)` folds after specialization.
+//
+// Graduated from: on_purpose_failures_sim/sim_parametric_width_intrinsic_should_work.vctx
+
+component ParametricWidth<W>(in x: u<W>, out wx: u32) {
+    wx := width(x)
+}
+
+sim ParametricWidthIntrinsic {
+    wire x: u8 = 0
+    wire wx: u32
+    ParametricWidth<8>(x -- x, wx -- wx)
+    cycle()
+    assert(wx == 8 as u32, "width(u8 specialized from u<W>) should be 8")
+}
+

@@ -1,0 +1,13 @@
+component WireElem(out p: u8) {
+    wire t: u8[2] = 0
+    t[0] := 3 as u8
+    p := t[1]
+}
+
+sim WireArrayElementAssign {
+    wire p: u8
+    WireElem(p)
+    cycle()
+    assert(p == 0, "t[1] default 0; t[0] written")
+}
+

@@ -20,3 +20,6 @@ __pycache__/
 # Local virtual envs (if any scripts use Python here)
 .venv/
 venv/
+
+# Runner output logs
+on_purpose_failures_run.log

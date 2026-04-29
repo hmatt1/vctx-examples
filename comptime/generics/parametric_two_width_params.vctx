@@ -1,0 +1,18 @@
+// Parametric carriers: two independent Int params `A`, `B` in `u<A>`, `u<B>`, `u<(A+B)>`.
+//
+// Graduated from: on_purpose_failures_sim/sim_parametric_two_width_params_should_work.vctx
+
+component TwoWidths<A, B>(in a: u<A>, in b: u<B>, out s: u<(A + B)>) {
+    // Concatenate the raw carriers: u<A> || u<B> -> u<(A+B)>
+    s := concat(a, b) as u<(A + B)>
+}
+
+sim ParametricTwoWidthParams {
+    wire a: u4 = 0x3
+    wire b: u4 = 0x4
+    wire s: u8
+    TwoWidths<4, 4>(a -- a, b -- b, s -- s)
+    cycle()
+    assert(s == 0x34 as u8, "nibbles 3|4 = 0x34")
+}
+

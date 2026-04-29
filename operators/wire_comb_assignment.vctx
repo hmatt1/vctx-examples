@@ -1,0 +1,11 @@
+component WireCombAssign(out w: u8) {
+    w := 1 as u8
+}
+
+sim WireCombAssignment {
+    wire w: u8
+    WireCombAssign(w)
+    cycle()
+    assert(w == 1 as u8, "wire updates must use := (combinational)")
+}
+

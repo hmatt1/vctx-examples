@@ -1,0 +1,12 @@
+component NameCollisionComponentSim(out y: u8) {
+    y := 0 as u8
+}
+
+// Intentional xfail: `sim` and `component` share a top-level name.
+// `vctx check` should report [E_NAME_KIND_COLLISION].
+sim NameCollisionComponentSim {
+    wire y: u8
+    NameCollisionComponentSim(y)
+    cycle()
+    assert(y == 0 as u8, "unreachable: name collision should be caught by vctx check")
+}

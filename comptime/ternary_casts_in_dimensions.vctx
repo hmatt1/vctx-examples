@@ -30,7 +30,7 @@ component DimTernaryConst(out x: u8) {
 component DimCastNarrow(out x: u8) {
     wire wide: u16[0x00FF]
     wire c: u8[(0x1234 as u8)]
-    x := wide[0] | c[0]
+    x := (wide[0] as u8) | c[0]
 }
 
 // --- Runtime: condition is a signal — builds a mux, not a folded array size ----

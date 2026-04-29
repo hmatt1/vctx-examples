@@ -1,0 +1,12 @@
+// Slice + concat: byte swap via slices and concat (16-bit).
+//
+// Graduated from: on_purpose_failures_sim/sim_slice_concat_byteswap_should_work.vctx
+
+sim SliceConcatByteswap {
+    wire x: u16 = 0x1234
+    wire y: u16
+    y := concat(x[7..0], x[15..8])
+    cycle()
+    assert(y == 0x3412, "byte swap 0x1234 -> 0x3412")
+}
+

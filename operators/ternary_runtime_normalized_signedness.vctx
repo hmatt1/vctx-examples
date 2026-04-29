@@ -1,0 +1,13 @@
+component TernaryRuntimeNormalizedSignedness(in sel: bool, out y: u8) {
+    y := sel ? (1 as u8) : ((-1 as s8) as u8)
+}
+
+sim SimTernaryRuntimeNormalizedSignedness {
+    wire s: bool
+    wire y: u8
+    poke(s, true)
+    TernaryRuntimeNormalizedSignedness(s, y)
+    cycle()
+    assert(y == 1 as u8, "explicit casts normalize ternary arm signedness")
+}
+

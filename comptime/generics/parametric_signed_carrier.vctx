@@ -1,0 +1,16 @@
+// Parametric carriers: signed carrier ports specialize (`s<W>`).
+//
+// Graduated from: on_purpose_failures_sim/sim_parametric_signed_carrier_should_work.vctx
+
+component SignedPass<W>(in x: s<W>, out y: s<W>) {
+    y := x
+}
+
+sim ParametricSignedCarrier {
+    wire x: s8 = -5
+    wire y: s8
+    SignedPass<8>(x -- x, y -- y)
+    cycle()
+    assert(y == -5 as s8, "SignedPass<8> should preserve signed value")
+}
+

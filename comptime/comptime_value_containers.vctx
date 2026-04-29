@@ -1,0 +1,24 @@
+comptime arr_demo() -> u32 {
+    let a = [10, 20, 30]
+    return (a[1] as u32)
+}
+
+comptime map_demo() -> u32 {
+    let m = {"x": 7, "y": 9}
+    return (m["y"] as u32)
+}
+
+component ComptimeValueContainers(out a: u32, out b: u32) {
+    a := arr_demo()
+    b := map_demo()
+}
+
+sim SimComptimeValueContainers {
+    wire a: u32
+    wire b: u32
+    ComptimeValueContainers(a, b)
+    cycle()
+    assert(a == 20 as u32, "array index")
+    assert(b == 9 as u32, "map index")
+}
+

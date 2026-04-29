@@ -1,0 +1,16 @@
+// Generic functions: generic call resolves and behaves like a widening cast.
+//
+// Graduated from: on_purpose_failures_sim/sim_zero_extend_generic_should_work.vctx
+
+function zero_extend<W>(nibble: u4) -> u8 {
+    return nibble as u8
+}
+
+sim ZeroExtendGeneric {
+    wire nibble: u4 = 3
+    wire wide: u8
+    wide := zero_extend<8>(nibble)
+    cycle()
+    assert(wide == 3 as u8, "zero_extend<8> widens without changing value")
+}
+

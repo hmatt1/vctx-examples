@@ -1,0 +1,8 @@
+function id_ty<Type T>(x: T) -> T {
+    return x
+}
+
+component MlirTypeGenericHarness(in x: u8, out y: u8) {
+    y := id_ty<u8>(x)
+}
+

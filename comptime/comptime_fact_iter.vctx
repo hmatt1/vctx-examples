@@ -1,0 +1,21 @@
+comptime fact_iter(n: Int) -> u32 {
+    let r: Int = 1
+    let i: Int = n
+    while (i > 1) {
+        r = r * i
+        i = i - 1
+    }
+    return (r as u32)
+}
+
+component Fact5(out w: u32) {
+    w := fact_iter(5)
+}
+
+sim ComptimeFactIter {
+    wire w: u32
+    Fact5(w)
+    cycle()
+    assert(w == 120 as u32, "fact_iter(5) should be 120")
+}
+

@@ -1,0 +1,16 @@
+// Parametric carriers: casts between signed/unsigned carriers specialize (`s<W>` → `u<W>`).
+//
+// Graduated from: on_purpose_failures_sim/sim_parametric_signed_cast_should_work.vctx
+
+component ParametricSignedCast<W>(in x: s<W>, out y: u<W>) {
+    y := x as u<W>
+}
+
+sim SimParametricSignedCast {
+    wire x: s8 = -1
+    wire y: u8
+    ParametricSignedCast<8>(x -- x, y -- y)
+    cycle()
+    assert(y == 0xFF as u8, "casting -1 as u8 should yield 0xFF")
+}
+

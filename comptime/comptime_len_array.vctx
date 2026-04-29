@@ -1,0 +1,16 @@
+comptime size_three() -> u32 {
+    let a = [1, 2, 3]
+    return (len(a) as u32)
+}
+
+component LenArray(out w: u32) {
+    w := size_three()
+}
+
+sim ComptimeLenArray {
+    wire w: u32
+    LenArray(w)
+    cycle()
+    assert(w == 3 as u32, "len([1,2,3]) should be 3")
+}
+

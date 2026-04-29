@@ -1,0 +1,15 @@
+component TernaryRuntimeNormalizedWidth(in c: bool, out z: u8) {
+    wire tmp: u16
+    tmp := c ? (1 as u16) : (2 as u16)
+    z := tmp as u8
+}
+
+sim SimTernaryRuntimeNormalizedWidth {
+    wire c: bool
+    wire z: u8
+    poke(c, true)
+    TernaryRuntimeNormalizedWidth(c, z)
+    cycle()
+    assert(z == 1 as u8, "explicit casts normalize ternary arm widths")
+}
+

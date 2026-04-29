@@ -1,0 +1,16 @@
+// Parametric carriers: slicing over `u<W>` specializes and typechecks.
+//
+// Graduated from: on_purpose_failures_sim/sim_parametric_slice_should_work.vctx
+
+component ParametricSlice<W>(in x: u<W>, out low: u4) {
+    low := x[3..0]
+}
+
+sim SimParametricSlice {
+    wire x: u8 = 0xAB
+    wire low: u4
+    ParametricSlice<8>(x -- x, low -- low)
+    cycle()
+    assert(low == 0xB as u4, "low nibble of 0xAB should be 0xB")
+}
+

@@ -1,0 +1,13 @@
+component RegSeqAssign(out r: u8) {
+    reg state: u8 = 0
+    state <= 1 as u8
+    r := state
+}
+
+sim RegSeqAssignment {
+    wire out_r: u8
+    RegSeqAssign(out_r)
+    cycle()
+    assert(out_r == 1 as u8, "reg updates must use <= (sequential)")
+}
+

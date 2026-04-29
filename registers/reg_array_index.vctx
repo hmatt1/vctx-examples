@@ -1,0 +1,14 @@
+component RegArray(out x: u8) {
+    reg a: u8[4] = 0
+    a[0] <= 7 as u8
+    a[1] <= 8 as u8
+    x := a[1]
+}
+
+sim RegArrayIndex {
+    wire o: u8
+    RegArray(o)
+    cycle()
+    assert(o == 8 as u8, "a[1] is 8")
+}
+

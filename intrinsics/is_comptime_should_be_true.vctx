@@ -1,0 +1,17 @@
+// Intrinsics: is_comptime() reports 1 for constant-folded expressions.
+//
+// Graduated from: on_purpose_failures_sim/sim_intrinsics_is_comptime_should_work.vctx
+
+sim IntrinsicsIsComptime {
+    wire k: u8 = 3
+    wire ic: u1
+    wire iz: u1
+
+    ic := is_comptime(k)
+    iz := is_comptime(42)
+
+    cycle()
+    assert(ic == 1, "wire driven from literal — folds for is_comptime")
+    assert(iz == 1, "bare literal is comptime")
+}
+
