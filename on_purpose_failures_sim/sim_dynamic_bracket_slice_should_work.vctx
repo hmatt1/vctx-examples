@@ -1,0 +1,21 @@
+// Expected failure: `w[hi..lo]` with `hi`/`lo` from wires — slice width unknown at analysis (precheck: `E_TYPE_UNKNOWN`).
+// Why here: same semantic gap as `on_purpose_failures_check/type_dynamic_bracket_slice_unknown_width.vctx`, but this file tracks the **sim** promotion path.
+// Promotion: when dynamic bracket slices typecheck and lower to sim, this harness should pass; then move it to a normal `operators/` sim and remove from `on_purpose_failures_sim` + pytest maps.
+// Candidate: **yes** — graduate to a passing sim once dynamic slicing is supported (do not keep as xfail after that).
+
+component DynBracketSlice(in hi: u4, in lo: u4, in w: u16, out z: u8) {
+    z := w[hi..lo]
+}
+
+sim DynamicBracketSliceShouldWork {
+    wire hi: u4
+    wire lo: u4
+    wire wv: u16
+    wire z: u8
+    poke(hi, 7 as u4)
+    poke(lo, 0 as u4)
+    poke(wv, 0x1234 as u16)
+    DynBracketSlice(hi, lo, wv, z)
+    cycle()
+    assert(z == 0x34 as u8, "low byte of 0x1234")
+}

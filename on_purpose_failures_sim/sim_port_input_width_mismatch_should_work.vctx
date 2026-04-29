@@ -1,0 +1,18 @@
+// Expected failure: instance wiring passes narrow `u8` into component input `u16`.
+// Why this exists: precheck-stage companion to `sim_port_width_instance_mismatch_sim_compile_should_work`
+// (which currently fails later in sim compile for a different wiring shape).
+// Promotion: once boundary intent is explicit (widen/cast adaptor) in a passing harness,
+// move that passing variant to normal examples/tests and remove this xfail from maps.
+// Candidate: yes -- intended to graduate into passing sims later.
+
+component WideInput(in din: u16, out y: u16) {
+    y := din
+}
+
+sim PortInputWidthMismatchShouldWork {
+    wire n: u8 = 0x7F as u8
+    wire y: u16
+    WideInput(n, y)
+    cycle()
+    assert(y == 0x007F as u16, "narrow source widened at boundary")
+}

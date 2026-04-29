@@ -1,0 +1,17 @@
+// Expected failure: instance wiring connects wide `u16` producer into narrow `u8` sink wire.
+// Why this exists: output-boundary companion to `sim_port_input_width_mismatch_should_work`
+// and precheck/compile coverage around port-width promotion work.
+// Promotion: once explicit boundary adapter/cast is used in a passing harness,
+// move that passing case to normal examples/tests and remove this xfail from maps.
+// Candidate: yes -- should graduate to passing sims later.
+
+component WideProducer(out v: u16) {
+    v := 0x00CC as u16
+}
+
+sim PortOutputWidthMismatchShouldWork {
+    wire n: u8
+    WideProducer(n)
+    cycle()
+    assert(n == 0xCC as u8, "narrow sink sees low byte")
+}

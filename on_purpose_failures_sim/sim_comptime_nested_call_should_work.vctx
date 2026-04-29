@@ -1,0 +1,21 @@
+// Expected failure: nested comptime function calls (outer calls inner) fold correctly.
+// Promotion: move to passing when comptime call graph composes in the folder.
+
+comptime inner(n: Int) -> Int {
+    return n * 2
+}
+
+comptime outer(n: Int) -> u32 {
+    return (inner(n) as u32)
+}
+
+component NestedComptimeCall(out w: u32) {
+    w := outer(5)
+}
+
+sim ComptimeNestedCallShouldWork {
+    wire w: u32
+    NestedComptimeCall(w)
+    cycle()
+    assert(w == 10 as u32, "outer(5) -> inner(5)*2 = 10")
+}

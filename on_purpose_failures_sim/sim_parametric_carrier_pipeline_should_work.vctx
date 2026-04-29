@@ -1,0 +1,21 @@
+// Expected failure: nested generic components carrying `u<W>` through hierarchy.
+// Promotion target: move to passing sims once parametric carriers lower correctly.
+
+component PassN<W>(in i: u<W>, out o: u<W>) {
+    o := i
+}
+
+component PipeN<W>(in x: u<W>, out y: u<W>) {
+    wire t: u<W>
+    PassN<W>(i -- x, o -- t)
+    PassN<W>(i -- t, o -- y)
+}
+
+sim ParametricCarrierPipelineShouldWork {
+    wire x: u12 = 0xABC
+    wire y: u12
+    PipeN<12>(x -- x, y -- y)
+    cycle()
+    assert(y == 0xABC as u12, "two-stage PipeN<12> should be identity")
+}
+

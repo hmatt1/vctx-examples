@@ -1,0 +1,17 @@
+// Expected failure: combinational `:=` into a `wire` array element (precheck: indexed LHS treated as `u1` vs `u8` RHS — `E_WIDTH_MISMATCH`).
+// Why separate from `sim_reg_array_index_should_work`: that file covers `reg` + `<=`; this one covers **wire** element drivers (same engine bug, different surface syntax).
+// Promotion: when per-element `wire` array updates get correct width, this assert should pass; then move to a passing example and remove from xfail maps.
+// Candidate: **yes** — promote with `sim_reg_array_index_should_work` or as soon as wire-array writes work.
+
+component WireElem(out p: u8) {
+    wire t: u8[2] = 0
+    t[0] := 3 as u8
+    p := t[1]
+}
+
+sim WireArrayElementAssignShouldWork {
+    wire p: u8
+    WireElem(p)
+    cycle()
+    assert(p == 0, "t[1] default 0; t[0] written")
+}

@@ -1,0 +1,23 @@
+// Expected failure: instance wiring passes unsigned `u8` source into signed `s8` input.
+// Why this exists: directional companion to `sim_port_signedness_instance_mismatch_should_work`
+// to lock both signed->unsigned and unsigned->signed boundary mismatch behavior.
+// Promotion: once explicit cast/adapter is used in a passing harness, move that passing
+// case to normal examples/tests and remove this xfail from maps.
+// Candidate: yes -- intended to graduate into passing sims later.
+
+component UnsignedSource(out v: u8) {
+    v := 7 as u8
+}
+
+component SignedInput(in din: s8, out y: s8) {
+    y := din
+}
+
+sim PortInputSignednessReverseMismatchShouldWork {
+    wire u: u8
+    wire y: s8
+    UnsignedSource(u)
+    SignedInput(u, y)
+    cycle()
+    assert(y == 7 as s8, "unsigned source adapted at signed boundary")
+}

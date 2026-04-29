@@ -1,0 +1,20 @@
+// Expected failure: parametric carrier width in component ports should specialize.
+// Promotion target: move to passing sims once `u<WIDTH>` is fully supported end-to-end.
+
+component AddN<WIDTH>(
+    in a: u<WIDTH>,
+    in b: u<WIDTH>,
+    out y: u<WIDTH>
+) {
+    y := (a + b) as u<WIDTH>
+}
+
+sim ParametricCarrierComponentShouldWork {
+    wire a: u8 = 2
+    wire b: u8 = 3
+    wire y: u8
+    AddN<8>(a -- a, b -- b, y -- y)
+    cycle()
+    assert(y == 5 as u8, "AddN<8>(2,3) == 5")
+}
+

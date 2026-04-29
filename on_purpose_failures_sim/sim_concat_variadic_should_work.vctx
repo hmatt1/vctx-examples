@@ -1,0 +1,13 @@
+// Expected failure: variadic `concat` of four u4 nibbles into u16 (0xABCD).
+// Promotion: move to passing sims when multi-arg concat matches single-pair concat semantics.
+
+sim ConcatVariadicShouldWork {
+    wire a: u4 = 0xA
+    wire b: u4 = 0xB
+    wire c: u4 = 0xC
+    wire d: u4 = 0xD
+    wire out: u16
+    out := concat(a, b, c, d)
+    cycle()
+    assert(out == 0xABCD, "concat four u4s should be 0xABCD")
+}

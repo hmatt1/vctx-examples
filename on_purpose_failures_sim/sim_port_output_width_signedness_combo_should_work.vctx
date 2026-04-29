@@ -1,0 +1,17 @@
+// Expected failure: instance wiring connects signed wide `s16` producer into unsigned narrow `u8` sink.
+// Why this exists: output-boundary combo companion to input-boundary combo
+// `sim_port_input_width_signedness_combo_should_work`.
+// Promotion: once explicit cast/adapter is used in a passing harness, move that passing
+// case to normal examples/tests and remove this xfail from maps.
+// Candidate: yes -- intended to graduate into passing sims later.
+
+component SignedWideProducer(out v: s16) {
+    v := -1 as s16
+}
+
+sim PortOutputWidthSignednessComboShouldWork {
+    wire u: u8
+    SignedWideProducer(u)
+    cycle()
+    assert(u == 255 as u8, "boundary adapts width+signedness at sink")
+}

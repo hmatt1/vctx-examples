@@ -1,0 +1,22 @@
+// Expected failure: instance wiring passes signed `s16` into unsigned `u8` input.
+// Why this exists: boundary combo case for both width + signedness mismatch at input ports.
+// Promotion: once boundary intent is explicit (cast/adaptor) in a passing harness,
+// move that passing version to normal examples/tests and remove this xfail from maps.
+// Candidate: yes -- should graduate into passing sims later.
+
+component SignedWideSource(out v: s16) {
+    v := -1 as s16
+}
+
+component UnsignedNarrowInput(in din: u8, out y: u8) {
+    y := din
+}
+
+sim PortInputWidthSignednessComboShouldWork {
+    wire s: s16
+    wire y: u8
+    SignedWideSource(s)
+    UnsignedNarrowInput(s, y)
+    cycle()
+    assert(y == 255 as u8, "boundary adapts both width and signedness")
+}

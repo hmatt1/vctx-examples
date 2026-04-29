@@ -86,12 +86,68 @@ Covered as **check** xfail (not MLIR-only): dynamic **bracket slice** with non-c
 - [x] `sim_fail_after_multiple_cycles.vctx`: only fails after N cycles (reg/sequential visibility)
 - [x] `sim_fail_bool_not.vctx`: minimal boolean negation failure
 - [x] `sim_concat_basic_should_work.vctx`: `concat(high, low)` should pack into a wider integer (known failing feature)
+- [x] `sim_concat_variadic_should_work.vctx`: variadic `concat` of four `u4` should form `0xABCD` (currently `E_SIM_ASSERTION_FAILED` — `out` is 0)
+- [x] `sim_slice_concat_byteswap_should_work.vctx`: `concat` of high/low slices for `u16` byte swap (currently `E_SIM_ASSERTION_FAILED` — `y` is 0)
+- [x] `sim_comptime_recursion_should_work.vctx`: comptime loop product (stand-in for future recursive `fact`; currently `E_SIM_ASSERTION_FAILED` — `w` is 0)
+- [x] `sim_comptime_nested_call_should_work.vctx`: comptime function calling another comptime function should fold (currently `E_SIM_PRECHECK_FAILED` + `E_TYPE_UNKNOWN` — unsupported comptime `function_call`)
 - [x] `sim_intrinsics_is_comptime_should_work.vctx`: `is_comptime(...)` should be 1 for folded constants (known failing feature)
 - [x] `sim_comptime_clog2_should_fold.vctx`: comptime function call (via `std.clog2`) should fold (known failing feature)
 - [x] `sim_comptime_eval_cov_should_work.vctx`: comptime loop/arithmetic should evaluate (known failing feature)
 - [x] `sim_comptime_loop_control_should_work.vctx`: comptime `break`/`continue` should evaluate (known failing feature)
 - [x] `sim_comptime_value_containers_should_work.vctx`: comptime Array/Map indexing should work (known failing feature)
+- [x] `sim_comptime_len_array_should_work.vctx`: comptime `len` on a literal array should fold (currently `E_SIM_ASSERTION_FAILED` — `w` stays 0; promote when `len` folds for wire driving)
 - [x] `sim_zero_extend_generic_should_work.vctx`: generic function call should resolve + widen (known failing feature)
+
+### Arrays / `reg` arrays (promotion candidates; details in `on_purpose_failures_sim/PROMOTION_TRACKER.md`)
+
+- [x] `sim_array_literal_init_should_work.vctx`: `wire` array initialized from a literal, then index in `assert` (candidate to move to a **passing** sim: currently `E_SIM_PRECHECK_FAILED` with secondary `E_TYPE_UNKNOWN`)
+- [x] `sim_reg_array_index_should_work.vctx`: `reg` array, sequential `<=` to elements, read `a[j]` to `out` (candidate to pass later: currently `E_SIM_PRECHECK_FAILED` with secondary `E_WIDTH_MISMATCH` — indexed element width)
+- [x] `sim_wire_array_element_assign_should_work.vctx`: combinational `:=` into a `wire` array element (promotion candidate: `E_SIM_PRECHECK_FAILED` + `E_WIDTH_MISMATCH` — same class as `sim_reg_array_index_should_work` but for `:=` to `wire` subscripts)
+- [x] `sim_dynamic_bracket_slice_should_work.vctx`: `w[hi..lo]` with wire bounds, low-byte assert (sim promotion twin of `on_purpose_failures_check/type_dynamic_bracket_slice_unknown_width.vctx`; `E_SIM_PRECHECK_FAILED` + `E_TYPE_UNKNOWN`)
+
+### Ternary + port width (check / sim alignment; promotion candidates)
+
+- [x] `sim_signedness_assignment_should_work.vctx`: `s8` to `u8` assignment without cast (promotion candidate: `E_SIM_PRECHECK_FAILED` + `E_TYPE_SIGN_MISMATCH`; check twin `type_signedness_mismatch_assignment.vctx`)
+- [x] `sim_output_signedness_mismatch_should_work.vctx`: component `out u8` driven from signed internal source (promotion candidate: `E_SIM_PRECHECK_FAILED` + `E_TYPE_SIGN_MISMATCH`; output-boundary signedness coverage)
+- [x] `sim_port_signedness_instance_mismatch_should_work.vctx`: component/port boundary `s8` -> `u8` connection without cast (promotion candidate: `E_SIM_PRECHECK_FAILED` + `E_TYPE_SIGN_MISMATCH`; signedness-at-port companion to assignment-level coverage)
+- [x] `sim_port_input_signedness_reverse_mismatch_should_work.vctx`: component input boundary `u8` -> `s8` without adapter (promotion candidate: `E_SIM_PRECHECK_FAILED` + `E_TYPE_SIGN_MISMATCH`; reverse-direction port signedness coverage)
+- [x] `sim_width_mismatch_assignment_should_work.vctx`: `u16` to `u8` assignment without cast (promotion candidate: `E_SIM_PRECHECK_FAILED` + `E_WIDTH_MISMATCH`; check twin `type_width_mismatch_assignment.vctx`)
+- [x] `sim_output_width_mismatch_should_work.vctx`: component `out u8` driven from wider internal `u16` source (promotion candidate: `E_SIM_PRECHECK_FAILED` + `E_WIDTH_MISMATCH`; output-boundary width coverage)
+- [x] `sim_port_input_width_mismatch_should_work.vctx`: component input boundary `u8` -> `u16` without adapter (promotion candidate: `E_SIM_PRECHECK_FAILED` + `E_PORT_WIDTH_MISMATCH`; precheck-stage port width coverage)
+- [x] `sim_port_input_width_narrowing_mismatch_should_work.vctx`: component input boundary `u16` -> `u8` without adapter (promotion candidate: `E_SIM_PRECHECK_FAILED` + `E_PORT_WIDTH_MISMATCH`; reverse-direction input port width coverage)
+- [x] `sim_port_input_width_signedness_combo_should_work.vctx`: component input boundary `s16` -> `u8` without adapter (promotion candidate: `E_SIM_PRECHECK_FAILED` + `E_PORT_WIDTH_MISMATCH`; combo width+signedness mismatch with width reported first)
+- [x] `sim_port_output_width_signedness_combo_should_work.vctx`: component output boundary `s16` -> `u8` without adapter (promotion candidate: `E_SIM_COMPILE_FAILED`; output-boundary combo width+signedness coverage in compile stage)
+- [x] `sim_port_output_width_mismatch_should_work.vctx`: component output boundary `u16` -> `u8` without adapter (promotion candidate: `E_SIM_COMPILE_FAILED`; compile-stage output-boundary port width coverage)
+- [x] `sim_ternary_runtime_signedness_mismatch_should_work.vctx`: runtime ternary `u8`/`s8` arm mismatch (promotion candidate: `E_SIM_PRECHECK_FAILED` + `E_TERNARY_ARM_MISMATCH`; signedness-focused ternary companion to width-arm mismatch case)
+- [x] `sim_ternary_runtime_arm_mismatch_should_work.vctx`: runtime ternary with `u8` / `u16` arms (candidate to pass after casts: `E_SIM_PRECHECK_FAILED` + `E_TERNARY_ARM_MISMATCH`; check twin `type_ternary_arm_type_mismatch.vctx`)
+- [x] `sim_reg_comb_assignment_should_work.vctx`: uses `:=` to drive a `reg` (promotion candidate: `E_SIM_PRECHECK_FAILED` + `E_ASSIGN_OP_INVALID`; check twin `type_reg_assigned_with_comb_op_in_root.vctx`)
+- [x] `sim_wire_seq_assignment_should_work.vctx`: uses `<=` to drive a `wire` output (promotion candidate: `E_SIM_PRECHECK_FAILED` + `E_ASSIGN_OP_INVALID`; check twin `type_wire_assigned_with_seq_op.vctx`)
+- [x] `sim_port_width_instance_mismatch_sim_compile_should_work.vctx`: `u16` DUT out into `u8` `wire` in `sim` — `E_SIM_COMPILE_FAILED` (candidate to **delete** once `check` catches this, or after fixed wiring in a **passing** test; see also `type_bad_port_connection_width.vctx`)
+
+- [x] `sim_parametric_carrier_component_should_work.vctx`: generic `u<WIDTH>` component ports should specialize (currently precheck fails with `E_COMPTIME_REQUIRED`)
+- [x] `sim_parametric_carrier_pipeline_should_work.vctx`: nested generic `u<W>` carriers through hierarchy should specialize (currently precheck fails with `E_COMPTIME_REQUIRED`)
+- [x] `sim_parametric_carrier_expr_should_work.vctx`: expression-derived carrier widths like `u<(W+1)>` should specialize (currently precheck fails with `E_COMPTIME_REQUIRED`)
+- [x] `sim_parametric_array_carrier_should_work.vctx`: arrays over `u<W>` should typecheck/specialize in sim path (currently precheck fails with `E_COMPTIME_REQUIRED` + secondary `E_TYPE_UNKNOWN`)
+- [x] `sim_parametric_carrier_function_should_work.vctx`: function signatures using `u<W>` should specialize (currently precheck fails with `E_COMPTIME_REQUIRED`)
+- [x] `sim_parametric_two_width_params_should_work.vctx`: two Int params `A`,`B` with `u<A>`, `u<B>`, `u<(A+B)>` (currently precheck fails with `E_COMPTIME_REQUIRED`)
+- [x] `sim_parametric_carrier_nested_expr_should_work.vctx`: nested width expressions like `u<(W+W)>` should specialize (currently precheck fails with `E_COMPTIME_REQUIRED`)
+- [x] `sim_parametric_signed_carrier_should_work.vctx`: signed parametric carriers `s<W>` should specialize (currently precheck fails with `E_COMPTIME_REQUIRED`)
+- [x] `sim_parametric_mixed_arith_should_work.vctx`: arithmetic width promotion with generics (e.g. `u<(W+1)>`) should specialize (currently precheck fails with `E_COMPTIME_REQUIRED`)
+- [x] `sim_parametric_slice_should_work.vctx`: slicing from a `u<W>` signal should specialize/typecheck (currently precheck fails with `E_COMPTIME_REQUIRED`)
+- [x] `sim_parametric_signed_cast_should_work.vctx`: generic `s<W> -> u<W>` cast should specialize (currently precheck fails with `E_COMPTIME_REQUIRED`)
+- [x] `sim_parametric_concat_should_work.vctx`: concat over generic carriers (`u<W>`) should specialize to wider outputs (currently precheck fails with `E_COMPTIME_REQUIRED` + secondary `E_TYPE_UNKNOWN`)
+- [x] `sim_parametric_width_intrinsic_should_work.vctx`: `width(u<W>)` should fold after specialization (currently fails at sim compile with `E_SIM_COMPILE_FAILED`; candidate to move once folded in sim path)
+
+### Promotion-candidate organization (should-pass-later sims)
+
+- See `on_purpose_failures_sim/PROMOTION_TRACKER.md` for the explicit promotion queue.
+- Convention: `sim_*_should_work.vctx` means **intended passing behavior** that is still a known compiler gap today.
+- Keep each `sim_*_should_work` minimal and scoped to one feature area (comptime eval, intrinsics, generic carriers, etc.) so promotion is low-risk and reviewable.
+- Promotion workflow:
+  1. Feature lands and sim starts passing.
+  2. Move case into regular passing suite/examples.
+  3. Remove from `on_purpose_failures_sim/` and `_SIM_FIRST` / `_SIM_ALSO` in `vctx-lang/tests/test_on_purpose_primary_codes.py`.
+- If a sim xfail has a **check** twin (e.g. `sim_dynamic_bracket_slice_should_work` ↔ `type_dynamic_bracket_slice_unknown_width.vctx`, `sim_signedness_assignment_should_work` ↔ `type_signedness_mismatch_assignment.vctx`, `sim_width_mismatch_assignment_should_work` ↔ `type_width_mismatch_assignment.vctx`, `sim_ternary_runtime_arm_mismatch_should_work` ↔ `type_ternary_arm_type_mismatch.vctx`, `sim_reg_comb_assignment_should_work` ↔ `type_reg_assigned_with_comb_op_in_root.vctx`, `sim_wire_seq_assignment_should_work` ↔ `type_wire_assigned_with_seq_op.vctx`), graduate **both** when the language feature is done, or re-home the check-only file if `check` starts passing first. Port/output-boundary variants like `sim_port_signedness_instance_mismatch_should_work`, `sim_port_input_signedness_reverse_mismatch_should_work`, `sim_output_signedness_mismatch_should_work`, `sim_output_width_mismatch_should_work`, `sim_port_input_width_mismatch_should_work`, `sim_port_input_width_narrowing_mismatch_should_work`, `sim_port_input_width_signedness_combo_should_work`, `sim_port_output_width_signedness_combo_should_work`, and `sim_port_output_width_mismatch_should_work`, plus ternary signedness companion `sim_ternary_runtime_signedness_mismatch_should_work`, and port/width sim compile cases (`sim_port_width_instance_mismatch_sim_compile_should_work`), may be dropped once `check` consistently rejects the same wiring.
 
 ### Harness misuse (only if sim enforces these at runtime)
 - [x] `sim_poke_output_should_fail.vctx`: attempt to `poke` a DUT output → `[E_SIM_POKE_TARGET_INVALID]` at sim compile

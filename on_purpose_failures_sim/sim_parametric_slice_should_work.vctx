@@ -1,0 +1,15 @@
+// Expected failure: slicing over parametric carriers should specialize and typecheck.
+// Promotion target: move to passing sims once slice typing over u<W> is supported.
+
+component ParametricSlice<W>(in x: u<W>, out low: u4) {
+    low := x[3..0]
+}
+
+sim ParametricSliceShouldWork {
+    wire x: u8 = 0xAB
+    wire low: u4
+    ParametricSlice<8>(x -- x, low -- low)
+    cycle()
+    assert(low == 0xB as u4, "low nibble of 0xAB should be 0xB")
+}
+

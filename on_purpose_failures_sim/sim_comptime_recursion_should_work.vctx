@@ -1,0 +1,26 @@
+// Expected failure: true recursive comptime calls (fact(n) -> fact(n-1)) should fold.
+// This file uses an iterative stand-in if direct recursion is unsupported; when the
+// language supports recursive comptime, replace the body with a minimal recursive `fact`.
+// Promotion: move to passing when comptime calls can recurse with a base case (or document
+// that only iteration is supported and remove this xfail).
+
+comptime fact_iter(n: Int) -> u32 {
+    let r: Int = 1
+    let i: Int = n
+    while (i > 1) {
+        r = r * i
+        i = i - 1
+    }
+    return (r as u32)
+}
+
+component Fact5(out w: u32) {
+    w := fact_iter(5)
+}
+
+sim ComptimeRecursionShouldWork {
+    wire w: u32
+    Fact5(w)
+    cycle()
+    assert(w == 120 as u32, "fact_iter(5) should be 120 (stand-in for recursive fact)")
+}

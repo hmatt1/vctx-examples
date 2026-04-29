@@ -1,0 +1,17 @@
+// Expected failure: component drives unsigned `out` from signed internal value without cast.
+// Why this exists: output-boundary companion to signedness xfails, distinct from input-port wiring.
+// Promotion: once explicit cast/adaptor is applied in a passing harness, move that case to
+// normal examples/tests and remove this xfail from promotion maps.
+// Candidate: yes -- intended to graduate into passing sims later.
+
+component OutputSignednessMismatch(out y: u8) {
+    wire s: s8 = -1 as s8
+    y := s
+}
+
+sim OutputSignednessMismatchShouldWork {
+    wire y: u8
+    OutputSignednessMismatch(y)
+    cycle()
+    assert(y == 255 as u8, "signed -1 observed at u8 output")
+}

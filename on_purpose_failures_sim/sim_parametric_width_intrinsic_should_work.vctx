@@ -1,0 +1,15 @@
+// Expected failure: width(...) over parametric carriers should fold after specialization.
+// Promotion target: move to passing sims once width(u<W>) is available end-to-end.
+
+component ParametricWidth<W>(in x: u<W>, out wx: u32) {
+    wx := width(x)
+}
+
+sim ParametricWidthIntrinsicShouldWork {
+    wire x: u8 = 0
+    wire wx: u32
+    ParametricWidth<8>(x -- x, wx -- wx)
+    cycle()
+    assert(wx == 8 as u32, "width(u8 specialized from u<W>) should be 8")
+}
+
