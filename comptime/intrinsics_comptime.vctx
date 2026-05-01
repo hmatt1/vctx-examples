@@ -1,29 +1,4 @@
-// =============================================================================
-// Language position: BUILT-INS THAT QUERY COMPTIME FACTS
-// Intrinsics: width(expr), is_signed(expr), is_comptime(expr)
-// Vision: vctx-lang/kinds-types-wire-reg.md — `width` / type queries yield **Int**
-// (or bool) in the constant folder when the carrier type is known; they classify
-// **L2** shape, not L0 per-cycle values.
-// =============================================================================
-//
-// These return values that are comptime-known when their arguments are typed:
-//   - width(x): bit width of x’s type → **Int** (documented as u32 carrier in places)
-//   - is_signed(x): 1 if signed scalar type
-//   - is_comptime(x): 1 iff the *expression* folded to a constant value
-//
-// Allowed:
-//   Use inside other comptime expressions once the compiler threads const
-//   through all call sites, e.g. u1[width(port) == 8] (illustrative).
-//
-// Signedness:
-//   width / is_comptime results are unsigned small integers in the current model.
-//
-// Pitfall — `reg`:
-//   `is_comptime(r)` for a `reg` r is 0: the read is **Reg<T>** **state** (L0),
-//   not an **Int**, even if `r` has a reset literal or only ever holds small
-//   integers. Compare with `is_comptime(0 as u8)` or a `wire` driven by literals.
-//
-// =============================================================================
+// Teaches: `width`, `is_signed` (via width on signed), `is_comptime` on literals vs reg. (Semantics / L2 vs L0: `top priority checklist.md` → DOCS.)
 
 component IntrinsicWidth(in a: u16, in b: s8, out wa: u32, out wb: u32) {
     wa := width(a)
@@ -50,10 +25,8 @@ sim IntrinsicsComptimeHarness {
     iz := is_comptime(42)
 
     cycle()
-    // NOTE: Known failing in current toolchain; tracked as an expected-fail sim:
-    //   on_purpose_failures_sim/sim_intrinsics_is_comptime_should_work.vctx
-    assert(ic == ic, "smoke: keep sim block discoverable while feature is tracked as xfail")
-    assert(iz == iz, "smoke: keep sim block discoverable while feature is tracked as xfail")
+    assert(ic == 1 as u1, "wire driven from literal — is_comptime")
+    assert(iz == 1 as u1, "bare literal is comptime")
 }
 
 sim IntrinsicsRegNotComptime {
@@ -63,8 +36,8 @@ sim IntrinsicsRegNotComptime {
     RegVersusLiteralComptime(a, b)
 
     cycle()
-    assert(a == 1, "literal 0 as u8 is comptime")
-    assert(b == 0, "reg read is not comptime — pitfall vs reset value 5")
+    assert(a == 1 as u1, "literal 0 as u8 is comptime")
+    assert(b == 0 as u1, "reg read is not comptime")
 }
 
 sim SimIntrinsicWidth {

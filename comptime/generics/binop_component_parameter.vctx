@@ -1,17 +1,4 @@
-// =============================================================================
-// §8.2 pattern **C**: “operation” as a **small component** (functor over **BinOp**)
-// See: vctx-lang/kinds-types-wire-reg.md — pass **`M : Component`** with ports
-// shaped like **`BinOp<T>`**, not a function pointer.
-//
-// **Concrete**: **`Add84`** adds two **`u4`**; **`UseBinOpAdd`** fixes **`M`** to
-// that implementation. Vision:
-//
-//   component BinOp<T>(in a: T, in b: T, out r: T) { ... }  // contract sketch
-//   component UseBinOp<M, T>(...) { op: M(a -- ..., b -- ..., r -- ...) }
-//
-// **Comptime**: choosing **`M`** is template specialization (§9.2); **`T`** may be
-// a **Type** parameter (see `type_kind_generic_T.vctx`).
-// =============================================================================
+// Teaches: wire a “binop” as a small component (`Add84`) and use it from a wrapper (`UseBinOpAdd`). Functor / `M : Component` story: `top priority checklist.md` → DOCS.
 
 component Add84(in a: u4, in b: u4, out r: u4) {
     r := (a + b) as u4

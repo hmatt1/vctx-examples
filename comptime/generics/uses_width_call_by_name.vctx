@@ -1,26 +1,12 @@
-// =============================================================================
-// §8.2 pattern **A**: type/**Int** generic + call a **known function by name**
-// See: vctx-lang/kinds-types-wire-reg.md — “pluggable part” is the **name**
-// `double_uW` and arguments like **W**, not a function-valued parameter.
-//
-// Concrete width (parses like today’s vctx):
-//   `double_u8` + `UsesWidth8`.
-//
-// Vision (same pattern, **Int** **W**):
-//   component UsesWidth<W>(in x: u<W>, out y: u<W>) {
-//       y := double_uW(x)   // family of functions you wrote per discipline
-//   }
-//
-// **Comptime**: **W** folds in `u<W>`; **double_uW** is resolved by name at
-// specialization — still **not** a higher-order runtime value (§8).
-// =============================================================================
+// Named function family: `double_uW<8>(x)` (not a function value). Wider 8.2 + `UsesWidth<W>`
+// story: `top priority checklist.md` → DOCS; nested `double_uW<W>` in a generic component E_TYPE_UNKNOWN today.
 
-function double_u8(x: u8) -> u8 {
-    return (x + x) as u8
+function double_uW<W>(x: u<W>) -> u<W> {
+    return (x + x) as u<W>
 }
 
 component UsesWidth8(in x: u8, out y: u8) {
-    y := double_u8(x)
+    y := double_uW<8>(x)
 }
 
 sim SimUsesWidth8 {
@@ -28,5 +14,5 @@ sim SimUsesWidth8 {
     wire y: u8
     UsesWidth8(x, y)
     cycle()
-    assert(y == 14 as u8, "pattern A: double by name at u8")
+    assert(y == 14 as u8, "double_uW<8>(7)=14")
 }

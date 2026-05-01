@@ -1,49 +1,6 @@
-// =============================================================================
-// Language position: GENERIC PARAMETERS (spec-first; see vctx-lang/kinds-types-wire-reg.md)
-//
-// Kinds (L3): WIDTH, W, IN_W, … here are **Int** — compile-time integers used in types
-// (e.g. `u<WIDTH>`), not `wire`/`reg`. They disappear at elaboration (§3 of that doc).
-//
-// Types (L2): `u<WIDTH>` is the **carrier** width; ports use **`wire`/`reg`** at the
-// L1–L0 boundary for the **temporal contract** (§2, §4.2).
-//
-// Syntax:
-//   component Name<P, Q, ...>( ports using u<P>, … ) { ... }
-//   function name<P, ...>(...) -> ...
-//   Instantiation: Target<arg, ...>( ... )
-//   Generic function call: name<arg, ...>( value args ) — explicit `<...>` required today.
-//   Use parentheses for compound args: Adder<(W + 1)>(...) so `>` is not comparison.
-//
-// Comptime **evaluation** (§9.1): each `<...>` argument list is folded in the constant
-// folder before monomorphization. That is **not** the same as **component
-// instantiation** (§9.2), which allocates hierarchy after specialization.
-// =============================================================================
-//
-// MUST be comptime-known at each instantiation:
-//   Every specialization (`Adder<8>`, `Adder<(4+4)>`, …) folds its arguments
-//   before monomorphizing (one generated module per distinct argument tuple).
-//
-// Allowed forms (target):
-//   - Literals: 8, 0x10
-//   - Parenthesized arithmetic: (4 + 4)
-//   - Name of an enclosing generic **Int** parameter when nesting instantiations
-//
-// Signedness:
-//   WIDTH in `u<WIDTH>` is a *bit width* (count). It must fold to a positive
-//   integer. Zero or negative width → compile error.
-//
-// NOT allowed:
-//   - `Adder<count_reg>` where `count_reg` is a `reg` or unspecialized port
-//
-// Note: The toolchain may not accept `u<WIDTH>` until the parser/typechecker
-// implements parameterized carrier types with angle brackets.
-// =============================================================================
+// Teaches: comptime `Int` generic parameters on components/functions, `Target<arg>(...)`, and nested `Pass<W>`. Ports use fixed-width carriers; `WIDTH` in `u<WIDTH>` on ports is covered elsewhere — `top priority checklist.md` → DOCS.
 
-// --- Parameterized width ------------------------------------------------------
-
-// NOTE: Until parameterized carrier types `u<WIDTH>` are fully supported by the
-// checker/lowerer, keep this example typecheckable by using fixed carriers.
-// The `<...>` generic Int parameters still exercise specialization/monomorphization.
+// `WIDTH` / `W` / `IN_W` specialize the module; bodies use `u8` / `u16` / `u4` as written.
 component Adder<WIDTH>(
     in a: u8,
     in b: u8,
@@ -68,13 +25,9 @@ component WidenThenAdd<IN_W, OUT_W>(
     z := ((x as u8) + (y as u8)) as u8
 }
 
-// --- Generic function: W is an **Int** in parameter / return types ------------
-
 function zero_extend<W>(nibble: u4) -> u8 {
     return nibble as u8
 }
-
-// --- Instantiations (every `<...>` argument must fold at comptime) ------------
 
 component GenericUser(
     in xa: u8,
@@ -95,8 +48,6 @@ component GenericUser(
 
     WidenThenAdd<4, 8>(x -- xc, y -- xd, z -- widened)
 }
-
-// --- Nested reference: inner instance reuses outer generic Int W --------------
 
 component Pass<W>(in inp: u12, out outp: u12) {
     outp := inp
@@ -150,7 +101,5 @@ sim SimZeroExtendGeneric {
     wire wide: u8
     wide := zero_extend<8>(nibble)
     cycle()
-    // NOTE: Known failing in current toolchain; tracked as an expected-fail sim:
-    //   on_purpose_failures_sim/sim_zero_extend_generic_should_work.vctx
-    assert(wide == wide, "smoke: keep sim block discoverable while feature is tracked as xfail")
+    assert(wide == 3 as u8, "zero_extend<8> widens without changing value")
 }

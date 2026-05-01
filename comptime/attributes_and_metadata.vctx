@@ -1,39 +1,12 @@
-// =============================================================================
-// Language position (FUTURE / SPEC): ATTRIBUTES with COMPTIME ARGUMENTS
-// Example: @frequency(50_000_000), @keep_hierarchy
-// Vision: vctx-lang/kinds-types-wire-reg.md §3 — attribute numerics are **Int** /
-// elaboration-time constants, not **Wire**/**Reg** nets (they vanish before silicon).
-// =============================================================================
-//
-// When an attribute takes a parenthesized expression, that expression is a
-// comptime-only position in many toolchains: synthesis frequency, memory depth
-// hints, etc.
-//
-// Allowed forms (target):
-//   - Integer literals and underscores
-//   - Comptime-only arithmetic if the compiler folds attributes
-//
-// Signedness:
-//   Frequency / counts are non-negative integers unless a specific attribute
-//   documents otherwise.
-//
-// ILLEGAL:
-//   @frequency(clk_count)  // if clk_count is a reg
-//
-// ---------------------------------------------------------------------------
-// vctx today: parse attributes on components; evaluation semantics TBD.
-// This stub keeps the file valid without asserting a particular @-syntax value.
-// ---------------------------------------------------------------------------
+// Teaches: `@top` on a component parses; `AttribComptimeStub` + `AttribComptimeSimFast` are runnable sim smokes. Attribute expression semantics (e.g. `@frequency(…)`) is still evolving—see `top priority checklist.md` → DOCS.
 
 @top
 component AttribComptimeStub(out led: u1) {
-    // `reg` = **Reg<u27>** (state); `<=` schedules next value (§2 temporal contract).
     reg c: u27 = 0
     c <= (c + 1) as u27
     led := c[24]
 }
 
-// Small counter for sim: `@top` LED above toggles only after ~2^24 cycles.
 component AttribComptimeSimFast(out led: u1) {
     reg c: u5 = 0
     c <= (c + 1) as u5

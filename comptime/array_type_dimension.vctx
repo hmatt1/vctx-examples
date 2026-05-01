@@ -1,39 +1,7 @@
-// =============================================================================
-// Language position: ARRAY TYPE DIMENSION
-// Syntax: base_type "[" dimension_expr "]"  (repeatable for future rank > 1)
-// Examples: u8[4],  bool[1],  s16[256]
-// Vision: vctx-lang/kinds-types-wire-reg.md — dimension is an **Int**; not a
-// **wire**/**reg** temporal value (§2). Carrier `u8` vs `u<WIDTH>` both use the
-// same bracket rules for rank-1 arrays.
-// =============================================================================
-//
-// MUST be comptime-known:
-//   The dimension_expr must fold to a fixed non-negative integer before the
-//   array type is real hardware. Storage size is inner_width * dim.
-//
-// Allowed forms (target — some may not fold in the compiler yet):
-//   - Decimal literal: 4, 1_000
-//   - Hex literal: 0x10 (value must be usable as dimension)
-//   - Binary literal: 0b1000
-//   - Parenthesized comptime expr: (2 + 2), ((3 * 4) + 1)
-//   - Calls that are comptime-pure: width(some_wire)  (returns known width)
-//
-// Signedness:
-//   Dimension is a *size*; treat as unsigned counting number. If the folded
-//   value is negative, that is an error. Signed types (s8, etc.) describe
-//   element bit pattern, not the bracket size — the bracket still holds a
-//   size, not a two’s-complement “count” unless you explicitly allow it.
-//
-// ILLEGAL (should be rejected — examples for reviewer; may be commented so this
-// file still parses):
-//   wire a: u8[my_reg]           // reg / runtime
-//   wire b: u8[my_input_port]   // port
-//   wire c: u8[-1]              // negative size
-//
-// =============================================================================
+// Teaches: array dimensions `u8[N]` with literals, hex/binary, underscores, and folded comptime expr `(2+2)`. (Rules / illegal forms: `top priority checklist.md` → DOCS.)
 
 component ArrayDimLiterals(out lo: u1, out mid: u1, out hi: u1) {
-    // Dimension 0 is usually rejected (no storage); not exercised here.
+    // Dimension 0 is invalid; not used here.
     wire a1: u8[1]
     wire a4: u8[4]
     wire a256: u8[256]

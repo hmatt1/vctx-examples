@@ -1,0 +1,13 @@
+// Expected failure: slice syntax is high..low with high index >= low index. For u8, `data[0..7]`
+// is ascending and fails during sim compile (see [E_SIM_COMPILE_FAILED]).
+
+component AscendSliceUser(out y: u8) {
+    wire data: u8 = 0xFF
+    y := data[0..7]
+}
+
+sim AscendSliceShouldFail {
+    wire o: u8
+    AscendSliceUser(o)
+    cycle()
+}

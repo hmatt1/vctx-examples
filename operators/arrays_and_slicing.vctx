@@ -57,14 +57,10 @@ sim TestSlicingArbitrary {
 sim TestConcatenationBasic {
     wire high: u8 = 0xDE
     wire low: u8 = 0xAD
-    
-    // Combine two u8s into a u16 using the intrinsic function
     wire combined: u16
     combined := concat(high, low)
-    
-    // NOTE: Known failing in current toolchain; tracked as an expected-fail sim:
-    //   on_purpose_failures_sim/sim_concat_basic_should_work.vctx
-    assert(combined == combined, "smoke: keep sim block discoverable while feature is tracked as xfail")
+    cycle()
+    assert(combined == 0xDEAD, "concat two u8 to u16: 0xDE with 0xAD is 0xDEAD (see operators/concat_basic.vctx)")
 }
 
 sim TestConcatenationMultiple {
@@ -97,13 +93,5 @@ sim TestEndianSwap {
     assert(swapped == 0x3412, "Swapping bytes using slicing and concatenation")
 }
 
-// ==========================================
-// 5. Compiler Error Documentation (Commented)
-// ==========================================
-/*
-sim TestInvalidSliceAscending {
-    wire data: u8 = 0xFF
-    // ERROR: Ranges must be descending. [0..7] is explicitly invalid. 
-    wire bad: u8 = data[0..7] 
-}
-*/
+// Illegal ascending slice `data[0..7]` (high must be >= low): xfail
+// `on_purpose_failures_sim/sim_ascending_slice_compile_should_fail.vctx` (expect [E_SIM_COMPILE_FAILED] at sim).

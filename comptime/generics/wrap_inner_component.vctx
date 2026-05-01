@@ -1,17 +1,5 @@
-// =============================================================================
-// Kind **Component** (L3): functor `Wrap` with inner template **M**
-// See: vctx-lang/kinds-types-wire-reg.md §6, §8.2 D — **Outer<M>** with
-// `inner: M(...)`; no runtime component “value,” only compile-time abstraction.
-//
-// **Concrete**: `Wrap<CoreDup>` specializes `Wrap` with `M = CoreDup`; the inner
-// instance is one `hw.instance` per outer specialization (named ports required
-// for `M(...)` because the callee is a type parameter).
-//
-//   component Wrap<Component M>(in x: u8, out y: u8) {
-//       inner: M(x -- x, y -- y)
-//   }
-//   user: Wrap<CoreDup>(...)
-// =============================================================================
+// Functor-style wrapper: `Wrap<CoreDup>(x, y)` delegates to inner `M` (component-type param).
+// `WrapCoreDup` is the same netlist with `CoreDup` written out. Kind **Component** / 8.2D: checklist → DOCS.
 
 component CoreDup(in x: u8, out y: u8) {
     y := (x + x) as u8
@@ -30,7 +18,7 @@ sim SimWrapGeneric {
     wire y: u8
     Wrap<CoreDup>(x, y)
     cycle()
-    assert(y == 6 as u8, "Wrap<CoreDup> doubles via inner CoreDup")
+    assert(y == 6 as u8, "Wrap<CoreDup>: inner doubles 3 to 6")
 }
 
 sim SimWrapCoreDup {
@@ -38,5 +26,5 @@ sim SimWrapCoreDup {
     wire y: u8
     WrapCoreDup(x, y)
     cycle()
-    assert(y == 6 as u8, "wrapped CoreDup doubles")
+    assert(y == 6 as u8, "WrapCoreDup: same behavior without generic Wrap")
 }

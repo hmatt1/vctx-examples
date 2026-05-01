@@ -1,11 +1,5 @@
-// Wish #4: First-class block RAM or array-backed `reg` for modeling WRAM/HRAM/cart RAM
-//
-// Today, small memories are often spelled as many scalar `reg` lines and a mux tree.
-// That is correct HDL-wise but verbose and error-prone at scale.
-//
-// This lesson shows the **explicit** style: two cells, explicit decode. A future array
-// type could collapse this to `reg mem: u8[2]` (or a `memory` keyword) with well-defined
-// read/write ports for emission and sim.
+// Two-byte “RAM” as separate `m0`/`m1` regs + address decode (0xC000 / 0xC001), not `u8[]`.
+// Wish / block-RAM phrasing: `top priority checklist.md` → DOCS.
 
 component TwoByteRamRegs(
     in addr: u16,
@@ -52,5 +46,5 @@ sim TwoCellRamSmoke {
     wire d: u8 = 0x77 as u8
     TwoByteRam(a, w, d, r)
     cycle()
-    assert(r == 0x77 as u8, "second explicit cell holds write")
+    assert(r == 0x77 as u8, "write 0x77 at 0xC001, read 0xC001 gives 0x77 (m1)")
 }

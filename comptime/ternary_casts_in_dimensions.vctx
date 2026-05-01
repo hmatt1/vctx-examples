@@ -1,40 +1,19 @@
-// =============================================================================
-// Ternary `cond ? a : b` — COMPTIME vs RUNTIME
-// Vision: vctx-lang/kinds-types-wire-reg.md §9 — folded ternary in a dimension
-// is **constant-folder** work (**Int**). Runtime ternary on signals is **L1**
-// hardware (mux); **reg** reads participate as **Reg<T>** current value (L0).
-// =============================================================================
-//
-// COMPTIME (array dimensions, generic **Int** args, etc.):
-//   When `cond`, `a`, and `b` all fold to constants, the whole expression folds.
-//   Use for parameterized sizes: `u8[(true ? 8 : 4)]`, `u8[((W == 8) ? 4 : 2)]` when
-//   W is a generic **Int**.
-//
-// RUNTIME (normal hardware mux):
-//   When `cond` is a **`wire`** / port / **`reg`** read, the ternary is a 2:1 mux;
-//   both arms are evaluated as hardware; no folding. Same family as `when` for
-//   simple scalar muxes.
-//
-// Casts in dimensions (`expr as uN`):
-//   Dimension must be a comptime integer after trunc/extend; final value ≥ 0.
-//
-// =============================================================================
+// Teaches: ternary in array dimensions (folds when comptime) vs runtime ternary on wires (mux). (`top priority checklist.md` → DOCS for §9 / L0–L1 notes.)
 
-// --- Comptime: condition is manifest (e.g. bool literal or folded compare) -----
-
+// Comptime `cond` → folded dimension.
 component DimTernaryConst(out x: u8) {
     wire t: u8[(true ? 8 : 4)]
     x := t[0]
 }
 
+// Cast in dimension: `0x1234 as u8` in bracket size.
 component DimCastNarrow(out x: u8) {
     wire wide: u16[0x00FF]
     wire c: u8[(0x1234 as u8)]
     x := (wide[0] as u8) | c[0]
 }
 
-// --- Runtime: condition is a signal — builds a mux, not a folded array size ----
-
+// `sel` is a signal → mux, not a folded type size.
 component RuntimeTernaryMux(in sel: bool, in a: u8, in b: u8, out y: u8) {
     y := sel ? a : b
 }

@@ -1,15 +1,4 @@
-// Dynamic index and variable-position extract (arrays / slicing companion examples).
-//
-// Most `arrays_and_slicing` demos use constant indices like `data[7]` or `data[7..0]`.
-// Real hardware often selects a bit or a *fixed-width field* at a runtime position:
-//   - Single bit: `data[idx]`  (now lowered as logical shift + extract LSB)
-//   - Nibble/word: shift the bus so the field sits at the LSBs, then slice with constants:
-//         `((data >> shamt) as u8)[3..0]`
-//
-// Full `data[high..low]` with both bounds dynamic is not part of the type system today
-// (slice width must be known at analysis time). Use shift + constant slice instead.
-
-// --- Single-bit pick: `data[idx]` with idx driven by wires/regs ----------------------------
+// Teaches: dynamic bit index `data[idx]`, shift-then-constant-slice for aligned nibbles, reg counter as index. (Longer notes: see `top priority checklist.md` → DOCS.)
 
 component DynBitPick(in data: u8, in idx: u3, out bit: bool) {
     bit := data[idx]
@@ -51,8 +40,6 @@ sim TestDynBitPickZero {
     assert(b == true, "bit 3 of 0xFF is 1")
 }
 
-// Index changes after `poke`: same hardware, new select each cycle.
-
 sim TestDynBitPickAfterPoke {
     wire d: u8 = 0xA5
     wire i: u3 = 0
@@ -71,8 +58,6 @@ sim TestDynBitPickAfterPoke {
     assert(b == false, "0xA5 bit 6 is 0")
 }
 
-// Dynamic index on a signed bus (bit pattern is still an unsigned bit pick).
-
 component DynBitPickSigned(in data: s8, in idx: u3, out bit: bool) {
     bit := data[idx]
 }
@@ -86,10 +71,9 @@ sim TestDynBitPickSignedNegative {
     assert(b == true, "all bits of -1 are 1")
 }
 
-// --- Variable-position nibble: dynamic *shift*, constant slice on the result --------------
+// Align nibble with `>> (4*sel)` then take `[3..0]` (slice width stays constant).
 
 component DynAlignedNibble(in data: u8, in nibble_sel: u2, out n: u4) {
-    // nibble_sel0 -> bits [3..0], 1 -> [7..4], 2 -> [11..8] (zero-extended), etc.
     wire sh: u8 = ((nibble_sel * 4) as u8)
     wire shifted: u8 = (data >> sh) as u8
     n := shifted[3..0]
@@ -125,8 +109,6 @@ sim TestDynNibbleSweep {
     assert(n == 1, "sel 1 -> upper nibble 1")
 }
 
-// Wider value: two dynamic nibbles stitched from the same word (shift amount still dynamic).
-
 component DynTwoNibbles(in data: u16, in low_sel: u2, in high_sel: u2, out packed: u8) {
     wire lo_sh: u16 = ((low_sel * 4) as u16)
     wire hi_sh: u16 = ((high_sel * 4) as u16)
@@ -138,7 +120,6 @@ component DynTwoNibbles(in data: u16, in low_sel: u2, in high_sel: u2, out packe
 }
 
 sim TestDynTwoNibbles {
-    // 0xABCD: nibble1 = C, nibble2 = B -> packed 0xBC
     wire d: u16 = 0xABCD
     wire a: u2 = 1
     wire b: u2 = 2
@@ -148,8 +129,7 @@ sim TestDynTwoNibbles {
     assert(p == 0xBC, "concat high nibble B with low nibble C")
 }
 
-// Sequential counter as index: `pos` increments each clock; `bit` is combinational
-// from the *current* `pos`, so the value observed after `cycle()` matches the updated index.
+// `pos` increments each cycle; `bit` is combinational from current `pos` (observed after `cycle()`).
 
 component RotatingBitRead(in data: u8, out bit: bool) {
     reg pos: u3 = 0
@@ -158,8 +138,6 @@ component RotatingBitRead(in data: u8, out bit: bool) {
 }
 
 sim TestRotatingBitReadWalks {
-    // 0b1010_0101: after each `cycle()` the counter has advanced, so `bit` tracks
-    // data[1], data[2], … from the updated `pos`.
     wire d: u8 = 0b1010_0101
     wire b: bool
     RotatingBitRead(d, b)
