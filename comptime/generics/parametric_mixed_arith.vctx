@@ -1,9 +1,9 @@
-// Parametric carriers: mixed arithmetic and carrier widths (`u<(W+1)>`) specialize.
+// Parametric carriers: mixed arithmetic and carrier widths (`u[(W+1)]`) specialize.
 //
 // Graduated from: on_purpose_failures_sim/sim_parametric_mixed_arith_should_work.vctx
 
-component MixedArith<W>(in x: u<W>, in y: u<W>, out z: u<(W + 1)>) {
-    z := (x + y) as u<(W + 1)>
+component MixedArith<W>(in x: u[W], in y: u[W], out z: u[(W + 1)]) {
+    z := (x + y) as u[(W + 1)]
 }
 
 sim ParametricMixedArith {

@@ -1,8 +1,8 @@
-// Parametric carriers: slicing over `u<W>` specializes and typechecks.
+// Parametric carriers: slicing over `u[W]` specializes and typechecks.
 //
 // Graduated from: on_purpose_failures_sim/sim_parametric_slice_should_work.vctx
 
-component ParametricSlice<W>(in x: u<W>, out low: u4) {
+component ParametricSlice<W>(in x: u[W], out low: u4) {
     low := x[3..0]
 }
 

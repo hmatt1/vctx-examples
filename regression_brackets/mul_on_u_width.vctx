@@ -1,0 +1,18 @@
+// Regression: generic `*` on parametric carrier `u[W]` (bracket width).
+
+function scale_uW<W>(x: u[W], k: u[W]) -> u[W] {
+    return (x * k) as u[W]
+}
+
+component UseScale8(in a: u8, in b: u8, out y: u8) {
+    y := scale_uW<8>(a, b)
+}
+
+sim SimMulOnUWidth {
+    wire a: u8 = 2
+    wire b: u8 = 3
+    wire y: u8
+    UseScale8(a, b, y)
+    cycle()
+    assert(y == 6 as u8, "scale_uW<8>(2,3)=6")
+}

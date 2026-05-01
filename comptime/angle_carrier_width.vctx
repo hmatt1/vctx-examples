@@ -1,9 +1,9 @@
-// Smoke: parameterized carrier types u<…> / s<…> (grammar + type IR).
+// Smoke: parameterized carrier types u[…] / s[…] (grammar + type IR).
 
 component AngleWidthDemo(
-    in a: u<4 + 4>,
-    in b: s<8>,
-    out y: u<8>
+    in a: u[4 + 4],
+    in b: s[8],
+    out y: u[8]
 ) {
     y := (((a as u8) + (b as u8)) as u8)
 }

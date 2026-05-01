@@ -1,8 +1,8 @@
-// Parametric carriers: `concat(u<W>, u<W>)` specializes to `u<(W+W)>`.
+// Parametric carriers: `concat(u[W], u[W])` specializes to `u[(W+W)]`.
 //
 // Graduated from: on_purpose_failures_sim/sim_parametric_concat_should_work.vctx
 
-component ParametricConcat<W>(in a: u<W>, in b: u<W>, out y: u<(W + W)>) {
+component ParametricConcat<W>(in a: u[W], in b: u[W], out y: u[(W + W)]) {
     y := concat(a, b)
 }
 

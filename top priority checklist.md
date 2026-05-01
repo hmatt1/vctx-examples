@@ -160,7 +160,7 @@ Wider value: two dynamic nibbles stitched from the same word (`DynTwoNibbles`); 
 // Syntax: base_type "[" dimension_expr "]"  (repeatable for future rank > 1)
 // Examples: u8[4],  bool[1],  s16[256]
 // Vision: vctx-lang/kinds-types-wire-reg.md — dimension is an **Int**; not a
-// **wire**/**reg** temporal value (§2). Carrier `u8` vs `u<WIDTH>` both use the
+// **wire**/**reg** temporal value (§2). Carrier `u8` vs `u[WIDTH]` both use the
 // same bracket rules for rank-1 arrays.
 // =============================================================================
 //
@@ -205,7 +205,7 @@ Illegal dimension shapes belong in `on_purpose_failures_check/` (e.g. `comptime_
 // Goal: any expression in `type[..]` that appears in a *type* position should
 // be foldable using the same rules as other comptime integer math, so users can
 // write `u8[K * 4]` or `u8[(W + 1)]` when `K` / `W` are generic **Int**
-// parameters (e.g. in `u<W>` style generics).
+// parameters (e.g. in `u[W]` style generics).
 //
 // Operators (intended for comptime folding where both operands are comptime):
 //   +  -  *  /  %   with fixed-width wrap/trunc semantics matching RTL
@@ -307,7 +307,7 @@ The passing example is now a tiny `ConstantLow` + `SimConstantLow` (replaces the
 // Why it matters:
 //   Comptime positions size hardware before elaboration; a **reg** read or port
 //   **signal** is an L0 value that varies per cycle — it cannot stand in for an
-//   **Int** used in `u<WIDTH>`, array sizes, or templates.
+//   **Int** used in `u[WIDTH]`, array sizes, or templates.
 //
 // =============================================================================
 ```
@@ -403,13 +403,13 @@ Targeted `check` xfail: `on_purpose_failures_check/comptime_forbidden_runtime_po
 // Language position: GENERIC PARAMETERS (spec-first; see vctx-lang/kinds-types-wire-reg.md)
 //
 // Kinds (L3): WIDTH, W, IN_W, … here are **Int** — compile-time integers used in types
-// (e.g. `u<WIDTH>`), not `wire`/`reg`. They disappear at elaboration (§3 of that doc).
+// (e.g. `u[WIDTH]`), not `wire`/`reg`. They disappear at elaboration (§3 of that doc).
 //
-// Types (L2): `u<WIDTH>` is the **carrier** width; ports use **`wire`/`reg`** at the
+// Types (L2): `u[WIDTH]` is the **carrier** width; ports use **`wire`/`reg`** at the
 // L1–L0 boundary for the **temporal contract** (§2, §4.2).
 //
 // Syntax:
-//   component Name<P, Q, ...>( ports using u<P>, … ) { ... }
+//   component Name<P, Q, ...>( ports using u[P], … ) { ... }
 //   function name<P, ...>(...) -> ...
 //   Instantiation: Target<arg, ...>( ... )
 //   Generic function call: name<arg, ...>( value args ) — explicit `<...>` required today.
@@ -430,18 +430,18 @@ Targeted `check` xfail: `on_purpose_failures_check/comptime_forbidden_runtime_po
 //   - Name of an enclosing generic **Int** parameter when nesting instantiations
 //
 // Signedness:
-//   WIDTH in `u<WIDTH>` is a *bit width* (count). It must fold to a positive
+//   WIDTH in `u[WIDTH]` is a *bit width* (count). It must fold to a positive
 //   integer. Zero or negative width → compile error.
 //
 // NOT allowed:
 //   - `Adder<count_reg>` where `count_reg` is a `reg` or unspecialized port
 //
-// Note: The toolchain may not accept `u<WIDTH>` until the parser/typechecker
-// implements parameterized carrier types with angle brackets.
+// Note: Carrier bit-width uses **square brackets** (`u[W]`); generic application
+// still uses **angle brackets** (`Adder<8>`).
 // =============================================================================
 ```
 
-**NOTE** (old file body): *Until parameterized carrier types `u<WIDTH>` on ports are fully supported, this example used fixed `u8` on `Adder<WIDTH>` ports; `<WIDTH>` still drove specialization/monomorphization.*
+**NOTE** (old file body): *Until parameterized carrier types `u[WIDTH]` on ports are fully supported, this example used fixed `u8` on `Adder<WIDTH>` ports; `<WIDTH>` still drove specialization/monomorphization.*
 
 ### From `comptime/generics/binop_component_parameter.vctx` (removed header, 2026)
 
@@ -494,7 +494,7 @@ Targeted `check` xfail: `on_purpose_failures_check/comptime_forbidden_runtime_po
 
 ### From `comptime/generics/fold_vs_specialize.vctx` (removed header, 2026)
 
-The example **now implements** the former “would be” line: `AdderW<W>` with `u<W>` ports and `FoldThenSpecializeDemo` instantiates **`AdderW<(2 + 2)>`** so `(2+2)` folds to **4** before specialization. The old “parser does not accept `u<WIDTH>`” note is obsolete.
+The example **now implements** the former “would be” line: `AdderW<W>` with `u[W]` ports and `FoldThenSpecializeDemo` instantiates **`AdderW<(2 + 2)>`** so `(2+2)` folds to **4** before specialization. The old “parser does not accept `u[WIDTH]`” note is obsolete.
 
 ```
 // =============================================================================
@@ -503,21 +503,21 @@ The example **now implements** the former “would be” line: `AdderW<W>` with 
 //
 // | Mechanism              | Primary effect                          |
 // |-------------------------|-----------------------------------------|
-// | **`(W * 2)` in `u<(W*2)>`** | **Int** result in the constant folder |
+// | **`(W * 2)` in `u[(W*2)]`** | **Int** result in the constant folder |
 // | **`Adder<8>(...)`**     | Concrete module / netlist after **<>** |
 //
 // Same front-end discipline (generic args comptime-known); **different** back-end:
 // **`eval(...)`** vs **`instantiate(...)`**.
 //
 // Vision: **`Adder<(2 + 2)>(...)`** — **(2+2)** folds to **4**, then **Adder<4>**
-// specializes with **`u<4>`** ports. Today’s parser does not accept **`u<WIDTH>`**
-// in types; this file uses fixed **`Adder4`** and keeps the fold story in comments.
+// specializes with **`u[4]`** ports (equivalently **`u4`**). The live **`AdderW`**
+// example uses **`u[W]`** on ports; see **`fold_vs_specialize.vctx`**.
 // =============================================================================
 ```
 
 ### From `comptime/generics/function_vs_component_width.vctx` (removed header, 2026)
 
-`scale_u8` and `scale_uW<W>(…)`: **generic `*`** on `u<W>` (unlike `+` in e.g. `AdderW`) does not type-check in the current toolchain, so the live example stays **`u8`**. The story below (function vs component, call syntax `f<8>(x)`) remains design context.
+`scale_u8` and `scale_uW<W>(…)`: **generic `*`** on `u[W]` (unlike `+` in e.g. `AdderW`) does not type-check in the current toolchain, so the live example stays **`u8`**. The story below (function vs component, call syntax `f<8>(x)`) remains design context.
 
 ```
 // =============================================================================
@@ -528,26 +528,26 @@ The example **now implements** the former “would be” line: `AdderW<W>` with 
 // **`scale_u8`**: expression reuse (inlined at each **`:=`**). **`Scaler8`**:
 // same math behind **named ports** — a small **structural** boundary.
 //
-// Vision (spec): **`function scale_uW<W>(...)`** + **`Scaler<W>`** with **`u<W>`**;
+// Vision (spec): **`function scale_uW<W>(...)`** + **`Scaler<W>`** with **`u[W]`**;
 // today’s grammar calls functions as **`name(x, k)`** only (no **`f<8>(...)`**),
 // so this file uses fixed **`u8`** and documents the generic form in comments.
 // =============================================================================
 ```
 
-Note: calls like **`id_n<8>(a)`** and **`scale_uW<8>(...)`** do exist for *some* functions; the old “no `f<8>(…)`” line was overstated—see `parametric_carrier_function.vctx`. Generics for **multiply** on `u<W>` are the practical blocker here, not the call form.
+Note: calls like **`id_n<8>(a)`** and **`scale_uW<8>(...)`** do exist for *some* functions; the old “no `f<8>(…)`” line was overstated—see `parametric_carrier_function.vctx`. Generics for **multiply** on `u[W]` are the practical blocker here, not the call form.
 
 ### From `comptime/generics/signed_width_carrier.vctx` (removed header, 2026)
 
-The example now uses **`SignedAddW<W>`** with **`s<W>`** ports and **`SimSignedAdd8`** instantiates **`SignedAddW<8>`** (same pattern as `AdderW` / `u<W>`). The old “fixed `s8` only / vision in comment” setup is obsolete.
+The example now uses **`SignedAddW<W>`** with **`s[W]`** ports and **`SimSignedAdd8`** instantiates **`SignedAddW<8>`** (same pattern as `AdderW` / `u[W]`). The old “fixed `s8` only / vision in comment” setup is obsolete.
 
 ```
 // =============================================================================
-// §4.1 **Signed** parameterized carriers: **`s<WIDTH>`**
-// See: vctx-lang/kinds-types-wire-reg.md — same angle-bracket story as **`u<WIDTH>`**;
+// §4.1 **Signed** parameterized carriers: **`s[WIDTH]`**
+// See: vctx-lang/kinds-types-wire-reg.md — same **square-bracket width** story as **`u[WIDTH]`**;
 // **`s8`**, **`s16`** are fixed special cases.
 //
 // Target:
-//   component SignedAlu<WIDTH>(in a: s<WIDTH>, in b: s<WIDTH>, out s: s<WIDTH>) { ... }
+//   component SignedAlu<WIDTH>(in a: s[WIDTH], in b: s[WIDTH], out s: s[WIDTH]) { ... }
 //
 // **Comptime**: **WIDTH** is an **Int**; carrier shape is fixed per specialization.
 // **`wire` / `reg`** still carry the **temporal** contract for those carriers (§4.2).
@@ -555,12 +555,12 @@ The example now uses **`SignedAddW<W>`** with **`s<W>`** ports and **`SimSignedA
 // Below: fixed **`s8`** only so today’s toolchain can typecheck arithmetic.
 // =============================================================================
 
-// Vision (comment): SignedAdd<WIDTH> with `s<WIDTH>` ports and `as s<WIDTH>` casts.
+// Vision (comment): SignedAdd<WIDTH> with `s[WIDTH]` ports and `as s[WIDTH]` casts.
 ```
 
 ### From `comptime/generics/type_kind_generic_T.vctx` (removed header, 2026)
 
-A naïve **`component Buf<T>(in x: T, out y: T)`** + **`Buf<u8>(a, b)`** does not compile today: **`E_GENERIC_INST`** (Int generic argument) rejects **`u8`** in angle brackets, and the body hits **`E_TYPE_UNKNOWN`** for assignments with **`T`**. The example therefore keeps a concrete **`BufU8`**. Distinct from width generics **`W`** in **`u<W>`**.
+A naïve **`component Buf<T>(in x: T, out y: T)`** + **`Buf<u8>(a, b)`** does not compile today: **`E_GENERIC_INST`** (Int generic argument) rejects **`u8`** in angle brackets, and the body hits **`E_TYPE_UNKNOWN`** for assignments with **`T`**. The example therefore keeps a concrete **`BufU8`**. Distinct from width generics **`W`** in **`u[W]`**.
 
 ```
 // =============================================================================
@@ -581,7 +581,7 @@ A naïve **`component Buf<T>(in x: T, out y: T)`** + **`Buf<u8>(a, b)`** does no
 
 ### From `comptime/generics/uses_width_call_by_name.vctx` (removed header, 2026)
 
-**Live file:** `double_uW<W>(x) -> u<W>` with `(x + x) as u<W>`, and **`UsesWidth8`** calls **`double_uW<8>(x)`** — the “call a known function by name at specialization” pattern, without a generic **`UsesWidth<W>(…)`** wrapper. A direct **`component UsesWidth<W> { y := double_uW<W>(x) }`** hits **`[E_TYPE_UNKNOWN] Unknown types: LHS=u<W>, RHS=unknown`** in the current toolchain; keep that shape in the fence below, not in source, until the checker can type nested generic function applications.
+**Live file:** `double_uW<W>(x) -> u[W]` with `(x + x) as u[W]`, and **`UsesWidth8`** calls **`double_uW<8>(x)`** — the “call a known function by name at specialization” pattern, without a generic **`UsesWidth<W>(…)`** wrapper. A direct **`component UsesWidth<W> { y := double_uW<W>(x) }`** hits **`[E_TYPE_UNKNOWN] Unknown types: LHS=u[W], RHS=unknown`** in the current toolchain; keep that shape in the fence below, not in source, until the checker can type nested generic function applications.
 
 `double_u8` (non-generic) is superseded in the example by `double_uW<8>(…)` to show the width argument on the function name.
 
@@ -595,11 +595,11 @@ A naïve **`component Buf<T>(in x: T, out y: T)`** + **`Buf<u8>(a, b)`** does no
 //   `double_u8` + `UsesWidth8`.
 //
 // Vision (same pattern, **Int** **W**):
-//   component UsesWidth<W>(in x: u<W>, out y: u<W>) {
+//   component UsesWidth<W>(in x: u[W], out y: u[W]) {
 //       y := double_uW(x)   // family of functions you wrote per discipline
 //   }
 //
-// **Comptime**: **W** folds in `u<W>`; **double_uW** is resolved by name at
+// **Comptime**: **W** folds in `u[W]`; **double_uW** is resolved by name at
 // specialization — still **not** a higher-order runtime value (§8).
 // =============================================================================
 ```

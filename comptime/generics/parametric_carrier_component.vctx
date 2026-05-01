@@ -1,13 +1,13 @@
-// Parametric carriers: component ports specialize (`u<W>`).
+// Parametric carriers: component ports specialize (`u[W]`).
 //
 // Graduated from: on_purpose_failures_sim/sim_parametric_carrier_component_should_work.vctx
 
 component AddN<WIDTH>(
-    in a: u<WIDTH>,
-    in b: u<WIDTH>,
-    out y: u<WIDTH>
+    in a: u[WIDTH],
+    in b: u[WIDTH],
+    out y: u[WIDTH]
 ) {
-    y := (a + b) as u<WIDTH>
+    y := (a + b) as u[WIDTH]
 }
 
 sim ParametricCarrierComponent {

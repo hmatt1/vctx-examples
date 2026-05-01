@@ -1,0 +1,21 @@
+// Regression: generic component calls generic function `double_uW<W>` at same width param.
+
+function double_uW<W>(x: u[W]) -> u[W] {
+    return (x + x) as u[W]
+}
+
+component UsesWidth<W>(in x: u[W], out y: u[W]) {
+    y := double_uW<W>(x)
+}
+
+component RootNested(in x: u8, out y: u8) {
+    inner: UsesWidth<8>(x, y)
+}
+
+sim SimNestedGenericDouble {
+    wire x: u8 = 7
+    wire y: u8
+    RootNested(x, y)
+    cycle()
+    assert(y == 14 as u8, "UsesWidth<8> doubles via double_uW<8>")
+}

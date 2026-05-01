@@ -1,8 +1,8 @@
-// Parametric carriers: function signatures specialize (`u<W>`).
+// Parametric carriers: function signatures specialize (`u[W]`).
 //
 // Graduated from: on_purpose_failures_sim/sim_parametric_carrier_function_should_work.vctx
 
-function id_n<W>(x: u<W>) -> u<W> {
+function id_n<W>(x: u[W]) -> u[W] {
     return x
 }
 

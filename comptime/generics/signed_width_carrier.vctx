@@ -1,8 +1,8 @@
-// Parametric signed carrier: `s<W>` add; `SimSignedAdd8` uses `SignedAddW<8>`.
+// Parametric signed carrier: `s[W]` add; `SimSignedAdd8` uses `SignedAddW<8>`.
 // Design notes: `top priority checklist.md` → DOCS.
 
-component SignedAddW<W>(in a: s<W>, in b: s<W>, out sum: s<W>) {
-    sum := (a + b) as s<W>
+component SignedAddW<W>(in a: s[W], in b: s[W], out sum: s[W]) {
+    sum := (a + b) as s[W]
 }
 
 sim SimSignedAdd8 {

@@ -1,7 +1,7 @@
 // Expected failure: generic arguments are comptime-required and must fold.
 // Here the generic argument depends on a runtime input port.
 
-component Id<WIDTH>(in a: u<WIDTH>, out y: u<WIDTH>) {
+component Id<WIDTH>(in a: u[WIDTH], out y: u[WIDTH]) {
     y := a
 }
 

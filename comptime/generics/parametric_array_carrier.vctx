@@ -1,7 +1,7 @@
-component ParametricArrayCarrier<W>(in v: u<W>, out out0: u<W>) {
-    wire arr: u<W>[2]
+component ParametricArrayCarrier<W>(in v: u[W], out out0: u[W]) {
+    wire arr: u[W][2]
     arr[0] := v
-    arr[1] := 0 as u<W>
+    arr[1] := 0 as u[W]
     out0 := arr[0]
 }
 
@@ -10,6 +10,6 @@ sim ParametricArrayCarrierShouldWork {
     wire out0: u8
     ParametricArrayCarrier<8>(v -- v, out0 -- out0)
     cycle()
-    assert(out0 == 7 as u8, "u<W>[2] specialization should retain element value")
+    assert(out0 == 7 as u8, "u[W][2] specialization should retain element value")
 }
 

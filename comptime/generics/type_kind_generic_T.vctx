@@ -1,5 +1,5 @@
 // Stand-in: `u8` identity buffer. Target **Type**-kind generic: `Buf<T>`. `T` is not
-// a width `W` like in `u<W>`. See `top priority checklist.md` → DOCS.
+// a width `W` like in `u[W]`. See `top priority checklist.md` → DOCS.
 
 component BufU8(in x: u8, out y: u8) {
     y := x

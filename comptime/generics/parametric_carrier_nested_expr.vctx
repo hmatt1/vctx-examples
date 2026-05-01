@@ -1,9 +1,9 @@
-// Parametric carriers: nested width expressions like `u<(W+W)>` specialize.
+// Parametric carriers: nested width expressions like `u[(W+W)]` specialize.
 //
 // Graduated from: on_purpose_failures_sim/sim_parametric_carrier_nested_expr_should_work.vctx
 
-component DoubleWidth<W>(in x: u<W>, out y: u<(W + W)>) {
-    y := x as u<(W + W)>
+component DoubleWidth<W>(in x: u[W], out y: u[(W + W)]) {
+    y := x as u[(W + W)]
 }
 
 sim ParametricCarrierNestedExpr {
@@ -11,6 +11,6 @@ sim ParametricCarrierNestedExpr {
     wire y: u8
     DoubleWidth<4>(x -- x, y -- y)
     cycle()
-    assert(y == 0x0A as u8, "u<(W+W)> with W=4 should produce u8 value")
+    assert(y == 0x0A as u8, "u[(W+W)] with W=4 should produce u8 value")
 }
 

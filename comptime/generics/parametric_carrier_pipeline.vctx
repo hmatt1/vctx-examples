@@ -1,13 +1,13 @@
-// Parametric carriers: nested generic components carry `u<W>` through hierarchy.
+// Parametric carriers: nested generic components carry `u[W]` through hierarchy.
 //
 // Graduated from: on_purpose_failures_sim/sim_parametric_carrier_pipeline_should_work.vctx
 
-component PassN<W>(in i: u<W>, out o: u<W>) {
+component PassN<W>(in i: u[W], out o: u[W]) {
     o := i
 }
 
-component PipeN<W>(in x: u<W>, out y: u<W>) {
-    wire t: u<W>
+component PipeN<W>(in x: u[W], out y: u[W]) {
+    wire t: u[W]
     PassN<W>(i -- x, o -- t)
     PassN<W>(i -- t, o -- y)
 }

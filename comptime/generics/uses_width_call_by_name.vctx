@@ -1,8 +1,8 @@
 // Named function family: `double_uW<8>(x)` (not a function value). Wider 8.2 + `UsesWidth<W>`
 // story: `top priority checklist.md` → DOCS; nested `double_uW<W>` in a generic component E_TYPE_UNKNOWN today.
 
-function double_uW<W>(x: u<W>) -> u<W> {
-    return (x + x) as u<W>
+function double_uW<W>(x: u[W]) -> u[W] {
+    return (x + x) as u[W]
 }
 
 component UsesWidth8(in x: u8, out y: u8) {

@@ -1,7 +1,7 @@
-// Teaches: generic `W` in `u<W>`; `(2 + 2)` folds to `4` so `AdderW<(2 + 2)>` is `AdderW<4>` (fold vs monomorph). Table / doc cross-refs: `top priority checklist.md` → DOCS.
+// Teaches: generic `W` in `u[W]`; `(2 + 2)` folds to `4` so `AdderW<(2 + 2)>` is `AdderW<4>` (fold vs monomorph). Table / doc cross-refs: `top priority checklist.md` → DOCS.
 
-component AdderW<W>(in a: u<W>, in b: u<W>, out sum: u<W>) {
-    sum := (a + b) as u<W>
+component AdderW<W>(in a: u[W], in b: u[W], out sum: u[W]) {
+    sum := (a + b) as u[W]
 }
 
 component FoldThenSpecializeDemo(in a: u4, in b: u4, out s: u4) {

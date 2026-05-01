@@ -1,4 +1,4 @@
-// Teaches: packages can still be valid; **runtime values in comptime-only positions** (dims, `u<…>`, generics) are errors—see `on_purpose_failures_check/comptime_forbidden_runtime_position.vctx` and `top priority checklist.md` → DOCS.
+// Teaches: packages can still be valid; **runtime values in comptime-only positions** (dims, `u[…]`, generics) are errors—see `on_purpose_failures_check/comptime_forbidden_runtime_position.vctx` and `top priority checklist.md` → DOCS.
 
 component ConstantLow(out z: u1) {
     z := 0

@@ -1,9 +1,9 @@
-// Parametric carriers: casts between signed/unsigned carriers specialize (`s<W>` → `u<W>`).
+// Parametric carriers: casts between signed/unsigned carriers specialize (`s[W]` → `u[W]`).
 //
 // Graduated from: on_purpose_failures_sim/sim_parametric_signed_cast_should_work.vctx
 
-component ParametricSignedCast<W>(in x: s<W>, out y: u<W>) {
-    y := x as u<W>
+component ParametricSignedCast<W>(in x: s[W], out y: u[W]) {
+    y := x as u[W]
 }
 
 sim SimParametricSignedCast {
