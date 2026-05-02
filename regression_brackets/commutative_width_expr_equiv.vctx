@@ -1,0 +1,16 @@
+// Regression: in templates we defer "possibly equal" parametric widths, and validate after specialization.
+// Example: `u[(W+1)]` and `u[(1+W)]` should be treated as compatible once W is concrete.
+
+component CommuteWidthExpr<W>(in x: u[(W + 1)], out y: u[(1 + W)]) {
+    y := x
+}
+
+sim SimCommuteWidthExpr {
+    // W = 7 => both sides are u8 after specialization
+    wire x: u8 = 0x5A
+    wire y: u8
+    CommuteWidthExpr<7>(x -- x, y -- y)
+    cycle()
+    assert(y == 0x5A as u8, "commutative width expressions should match after specialization")
+}
+

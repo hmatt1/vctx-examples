@@ -1,0 +1,15 @@
+// Expected failure: signedness mismatch on parametric carriers with same abstract width.
+//
+// Primary code: [E_TYPE_SIGN_MISMATCH]
+
+component ParametricSignMismatch<W>(in x: s[W], out y: u[W]) {
+    y := x
+}
+
+sim SimParametricSignMismatch {
+    wire x: s8 = -1
+    wire y: u8
+    ParametricSignMismatch<8>(x -- x, y -- y)
+    cycle()
+}
+
