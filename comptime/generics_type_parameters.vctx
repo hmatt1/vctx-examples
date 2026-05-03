@@ -1,4 +1,4 @@
-// Teaches: comptime `Int` generic parameters on components/functions, `Target<arg>(...)`, and nested `Pass[W]`. Ports use fixed-width carriers; `WIDTH` in `u[WIDTH]` on ports is covered elsewhere — `top priority checklist.md` → DOCS.
+// Teaches: comptime `Int` generic parameters on components/functions, `Target<arg>(...)`, and nested `Pass<W>`. Ports use fixed-width carriers; `WIDTH` in `u[WIDTH]` on ports is covered elsewhere — `top priority checklist.md` → DOCS.
 
 // `WIDTH` / `W` / `IN_W` specialize the module; bodies use `u8` / `u16` / `u4` as written.
 component Adder<WIDTH>(
@@ -49,14 +49,14 @@ component GenericUser(
     WidenThenAdd<4, 8>(x -- xc, y -- xd, z -- widened)
 }
 
-component Pass[W](in inp: u12, out outp: u12) {
+component Pass<W>(in inp: u12, out outp: u12) {
     outp := inp
 }
 
 component PipelineStage<W>(in x: u12, out y: u12) {
     wire t: u12
-    Pass[W](inp -- x, outp -- t)
-    Pass[W](inp -- t, outp -- y)
+    Pass<W>(inp -- x, outp -- t)
+    Pass<W>(inp -- t, outp -- y)
 }
 
 component FixedWidthPipeline(in v: u12, out w: u12) {
@@ -93,7 +93,7 @@ sim SimFixedWidthPipeline {
     wire w: u12
     FixedWidthPipeline(v, w)
     cycle()
-    assert(w == 0xABC as u12, "two-stage Pass[12] is identity for data")
+    assert(w == 0xABC as u12, "two-stage Pass<12> is identity for data")
 }
 
 sim SimZeroExtendGeneric {

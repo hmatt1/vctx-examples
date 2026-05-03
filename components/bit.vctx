@@ -1,6 +1,7 @@
 component Gate(out y: u8, out b: u7) {
     wire a: u8 = 25
     y := a
+    b := (a as u7)
 }
 
 

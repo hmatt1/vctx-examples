@@ -1,0 +1,27 @@
+// Parent `out` is driven only by `Child` under `when`; hold is 0 when `sel` does not select that arm.
+
+component Child(out q: u1) {
+  q := 1 as u1
+}
+
+component Parent(out o: u1, in sel: u1) {
+  when sel == 1 {
+    Child(q -- o)
+  }
+}
+
+sim SimHoldWhenInactive {
+  wire sel: u1 = 0 as u1
+  wire o: u1
+  Parent(o, sel)
+  cycle()
+  assert(o == 0 as u1, "out holds 0 when child arm inactive")
+}
+
+sim SimChildSelectedDrivesOut {
+  wire sel: u1 = 1 as u1
+  wire o: u1
+  Parent(o, sel)
+  cycle()
+  assert(o == 1 as u1, "child drives out when arm active")
+}

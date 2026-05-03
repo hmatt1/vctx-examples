@@ -30,6 +30,7 @@ A related issue is **commented-out vctx source** (`/* … */` or commented “wo
 - [x] `comptime/generics/uses_width_call_by_name.vctx`
 - [x] `comptime/generics/wrap_inner_component.vctx`
 - [x] `lessons/memory_without_arrays.vctx`
+- [x] `components/out_hold_when_instance_inactive.vctx` (module `out` from child under `when`; sims cover hold vs selected arm)
 
 ---
 
