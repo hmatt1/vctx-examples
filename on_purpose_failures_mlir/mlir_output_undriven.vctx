@@ -1,0 +1,6 @@
+// Expected: ``vctx check`` may succeed; ``vctx mlir`` fails with ``[E_MLIR_OUTPUT_UNDRIVEN]``
+// (strict elaboration: every module output must be driven).
+
+component MlirOutputUndrivenHarness(out z: u8, out w: u8) {
+  z := 1 as u8
+}

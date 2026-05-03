@@ -1,0 +1,13 @@
+// Expected: ``vctx check`` succeeds; ``vctx mlir`` fails with ``[E_MLIR_INSTANCE_INPUT_UNCONNECTED]``
+// (strict elaboration: positional instance omits later ports → missing inputs must not lower to implicit 0).
+
+component Tri(in a: u8, in b: u8, out y: u8) {
+  y := (a + b) as u8
+}
+
+component MlirInstanceInputMissingHarness(out z: u8) {
+  wire x: u8 = 1 as u8
+  wire o: u8
+  Tri(x)
+  z := o
+}
