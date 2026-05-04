@@ -1,0 +1,26 @@
+// Teaches: ``Type`` generic actuals with concrete array spellings — ``u8[n]`` and ``bool[n]``.
+// Compiler: substitution + port checks align on ``TypeInfo.from_string``; see docs ``generics.md``.
+
+component VecId<Type T>(in x: T, out y: T) {
+    y := x
+}
+
+component BoolVecId<Type T>(in x: T, out y: T) {
+    y := x
+}
+
+sim SimU8VecTypeGeneric {
+    wire a: u8[2] = 0
+    wire b: u8[2] = 0
+    VecId<u8[2]>(x -- a, y -- b)
+    cycle()
+    assert(true, "u8[2] type generic pass-through")
+}
+
+sim SimBoolVecTypeGeneric {
+    wire a: bool[4] = 0
+    wire b: bool[4] = 0
+    BoolVecId<bool[4]>(x -- a, y -- b)
+    cycle()
+    assert(true, "bool[4] type generic pass-through")
+}

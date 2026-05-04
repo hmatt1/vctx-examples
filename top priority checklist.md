@@ -27,6 +27,7 @@ A related issue is **commented-out vctx source** (`/* … */` or commented “wo
 - [x] `comptime/generics/function_vs_component_width.vctx`
 - [x] `comptime/generics/signed_width_carrier.vctx`
 - [x] `comptime/generics/type_kind_generic_T.vctx`
+- [x] `comptime/generics/type_generic_array_and_bool_actual.vctx` (`Type` actuals: `u8[n]`, `bool[n]`)
 - [x] `comptime/generics/uses_width_call_by_name.vctx`
 - [x] `comptime/generics/wrap_inner_component.vctx`
 - [x] `lessons/memory_without_arrays.vctx`
