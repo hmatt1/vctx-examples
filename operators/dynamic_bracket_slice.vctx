@@ -1,3 +1,5 @@
+// spec: §7, §7.5, §8.7
+// expect: pass
 component DynBracketSlice(in hi: u4, in lo: u4, in w: u16, out z: u8) {
     z := w[hi..lo]
 }

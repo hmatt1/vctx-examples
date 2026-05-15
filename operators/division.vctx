@@ -1,3 +1,5 @@
+// spec: §7, §7.5, §8.7
+// expect: pass
 sim TestDivision {
     wire a: u8 = 20
     wire b: u8 = 5

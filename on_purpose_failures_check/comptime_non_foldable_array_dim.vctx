@@ -1,3 +1,5 @@
+// spec: §8.4
+// expect: fail check [E_COMPTIME_REQUIRED]
 // Expected failure: array dimension is comptime-required and must fold.
 // Here the dimension depends on a runtime input port.
 

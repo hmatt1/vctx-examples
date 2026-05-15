@@ -1,3 +1,5 @@
+// spec: §5.6, §10.3, §18
+// expect: pass
 // Smoke: L3 ``Int N`` generic parameter syntax + symbol ``generic_params`` metadata.
 // Instantiates with a comptime Int argument (no parametric port types in this file).
 

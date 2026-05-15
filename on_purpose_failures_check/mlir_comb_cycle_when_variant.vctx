@@ -1,3 +1,5 @@
+// spec: §16
+// expect: fail check [E_COMB_LOOP]
 // Expected failure: combinational cycle expressed through `when`-driven wires.
 // In the `when true` arms, `a` depends on `b` and `b` depends on `a` in the same cycle.
 

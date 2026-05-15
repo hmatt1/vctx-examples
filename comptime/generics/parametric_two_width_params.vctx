@@ -1,3 +1,5 @@
+// spec: §10.3, §10.4, §10.5
+// expect: pass
 // Parametric carriers: two independent Int params `A`, `B` in `u[A]`, `u[B]`, `u[(A+B)]`.
 //
 // Graduated from: on_purpose_failures_sim/sim_parametric_two_width_params_should_work.vctx

@@ -1,3 +1,5 @@
+// spec: §7, §7.5, §8.7
+// expect: pass
 // In vctx, `<=` is **register next-state** (sequential), not "less than or equal".
 // For comparisons, use `<` `>` `==` `!==` and the chained spellings **`<==`** and **`>==`**
 // for inclusive bounds.

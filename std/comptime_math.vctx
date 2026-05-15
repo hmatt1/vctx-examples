@@ -1,3 +1,5 @@
+// spec: §12
+// expect: pass
 // Minimal stdlib-style comptime helpers.
 // In the future, this can become `std.math` or similar; for now keep it small and explicit.
 

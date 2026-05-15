@@ -1,3 +1,5 @@
+// spec: §5.7, §6.3, §6.7
+// expect: pass
 // ==== registers_and_sequential.vctx ====
 
 // ==========================================

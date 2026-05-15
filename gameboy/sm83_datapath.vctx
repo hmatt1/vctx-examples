@@ -1,3 +1,5 @@
+// spec: §2
+// expect: pass
 // SM83 execute slice: register file + ALU8 + ALU→RF exec ports.
 //
 // The register file muxes exec_d16 / exec_f_byte on the bus (see SM83RegisterFile).

@@ -1,3 +1,5 @@
+// spec: §5.1
+// expect: pass
 // Parent `out` is driven only by `Child` under `when`; hold is 0 when `sel` does not select that arm.
 
 component Child(out q: u1) {

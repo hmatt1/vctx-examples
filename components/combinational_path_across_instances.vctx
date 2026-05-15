@@ -1,3 +1,5 @@
+// spec: §5.1
+// expect: pass
 // Combinational fetch split across instances: shared `PcOnly` (registered PC) and
 // combinational `TinyRom`. The datapath is always: current PC (register Q) → address into
 // ROM → instruction byte. None of these patterns closes a combinational loop; insn only

@@ -1,3 +1,5 @@
+// spec: §16
+// expect: fail mlir [E_MLIR_FIELD_ACCESS_UNSUPPORTED]
 // Expected: ``vctx check`` succeeds; ``vctx mlir`` fails with
 // ``[E_MLIR_FIELD_ACCESS_UNSUPPORTED]`` (unknown ``Slice`` postfix field: only ``.bits`` / ``.span`` lower today).
 

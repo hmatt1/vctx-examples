@@ -1,0 +1,30 @@
+// spec: §3.4
+// expect: fail check
+// Test case for Phase 1: Lexical Generics & Whitespace
+// This file contains syntax that should be supported according to the spec
+// but is currently rejected by the parser.
+
+component Adder<Int W>(in a: u[W], in b: u[W], out sum: u[W]) {
+    sum := a + b
+}
+
+component Top() {
+    wire x: u8 = 10
+    wire y: u8 = 20
+    wire z1: u8
+    wire z2: u8
+    wire z3: u [ 8 ] // Spaced carrier (Spec gap)
+
+    // Whitespace around generic delimiters (Spec gap)
+    // Adder < 8 > (a -- x, b -- y, sum -- z1)
+    
+    // Unparenthesized expression in generic argument (Spec gap)
+    Adder<4 + 4>(a -- x, b -- y, sum -- z2)
+
+    z3 := z1 + z2
+}
+
+sim TestWhitespace {
+    Top()
+    cycle()
+}

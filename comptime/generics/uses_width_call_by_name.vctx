@@ -1,3 +1,5 @@
+// spec: §10.3, §10.4, §10.5
+// expect: pass
 // Named function family: `double_uW<8>(x)` (not a function value). Wider 8.2 + `UsesWidth<W>`
 // story: `top priority checklist.md` → DOCS; nested `double_uW<W>` in a generic component E_TYPE_UNKNOWN today.
 

@@ -1,3 +1,5 @@
+// spec: §5.6, §10.3, §18
+// expect: pass
 // Teaches: comptime `Int` generic parameters on components/functions, `Target<arg>(...)`, and nested `Pass<W>`. Ports use fixed-width carriers; `WIDTH` in `u[WIDTH]` on ports is covered elsewhere — `top priority checklist.md` → DOCS.
 
 // `WIDTH` / `W` / `IN_W` specialize the module; bodies use `u8` / `u16` / `u4` as written.

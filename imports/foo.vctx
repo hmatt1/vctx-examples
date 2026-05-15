@@ -1,3 +1,5 @@
+// spec: §4.2
+// expect: pass
 import imports.utils.constant as c
 
 component MyConstOne(

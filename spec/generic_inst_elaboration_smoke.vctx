@@ -1,0 +1,16 @@
+// spec: §10.3
+// expect: pass
+// Smoke: generic instance where Int actuals fully fold — static check runs the same
+// carrier specialization probe as MLIR (see core._generic_instance_elaboration_probe).
+
+component PassWidth<W>(in a: u[W], out b: u[W]) {
+    b := a
+}
+
+sim SimGenericInstElaborationSmoke {
+    wire x: u8 = 0x3C as u8
+    wire y: u8
+    PassWidth<8>(a -- x, b -- y)
+    cycle()
+    assert(y == 0x3C as u8, "generic width elaboration smoke")
+}

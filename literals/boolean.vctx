@@ -1,3 +1,5 @@
+// spec: §3.5, §8.6
+// expect: pass
 sim TestBoolTrue {
     wire val: bool = true
     assert(val == true, "Boolean true assertion")

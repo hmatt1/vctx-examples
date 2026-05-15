@@ -1,3 +1,5 @@
+// spec: §7, §7.5, §8.7
+// expect: pass
 component CastU8ToU16(in a: u8, out y: u16) {
     y := a as u16
 }

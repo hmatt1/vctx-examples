@@ -1,3 +1,5 @@
+// spec: §5.6, §10.3, §18
+// expect: pass
 // Teaches: array dimensions `u8[N]` with literals, hex/binary, underscores, and folded comptime expr `(2+2)`. (Rules / illegal forms: `top priority checklist.md` → DOCS.)
 
 component ArrayDimLiterals(out lo: u1, out mid: u1, out hi: u1) {

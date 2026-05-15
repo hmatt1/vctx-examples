@@ -1,3 +1,5 @@
+// spec: §7, §7.5, §8.7
+// expect: pass
 sim TestRelational {
     wire a: u8 = 10
     wire b: u8 = 20

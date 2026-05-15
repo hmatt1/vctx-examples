@@ -1,0 +1,6 @@
+// spec: §5.1
+// expect: pass check; fail mlir [E_MLIR_INOUT_PORT_UNSUPPORTED]
+// ``inout`` on a port: readable on the RHS like ``in``; MLIR lowering is deferred (see ``E_MLIR_INOUT_PORT_UNSUPPORTED``).
+component PassThru(inout pin: u8, out q: u8) {
+    q := pin
+}

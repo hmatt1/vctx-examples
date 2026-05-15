@@ -1,0 +1,6 @@
+// spec: §16
+// expect: fail check [E_OUTPUT_PORT_UNDRIVEN]
+// Parity harness: check may pass; MLIR fails with E_MLIR_OUTPUT_UNDRIVEN (``w`` undriven).
+component ParityEmitOutputUndrivenHarness(out z: u8, out w: u8) {
+    z := 1 as u8
+}

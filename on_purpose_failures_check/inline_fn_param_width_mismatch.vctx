@@ -1,0 +1,17 @@
+// spec: §5.5
+// expect: fail check [E_WIDTH_MISMATCH]
+// Param binding after specialization: u9 actual into u[W]/u8 formal — must fail at emit if check defers.
+function take<W>(x: u[W]) -> u[W] {
+    return x
+}
+
+component InlineBadParam<W>(in a: u[(W + 1)], out y: u[W]) {
+    y := take<W>(a)
+}
+
+sim SimInlineBadParam {
+    wire din: u9 = 0
+    wire dout: u8
+    InlineBadParam<8>(din, dout)
+    cycle()
+}

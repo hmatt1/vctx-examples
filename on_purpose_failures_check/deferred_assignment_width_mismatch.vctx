@@ -1,0 +1,13 @@
+// spec: §9.2, §10.3
+// expect: fail check [E_WIDTH_MISMATCH]
+// Intentionally bad: template defers `u[W]` vs `u[(W+1)]`; after W=8 this is u8 := u9.
+component BadDeferredAssign<W>(in x: u[(W + 1)], out y: u[W]) {
+    y := x
+}
+
+sim SimBadDeferredAssign {
+    wire din: u9 = 0
+    wire dout: u8
+    BadDeferredAssign<8>(din, dout)
+    cycle()
+}

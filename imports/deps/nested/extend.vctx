@@ -1,3 +1,5 @@
+// spec: §4.2
+// expect: pass
 // Nested package `imports.deps.nested.extend` — exercises deeper path + alias in consumers.
 
 component PadLoNibble(in hi: u4, out word: u8) {

@@ -1,3 +1,5 @@
+// spec: §7, §7.5, §8.7
+// expect: pass
 sim TestNotBool {
     wire t: bool = true
     wire f: bool = false

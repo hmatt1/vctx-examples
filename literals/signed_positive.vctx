@@ -1,3 +1,5 @@
+// spec: §3.5, §8.6
+// expect: pass
 sim TestS8 {
     wire val: s8 = 127
     assert(val == 127, "s8 max value assertion")

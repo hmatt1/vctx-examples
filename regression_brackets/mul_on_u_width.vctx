@@ -1,3 +1,5 @@
+// spec: §10.3, §10.10
+// expect: pass
 // Regression: generic `*` on parametric carrier `u[W]` (bracket width).
 
 function scale_uW<W>(x: u[W], k: u[W]) -> u[W] {

@@ -1,3 +1,5 @@
+// spec: §5.5, §7.3
+// expect: pass
 function id_ty<Type T>(x: T) -> T {
     return x
 }

@@ -1,3 +1,5 @@
+// spec: §6.3
+// expect: fail check [E_ASSIGN_OP_INVALID]
 // Intentional misuse: `:=` is for combinational drives (`wire`, driving `out` ports).
 // Registers must use `<=` so next-state is explicit. The compiler should error on `:=`
 // to a `reg` with a clear message (parser allows both operators).

@@ -1,3 +1,5 @@
+// spec: §2
+// expect: pass
 // SM83 (Game Boy) register file: A, F, B, C, D, E, H, L, SP, PC.
 // https://gbdev.io/pandocs/CPU_Registers_and_Flags.html
 //

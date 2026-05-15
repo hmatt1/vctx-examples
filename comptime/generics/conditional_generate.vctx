@@ -1,3 +1,5 @@
+// spec: §10.3, §10.4, §10.5
+// expect: pass
 // Teaches: two stand-in components with different register widths (`u4` vs `u8`) for “small vs big” storage; real comptime `if`/generate-style pick is not implemented here — `top priority checklist.md` → DOCS.
 
 // Minimal counter-like register; small width.

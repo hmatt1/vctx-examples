@@ -1,0 +1,14 @@
+// spec: §5.1
+// expect: fail check [E_PORT_WIDTH_MISMATCH]
+component Tee<Type T>(inout x: T, out y: T, out z: T) {
+    y := x
+    z := x
+}
+
+sim SimInoutGenericWidthMismatch {
+    wire a: u8[2] = 0
+    wire b: u8[2] = 0
+    wire narrow: u8 = 0
+    Tee<u8[2]>(x -- a, y -- b, z -- narrow)
+    cycle()
+}

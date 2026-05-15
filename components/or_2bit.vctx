@@ -1,3 +1,5 @@
+// spec: §5.1
+// expect: pass
 component OrGate1(in a: u2, in b: u2, out y: u2) {
     y := a | b
 }

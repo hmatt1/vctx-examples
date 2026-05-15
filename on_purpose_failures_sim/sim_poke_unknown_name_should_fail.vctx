@@ -1,3 +1,5 @@
+// spec: §12.2, §15
+// expect: fail sim [E_UNKNOWN_IDENTIFIER]
 // Expected failure: first argument to poke() must resolve to a pokeable harness wire.
 // Here `ghost` does not resolve — diagnosed as an unknown identifier before MLIR.
 

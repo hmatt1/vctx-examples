@@ -1,3 +1,5 @@
+// spec: §12.2, §13
+// expect: fail sim [E_SIM_ASSERTION_FAILED]
 // Expected failure: pass initially, then poke causes an assertion failure.
 
 component PokeDut(in a: u4, out y: u4) {

@@ -1,3 +1,5 @@
+// spec: §10.3, §10.4, §10.5
+// expect: pass
 // Parametric carriers: `width(u[W])` folds after specialization.
 //
 // Graduated from: on_purpose_failures_sim/sim_parametric_width_intrinsic_should_work.vctx

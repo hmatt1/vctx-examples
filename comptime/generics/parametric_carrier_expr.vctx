@@ -1,3 +1,5 @@
+// spec: §10.3, §10.4, §10.5
+// expect: pass
 // Parametric carriers: derived carrier width expressions like `u[(W+1)]` specialize.
 //
 // Graduated from: on_purpose_failures_sim/sim_parametric_carrier_expr_should_work.vctx

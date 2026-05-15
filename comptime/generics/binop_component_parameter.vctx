@@ -1,3 +1,5 @@
+// spec: §10.3, §10.4, §10.5
+// expect: pass
 // Teaches: wire a “binop” as a small component (`Add84`) and use it from a wrapper (`UseBinOpAdd`). Functor / `M : Component` story: `top priority checklist.md` → DOCS.
 
 component Add84(in a: u4, in b: u4, out r: u4) {

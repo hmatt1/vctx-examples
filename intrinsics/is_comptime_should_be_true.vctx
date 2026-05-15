@@ -1,3 +1,5 @@
+// spec: §12.1, §12.2
+// expect: pass
 // Intrinsics: is_comptime() reports 1 for constant-folded expressions.
 //
 // Graduated from: on_purpose_failures_sim/sim_intrinsics_is_comptime_should_work.vctx

@@ -1,0 +1,15 @@
+// spec: §9.3, §10.4
+// expect: fail check [E_PORT_WIDTH_MISMATCH]
+// Regression: generic instance *output* connections must use PortMatchKey (same as inputs).
+component Tee<Type T>(in x: T, out y: T, out z: T) {
+    y := x
+    z := x
+}
+
+sim SimGenericInstOutPortWidthMismatch {
+    wire a: u8[2] = 0
+    wire b: u8[2] = 0
+    wire narrow: u8 = 0
+    Tee<u8[2]>(x -- a, y -- b, z -- narrow)
+    cycle()
+}

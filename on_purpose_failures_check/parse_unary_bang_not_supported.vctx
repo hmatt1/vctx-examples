@@ -1,3 +1,5 @@
+// spec: §7
+// expect: fail check [E_PARSE]
 // Expected failure: unary `!` is not supported in vctx (use `not` or `~`).
 
 component UnaryBangNotSupported(out y: u1) {

@@ -1,3 +1,5 @@
+// spec: §16
+// expect: fail mlir [E_MLIR_OUTPUT_UNDRIVEN]
 // Expected: ``vctx check`` may succeed; ``vctx mlir`` fails with ``[E_MLIR_OUTPUT_UNDRIVEN]``
 // (strict elaboration: every module output must be driven).
 

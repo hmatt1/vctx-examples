@@ -1,3 +1,5 @@
+// spec: §7, §7.5, §8.7
+// expect: pass
 // Concat: concat(high, low) packs into a wider integer.
 //
 // Graduated from: on_purpose_failures_sim/sim_concat_basic_should_work.vctx

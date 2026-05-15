@@ -1,0 +1,8 @@
+// spec: §3.4, §7
+// expect: pass
+component Top() {
+    wire x: u8 = 10
+    wire y: u8 = 20
+    wire z: bool
+    z := x<y // Should fail if my theory is correct
+}

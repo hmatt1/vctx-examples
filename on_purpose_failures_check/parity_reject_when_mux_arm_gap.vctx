@@ -1,0 +1,14 @@
+// spec: §6.4
+// expect: fail check [E_WHEN_MUX_IMPLICIT_ZERO]
+// Parity: instance only in one when arm — check: E_WHEN_MUX_IMPLICIT_ZERO; emit also fails (no zero-fill)
+component Sub(in a: u1, out b: u1) {
+    b := a
+}
+
+component ParityWhenMuxArmGap(in sel: u1, out o: u1) {
+    when sel {
+        u: Sub(a -- sel, b -- o)
+    } otherwise {
+        o := 0 as u1
+    }
+}

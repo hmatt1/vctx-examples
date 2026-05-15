@@ -1,3 +1,5 @@
+// spec: §5.5, §7.3
+// expect: pass
 // User functions may contain `when`, `reg` (sequential updates), and component instances.
 // Each call site inlines a copy; registers and instances are duplicated per call.
 

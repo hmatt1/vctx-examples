@@ -1,3 +1,5 @@
+// spec: §4.2
+// expect: fail check [E_IMPORT_SYMBOL_NOT_FOUND]
 // Expected failure: import a real package, then reference a missing symbol from it.
 
 import imports.foo as f

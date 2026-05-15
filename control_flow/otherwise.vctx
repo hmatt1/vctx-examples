@@ -1,3 +1,5 @@
+// spec: §6.4
+// expect: pass
 
 component Foo(
     in enable: bool,

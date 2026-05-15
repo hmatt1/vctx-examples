@@ -1,0 +1,21 @@
+// spec: §6.4, §13.2, §16
+// expect: pass
+// Regression: module out driven only by instance inside when — driver completion prepends hold value.
+
+component Child(out q: u1) {
+  q := 1 as u1
+}
+
+component Parent(out o: u1, in sel: u1) {
+  when sel == 1 {
+    Child(q -- o)
+  }
+}
+
+sim SimInstOutWhen {
+  wire sel: u1 = 0 as u1
+  wire o: u1
+  Parent(o, sel)
+  cycle()
+  assert(o == 0 as u1, "hold 0 when arm inactive")
+}

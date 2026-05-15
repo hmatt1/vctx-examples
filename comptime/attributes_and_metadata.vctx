@@ -1,3 +1,5 @@
+// spec: §5.2, §5.6, §10.3, §18
+// expect: pass
 // Teaches: `@top` on a component parses; `AttribComptimeStub` + `AttribComptimeSimFast` are runnable sim smokes. Attribute expression semantics (e.g. `@frequency(…)`) is still evolving—see `top priority checklist.md` → DOCS.
 
 @top

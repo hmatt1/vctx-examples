@@ -1,3 +1,5 @@
+// spec: §6.4
+// expect: pass
 
 component CombinedRamAtC000(in addr: u16, in wen: bool, in wdata: u8, out raw: u8) {
     reg m: u8 = 0

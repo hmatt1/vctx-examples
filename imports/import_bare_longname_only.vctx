@@ -1,3 +1,5 @@
+// spec: §4.2
+// expect: pass
 // Bare import only (no `as`): instantiate with the full dotted import path as prefix.
 
 import imports.deps.mux_lib

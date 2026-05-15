@@ -1,3 +1,5 @@
+// spec: §8.3
+// expect: fail check [E_COMPTIME_REQUIRED]
 // Expected failure: carrier width `u[WIDTH]` is comptime-required and must fold.
 // Here WIDTH depends on a runtime input port.
 

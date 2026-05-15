@@ -1,3 +1,5 @@
+// spec: §5.6, §10.3, §18
+// expect: pass
 // Teaches: packages can still be valid; **runtime values in comptime-only positions** (dims, `u[…]`, generics) are errors—see `on_purpose_failures_check/comptime_forbidden_runtime_position.vctx` and `top priority checklist.md` → DOCS.
 
 component ConstantLow(out z: u1) {

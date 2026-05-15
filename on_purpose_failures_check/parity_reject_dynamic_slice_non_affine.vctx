@@ -1,0 +1,6 @@
+// spec: §7.6
+// expect: fail check [E_DYNAMIC_SLICE_UNSUPPORTED]
+// Parity: non-affine Slice span — check: E_DYNAMIC_SLICE_UNSUPPORTED; MLIR: affine / dynamic path failure
+component ParityDynSliceNonAffine(in w: u8, in a: u8, in b: u8, out z: u1) {
+    z := Slice(w, a, b) as u1
+}

@@ -1,3 +1,5 @@
+// spec: §2
+// expect: pass
 // SM83 instruction decoder + micro-sequencer (fetch + execute) for a subset of opcodes.
 //
 // Fetches one byte per cycle at PC (cartridge read via sm83_mem_bus), then runs 1–2 execute cycles for

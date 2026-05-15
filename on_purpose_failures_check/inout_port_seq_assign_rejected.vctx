@@ -1,0 +1,5 @@
+// spec: §5.1, §6.3
+// expect: fail check [E_ASSIGN_OP_INVALID]
+component BadSeq(inout io: u8) {
+    io <= 0
+}

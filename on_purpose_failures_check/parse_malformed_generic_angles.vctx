@@ -1,3 +1,5 @@
+// spec: §10.1
+// expect: fail check [E_PARSE]
 // Expected failure: malformed generic argument list (`Foo<>(...)` has no args).
 
 component MalformedGenericAngles(out y: u1) {

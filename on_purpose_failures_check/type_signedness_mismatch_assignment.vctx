@@ -1,3 +1,5 @@
+// spec: §9.2
+// expect: fail check [E_TYPE_SIGN_MISMATCH]
 // Expected failure: assign signed to unsigned (same bit width) without a cast.
 
 component SignMismatch(in x: s8, out y: u8) {

@@ -1,3 +1,5 @@
+// spec: §10.3, §10.4, §10.5
+// expect: pass
 component ParametricArrayCarrier<W>(in v: u[W], out out0: u[W]) {
     wire arr: u[W][2]
     arr[0] := v

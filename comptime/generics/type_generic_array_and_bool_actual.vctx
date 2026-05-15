@@ -1,3 +1,5 @@
+// spec: §10.3, §10.4, §10.5
+// expect: pass
 // Teaches: ``Type`` generic actuals with concrete array spellings — ``u8[n]`` and ``bool[n]``.
 // Compiler: substitution + port checks align on ``TypeInfo.from_string``; see docs ``generics.md``.
 

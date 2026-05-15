@@ -1,3 +1,5 @@
+// spec: §5.6, §10.3, §18
+// expect: pass
 // Comptime container values: Array + Map + strict Bool conditions.
 
 comptime arr_demo() -> u32 {

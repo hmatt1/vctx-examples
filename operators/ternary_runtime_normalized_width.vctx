@@ -1,3 +1,5 @@
+// spec: §7, §7.5, §8.7
+// expect: pass
 component TernaryRuntimeNormalizedWidth(in c: bool, out z: u8) {
     wire tmp: u16
     tmp := c ? (1 as u16) : (2 as u16)

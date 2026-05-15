@@ -1,3 +1,5 @@
+// spec: §2
+// expect: pass
 // Authentic8-bit SM83-style ALU (Game Boy CPU).
 // https://gbdev.io/pandocs/CPU_Registers_and_Flags.html
 //

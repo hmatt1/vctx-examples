@@ -1,3 +1,5 @@
+// spec: §16
+// expect: fail check [E_COMB_LOOP]
 // Expected failure: pure combinational loop (alternate shape: 3-node cycle).
 
 component CombLoopIllegal3(out o: u1) {

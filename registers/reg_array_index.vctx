@@ -1,3 +1,5 @@
+// spec: §6.3
+// expect: pass
 component RegArray(out x: u8) {
     reg a: u8[4] = 0
     a[0] <= 7 as u8

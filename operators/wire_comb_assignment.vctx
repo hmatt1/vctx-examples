@@ -1,3 +1,5 @@
+// spec: §7, §7.5, §8.7
+// expect: pass
 component WireCombAssign(out w: u8) {
     w := 1 as u8
 }

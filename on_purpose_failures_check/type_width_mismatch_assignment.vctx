@@ -1,3 +1,5 @@
+// spec: §9.2
+// expect: fail check [E_WIDTH_MISMATCH]
 // Expected failure: width mismatch on assignment without an explicit cast.
 
 component WidthMismatchAssignment(out q: u8) {

@@ -1,3 +1,5 @@
+// spec: §4.2
+// expect: fail check [E_IMPORT_ALIAS_COLLISION]
 // Expected failure: two imports use the same local binding name.
 
 import on_purpose_failures_check.resolve_unknown_identifier as d

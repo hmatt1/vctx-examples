@@ -1,3 +1,5 @@
+// spec: §4.2
+// expect: pass
 // Transitive import chain: this file pulls in mux + nested extend; sims can import only `lane_pair`.
 
 import imports.deps.mux_lib as mx

@@ -1,3 +1,5 @@
+// spec: §16
+// expect: fail check [E_COMB_LOOP]
 // Expected-to-fail check: pure combinational loop (no registers)
 
 component CombLoopIllegal(out o: u1) {

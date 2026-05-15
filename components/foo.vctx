@@ -1,3 +1,5 @@
+// spec: §5.1
+// expect: pass
 import components.utils.math as math
 
 component MyFoo(

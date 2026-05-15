@@ -1,3 +1,5 @@
+// spec: §2
+// expect: pass
 // 8-bit memory bus (SM83 / Game Boy style): 16-bit address, byte-wide data, ren/wen.
 //
 // Provides: cartridge test ROM images, a gated read port, and small writable stubs:

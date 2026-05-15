@@ -1,3 +1,5 @@
+// spec: §5.6, §10.3, §18
+// expect: pass
 comptime size_three() -> u32 {
     let a = [1, 2, 3]
     return (len(a) as u32)

@@ -1,3 +1,5 @@
+// spec: §5.5, §7.3
+// expect: pass
 // Nested user function calls (each call is inlined at the use site).
 
 function half_u8(x: u8) -> u8 {

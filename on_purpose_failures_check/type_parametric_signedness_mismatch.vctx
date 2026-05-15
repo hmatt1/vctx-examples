@@ -1,3 +1,5 @@
+// spec: §9.2
+// expect: fail check [E_TYPE_SIGN_MISMATCH]
 // Expected failure: signedness mismatch on parametric carriers with same abstract width.
 //
 // Primary code: [E_TYPE_SIGN_MISMATCH]

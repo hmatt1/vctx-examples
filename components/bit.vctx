@@ -1,3 +1,5 @@
+// spec: §5.1
+// expect: pass
 component Gate(out y: u8, out b: u7) {
     wire a: u8 = 25
     y := a

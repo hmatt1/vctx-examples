@@ -1,3 +1,5 @@
+// spec: §5.6, §10.3, §18
+// expect: pass
 // Teaches: `width`, `is_signed` (via width on signed), `is_comptime` on literals vs reg. (Semantics / L2 vs L0: `top priority checklist.md` → DOCS.)
 
 component IntrinsicWidth(in a: u16, in b: s8, out wa: u32, out wb: u32) {

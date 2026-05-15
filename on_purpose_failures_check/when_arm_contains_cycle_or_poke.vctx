@@ -1,3 +1,5 @@
+// spec: §6.4, §6.8
+// expect: fail check [E_ILLEGAL_STATEMENT_IN_WHEN]
 // Expected failure: cycle() is not allowed inside a hardware when arm.
 
 component WhenCycle(out o: u1) {

@@ -1,3 +1,5 @@
+// spec: §7, §7.5, §8.7
+// expect: pass
 // Concat: variadic concat of four u4 nibbles into u16 (0xABCD).
 //
 // Graduated from: on_purpose_failures_sim/sim_concat_variadic_should_work.vctx

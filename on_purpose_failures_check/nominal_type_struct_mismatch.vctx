@@ -1,0 +1,27 @@
+// spec: §2.1, §5.3, §8.5, §9, §9.1
+// expect: fail check [E_TYPE_MISMATCH]
+// Test case for Phase 4: Nominal Type Equivalence
+// This file tests that identically structured structs are NOT duck-typed.
+
+struct Point2D {
+    x: u8,
+    y: u8
+}
+
+struct Velocity2D {
+    x: u8,
+    y: u8
+}
+
+component Top() {
+    wire pos: Point2D
+    wire vel: Velocity2D
+    
+    // Assignment between different nominal types (Spec gap - should fail)
+    vel := pos
+}
+
+sim TestNominal {
+    Top()
+    cycle()
+}

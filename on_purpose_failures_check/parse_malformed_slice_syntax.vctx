@@ -1,3 +1,5 @@
+// spec: §7.6
+// expect: fail check [E_PARSE]
 // Expected failure: malformed slice syntax (`x[..3]` is not valid).
 
 component MalformedSliceSyntax(out y: u1) {

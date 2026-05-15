@@ -1,3 +1,5 @@
+// spec: §8.3, §17
+// expect: fail check [E_COMPTIME_NEGATIVE_WIDTH]
 // Expected failure: parametric carrier width folds to a non-positive integer.
 
 component BadWidth(out o: u1) {

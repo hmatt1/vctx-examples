@@ -1,3 +1,5 @@
+// spec: §8.4
+// expect: fail check [E_COMPTIME_NEGATIVE_DIM]
 // Expected failure: array dimension folds to a non-positive integer.
 
 component BadDim(out o: u1) {

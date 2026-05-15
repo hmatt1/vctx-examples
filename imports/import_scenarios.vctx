@@ -1,3 +1,5 @@
+// spec: §4, §4.1, §4.2, §15.2
+// expect: pass
 // Import scenarios with `sim` tests (aliases, nested paths, transitive deps).
 //
 // Existing `imports/foo.vctx` + `imports/utils/constant.vctx` stay minimal; this file is the

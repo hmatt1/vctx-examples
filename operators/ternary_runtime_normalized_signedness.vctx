@@ -1,3 +1,5 @@
+// spec: §7, §7.5, §8.7
+// expect: pass
 component TernaryRuntimeNormalizedSignedness(in sel: bool, out y: u8) {
     y := sel ? (1 as u8) : ((-1 as s8) as u8)
 }

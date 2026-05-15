@@ -1,3 +1,5 @@
+// spec: §7, §7.1, §7.5, §8.7
+// expect: pass
 // Ternary conditional: `condition ? true_expr : false_expr`
 //
 // This is a structural 2:1 mux (same family as `when` / `otherwise`, but as an expression).

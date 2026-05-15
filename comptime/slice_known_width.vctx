@@ -1,3 +1,5 @@
+// spec: §5.6, §10.3, §18
+// expect: pass
 // Teaches: constant `word[hi..lo]`, `Slice(word,hi,lo)` with `.bits`/`.span`/casts, comptime `N` in bounds. (Spec notes: `top priority checklist.md` → DOCS.)
 
 // Constant indices → plain `uK` byte slices.

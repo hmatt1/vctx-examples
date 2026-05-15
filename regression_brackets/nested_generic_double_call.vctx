@@ -1,3 +1,5 @@
+// spec: §10.3, §10.10
+// expect: pass
 // Regression: generic component calls generic function `double_uW<W>` at same width param.
 
 function double_uW<W>(x: u[W]) -> u[W] {

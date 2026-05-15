@@ -1,3 +1,5 @@
+// spec: §5.6, §10.3, §18
+// expect: pass
 import std.comptime_math as std
 
 comptime clog2_int(n: Int) -> u32 {

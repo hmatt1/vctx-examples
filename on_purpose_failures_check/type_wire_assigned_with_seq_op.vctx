@@ -1,3 +1,5 @@
+// spec: §6.3
+// expect: fail check [E_ASSIGN_OP_INVALID]
 // Expected failure: `<=` (sequential assignment) is not valid for `wire`.
 
 component WireAssignedWithSeqOp(out q: u8) {

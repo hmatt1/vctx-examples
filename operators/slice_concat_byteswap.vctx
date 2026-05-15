@@ -1,3 +1,5 @@
+// spec: §7, §7.5, §8.7
+// expect: pass
 // Slice + concat: byte swap via slices and concat (16-bit).
 //
 // Graduated from: on_purpose_failures_sim/sim_slice_concat_byteswap_should_work.vctx

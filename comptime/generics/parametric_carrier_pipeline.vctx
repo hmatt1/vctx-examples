@@ -1,3 +1,5 @@
+// spec: §10, §10.3, §10.4, §10.5, §10.9
+// expect: pass
 // Parametric carriers: nested generic components carry `u[W]` through hierarchy.
 //
 // Graduated from: on_purpose_failures_sim/sim_parametric_carrier_pipeline_should_work.vctx

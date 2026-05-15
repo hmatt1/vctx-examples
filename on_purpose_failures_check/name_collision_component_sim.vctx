@@ -1,3 +1,5 @@
+// spec: §15, §15.3
+// expect: fail check [E_NAME_COLLISION]
 component NameCollisionComponentSim(out y: u8) {
     y := 0 as u8
 }

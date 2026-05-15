@@ -1,3 +1,5 @@
+// spec: §10.3, §10.10
+// expect: pass
 // Regression: in templates we defer "possibly equal" parametric widths, and validate after specialization.
 // Example: `u[(W+1)]` and `u[(1+W)]` should be treated as compatible once W is concrete.
 

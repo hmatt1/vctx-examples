@@ -1,3 +1,5 @@
+// spec: §5.6, §10.3, §18
+// expect: pass
 // Type-parameter component: ``Type T`` substitutes into port types at each instance.
 
 component Identity<Type T>(in x: T, out y: T) {

@@ -1,3 +1,5 @@
+// spec: §4.2
+// expect: pass
 // The same package may be imported under two aliases (e.g. generated vs hand-written names).
 
 import imports.deps.mux_lib as m1

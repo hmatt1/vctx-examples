@@ -1,3 +1,5 @@
+// spec: §5.6, §10.3, §18
+// expect: pass
 // Teaches: comptime integer math in array dimensions (`+`, `-`, `*`, parens) and `width()` in a dimension. (Design notes: `top priority checklist.md` → DOCS.)
 
 component DimExprAddSubMul(out x: u8) {

@@ -1,0 +1,23 @@
+// spec: §6
+// expect: fail check [E_SCHEDULE_ILLEGAL_WHEN]
+// Test case for Phase 3: Strict Context Semantics (if vs when)
+// This file tests that runtime 'if' is rejected in hardware components!
+// Add another line to invalidate cache.
+
+component Top() {
+    wire x: u8 = 10
+    wire y: u8 = 20
+    wire z: u8
+
+    // Runtime 'if' in hardware (Spec gap - should be rejected)
+    if (x == y) {
+        z := 1
+    } else {
+        z := 0
+    }
+}
+
+sim TestIfRejection {
+    Top()
+    cycle()
+}

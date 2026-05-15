@@ -1,3 +1,5 @@
+// spec: §3.5, §8.6
+// expect: pass
 sim TestHexLiteral {
     // 0xFF = 255. Valid for u8.
     wire val: u8 = 0xFF

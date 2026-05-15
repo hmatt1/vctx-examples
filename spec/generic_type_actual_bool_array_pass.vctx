@@ -1,0 +1,15 @@
+// spec: §10.4
+// expect: pass
+// ``bool[n]`` as a ``Type`` generic actual (parser + port specialization).
+
+component BoolVecIdentity<Type T>(in x: T, out y: T) {
+    y := x
+}
+
+sim SimBoolVecIdentity {
+    wire a: bool[4] = 0
+    wire b: bool[4] = 0
+    BoolVecIdentity<bool[4]>(x -- a, y -- b)
+    cycle()
+    assert(true, "bool array type generic")
+}

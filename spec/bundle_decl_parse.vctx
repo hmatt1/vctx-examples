@@ -1,0 +1,16 @@
+// spec: §5.4
+// expect: pass
+// Bundle declaration parse smoke: the parser and symbol extractor accept `bundle` declarations.
+// Bundle semantics (direction flipping, lowering) are Partial — this file only verifies the
+// declaration is accepted without error.
+
+bundle Handshake {
+    to data: u8,
+    from valid: u1,
+    from ready: u1
+}
+
+bundle Pair {
+    to hi: u8,
+    to lo: u8
+}

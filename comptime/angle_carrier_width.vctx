@@ -1,3 +1,5 @@
+// spec: §5.6, §10.3, §18
+// expect: pass
 // Smoke: parameterized carrier types u[…] / s[…] (grammar + type IR).
 
 component AngleWidthDemo(

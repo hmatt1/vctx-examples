@@ -1,0 +1,43 @@
+// spec: §10.6, §10.7
+// expect: fail check [E_GENERIC_INST]
+// Wrong-kind callable actuals — rejected at the instantiation site.
+//
+// §10.6: a `Function` parameter must receive a hardware `function` declaration.
+//        Passing a `comptime` function is E_GENERIC_INST.
+//
+// §10.7: a `Comptime` parameter must receive a `comptime` declaration.
+//        Passing a hardware `function` is E_GENERIC_INST.
+
+// ── Declarations ─────────────────────────────────────────────────────────────
+
+function hw_add_one(x: u8) -> u8 {
+    return (x + 1) as u8
+}
+
+comptime ct_double(n: Int) -> Int {
+    return n * 2
+}
+
+// ── Components under test ─────────────────────────────────────────────────────
+
+component NeedsFunction<Function F>(in x: u8, out y: u8) {
+    y := F(x)
+}
+
+component NeedsComptime<Int N, Comptime Calc>(out data: u8[Calc(N)]) {
+    data[0] := 0 as u8
+}
+
+// ── Error cases ───────────────────────────────────────────────────────────────
+//
+// Passing `ct_double` (comptime) where `Function` is expected → E_GENERIC_INST.
+
+component BadFunctionActual(in a: u8, out b: u8) {
+    NeedsFunction<ct_double>(a, b)
+}
+
+// Passing `hw_add_one` (hardware function) where `Comptime` is expected → E_GENERIC_INST.
+
+component BadComptimeActual(out buf: u8[8]) {
+    NeedsComptime<4, hw_add_one>(buf)
+}

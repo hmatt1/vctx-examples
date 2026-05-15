@@ -1,0 +1,14 @@
+// spec: §10.3
+// expect: fail check [E_COMPTIME_NEGATIVE_WIDTH]
+// Int actuals fold, but bracket width may fold to an invalid / unresolved carrier.
+
+component ZeroCarrier<W>(out o: u[(W - W)]) {
+    reg r: u[(W - W)]
+    o := r
+}
+
+sim SimZeroCarrier {
+    wire o: u1
+    ZeroCarrier<4>(o -- o)
+    cycle()
+}

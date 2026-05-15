@@ -1,0 +1,61 @@
+// spec: §10.6
+// expect: fail check
+// §10.6 Function generics — hardware function passed as a generic parameter.
+//
+// A `Function` generic parameter lets you parameterise a component over any
+// named hardware function.  The actual must be a `function` declaration;
+// passing a `comptime` function is rejected at the call site.
+//
+// Status: Reserved — body call `F(x)` not yet resolved by the checker.
+
+// ── Actuals ──────────────────────────────────────────────────────────────────
+
+function negate(x: u8) -> u8 {
+    return (0 - x) as u8
+}
+
+function double_u8(x: u8) -> u8 {
+    return (x + x) as u8
+}
+
+function identity(x: u8) -> u8 {
+    return x
+}
+
+// ── Generic component ─────────────────────────────────────────────────────────
+//
+// `Transform<F>` applies any hardware function F : u8 → u8 to its input.
+// The checker must:
+//   1. Validate that the actual is a named `function` (not `comptime`).
+//   2. At each call site, verify argument and return types match the ports.
+
+component Transform<Function F>(in x: u8, out y: u8) {
+    y := F(x)
+}
+
+// ── Valid specialisations ─────────────────────────────────────────────────────
+
+component NegateU8(in a: u8, out b: u8) {
+    Transform<negate>(a, b)
+}
+
+component DoubleU8(in a: u8, out b: u8) {
+    Transform<double_u8>(a, b)
+}
+
+component PassThrough(in a: u8, out b: u8) {
+    Transform<identity>(a, b)
+}
+
+// ── Generic component with Type param ─────────────────────────────────────────
+//
+// Combining Function and Type generics: `Map<T, F>` is polymorphic over
+// both the data type and the transformation.
+
+component Map<Type T, Function F>(in x: T, out y: T) {
+    y := F(x)
+}
+
+component MapNegate(in a: u8, out b: u8) {
+    Map<u8, negate>(a, b)
+}

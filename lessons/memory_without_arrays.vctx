@@ -1,3 +1,5 @@
+// spec: §2
+// expect: pass
 // Two-byte “RAM” as separate `m0`/`m1` regs + address decode (0xC000 / 0xC001), not `u8[]`.
 // Wish / block-RAM phrasing: `top priority checklist.md` → DOCS.
 

@@ -1,3 +1,5 @@
+// spec: §5.6, §10.3, §18
+// expect: pass
 // Coverage: comptime v1 statements + direct expression evaluator coverage.
 
 comptime eval_cov(n: Int) -> u32 {

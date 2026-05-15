@@ -1,3 +1,5 @@
+// spec: §12.2
+// expect: fail sim [E_SIM_POKE_TARGET_INVALID]
 // Expected failure: attempt to `poke` a DUT output — compile-time ``[E_SIM_POKE_TARGET_INVALID]``.
 
 component PassThru(in a: u4, out y: u4) {

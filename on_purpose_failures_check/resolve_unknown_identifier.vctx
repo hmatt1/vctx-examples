@@ -1,3 +1,5 @@
+// spec: §15
+// expect: fail check [E_UNKNOWN_IDENTIFIER]
 // Expected failure: reference to an unknown identifier.
 
 component UnknownIdentifier(out y: u1) {

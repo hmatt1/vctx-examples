@@ -1,3 +1,5 @@
+// spec: §13
+// expect: fail sim [E_SIM_ASSERTION_FAILED]
 // Expected failure: [E_SIM_ASSERTION_FAILED] on the intentionally false assert.
 
 component OrGate(in a: u1, in b: u1, out y: u1) {

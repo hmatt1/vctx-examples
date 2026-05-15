@@ -1,3 +1,5 @@
+// spec: §12.2
+// expect: fail sim [E_SIM_POKE_TARGET_INVALID]
 // Expected failure: ``poke`` on a wire driven by ``:=`` in the testbench (compile error,
 // ``[E_SIM_POKE_TARGET_INVALID]`` — not a pokeable testbench input).
 

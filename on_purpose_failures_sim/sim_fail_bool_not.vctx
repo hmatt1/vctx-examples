@@ -1,3 +1,5 @@
+// spec: §13
+// expect: fail sim [E_SIM_ASSERTION_FAILED]
 // Expected failure: minimal boolean `not` assertion failure.
 
 sim FailBoolNot {

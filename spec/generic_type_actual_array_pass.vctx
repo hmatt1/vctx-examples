@@ -1,0 +1,16 @@
+// spec: §10.4
+// expect: pass
+// Type generic actual: concrete array spelling (``u8[2]``) substitutes into port types.
+// Generic kind must be ``Type T`` (not plain ``T``), matching ``generics_type_type_param.vctx``.
+
+component ArrayIdentity<Type T>(in x: T, out y: T) {
+    y := x
+}
+
+sim SimGenericTypeArrayPass {
+    wire a: u8[2] = 0
+    wire b: u8[2] = 0
+    ArrayIdentity<u8[2]>(x -- a, y -- b)
+    cycle()
+    assert(true, "type generic array actual")
+}

@@ -1,3 +1,5 @@
+// spec: §11
+// expect: fail mlir [E_MLIR_INSTANCE_INPUT_UNCONNECTED]
 // Expected: ``vctx check`` succeeds; ``vctx mlir`` fails with ``[E_MLIR_INSTANCE_INPUT_UNCONNECTED]``
 // (strict elaboration: positional instance omits later ports → missing inputs must not lower to implicit 0).
 

@@ -1,3 +1,5 @@
+// spec: §7, §7.5, §8.7
+// expect: pass
 component SignedToUnsignedExplicit(in a: s8, out b: u8) {
     b := a as u8
 }

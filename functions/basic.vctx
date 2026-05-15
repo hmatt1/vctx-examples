@@ -1,3 +1,5 @@
+// spec: §5.5, §7.3
+// expect: pass
 // User-defined functions: pure combinational logic, inlined at each call site.
 
 function add_one(x: u8) -> u8 {

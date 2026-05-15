@@ -1,3 +1,5 @@
+// spec: §5.5, §7.3
+// expect: pass
 // Multi-statement function body with local wires (same pattern as the docs).
 
 function parity_u8(data: u8) -> bool {

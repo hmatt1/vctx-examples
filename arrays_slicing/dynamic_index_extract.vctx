@@ -1,3 +1,5 @@
+// spec: §7.2, §7.6, §8.4
+// expect: pass
 // Teaches: dynamic bit index `data[idx]`, shift-then-constant-slice for aligned nibbles, reg counter as index. (Longer notes: see `top priority checklist.md` → DOCS.)
 
 component DynBitPick(in data: u8, in idx: u3, out bit: bool) {

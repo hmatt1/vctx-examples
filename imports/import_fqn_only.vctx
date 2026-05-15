@@ -1,3 +1,5 @@
+// spec: §4.2
+// expect: pass
 // No `import` lines: instantiate with the fully-qualified component name.
 
 sim TestFqnMuxNoImportDecl {

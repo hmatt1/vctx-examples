@@ -1,3 +1,5 @@
+// spec: §13
+// expect: fail sim [E_SIM_ASSERTION_FAILED]
 // Expected failure: two failing asserts to validate counting/reporting.
 
 component ConstOne(out y: u1) {

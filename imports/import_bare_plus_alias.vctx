@@ -1,3 +1,5 @@
+// spec: §4.2
+// expect: pass
 // Bare `import path` (no `as`) records the dependency under the full dotted name; a second line
 // with `as` gives a short prefix. See `import_bare_longname_only.vctx` for bare-only `path.Component`.
 

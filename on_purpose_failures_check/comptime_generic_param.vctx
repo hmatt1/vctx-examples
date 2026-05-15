@@ -1,0 +1,77 @@
+// spec: §10.7
+// expect: fail check
+// §10.7 Comptime generics — comptime function passed as a generic parameter.
+//
+// A `Comptime` generic parameter lets you parameterise a component over any
+// named compile-time function.  The actual must be a `comptime` declaration;
+// passing a hardware `function` is rejected at the call site.
+//
+// Primary use cases:
+//   • Array dimensions computed at elaboration time:  `u8[Calc(N)]`
+//   • Initialisation strategies injected at elaboration time.
+//
+// Status: Reserved — Comptime param calls in dimension expressions not yet
+// evaluated by the checker.
+
+// ── Actuals ──────────────────────────────────────────────────────────────────
+
+comptime double(n: Int) -> Int {
+    return n * 2
+}
+
+comptime square(n: Int) -> Int {
+    return n * n
+}
+
+comptime add_one(n: Int) -> Int {
+    return n + 1
+}
+
+// ── Dimension computed by Comptime param ──────────────────────────────────────
+//
+// `Buffer<N, Calc>` allocates an array whose size is `Calc(N)`.
+// At elaboration the checker evaluates `Calc(N)` with the concrete `N` to
+// determine the concrete port width.
+//
+//   Buffer<4, double>  →  out data: u8[8]   (double(4) = 8)
+//   Buffer<3, square>  →  out data: u8[9]   (square(3) = 9)
+
+component Buffer<Int N, Comptime Calc>(out data: u8[Calc(N)]) {
+    data[0] := 0 as u8
+}
+
+component DoubleBuffer(out buf: u8[8]) {
+    Buffer<4, double>(buf)
+}
+
+component SquareBuffer(out buf: u8[9]) {
+    Buffer<3, square>(buf)
+}
+
+// ── Comptime param alongside Int and Type params ───────────────────────────────
+//
+// `Windowed<T, N, Stride>` produces an array whose length is `Stride(N)`.
+// The Comptime param controls the memory layout; the Type param controls the
+// element type.
+
+component Windowed<Type T, Int N, Comptime Stride>(out window: T[Stride(N)]) {
+    window[0] := 0 as T
+}
+
+component DoubleWindow(out w: u8[8]) {
+    Windowed<u8, 4, double>(w)
+}
+
+// ── Comptime param used to compute a sub-instance generic arg ─────────────────
+//
+// `Resize<N, Calc>` instantiates an inner `Buffer` whose size is `Calc(N)`.
+// The Comptime actual propagates from the outer generic env into the inner
+// instantiation argument.
+
+component Resize<Int N, Comptime Calc>(out data: u8[Calc(N)]) {
+    Buffer<N, Calc>(data)
+}
+
+component DoubleResize(out d: u8[8]) {
+    Resize<4, double>(d)
+}
