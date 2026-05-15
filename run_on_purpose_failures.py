@@ -73,6 +73,17 @@ def main() -> int:
             if not out.endswith("\n"):
                 print()
 
+            if code == 0 and kind == "CHECK":
+                code2, out2 = _run(
+                    [py, str(cli), "sim", str(path.relative_to(root))],
+                    cwd=root,
+                )
+                sys.stdout.write(out2)
+                if not out2.endswith("\n"):
+                    print()
+                out = out + out2
+                code = code2
+
             if code == 0:
                 print(f"[UNEXPECTED PASS] {label}")
                 bad += 1
