@@ -25,7 +25,7 @@ def _repo_root() -> Path:
 
 
 def _vctx_cli() -> Path:
-    return (_repo_root().parent / "vctx-lang" / "vctx-cli.py").resolve()
+    return (_repo_root().parent / "vctx-cli.py").resolve()
 
 
 def _iter_vctx_files(dir_path: Path) -> Iterable[Path]:
