@@ -1,0 +1,257 @@
+// spec: §6.1, §6.2, §6.4
+// expect: pass
+// Teaches: `when`/`otherwise` driving only wire outputs — purely combinational mux with no
+//          registers. Contrast with control_flow/when.vctx which mixes regs and outputs.
+
+component Mux2U8(in sel: bool, in a: u8, in b: u8, out y: u8) {
+    when sel {
+        y := a
+    } otherwise {
+        y := b
+    }
+}
+
+component Mux2U16(in sel: bool, in a: u16, in b: u16, out y: u16) {
+    when sel {
+        y := a
+    } otherwise {
+        y := b
+    }
+}
+
+component Mux2Bool(in sel: bool, in a: bool, in b: bool, out y: bool) {
+    when sel {
+        y := a
+    } otherwise {
+        y := b
+    }
+}
+
+// Priority mux: first matching arm wins; all arms must drive `grant`.
+component PriorityMux(in req0: bool, in req1: bool, in req2: bool, out grant: u2) {
+    when req0 {
+        grant := 0 as u2
+    } elsewhen req1 {
+        grant := 1 as u2
+    } elsewhen req2 {
+        grant := 2 as u2
+    } otherwise {
+        grant := 3 as u2
+    }
+}
+
+// Clamp: combinational range restriction.
+component Clamp8(in x: u8, in lo: u8, in hi: u8, out y: u8) {
+    when (x < lo) {
+        y := lo
+    } elsewhen (x > hi) {
+        y := hi
+    } otherwise {
+        y := x
+    }
+}
+
+// 2-to-4 decoder: one-hot output, all arms present.
+component Decode2to4(in sel: u2, out y: u4) {
+    when (sel == 0 as u2) {
+        y := 0b0001 as u4
+    } elsewhen (sel == 1 as u2) {
+        y := 0b0010 as u4
+    } elsewhen (sel == 2 as u2) {
+        y := 0b0100 as u4
+    } otherwise {
+        y := 0b1000 as u4
+    }
+}
+
+// Abs value: combinational, no regs.
+component AbsS8(in x: s8, out y: u8) {
+    when (x < 0 as s8) {
+        y := (0 as s8 - x) as u8
+    } otherwise {
+        y := x as u8
+    }
+}
+
+// Sign function: -1, 0, +1 encoded as s8.
+component SignS8(in x: s8, out s: s8) {
+    when (x > 0 as s8) {
+        s := 1 as s8
+    } elsewhen (x < 0 as s8) {
+        s := -1 as s8
+    } otherwise {
+        s := 0 as s8
+    }
+}
+
+sim TestMux2U8 {
+    wire sel: bool = false
+    wire a: u8 = 0xAA
+    wire b: u8 = 0x55
+    wire y: u8
+    Mux2U8(sel, a, b, y)
+    cycle()
+    assert(y == 0x55, "sel=false → b=0x55")
+    poke(sel, true)
+    cycle()
+    assert(y == 0xAA, "sel=true → a=0xAA")
+    poke(a, 0xFF)
+    cycle()
+    assert(y == 0xFF, "sel=true, a changed → tracks a")
+    poke(sel, false)
+    cycle()
+    assert(y == 0x55, "sel=false → b again")
+}
+
+sim TestMux2U16 {
+    wire sel: bool = true
+    wire a: u16 = 0xABCD
+    wire b: u16 = 0x1234
+    wire y: u16
+    Mux2U16(sel, a, b, y)
+    cycle()
+    assert(y == 0xABCD, "sel=true → a")
+    poke(sel, false)
+    cycle()
+    assert(y == 0x1234, "sel=false → b")
+}
+
+sim TestMux2Bool {
+    wire sel: bool = false
+    wire a: bool = true
+    wire b: bool = false
+    wire y: bool
+    Mux2Bool(sel, a, b, y)
+    cycle()
+    assert(y == false, "sel=false → b=false")
+    poke(sel, true)
+    cycle()
+    assert(y == true, "sel=true → a=true")
+}
+
+sim TestPriorityMuxNoRequest {
+    wire r0: bool = false
+    wire r1: bool = false
+    wire r2: bool = false
+    wire g: u2
+    PriorityMux(r0, r1, r2, g)
+    cycle()
+    assert(g == 3 as u2, "no requests → grant=3 (none)")
+}
+
+sim TestPriorityMuxSingleReqs {
+    wire r0: bool = false
+    wire r1: bool = false
+    wire r2: bool = false
+    wire g: u2
+    PriorityMux(r0, r1, r2, g)
+    poke(r2, true)
+    cycle()
+    assert(g == 2 as u2, "only req2 → grant=2")
+    poke(r2, false)
+    poke(r1, true)
+    cycle()
+    assert(g == 1 as u2, "only req1 → grant=1")
+    poke(r1, false)
+    poke(r0, true)
+    cycle()
+    assert(g == 0 as u2, "only req0 → grant=0")
+}
+
+sim TestPriorityMuxPriority {
+    wire r0: bool = true
+    wire r1: bool = true
+    wire r2: bool = true
+    wire g: u2
+    PriorityMux(r0, r1, r2, g)
+    cycle()
+    assert(g == 0 as u2, "all set → req0 wins (highest priority)")
+    poke(r0, false)
+    cycle()
+    assert(g == 1 as u2, "r0 off → req1 wins")
+    poke(r1, false)
+    cycle()
+    assert(g == 2 as u2, "r0,r1 off → req2 wins")
+}
+
+sim TestClamp8 {
+    wire lo: u8 = 10
+    wire hi: u8 = 100
+    wire x: u8 = 50
+    wire y: u8
+    Clamp8(x, lo, hi, y)
+    cycle()
+    assert(y == 50, "50 in [10,100] → passthrough")
+    poke(x, 10)
+    cycle()
+    assert(y == 10, "x=lo → passthrough (boundary)")
+    poke(x, 100)
+    cycle()
+    assert(y == 100, "x=hi → passthrough (boundary)")
+    poke(x, 5)
+    cycle()
+    assert(y == 10, "5 below lo → clamped to 10")
+    poke(x, 200)
+    cycle()
+    assert(y == 100, "200 above hi → clamped to 100")
+    poke(x, 0)
+    cycle()
+    assert(y == 10, "0 below lo → clamped to 10")
+}
+
+sim TestDecode2to4 {
+    wire sel: u2 = 0 as u2
+    wire y: u4
+    Decode2to4(sel, y)
+    cycle()
+    assert(y == 1 as u4, "sel=0 → 0001")
+    poke(sel, 1 as u2)
+    cycle()
+    assert(y == 2 as u4, "sel=1 → 0010")
+    poke(sel, 2 as u2)
+    cycle()
+    assert(y == 4 as u4, "sel=2 → 0100")
+    poke(sel, 3 as u2)
+    cycle()
+    assert(y == 8 as u4, "sel=3 → 1000")
+}
+
+sim TestAbsS8 {
+    wire x: s8 = 42 as s8
+    wire y: u8
+    AbsS8(x, y)
+    cycle()
+    assert(y == 42, "abs(42) = 42")
+    poke(x, -42 as s8)
+    cycle()
+    assert(y == 42, "abs(-42) = 42")
+    poke(x, 0 as s8)
+    cycle()
+    assert(y == 0, "abs(0) = 0")
+    poke(x, -128 as s8)
+    cycle()
+    assert(y == 128, "abs(-128) = 128 (wraps to u8 128)")
+    poke(x, 127 as s8)
+    cycle()
+    assert(y == 127, "abs(127) = 127")
+}
+
+sim TestSignS8 {
+    wire x: s8 = 5 as s8
+    wire s: s8
+    SignS8(x, s)
+    cycle()
+    assert(s == 1 as s8, "sign(5) = 1")
+    poke(x, -3 as s8)
+    cycle()
+    assert(s == -1 as s8, "sign(-3) = -1")
+    poke(x, 0 as s8)
+    cycle()
+    assert(s == 0 as s8, "sign(0) = 0")
+    poke(x, 127 as s8)
+    cycle()
+    assert(s == 1 as s8, "sign(127) = 1")
+    poke(x, -128 as s8)
+    cycle()
+    assert(s == -1 as s8, "sign(-128) = -1")
+}

@@ -1,0 +1,235 @@
+// spec: §6.1, §6.3, §6.7
+// expect: pass
+// Teaches: register holds its current value when no `when` arm fires (no `otherwise` clause);
+//          the reg does NOT reset to its init value on inactive cycles — it retains state.
+//          Contrast with combinational `when`: a wire MUST have `otherwise` to be fully driven.
+
+component LoadOnEnable(in en: bool, in d: u8, out q: u8) {
+    reg acc: u8 = 0
+    when en {
+        acc <= d
+    }
+    q := acc
+}
+
+// Two independent regs, each with its own enable — holds separately.
+component DualHold(
+    in en0: bool, in en1: bool,
+    in d0: u8,   in d1: u8,
+    out q0: u8,  out q1: u8
+) {
+    reg r0: u8 = 0
+    reg r1: u8 = 0
+    when en0 {
+        r0 <= d0
+    }
+    when en1 {
+        r1 <= d1
+    }
+    q0 := r0
+    q1 := r1
+}
+
+// Non-zero reset value: reg starts at 0xDEAD, holds that until written.
+component Latch16(in wr: bool, in d: u16, out q: u16) {
+    reg stored: u16 = 0xDEAD
+    when wr {
+        stored <= d
+    }
+    q := stored
+}
+
+// Hold with condition on data value, not just enable.
+component HoldAboveThreshold(in d: u8, in thr: u8, out q: u8) {
+    reg last: u8 = 0
+    when (d > thr) {
+        last <= d
+    }
+    q := last
+}
+
+// Reg with conditional update via elsewhen — only one arm fires per cycle; no otherwise.
+component UpDownCounter(in up: bool, in down: bool, out val: u8) {
+    reg cnt: u8 = 0
+    when up {
+        cnt <= (cnt + 1) as u8
+    } elsewhen down {
+        cnt <= (cnt - 1) as u8
+    }
+    val := cnt
+}
+
+sim TestLoadOnEnableBasic {
+    wire en: bool = false
+    wire d: u8 = 42
+    wire q: u8
+    LoadOnEnable(en, d, q)
+    cycle()
+    assert(q == 0, "holds reset value 0 when en=false")
+    poke(en, true)
+    cycle()
+    assert(q == 42, "loads d=42 when en=true")
+    poke(en, false)
+    cycle()
+    assert(q == 42, "holds 42 after en goes false")
+    poke(d, 99)
+    cycle()
+    assert(q == 42, "d changed but en=false — acc still holds 42")
+}
+
+sim TestLoadOnEnableMultipleLoads {
+    wire en: bool = true
+    wire d: u8 = 10
+    wire q: u8
+    LoadOnEnable(en, d, q)
+    cycle()
+    assert(q == 10, "loaded 10")
+    poke(d, 20)
+    cycle()
+    assert(q == 20, "loaded 20")
+    poke(en, false)
+    cycle()
+    assert(q == 20, "holds 20 while en=false")
+    cycle()
+    assert(q == 20, "still holds 20")
+    poke(en, true)
+    poke(d, 30)
+    cycle()
+    assert(q == 30, "loaded 30 after re-enable")
+    poke(en, false)
+    cycle(5)
+    assert(q == 30, "holds 30 across 5 idle cycles")
+}
+
+sim TestLoadOnEnableReset {
+    wire en: bool = true
+    wire d: u8 = 77
+    wire q: u8
+    LoadOnEnable(en, d, q)
+    cycle()
+    assert(q == 77, "loaded 77")
+    reset()
+    assert(q == 0, "reset returns reg to init value 0")
+    cycle()
+    assert(q == 77, "resumes loading after reset")
+}
+
+sim TestDualHold {
+    wire e0: bool = false
+    wire e1: bool = false
+    wire d0: u8 = 11
+    wire d1: u8 = 22
+    wire q0: u8
+    wire q1: u8
+    DualHold(e0, e1, d0, d1, q0, q1)
+    cycle()
+    assert(q0 == 0, "r0 at reset value")
+    assert(q1 == 0, "r1 at reset value")
+    poke(e0, true)
+    cycle()
+    assert(q0 == 11, "r0 loaded 11")
+    assert(q1 == 0,  "r1 still holds 0")
+    poke(e0, false)
+    poke(e1, true)
+    poke(d1, 55)
+    cycle()
+    assert(q0 == 11, "r0 holds 11 while en0=false")
+    assert(q1 == 55, "r1 loaded 55")
+    poke(e1, false)
+    cycle()
+    assert(q0 == 11, "both hold independently")
+    assert(q1 == 55, "both hold independently")
+    poke(e0, true)
+    poke(e1, true)
+    poke(d0, 99)
+    poke(d1, 88)
+    cycle()
+    assert(q0 == 99, "both load simultaneously")
+    assert(q1 == 88, "both load simultaneously")
+}
+
+sim TestLatch16Init {
+    wire wr: bool = false
+    wire d: u16 = 0
+    wire q: u16
+    Latch16(wr, d, q)
+    cycle()
+    assert(q == 0xDEAD, "non-zero init value 0xDEAD before first write")
+}
+
+sim TestLatch16HoldsAcrossManyCycles {
+    wire wr: bool = false
+    wire d: u16 = 0
+    wire q: u16
+    Latch16(wr, d, q)
+    poke(wr, true)
+    poke(d, 0x1234)
+    cycle()
+    assert(q == 0x1234, "written 0x1234")
+    poke(wr, false)
+    cycle()
+    assert(q == 0x1234, "holds after 1 idle cycle")
+    cycle()
+    assert(q == 0x1234, "holds after 2 idle cycles")
+    cycle(10)
+    assert(q == 0x1234, "holds after 12 idle cycles total")
+    poke(wr, true)
+    poke(d, 0xBEEF)
+    cycle()
+    assert(q == 0xBEEF, "new write succeeds after long idle")
+}
+
+sim TestHoldAboveThreshold {
+    wire d: u8 = 5
+    wire thr: u8 = 10
+    wire q: u8
+    HoldAboveThreshold(d, thr, q)
+    cycle()
+    assert(q == 0, "5 <= 10: hold at init value 0")
+    poke(d, 15)
+    cycle()
+    assert(q == 15, "15 > 10: latched")
+    poke(d, 8)
+    cycle()
+    assert(q == 15, "8 <= 10: holds 15")
+    poke(d, 20)
+    cycle()
+    assert(q == 20, "20 > 10: latched 20")
+    poke(d, 0)
+    cycle(3)
+    assert(q == 20, "holds 20 across 3 cycles below threshold")
+}
+
+sim TestUpDownCounter {
+    wire up: bool = false
+    wire dn: bool = false
+    wire val: u8
+    UpDownCounter(up, dn, val)
+    cycle()
+    assert(val == 0, "starts at 0")
+    poke(up, true)
+    cycle()
+    assert(val == 1, "up: 1")
+    cycle()
+    assert(val == 2, "up: 2")
+    cycle()
+    assert(val == 3, "up: 3")
+    poke(up, false)
+    cycle()
+    assert(val == 3, "neither: holds at 3")
+    cycle()
+    assert(val == 3, "still holds")
+    poke(dn, true)
+    cycle()
+    assert(val == 2, "down: 2")
+    cycle()
+    assert(val == 1, "down: 1")
+    poke(dn, false)
+    cycle()
+    assert(val == 1, "neither: holds at 1")
+    poke(up, true)
+    poke(dn, true)
+    cycle()
+    // Both true: `up` arm fires (elsewhen: first match wins), so count goes up
+    assert(val == 2, "up wins over down (elsewhen priority)")
+}

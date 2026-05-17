@@ -1,0 +1,256 @@
+// spec: §6.1, §6.2, §6.4
+// expect: pass
+// Teaches: `when` with `and`, `or`, `not` in conditions; combining comparisons with
+//          boolean connectives; compound conditions on regs and wire outputs.
+
+// Pure wire output driven by compound condition.
+component AndGate(in a: bool, in b: bool, out y: bool) {
+    when a and b {
+        y := true
+    } otherwise {
+        y := false
+    }
+}
+
+component OrGate(in a: bool, in b: bool, out y: bool) {
+    when a or b {
+        y := true
+    } otherwise {
+        y := false
+    }
+}
+
+component NotGate(in a: bool, out y: bool) {
+    when not a {
+        y := true
+    } otherwise {
+        y := false
+    }
+}
+
+// Three-way compound: (a and b) or c
+component ThreeWayOr(in a: bool, in b: bool, in c: bool, out y: bool) {
+    when (a and b) or c {
+        y := true
+    } otherwise {
+        y := false
+    }
+}
+
+// Comparison expression in condition.
+component InRange(in x: u8, in lo: u8, in hi: u8, out ok: bool) {
+    when (x >== lo) and (x <== hi) {
+        ok := true
+    } otherwise {
+        ok := false
+    }
+}
+
+// Combined enable + threshold gate: reg only loads when BOTH are true.
+component GatedLoad(in en: bool, in threshold: u8, in val: u8, out loaded: u8) {
+    reg acc: u8 = 0
+    when en and (val > threshold) {
+        acc <= val
+    }
+    loaded := acc
+}
+
+// Either operand small: or across two comparisons.
+component EitherSmall(in a: u8, in b: u8, out y: bool) {
+    when (a < 10) or (b < 10) {
+        y := true
+    } otherwise {
+        y := false
+    }
+}
+
+// not (a == b) — logical not over equality.
+component NotEqual(in a: u8, in b: u8, out y: bool) {
+    when not (a == b) {
+        y := true
+    } otherwise {
+        y := false
+    }
+}
+
+// Load unless out-of-bounds: not condition gates a reg.
+component LoadUnlessOutOfBounds(in wr: bool, in addr: u8, in d: u8, out q: u8) {
+    reg mem: u8 = 0
+    when wr and not (addr > 127) {
+        mem <= d
+    }
+    q := mem
+}
+
+sim TestAndGate {
+    wire a: bool = false
+    wire b: bool = true
+    wire y: bool
+    AndGate(a, b, y)
+    cycle()
+    assert(y == false, "false and true = false")
+    poke(a, true)
+    cycle()
+    assert(y == true, "true and true = true")
+    poke(b, false)
+    cycle()
+    assert(y == false, "true and false = false")
+    poke(a, false)
+    cycle()
+    assert(y == false, "false and false = false")
+}
+
+sim TestOrGate {
+    wire a: bool = false
+    wire b: bool = false
+    wire y: bool
+    OrGate(a, b, y)
+    cycle()
+    assert(y == false, "false or false = false")
+    poke(a, true)
+    cycle()
+    assert(y == true, "true or false = true")
+    poke(a, false)
+    poke(b, true)
+    cycle()
+    assert(y == true, "false or true = true")
+    poke(a, true)
+    cycle()
+    assert(y == true, "true or true = true")
+}
+
+sim TestNotGate {
+    wire a: bool = false
+    wire y: bool
+    NotGate(a, y)
+    cycle()
+    assert(y == true, "not false = true")
+    poke(a, true)
+    cycle()
+    assert(y == false, "not true = false")
+}
+
+sim TestThreeWayOr {
+    wire a: bool = true
+    wire b: bool = true
+    wire c: bool = false
+    wire y: bool
+    ThreeWayOr(a, b, c, y)
+    cycle()
+    assert(y == true, "(T and T) or F = T")
+    poke(b, false)
+    cycle()
+    assert(y == false, "(T and F) or F = F")
+    poke(c, true)
+    cycle()
+    assert(y == true, "(T and F) or T = T")
+    poke(a, false)
+    poke(b, false)
+    cycle()
+    assert(y == true, "(F and F) or T = T")
+    poke(c, false)
+    cycle()
+    assert(y == false, "(F and F) or F = F")
+}
+
+sim TestInRange {
+    wire x: u8 = 50
+    wire lo: u8 = 10
+    wire hi: u8 = 100
+    wire ok: bool
+    InRange(x, lo, hi, ok)
+    cycle()
+    assert(ok == true, "50 in [10,100]")
+    poke(x, 10)
+    cycle()
+    assert(ok == true, "10 on lower boundary")
+    poke(x, 100)
+    cycle()
+    assert(ok == true, "100 on upper boundary")
+    poke(x, 9)
+    cycle()
+    assert(ok == false, "9 below lower bound")
+    poke(x, 101)
+    cycle()
+    assert(ok == false, "101 above upper bound")
+    poke(x, 0)
+    cycle()
+    assert(ok == false, "0 out of range")
+    poke(x, 255)
+    cycle()
+    assert(ok == false, "255 out of range")
+}
+
+sim TestGatedLoad {
+    wire en: bool = true
+    wire thr: u8 = 10
+    wire val: u8 = 20
+    wire out: u8
+    GatedLoad(en, thr, val, out)
+    cycle()
+    assert(out == 20, "en=true, val > threshold: loads")
+    poke(val, 5)
+    cycle()
+    assert(out == 20, "en=true but val <= threshold: holds")
+    poke(val, 30)
+    poke(en, false)
+    cycle()
+    assert(out == 20, "en=false: holds even though val > threshold")
+    poke(en, true)
+    cycle()
+    assert(out == 30, "re-enable: loads new val")
+}
+
+sim TestEitherSmall {
+    wire a: u8 = 15
+    wire b: u8 = 5
+    wire y: bool
+    EitherSmall(a, b, y)
+    cycle()
+    assert(y == true, "b=5 < 10: true")
+    poke(b, 20)
+    cycle()
+    assert(y == false, "both >= 10: false")
+    poke(a, 3)
+    cycle()
+    assert(y == true, "a=3 < 10: true")
+    poke(a, 10)
+    cycle()
+    assert(y == false, "a=10 not < 10, b=20 not < 10: false")
+    poke(b, 0)
+    cycle()
+    assert(y == true, "b=0 < 10: true")
+}
+
+sim TestNotEqual {
+    wire a: u8 = 5
+    wire b: u8 = 5
+    wire y: bool
+    NotEqual(a, b, y)
+    cycle()
+    assert(y == false, "5 == 5 so not(5==5) = false")
+    poke(b, 6)
+    cycle()
+    assert(y == true, "5 != 6 so not(5==6) = true")
+}
+
+sim TestLoadUnlessOutOfBounds {
+    wire wr: bool = true
+    wire addr: u8 = 50
+    wire d: u8 = 0xAA
+    wire q: u8
+    LoadUnlessOutOfBounds(wr, addr, d, q)
+    cycle()
+    assert(q == 0xAA, "addr=50 in bounds: loaded")
+    poke(addr, 128)
+    poke(d, 0xBB)
+    cycle()
+    assert(q == 0xAA, "addr=128 out of bounds: held")
+    poke(addr, 127)
+    cycle()
+    assert(q == 0xBB, "addr=127 on boundary (not > 127): loaded")
+    poke(wr, false)
+    poke(d, 0xCC)
+    cycle()
+    assert(q == 0xBB, "wr=false: held regardless of addr")
+}

@@ -1,0 +1,211 @@
+// spec: §5.2, §7, §7.5, §8.7
+// expect: pass
+// Teaches: u32, u64, s32, s64 arithmetic, comparison, shift, and boundary overflow behavior.
+//          u64 handles values that overflow u32; s64 handles full signed 64-bit range.
+
+// ----- u32 -----
+
+sim TestU32AddOverflow {
+    wire max: u32 = 0xFFFF_FFFF
+    wire one: u32 = 1
+    wire wrap: u32 = (max + one) as u32
+    assert(wrap == 0 as u32, "u32 max + 1 wraps to 0")
+}
+
+sim TestU32SubUnderflow {
+    wire zero: u32 = 0
+    wire one: u32 = 1
+    wire wrap: u32 = (zero - one) as u32
+    assert(wrap == 0xFFFF_FFFF, "u32 0 - 1 wraps to u32 max")
+}
+
+sim TestU32Mul {
+    wire a: u32 = 0x0001_0000
+    wire b: u32 = 0x0001_0000
+    wire prod: u32 = (a * b) as u32
+    assert(prod == 0 as u32, "u32 65536 * 65536 = 2^32 wraps to 0")
+}
+
+sim TestU32MulNonWrapping {
+    wire a: u32 = 1000
+    wire b: u32 = 1000
+    wire prod: u32 = (a * b) as u32
+    assert(prod == 1000000 as u32, "u32 1000 * 1000 = 1,000,000")
+}
+
+sim TestU32Shift {
+    wire a: u32 = 1
+    wire sh: u32 = (a << 31) as u32
+    assert(sh == 0x8000_0000, "u32 1 << 31 = 0x80000000")
+    wire back: u32 = (sh >> 31) as u32
+    assert(back == 1 as u32, "u32 0x80000000 >> 31 = 1")
+}
+
+sim TestU32Bitwise {
+    wire a: u32 = 0xAAAA_AAAA
+    wire b: u32 = 0x5555_5555
+    assert((a & b) == 0 as u32,               "alternating u32 AND = 0")
+    assert((a | b) == 0xFFFF_FFFF,             "alternating u32 OR = all-ones")
+    assert((a ^ b) == 0xFFFF_FFFF,             "alternating u32 XOR = all-ones")
+    assert((a ^ 0xFFFF_FFFF) == 0x5555_5555,   "u32 XOR with all-ones = NOT")
+}
+
+sim TestU32Compare {
+    wire a: u32 = 0xFFFF_FFFE
+    wire b: u32 = 0xFFFF_FFFF
+    assert(a < b,  "u32 near-max comparison: a < b")
+    assert(b > a,  "u32 near-max comparison: b > a")
+    assert(a <== a, "u32 a <== a")
+    assert(b >== b, "u32 b >== b")
+    assert(a !== b, "u32 a !== b")
+}
+
+// ----- u64 -----
+
+sim TestU64AddOverflow {
+    wire a: u64 = 0xFFFF_FFFF_FFFF_FFFF
+    wire b: u64 = 1
+    wire sum: u64 = (a + b) as u64
+    assert(sum == 0 as u64, "u64 max + 1 wraps to 0")
+}
+
+sim TestU64AddLarge {
+    // Verify 64-bit arithmetic doesn't truncate at 32 bits.
+    wire a: u64 = 0x0000_0001_0000_0000   // 4G
+    wire b: u64 = 0x0000_0001_0000_0000   // 4G
+    wire sum: u64 = (a + b) as u64
+    assert(sum == 0x0000_0002_0000_0000 as u64, "u64 4G + 4G = 8G")
+}
+
+sim TestU64Mul {
+    wire a: u64 = 0x0000_0001_0000_0000   // 4G
+    wire b: u64 = 2
+    wire prod: u64 = (a * b) as u64
+    assert(prod == 0x0000_0002_0000_0000 as u64, "u64 4G * 2 = 8G")
+}
+
+sim TestU64Shift {
+    wire one: u64 = 1
+    wire hi: u64 = (one << 32) as u64
+    assert(hi == 0x0000_0001_0000_0000 as u64, "u64 1 << 32")
+    wire hi63: u64 = (one << 63) as u64
+    assert(hi63 == 0x8000_0000_0000_0000 as u64, "u64 1 << 63 = sign bit")
+    wire back: u64 = (hi63 >> 63) as u64
+    assert(back == 1 as u64, "u64 (1<<63) >> 63 = 1 (logical shift for unsigned)")
+}
+
+sim TestU64Bitwise {
+    wire a: u64 = 0xAAAA_AAAA_AAAA_AAAA
+    wire b: u64 = 0x5555_5555_5555_5555
+    assert((a & b) == 0 as u64,                               "u64 alternating AND = 0")
+    assert((a | b) == 0xFFFF_FFFF_FFFF_FFFF as u64,           "u64 alternating OR = all-ones")
+    assert((a ^ b) == 0xFFFF_FFFF_FFFF_FFFF as u64,           "u64 alternating XOR = all-ones")
+}
+
+sim TestU64Compare {
+    wire a: u64 = 0xFFFF_FFFF_FFFF_FFFE
+    wire b: u64 = 0xFFFF_FFFF_FFFF_FFFF
+    assert(a < b,   "u64 near-max: a < b")
+    assert(b > a,   "u64 near-max: b > a")
+    assert(a !== b, "u64 near-max: a !== b")
+
+    // Values that would overflow u32.
+    wire big: u64 = 0x0000_0001_0000_0000   // 4G, larger than u32 max
+    wire small: u64 = 0xFFFF_FFFF            // u32 max
+    assert(big > small, "u64 4G > u32_max (would be wrong if truncated to u32)")
+}
+
+// ----- s32 -----
+
+sim TestS32AddOverflow {
+    wire max: s32 = 0x7FFF_FFFF   // s32 max = 2147483647
+    wire one: s32 = 1
+    wire wrap: s32 = (max + one) as s32
+    assert(wrap == -2147483648 as s32, "s32 max + 1 wraps to s32 min")
+}
+
+sim TestS32SubUnderflow {
+    wire min: s32 = -2147483648 as s32
+    wire one: s32 = 1
+    wire wrap: s32 = (min - one) as s32
+    assert(wrap == 0x7FFF_FFFF as s32, "s32 min - 1 wraps to s32 max")
+}
+
+sim TestS32Mul {
+    wire a: s32 = -1000
+    wire b: s32 = 1000
+    wire prod: s32 = (a * b) as s32
+    assert(prod == -1000000 as s32, "s32 -1000 * 1000 = -1,000,000")
+}
+
+sim TestS32Compare {
+    wire a: s32 = -2147483648 as s32
+    wire b: s32 = 0x7FFF_FFFF as s32
+    assert(a < b,  "s32 min < s32 max")
+    assert(b > a,  "s32 max > s32 min")
+    wire c: s32 = -1
+    wire d: s32 = 0 as s32
+    assert(c < d,  "s32 -1 < 0")
+    assert(d > c,  "s32 0 > -1")
+}
+
+sim TestS32ShiftArithmetic {
+    wire a: s32 = -8
+    wire shifted: s32 = (a >> 2) as s32
+    assert(shifted == -2 as s32, "s32 -8 >> 2 = -2 (arithmetic shift)")
+    wire allones: s32 = -1
+    wire still: s32 = (allones >> 16) as s32
+    assert(still == -1 as s32, "s32 -1 >> 16 = -1 (sign fills)")
+}
+
+// ----- s64 -----
+
+sim TestS64AddOverflow {
+    wire max: s64 = 0x7FFF_FFFF_FFFF_FFFF   // s64 max
+    wire one: s64 = 1
+    wire wrap: s64 = (max + one) as s64
+    assert(wrap == -9223372036854775808 as s64, "s64 max + 1 wraps to s64 min")
+}
+
+sim TestS64Negative {
+    wire a: s64 = -1
+    wire b: s64 = 1
+    wire sum: s64 = (a + b) as s64
+    assert(sum == 0 as s64, "s64 -1 + 1 = 0")
+}
+
+sim TestS64Mul {
+    wire a: s64 = -1000000
+    wire b: s64 = 1000000
+    wire prod: s64 = (a * b) as s64
+    assert(prod == -1000000000000 as s64, "s64 -1M * 1M = -1T")
+}
+
+sim TestS64Compare {
+    wire min: s64 = -9223372036854775808 as s64
+    wire max: s64 = 0x7FFF_FFFF_FFFF_FFFF
+    assert(min < max, "s64 min < s64 max")
+    assert(max > min, "s64 max > s64 min")
+    wire neg: s64 = -1
+    wire zer: s64 = 0 as s64
+    assert(neg < zer, "s64 -1 < 0")
+}
+
+sim TestS64ShiftArithmetic {
+    wire a: s64 = -8
+    wire shifted: s64 = (a >> 2) as s64
+    assert(shifted == -2 as s64, "s64 -8 >> 2 = -2 (arithmetic shift)")
+    wire hi: s64 = (1 as s64 << 32) as s64   // not -8; large positive
+    wire shr: s64 = (hi >> 16) as s64
+    assert(shr == 65536 as s64, "s64 positive >> 16 = no sign fill")
+}
+
+// Cross-width: verify u64 value exceeding u32 max doesn't lose upper bits.
+sim TestU64VsU32Range {
+    wire big: u64 = 0x0000_0001_FFFF_FFFF   // > u32 max
+    wire trunc: u32 = big as u32             // lower 32 bits = 0xFFFFFFFF
+    assert(trunc == 0xFFFF_FFFF, "u64 truncated to u32 loses upper bits")
+    // The full u64 value is NOT equal to the truncated u32.
+    wire extended: u64 = trunc as u64        // zero-extends back
+    assert(extended !== big, "zero-extended u32 != original u64 (upper bits were lost)")
+}

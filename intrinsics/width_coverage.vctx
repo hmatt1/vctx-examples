@@ -1,0 +1,159 @@
+// spec: §12.1, §12.2, §12.3
+// expect: pass
+// Teaches: width() on every primitive type (bool, u1, u8..u64, s8..s64);
+//          is_signed() on unsigned, signed, and bool; both return u32 / u1 respectively.
+
+component WidthUnsigned(
+    in bo: bool, in u1v: u1, in u8v: u8, in u16v: u16,
+    in u32v: u32, in u64v: u64,
+    out wbo: u32, out wu1: u32, out wu8: u32, out wu16: u32,
+    out wu32: u32, out wu64: u32
+) {
+    wbo  := width(bo)
+    wu1  := width(u1v)
+    wu8  := width(u8v)
+    wu16 := width(u16v)
+    wu32 := width(u32v)
+    wu64 := width(u64v)
+}
+
+component WidthSigned(
+    in s8v: s8, in s16v: s16, in s32v: s32, in s64v: s64,
+    out ws8: u32, out ws16: u32, out ws32: u32, out ws64: u32
+) {
+    ws8  := width(s8v)
+    ws16 := width(s16v)
+    ws32 := width(s32v)
+    ws64 := width(s64v)
+}
+
+component IsSignedCheck(
+    in bo: bool, in u8v: u8, in u16v: u16, in u32v: u32, in u64v: u64,
+    in s8v: s8, in s16v: s16, in s32v: s32, in s64v: s64,
+    out sbo: u1, out su8: u1, out su16: u1, out su32: u1, out su64: u1,
+    out ss8: u1, out ss16: u1, out ss32: u1, out ss64: u1
+) {
+    sbo  := is_signed(bo)
+    su8  := is_signed(u8v)
+    su16 := is_signed(u16v)
+    su32 := is_signed(u32v)
+    su64 := is_signed(u64v)
+    ss8  := is_signed(s8v)
+    ss16 := is_signed(s16v)
+    ss32 := is_signed(s32v)
+    ss64 := is_signed(s64v)
+}
+
+sim TestWidthUnsigned {
+    wire bo:   bool = false
+    wire u1v:  u1   = 0 as u1
+    wire u8v:  u8   = 0
+    wire u16v: u16  = 0
+    wire u32v: u32  = 0
+    wire u64v: u64  = 0
+    wire wbo:  u32
+    wire wu1:  u32
+    wire wu8:  u32
+    wire wu16: u32
+    wire wu32: u32
+    wire wu64: u32
+    WidthUnsigned(bo, u1v, u8v, u16v, u32v, u64v, wbo, wu1, wu8, wu16, wu32, wu64)
+    cycle()
+    assert(wbo  == 1  as u32, "width(bool) = 1")
+    assert(wu1  == 1  as u32, "width(u1) = 1")
+    assert(wu8  == 8  as u32, "width(u8) = 8")
+    assert(wu16 == 16 as u32, "width(u16) = 16")
+    assert(wu32 == 32 as u32, "width(u32) = 32")
+    assert(wu64 == 64 as u32, "width(u64) = 64")
+}
+
+sim TestWidthSigned {
+    wire s8v:  s8  = 0 as s8
+    wire s16v: s16 = 0 as s16
+    wire s32v: s32 = 0 as s32
+    wire s64v: s64 = 0 as s64
+    wire ws8:  u32
+    wire ws16: u32
+    wire ws32: u32
+    wire ws64: u32
+    WidthSigned(s8v, s16v, s32v, s64v, ws8, ws16, ws32, ws64)
+    cycle()
+    assert(ws8  == 8  as u32, "width(s8) = 8")
+    assert(ws16 == 16 as u32, "width(s16) = 16")
+    assert(ws32 == 32 as u32, "width(s32) = 32")
+    assert(ws64 == 64 as u32, "width(s64) = 64")
+}
+
+sim TestIsSignedAllTypes {
+    wire bo:   bool = false
+    wire u8v:  u8   = 0
+    wire u16v: u16  = 0
+    wire u32v: u32  = 0
+    wire u64v: u64  = 0
+    wire s8v:  s8   = 0 as s8
+    wire s16v: s16  = 0 as s16
+    wire s32v: s32  = 0 as s32
+    wire s64v: s64  = 0 as s64
+    wire sbo:  u1
+    wire su8:  u1
+    wire su16: u1
+    wire su32: u1
+    wire su64: u1
+    wire ss8:  u1
+    wire ss16: u1
+    wire ss32: u1
+    wire ss64: u1
+    IsSignedCheck(bo, u8v, u16v, u32v, u64v, s8v, s16v, s32v, s64v,
+                  sbo, su8, su16, su32, su64, ss8, ss16, ss32, ss64)
+    cycle()
+    assert(sbo  == 0 as u1, "is_signed(bool) = 0")
+    assert(su8  == 0 as u1, "is_signed(u8) = 0")
+    assert(su16 == 0 as u1, "is_signed(u16) = 0")
+    assert(su32 == 0 as u1, "is_signed(u32) = 0")
+    assert(su64 == 0 as u1, "is_signed(u64) = 0")
+    assert(ss8  == 1 as u1, "is_signed(s8) = 1")
+    assert(ss16 == 1 as u1, "is_signed(s16) = 1")
+    assert(ss32 == 1 as u1, "is_signed(s32) = 1")
+    assert(ss64 == 1 as u1, "is_signed(s64) = 1")
+}
+
+// width() on a wire returns a compile-time-known value.
+sim TestWidthIsComptime {
+    wire x: u16 = 0
+    wire w: u32 = width(x)
+    assert(is_comptime(w) == 1 as u1, "width() is comptime-known (type, not value)")
+}
+
+// width() is independent of the runtime value — same result regardless of what's in the wire.
+sim TestWidthIndependentOfValue {
+    wire a: u8 = 0
+    wire b: u8 = 255
+    wire wa: u32 = width(a)
+    wire wb: u32 = width(b)
+    cycle()
+    assert(wa == 8 as u32, "width(u8=0) = 8")
+    assert(wb == 8 as u32, "width(u8=255) = 8 (same type, same width)")
+    assert(wa == wb,       "width depends on type, not value")
+}
+
+// Signed and unsigned of same bit-width have the same width() result.
+sim TestWidthSignedUnsignedSameBits {
+    wire u: u8 = 0
+    wire s: s8 = 0 as s8
+    wire wu: u32 = width(u)
+    wire ws: u32 = width(s)
+    cycle()
+    assert(wu == 8 as u32, "width(u8) = 8")
+    assert(ws == 8 as u32, "width(s8) = 8")
+    assert(wu == ws,       "u8 and s8 have same width")
+}
+
+sim TestWidthU1Bool {
+    wire u: u1 = 0 as u1
+    wire b: bool = false
+    wire wu: u32 = width(u)
+    wire wb: u32 = width(b)
+    cycle()
+    assert(wu == 1 as u32, "width(u1) = 1")
+    assert(wb == 1 as u32, "width(bool) = 1")
+}

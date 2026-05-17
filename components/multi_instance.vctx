@@ -1,0 +1,219 @@
+// spec: §3, §3.1, §15.1
+// expect: pass
+// Teaches: multiple independent instances of the same component in one sim block each
+//          maintain separate register state; poke on one instance's wire does not
+//          affect another instance's inputs; reset() resets all instances.
+
+component Counter8(out val: u8) {
+    reg count: u8 = 0
+    count <= (count + 1) as u8
+    val := count
+}
+
+component Accumulate(in d: u8, out q: u8) {
+    reg acc: u8 = 0
+    acc <= (acc + d) as u8
+    q := acc
+}
+
+// Purely combinational — separate instances still have independent inputs/outputs.
+component Threshold(in x: u8, in thr: u8, out over: bool) {
+    over := x > thr
+}
+
+// Stateful with enable.
+component LoadReg(in en: bool, in d: u8, out q: u8) {
+    reg r: u8 = 0
+    when en {
+        r <= d
+    }
+    q := r
+}
+
+// Pipeline stage: single-cycle delay.
+component Delay8(in d: u8, out q: u8) {
+    reg pipe: u8 = 0
+    pipe <= d
+    q := pipe
+}
+
+sim TestTwoCountersIndependent {
+    wire v0: u8
+    wire v1: u8
+    Counter8(v0)
+    Counter8(v1)
+    assert(v0 == 0, "c0 starts at 0")
+    assert(v1 == 0, "c1 starts at 0")
+    cycle()
+    assert(v0 == 1, "c0 at 1")
+    assert(v1 == 1, "c1 at 1 (independently)")
+    cycle(4)
+    assert(v0 == 5, "c0 at 5")
+    assert(v1 == 5, "c1 at 5 (independently)")
+}
+
+sim TestThreeCountersSameState {
+    wire a: u8
+    wire b: u8
+    wire c: u8
+    Counter8(a)
+    Counter8(b)
+    Counter8(c)
+    cycle(5)
+    assert(a == 5, "counter a at 5")
+    assert(b == 5, "counter b at 5")
+    assert(c == 5, "counter c at 5")
+}
+
+sim TestTwoCountersReset {
+    wire v0: u8
+    wire v1: u8
+    Counter8(v0)
+    Counter8(v1)
+    cycle(10)
+    assert(v0 == 10, "both at 10")
+    assert(v1 == 10, "both at 10")
+    reset()
+    assert(v0 == 0, "c0 reset to 0")
+    assert(v1 == 0, "c1 reset to 0")
+    cycle(3)
+    assert(v0 == 3, "c0 counts from 0 after reset")
+    assert(v1 == 3, "c1 counts from 0 after reset")
+}
+
+sim TestTwoAccumulatorsIndependent {
+    wire d0: u8 = 1
+    wire d1: u8 = 3
+    wire q0: u8
+    wire q1: u8
+    Accumulate(d0, q0)
+    Accumulate(d1, q1)
+    cycle()
+    assert(q0 == 1,  "acc0 += 1 → 1")
+    assert(q1 == 3,  "acc1 += 3 → 3")
+    cycle()
+    assert(q0 == 2,  "acc0 += 1 → 2")
+    assert(q1 == 6,  "acc1 += 3 → 6")
+    poke(d0, 5)
+    cycle()
+    assert(q0 == 7,  "acc0 += 5 → 7")
+    assert(q1 == 9,  "acc1 += 3 → 9 (unaffected by d0 poke)")
+    poke(d1, 10)
+    cycle()
+    assert(q0 == 12, "acc0 += 5 → 12")
+    assert(q1 == 19, "acc1 += 10 → 19 (unaffected by d0)")
+}
+
+sim TestTwoThresholdsIndependent {
+    wire x0: u8 = 5
+    wire x1: u8 = 15
+    wire thr0: u8 = 10
+    wire thr1: u8 = 10
+    wire o0: bool
+    wire o1: bool
+    Threshold(x0, thr0, o0)
+    Threshold(x1, thr1, o1)
+    cycle()
+    assert(o0 == false, "5 > 10 is false")
+    assert(o1 == true,  "15 > 10 is true")
+    poke(x0, 20)
+    poke(x1, 2)
+    cycle()
+    assert(o0 == true,  "20 > 10 is true (o0 changed)")
+    assert(o1 == false, "2 > 10 is false (o1 changed)")
+}
+
+sim TestTwoThresholdsDifferentThresholds {
+    wire x: u8 = 50
+    wire t0: u8 = 30
+    wire t1: u8 = 70
+    wire o0: bool
+    wire o1: bool
+    Threshold(x, t0, o0)
+    Threshold(x, t1, o1)
+    cycle()
+    assert(o0 == true,  "50 > 30: true")
+    assert(o1 == false, "50 > 70: false (different threshold, same input)")
+}
+
+sim TestTwoLoadRegsIndependent {
+    wire en0: bool = false
+    wire en1: bool = false
+    wire d0: u8 = 0xAA
+    wire d1: u8 = 0x55
+    wire q0: u8
+    wire q1: u8
+    LoadReg(en0, d0, q0)
+    LoadReg(en1, d1, q1)
+    cycle()
+    assert(q0 == 0, "r0 at reset")
+    assert(q1 == 0, "r1 at reset")
+    poke(en0, true)
+    cycle()
+    assert(q0 == 0xAA, "r0 loaded 0xAA")
+    assert(q1 == 0,    "r1 holds 0 (en1 still false)")
+    poke(en0, false)
+    poke(en1, true)
+    poke(d1, 0x77)
+    cycle()
+    assert(q0 == 0xAA, "r0 holds 0xAA (en0=false)")
+    assert(q1 == 0x77, "r1 loaded 0x77")
+}
+
+sim TestTwoLoadRegsReset {
+    wire en0: bool = true
+    wire en1: bool = true
+    wire d0: u8 = 11
+    wire d1: u8 = 22
+    wire q0: u8
+    wire q1: u8
+    LoadReg(en0, d0, q0)
+    LoadReg(en1, d1, q1)
+    cycle()
+    assert(q0 == 11, "r0 loaded 11")
+    assert(q1 == 22, "r1 loaded 22")
+    reset()
+    assert(q0 == 0, "r0 reset to 0")
+    assert(q1 == 0, "r1 reset to 0 (independent reg)")
+}
+
+// Two delay lines fed from different sources: each has separate pipeline state.
+sim TestTwoDelayLinesIndependent {
+    wire d0: u8 = 0xAA
+    wire d1: u8 = 0x55
+    wire q0: u8
+    wire q1: u8
+    Delay8(d0, q0)
+    Delay8(d1, q1)
+    assert(q0 == 0, "delay0 starts at 0")
+    assert(q1 == 0, "delay1 starts at 0")
+    cycle()
+    assert(q0 == 0xAA, "delay0 outputs d0 after 1 cycle")
+    assert(q1 == 0x55, "delay1 outputs d1 after 1 cycle (independent)")
+    poke(d0, 0xFF)
+    cycle()
+    assert(q0 == 0xFF, "delay0 tracks new d0")
+    assert(q1 == 0x55, "delay1 unaffected by d0 change")
+}
+
+// Four instances of same component — stress test elaborator deduplication.
+sim TestFourCounters {
+    wire c0: u8
+    wire c1: u8
+    wire c2: u8
+    wire c3: u8
+    Counter8(c0)
+    Counter8(c1)
+    Counter8(c2)
+    Counter8(c3)
+    cycle(7)
+    assert(c0 == 7, "counter 0 at 7")
+    assert(c1 == 7, "counter 1 at 7")
+    assert(c2 == 7, "counter 2 at 7")
+    assert(c3 == 7, "counter 3 at 7")
+    reset()
+    assert(c0 == 0, "counter 0 reset")
+    assert(c1 == 0, "counter 1 reset")
+    assert(c2 == 0, "counter 2 reset")
+    assert(c3 == 0, "counter 3 reset")
+}

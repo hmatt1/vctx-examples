@@ -1,0 +1,139 @@
+// spec: §7, §8
+// expect: pass
+// Teaches: operator precedence — each sim verifies an unparenthesized expression against
+//          the expected binding. Values are chosen so only the correct precedence gives the
+//          asserted result; the wrong grouping would produce a different value.
+
+// * binds tighter than +: 2 + 3 * 4 = 2 + 12 = 14 (not (2+3)*4 = 20)
+sim TestMulBeforeAdd {
+    wire a: u8 = 2
+    wire b: u8 = 3
+    wire c: u8 = 4
+    wire implicit: u8 = (a + b * c) as u8
+    wire explicit: u8 = (a + (b * c)) as u8
+    assert(implicit == 14,       "2 + 3*4 = 14 (* before +)")
+    assert(implicit == explicit, "matches explicitly-parenthesized form")
+}
+
+// * binds tighter than -: 20 - 3 * 4 = 20 - 12 = 8 (not (20-3)*4 = 68)
+sim TestMulBeforeSub {
+    wire a: u8 = 20
+    wire b: u8 = 3
+    wire c: u8 = 4
+    wire implicit: u8 = (a - b * c) as u8
+    wire explicit: u8 = (a - (b * c)) as u8
+    assert(implicit == 8,        "20 - 3*4 = 8 (* before -)")
+    assert(implicit == explicit, "matches explicit")
+}
+
+// Left-to-right among equal precedence: 24 / 4 * 2 = (24/4)*2 = 12 (not 24/(4*2)=3)
+sim TestDivMulLeftToRight {
+    wire a: u8 = 24
+    wire b: u8 = 4
+    wire c: u8 = 2
+    wire implicit: u8 = (a / b * c) as u8
+    wire explicit: u8 = ((a / b) * c) as u8
+    assert(implicit == 12,       "24/4*2 = 12 (left-to-right)")
+    assert(implicit == explicit, "matches explicit left-to-right grouping")
+}
+
+// & binds tighter than |:
+//   0xF0 | 0x0A & 0x0F = 0xF0 | (0x0A & 0x0F) = 0xF0 | 0x0A = 0xFA
+//   if | were tighter: (0xF0 | 0x0A) & 0x0F = 0xFA & 0x0F = 0x0A
+sim TestBitwiseAndBeforeOr {
+    wire a: u8 = 0xF0
+    wire b: u8 = 0x0A
+    wire c: u8 = 0x0F
+    wire implicit: u8 = a | b & c
+    wire explicit: u8 = a | (b & c)
+    assert(implicit == 0xFA,     "& before |: 0xF0 | (0x0A & 0x0F) = 0xFA")
+    assert(implicit == explicit, "matches explicit")
+}
+
+// & binds tighter than ^:
+//   0xFF ^ 0x0F & 0x55 = 0xFF ^ (0x0F & 0x55) = 0xFF ^ 0x05 = 0xFA
+//   if ^ were tighter: (0xFF ^ 0x0F) & 0x55 = 0xF0 & 0x55 = 0x50
+sim TestBitwiseAndBeforeXor {
+    wire a: u8 = 0xFF
+    wire b: u8 = 0x0F
+    wire c: u8 = 0x55
+    wire implicit: u8 = a ^ b & c
+    wire explicit: u8 = a ^ (b & c)
+    assert(implicit == 0xFA,     "& before ^: 0xFF ^ (0x0F & 0x55) = 0xFA")
+    assert(implicit == explicit, "matches explicit")
+}
+
+// << binds tighter than |:
+//   0xF0 | 3 << 2 = 0xF0 | (3 << 2) = 0xF0 | 0x0C = 0xFC
+//   if | were tighter: (0xF0 | 3) & ... not applicable; (0xF0|3)=0xF3, then <<2 = 0xCC as u8
+sim TestShiftBeforeBitwiseOr {
+    wire a: u8 = 0xF0
+    wire b: u8 = 3
+    wire implicit: u8 = (a | b << 2) as u8
+    wire explicit: u8 = (a | (b << 2)) as u8
+    assert(implicit == 0xFC,     "<< before |: 0xF0 | (3 << 2) = 0xFC")
+    assert(implicit == explicit, "matches explicit")
+}
+
+// `not` binds tighter than `and`:
+//   not x and y where x=true, y=false
+//   (not true) and false = false and false = false   ← correct if not is tighter
+//   not (true and false) = not false = true          ← wrong precedence
+sim TestNotBeforeAnd {
+    wire x: bool = true
+    wire y: bool = false
+    wire implicit: bool = not x and y
+    wire explicit: bool = (not x) and y
+    assert(implicit == false,    "not binds tighter than and: (not true) and false = false")
+    assert(implicit == explicit, "matches explicit")
+}
+
+// `not` binds tighter than `or`:
+//   not a or b where a=false, b=true
+//   (not false) or true = true or true = true        ← correct if not is tighter
+//   not (false or true) = not true = false           ← wrong precedence
+sim TestNotBeforeOr {
+    wire a: bool = false
+    wire b: bool = true
+    wire implicit: bool = not a or b
+    wire explicit: bool = (not a) or b
+    assert(implicit == true,     "not binds tighter than or: (not false) or true = true")
+    assert(implicit == explicit, "matches explicit")
+}
+
+// `and` binds tighter than `or`:
+//   p or q and r where p=true, q=true, r=false
+//   true or (true and false) = true or false = true  ← correct if and is tighter
+//   (true or true) and false = true and false = false ← wrong precedence
+sim TestAndBeforeOr {
+    wire p: bool = true
+    wire q: bool = true
+    wire r: bool = false
+    wire implicit: bool = p or q and r
+    wire explicit: bool = p or (q and r)
+    assert(implicit == true,     "and before or: true or (true and false) = true")
+    assert(implicit == explicit, "matches explicit")
+}
+
+// Left-to-right for +/-: 10 - 3 + 2 = (10-3)+2 = 9 (not 10-(3+2) = 5)
+sim TestAddSubLeftToRight {
+    wire a: u8 = 10
+    wire b: u8 = 3
+    wire c: u8 = 2
+    wire implicit: u8 = (a - b + c) as u8
+    wire explicit: u8 = ((a - b) + c) as u8
+    assert(implicit == 9,        "10 - 3 + 2 = 9 (left-to-right)")
+    assert(implicit == explicit, "matches explicit")
+}
+
+// Mixed: * and + with three terms: 1 + 2 * 3 + 4 = 1 + 6 + 4 = 11
+sim TestMixedThreeTerms {
+    wire a: u8 = 1
+    wire b: u8 = 2
+    wire c: u8 = 3
+    wire d: u8 = 4
+    wire implicit: u8 = (a + b * c + d) as u8
+    wire explicit: u8 = (a + (b * c) + d) as u8
+    assert(implicit == 11,       "1 + 2*3 + 4 = 11")
+    assert(implicit == explicit, "matches explicit")
+}

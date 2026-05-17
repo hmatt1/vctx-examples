@@ -1,0 +1,106 @@
+// spec: §7, §7.6, §8.7
+// expect: pass
+// Teaches: packing signed values with concat by casting to unsigned first;
+//          concat is a bit-level operation — the result is always unsigned.
+//          Sign bit of s8(-1)=0xFF is preserved in the bit pattern of the concatenated result.
+
+sim TestConcatSignedHighUnsignedLow {
+    // Pack s8 into the high byte of u16: cast to u8 first, then concat.
+    wire hi: s8 = -1    // 0xFF
+    wire lo: u8 = 0xAA
+    wire result: u16 = concat(hi as u8, lo)
+    assert(result == 0xFFAA, "s8(-1) as u8 concat u8(0xAA) = 0xFFAA")
+}
+
+sim TestConcatBothSignedCastFirst {
+    wire a: s8 = -1    // 0xFF
+    wire b: s8 = -2    // 0xFE
+    wire result: u16 = concat(a as u8, b as u8)
+    assert(result == 0xFFFE, "s8(-1) concat s8(-2) as bit pattern = 0xFFFE")
+}
+
+sim TestConcatSignedPositiveValues {
+    // Positive signed values: bits identical to unsigned.
+    wire a: s8 = 0x7F  // 127
+    wire b: s8 = 0x01
+    wire result: u16 = concat(a as u8, b as u8)
+    assert(result == 0x7F01, "s8(127) concat s8(1) = 0x7F01")
+}
+
+sim TestConcatSignedZero {
+    wire a: s8 = 0 as s8
+    wire b: s8 = 0 as s8
+    wire result: u16 = concat(a as u8, b as u8)
+    assert(result == 0, "s8(0) concat s8(0) = 0")
+}
+
+sim TestConcatSignedMinValue {
+    wire a: s8 = -128  // 0x80
+    wire b: s8 = 0 as s8
+    wire result: u16 = concat(a as u8, b as u8)
+    assert(result == 0x8000, "s8(-128) concat s8(0) = 0x8000")
+}
+
+sim TestConcatSignedS16 {
+    wire a: s16 = -1       // 0xFFFF
+    wire b: u16 = 0x1234
+    wire result: u32 = concat(a as u16, b)
+    assert(result == 0xFFFF1234, "s16(-1) concat u16(0x1234) = 0xFFFF1234")
+}
+
+sim TestConcatSignedS16NegHi {
+    wire hi: s16 = -32768  // 0x8000
+    wire lo: u16 = 0xBEEF
+    wire result: u32 = concat(hi as u16, lo)
+    assert(result == 0x8000BEEF, "s16 min concat 0xBEEF = 0x8000BEEF")
+}
+
+// Packing a sign bit and magnitude separately.
+sim TestConcatSignBitMagnitude {
+    // Encode signed value as (sign_bit, magnitude).
+    wire val: s8 = -42 as s8
+    wire sign_bit: u1 = val[7]        // MSB is sign
+    wire magnitude: u7 = val[6..0]    // lower 7 bits (two's complement magnitude, not abs)
+    wire repacked: u8 = concat(sign_bit, magnitude)
+    // -42 = 0b11010110; sign=1, magnitude[6..0]=0b1010110=0x56; repacked=0b11010110=0xD6
+    assert(repacked == 0xD6, "sign + magnitude[6..0] repacks to original -42 bit pattern")
+}
+
+// u16 into two s8 slots: split and re-join.
+sim TestConcatSplitRejoin {
+    wire word: u16 = 0xABCD
+    wire hi_byte: u8 = word[15..8]
+    wire lo_byte: u8 = word[7..0]
+    // Treat each byte as signed then repack.
+    wire hi_s: s8 = hi_byte as s8   // 0xAB = -85 as s8
+    wire lo_s: s8 = lo_byte as s8   // 0xCD = -51 as s8
+    wire rejoined: u16 = concat(hi_s as u8, lo_s as u8)
+    assert(rejoined == 0xABCD, "split into s8 halves and rejoin preserves bit pattern")
+}
+
+// Three-way concat with mixed signed/unsigned.
+sim TestConcatThreeWayMixed {
+    wire a: s8 = -1    // 0xFF
+    wire b: u4 = 0xA
+    wire c: u4 = 0x5
+    wire result: u16 = concat(a as u8, b, c)
+    assert(result == 0xFFA5, "s8(-1) concat u4(A) concat u4(5) = 0xFFA5")
+}
+
+// Concat two s16 to form u32.
+sim TestConcatTwoS16 {
+    wire hi: s16 = -1       // 0xFFFF
+    wire lo: s16 = -1       // 0xFFFF
+    wire result: u32 = concat(hi as u16, lo as u16)
+    assert(result == 0xFFFFFFFF, "two s16(-1) concat = 0xFFFFFFFF")
+}
+
+sim TestConcatS8PlusU8ResultIsUnsigned {
+    // Verify the result type is unsigned — can be compared to an unsigned literal.
+    wire a: s8 = -1   // 0xFF
+    wire b: u8 = 0x00
+    wire r: u16 = concat(a as u8, b)
+    // If result were signed, 0xFF00 = -256 as s16 and the assertion would need s16.
+    // Using u16 proves concat result is unsigned.
+    assert(r == 0xFF00, "concat result is unsigned u16 = 0xFF00")
+}

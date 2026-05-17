@@ -1,0 +1,201 @@
+// spec: §7, §7.4, §7.5, §8.7
+// expect: pass
+// Teaches: signed add/sub two's-complement wrap; signed div truncates toward zero;
+//          signed modulo sign follows dividend; signed arithmetic right shift (sign-fills).
+
+sim TestSignedAddWrap {
+    wire a: s8 = 127
+    wire b: s8 = 1
+    wire sum: s8 = (a + b) as s8
+    assert(sum == -128 as s8, "s8 127 + 1 wraps to -128 (two's complement)")
+}
+
+sim TestSignedAddNegative {
+    wire a: s8 = -50
+    wire b: s8 = -50
+    wire sum: s8 = (a + b) as s8
+    assert(sum == -100 as s8, "-50 + -50 = -100")
+}
+
+sim TestSignedAddCrossZero {
+    wire a: s8 = -30
+    wire b: s8 = 50
+    wire sum: s8 = (a + b) as s8
+    assert(sum == 20 as s8, "-30 + 50 = 20")
+}
+
+sim TestSignedSubPositive {
+    wire a: s8 = 5
+    wire b: s8 = 10
+    wire diff: s8 = (a - b) as s8
+    assert(diff == -5 as s8, "5 - 10 = -5")
+}
+
+sim TestSignedSubUnderflow {
+    wire a: s8 = -128
+    wire b: s8 = 1
+    wire diff: s8 = (a - b) as s8
+    assert(diff == 127 as s8, "s8 -128 - 1 wraps to 127 (two's complement)")
+}
+
+sim TestSignedSubNegFromNeg {
+    wire a: s8 = -10
+    wire b: s8 = -3
+    wire diff: s8 = (a - b) as s8
+    assert(diff == -7 as s8, "-10 - (-3) = -7")
+}
+
+sim TestSignedDivTruncTowardZero {
+    // -7 / 2 = -3.5 → truncated toward zero = -3
+    wire a: s8 = -7
+    wire b: s8 = 2
+    wire q: s8 = (a / b) as s8
+    assert(q == -3 as s8, "s8 -7 / 2 = -3 (truncated toward zero, not -4)")
+}
+
+sim TestSignedDivNegDivisor {
+    // 7 / -2 = -3.5 → truncated toward zero = -3
+    wire a: s8 = 7
+    wire b: s8 = -2
+    wire q: s8 = (a / b) as s8
+    assert(q == -3 as s8, "s8 7 / -2 = -3 (truncated toward zero)")
+}
+
+sim TestSignedDivBothNeg {
+    // -7 / -2 = 3.5 → truncated toward zero = 3
+    wire a: s8 = -7
+    wire b: s8 = -2
+    wire q: s8 = (a / b) as s8
+    assert(q == 3 as s8, "s8 -7 / -2 = 3")
+}
+
+sim TestSignedDivExact {
+    wire a: s8 = -12
+    wire b: s8 = 4
+    wire q: s8 = (a / b) as s8
+    assert(q == -3 as s8, "s8 -12 / 4 = -3 (exact)")
+}
+
+sim TestSignedDivPositive {
+    wire a: s8 = 15
+    wire b: s8 = 4
+    wire q: s8 = (a / b) as s8
+    assert(q == 3 as s8, "s8 15 / 4 = 3 (truncated toward zero)")
+}
+
+sim TestSignedModSignFollowsDividend {
+    // -7 % 2: remainder sign follows dividend → -1
+    // Verify: -7 = 2 * (-3) + (-1)  ✓
+    wire a: s8 = -7
+    wire b: s8 = 2
+    wire r: s8 = (a % b) as s8
+    assert(r == -1 as s8, "s8 -7 % 2 = -1 (sign follows dividend)")
+}
+
+sim TestSignedModPosDividendNegDivisor {
+    // 7 % -2: sign of result follows dividend → +1
+    // Verify: 7 = -2 * (-3) + 1  ✓
+    wire a: s8 = 7
+    wire b: s8 = -2
+    wire r: s8 = (a % b) as s8
+    assert(r == 1 as s8, "s8 7 % -2 = 1 (sign follows dividend)")
+}
+
+sim TestSignedModBothNeg {
+    wire a: s8 = -7
+    wire b: s8 = -2
+    wire r: s8 = (a % b) as s8
+    assert(r == -1 as s8, "s8 -7 % -2 = -1 (sign follows dividend)")
+}
+
+sim TestSignedModZeroRemainder {
+    wire a: s8 = -8
+    wire b: s8 = 4
+    wire r: s8 = (a % b) as s8
+    assert(r == 0 as s8, "s8 -8 % 4 = 0 (exact)")
+}
+
+sim TestSignedModPositive {
+    wire a: s8 = 10
+    wire b: s8 = 3
+    wire r: s8 = (a % b) as s8
+    assert(r == 1 as s8, "s8 10 % 3 = 1")
+}
+
+// Arithmetic right shift: fills vacated bits with the sign bit.
+sim TestSignedRightShiftNegative {
+    // -8 = 0b11111000; arithmetic right shift by 2 → 0b11111110 = -2
+    wire a: s8 = -8
+    wire shifted: s8 = (a >> 2) as s8
+    assert(shifted == -2 as s8, "s8 -8 >> 2 = -2 (sign bit fills high bits)")
+}
+
+sim TestSignedRightShiftByOne {
+    // -16 = 0b11110000; >> 1 → 0b11111000 = -8
+    wire a: s8 = -16
+    wire shifted: s8 = (a >> 1) as s8
+    assert(shifted == -8 as s8, "s8 -16 >> 1 = -8")
+}
+
+sim TestSignedRightShiftMinusOne {
+    // -1 = 0b11111111; any arithmetic right shift stays -1
+    wire a: s8 = -1
+    wire shifted: s8 = (a >> 4) as s8
+    assert(shifted == -1 as s8, "s8 -1 >> 4 = -1 (all sign bits)")
+}
+
+sim TestSignedRightShiftPositive {
+    // Positive: same as unsigned shift, no sign fill needed
+    wire a: s8 = 64
+    wire shifted: s8 = (a >> 2) as s8
+    assert(shifted == 16 as s8, "s8 64 >> 2 = 16")
+}
+
+sim TestSignedLeftShiftNegative {
+    // -1 = 0b11111111; << 3 → 0b11111000 = -8
+    wire a: s8 = -1
+    wire shifted: s8 = (a << 3) as s8
+    assert(shifted == -8 as s8, "s8 -1 << 3 = -8 (low bits zeroed)")
+}
+
+sim TestSignedLeftShiftPositive {
+    wire a: s8 = 1
+    wire shifted: s8 = (a << 4) as s8
+    assert(shifted == 16 as s8, "s8 1 << 4 = 16")
+}
+
+sim TestSignedLeftShiftOverflow {
+    // 64 << 1 = 128, but s8 max is 127 → wraps to -128
+    wire a: s8 = 64
+    wire shifted: s8 = (a << 1) as s8
+    assert(shifted == -128 as s8, "s8 64 << 1 = -128 (overflow wraps)")
+}
+
+sim TestSignedAddS16 {
+    wire a: s16 = 32767
+    wire b: s16 = 1
+    wire sum: s16 = (a + b) as s16
+    assert(sum == -32768 as s16, "s16 max + 1 wraps to s16 min")
+}
+
+sim TestSignedMulOverflow {
+    // s8: 64 * 2 = 128 > 127 → wraps to -128
+    wire a: s8 = 64
+    wire b: s8 = 2
+    wire prod: s8 = (a * b) as s8
+    assert(prod == -128 as s8, "s8 64 * 2 overflows to -128")
+}
+
+sim TestSignedMulNegResult {
+    wire a: s8 = 10
+    wire b: s8 = -3
+    wire prod: s8 = (a * b) as s8
+    assert(prod == -30 as s8, "s8 10 * -3 = -30")
+}
+
+sim TestSignedMulBothNeg {
+    wire a: s8 = -5
+    wire b: s8 = -4
+    wire prod: s8 = (a * b) as s8
+    assert(prod == 20 as s8, "s8 -5 * -4 = 20")
+}

@@ -1,0 +1,179 @@
+// spec: §7, §7.5, §8.7
+// expect: pass
+// Teaches: signed ordered comparisons with negative values; more-negative is smaller;
+//          equality and inequality; s8, s16 ranges; poke-driven comparison updates.
+
+sim TestSignedLtNegPos {
+    wire a: s8 = -1
+    wire b: s8 = 0
+    assert(a < b, "s8 -1 < 0")
+}
+
+sim TestSignedLtNegNeg {
+    wire a: s8 = -10
+    wire b: s8 = -5
+    assert(a < b, "s8 -10 < -5 (more negative is less)")
+}
+
+sim TestSignedLtMinMax {
+    wire a: s8 = -128
+    wire b: s8 = 127
+    assert(a < b, "s8 min < s8 max")
+}
+
+sim TestSignedLtFalseWhenEqual {
+    wire a: s8 = -7
+    wire b: s8 = -7
+    assert((a < b) == false, "s8 -7 < -7 is false")
+}
+
+sim TestSignedLtFalseWhenGreater {
+    wire a: s8 = -3
+    wire b: s8 = -10
+    assert((a < b) == false, "s8 -3 < -10 is false")
+}
+
+sim TestSignedGtPosNeg {
+    wire a: s8 = 0
+    wire b: s8 = -1
+    assert(a > b, "s8 0 > -1")
+}
+
+sim TestSignedGtNegNeg {
+    wire a: s8 = -5
+    wire b: s8 = -10
+    assert(a > b, "s8 -5 > -10")
+}
+
+sim TestSignedGtMaxMin {
+    wire a: s8 = 127
+    wire b: s8 = -128
+    assert(a > b, "s8 max > s8 min")
+}
+
+sim TestSignedLeqEqual {
+    wire a: s8 = -1
+    wire b: s8 = -1
+    assert(a <== b, "s8 -1 <== -1 (equal case)")
+}
+
+sim TestSignedLeqLess {
+    wire a: s8 = -2
+    wire b: s8 = -1
+    assert(a <== b, "s8 -2 <== -1 (less case)")
+}
+
+sim TestSignedLeqFalseWhenGreater {
+    wire a: s8 = 0
+    wire b: s8 = -1
+    assert((a <== b) == false, "s8 0 <== -1 is false")
+}
+
+sim TestSignedGeqEqual {
+    wire a: s8 = -1
+    wire b: s8 = -1
+    assert(a >== b, "s8 -1 >== -1 (equal case)")
+}
+
+sim TestSignedGeqGreater {
+    wire a: s8 = 0
+    wire b: s8 = -1
+    assert(a >== b, "s8 0 >== -1 (greater case)")
+}
+
+sim TestSignedGeqFalseWhenLess {
+    wire a: s8 = -5
+    wire b: s8 = -3
+    assert((a >== b) == false, "s8 -5 >== -3 is false")
+}
+
+sim TestSignedEqNegative {
+    wire a: s8 = -42
+    wire b: s8 = -42
+    assert(a == b, "s8 -42 == -42")
+}
+
+sim TestSignedEqZero {
+    wire a: s8 = 0
+    wire b: s8 = 0
+    assert(a == b, "s8 0 == 0")
+}
+
+sim TestSignedEqFalseCrossZero {
+    wire a: s8 = -1
+    wire b: s8 = 1
+    assert((a == b) == false, "s8 -1 == 1 is false")
+}
+
+sim TestSignedNeqCrossZero {
+    wire a: s8 = -1
+    wire b: s8 = 1
+    assert(a !== b, "s8 -1 !== 1")
+}
+
+sim TestSignedNeqNegNeg {
+    wire a: s8 = -1
+    wire b: s8 = -2
+    assert(a !== b, "s8 -1 !== -2")
+}
+
+sim TestSignedNeqFalseWhenEqual {
+    wire a: s8 = -7
+    wire b: s8 = -7
+    assert((a !== b) == false, "s8 -7 !== -7 is false")
+}
+
+sim TestSignedS16Comparisons {
+    wire a: s16 = -32768
+    wire b: s16 = 32767
+    assert(a < b,  "s16 min < s16 max")
+    assert(b > a,  "s16 max > s16 min")
+    assert(a <== a, "s16 min <== s16 min")
+    assert(b >== b, "s16 max >== s16 max")
+
+    wire c: s16 = -1
+    wire d: s16 = 0
+    assert(c < d,  "s16 -1 < 0")
+    assert(d > c,  "s16 0 > -1")
+    assert(c !== d, "s16 -1 !== 0")
+}
+
+// Combinational comparison outputs, updated by poke.
+sim TestSignedComparePokeUpdate {
+    wire a: s8 = -5
+    wire b: s8 = -5
+    wire lt: bool
+    wire eq: bool
+    lt := a < b
+    eq := a == b
+    cycle()
+    assert(lt == false, "-5 < -5 is false")
+    assert(eq == true,  "-5 == -5 is true")
+    poke(a, -6 as s8)
+    cycle()
+    assert(lt == true,  "-6 < -5 after poke")
+    assert(eq == false, "-6 == -5 is false after poke")
+    poke(a, 0 as s8)
+    cycle()
+    assert(lt == false, "0 < -5 is false")
+    assert(eq == false, "0 == -5 is false")
+}
+
+sim TestSignedAllOpsOnSameValues {
+    // Comprehensive: a < b, a == b, a > b at each relation boundary.
+    wire neg: s8 = -128
+    wire pos: s8 = 127
+    wire zer: s8 = 0
+
+    assert(neg < zer,  "min < 0")
+    assert(zer < pos,  "0 < max")
+    assert(neg < pos,  "min < max")
+    assert(pos > neg,  "max > min")
+    assert(pos > zer,  "max > 0")
+    assert(zer > neg,  "0 > min")
+    assert(neg <== neg, "min <== min")
+    assert(pos >== pos, "max >== max")
+    assert(neg !== pos, "min !== max")
+    assert(pos !== neg, "max !== min")
+    assert(zer == zer,  "0 == 0")
+}
