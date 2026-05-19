@@ -121,11 +121,11 @@ sim TestS32AddOverflow {
     wire max: s32 = 0x7FFF_FFFF   // s32 max = 2147483647
     wire one: s32 = 1
     wire wrap: s32 = (max + one) as s32
-    assert(wrap == -2147483648 as s32, "s32 max + 1 wraps to s32 min")
+    assert(wrap == (-2147483648) as s32, "s32 max + 1 wraps to s32 min")
 }
 
 sim TestS32SubUnderflow {
-    wire min: s32 = -2147483648 as s32
+    wire min: s32 = (-2147483648) as s32
     wire one: s32 = 1
     wire wrap: s32 = (min - one) as s32
     assert(wrap == 0x7FFF_FFFF as s32, "s32 min - 1 wraps to s32 max")
@@ -139,7 +139,7 @@ sim TestS32Mul {
 }
 
 sim TestS32Compare {
-    wire a: s32 = -2147483648 as s32
+    wire a: s32 = (-2147483648) as s32
     wire b: s32 = 0x7FFF_FFFF as s32
     assert(a < b,  "s32 min < s32 max")
     assert(b > a,  "s32 max > s32 min")
@@ -161,10 +161,10 @@ sim TestS32ShiftArithmetic {
 // ----- s64 -----
 
 sim TestS64AddOverflow {
-    wire max: s64 = 0x7FFF_FFFF_FFFF_FFFF   // s64 max
+    wire max: s64 = 0x7FFF_FFFF_FFFF_FFFF as s64   // s64 max
     wire one: s64 = 1
     wire wrap: s64 = (max + one) as s64
-    assert(wrap == -9223372036854775808 as s64, "s64 max + 1 wraps to s64 min")
+    assert(wrap == (-9223372036854775808) as s64, "s64 max + 1 wraps to s64 min")
 }
 
 sim TestS64Negative {
@@ -182,10 +182,10 @@ sim TestS64Mul {
 }
 
 sim TestS64Compare {
-    wire min: s64 = -9223372036854775808 as s64
-    wire max: s64 = 0x7FFF_FFFF_FFFF_FFFF
+    wire min: s64 = (-9223372036854775808) as s64
+    wire max: s64 = 0x7FFF_FFFF_FFFF_FFFF as s64
     assert(min < max, "s64 min < s64 max")
-    assert(max > min, "s64 max > s64 min")
+    assert(max > min, "s64 max > min")
     wire neg: s64 = -1
     wire zer: s64 = 0 as s64
     assert(neg < zer, "s64 -1 < 0")
