@@ -1,13 +1,49 @@
 // spec: §7, §7.4, §7.5, §8.7
 // expect: pass
-// Teaches: signed add/sub two's-complement wrap; signed div truncates toward zero;
-//          signed modulo sign follows dividend; signed arithmetic right shift (sign-fills).
+
+// hi
+
+// hi
+
 
 sim TestSignedAddWrap {
-    wire a: s8 = 127
-    wire b: s8 = 1
-    wire sum: s8 = (a + b) as s8
-    assert(sum == -128 as s8, "s8 127 + 1 wraps to -128 (two's complement)")
+    // Inputs
+    wire a: s8 = 127 as s8   // s8 max
+    wire b: s7 = 3
+
+    // 130 in binary: 0b010000010 (9 bits)
+    wire wide_sum: s9 = a + b   // = 130, true mathematical result
+
+    // --- Narrowing to s8: 0b10000010 ---
+    // High bit of 130 becomes the sign bit → wraps to -126
+    wire n8: s8 = wide_sum as s8    // = -126
+    assert(n8 == -126, "s9→s8: 130 wraps to -126")
+    assert(n8 as u8 == 130 as u8, "s8 and u8 share the same bits: 0b10000010")
+
+    // --- Narrowing to s7: 0b0000010 ---
+    // Drops the overflow bit entirely, leaving the low 7 bits
+    wire n7: s7 = wide_sum as s7    // = 2
+    assert(n7 == 2, "s9→s7: overflow bit gone, low 7 bits = 2")
+
+    // --- Narrowing to s4: 0b0010 ---
+    // Low 4 bits of 130 (0b0010), sign bit is 0 → still positive
+    wire n4: s4 = wide_sum as s4    // = 2
+    assert(n4 == 2, "s9→s4: low 4 bits = 0b0010 = 2, still positive")
+
+    // --- Narrowing to s3: 0b010 ---
+    wire n3: s3 = wide_sum as s3    // = 2
+    assert(n3 == 2, "s9→s3: low 3 bits = 0b010 = 2")
+
+    // --- Narrowing to s2: 0b10 ---
+    // Bit 1 is now the sign bit → wraps again to -2
+    wire n2: s2 = wide_sum as s2    // = -2
+    assert(n2 == -2, "s9→s2: 0b10 wraps again, sign bit flips to -2")
+    assert(n2 as u2 == 2 as u2, "s2 and u2 share the same bits: 0b10")
+
+    // --- Narrowing to s1: 0b0 ---
+    // Only the LSB survives (130 = ...0, even number)
+    wire n1: s1 = wide_sum as s1    // = 0
+    assert(n1 == 0, "s9→s1: LSB of 130 is 0 (even number)")
 }
 
 sim TestSignedAddNegative {

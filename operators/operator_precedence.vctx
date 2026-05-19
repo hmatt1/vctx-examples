@@ -115,15 +115,18 @@ sim TestAndBeforeOr {
     assert(implicit == explicit, "matches explicit")
 }
 
+
 // Left-to-right for +/-: 10 - 3 + 2 = (10-3)+2 = 9 (not 10-(3+2) = 5)
 sim TestAddSubLeftToRight {
     wire a: u8 = 10
     wire b: u8 = 3
     wire c: u8 = 2
     wire implicit: u8 = (a - b + c) as u8
+    wire middle: u8 = (a - b) as u8
     wire explicit: u8 = ((a - b) + c) as u8
-    assert(implicit == 9,        "10 - 3 + 2 = 9 (left-to-right)")
+    assert(middle == 7, "middle == 7")
     assert(implicit == explicit, "matches explicit")
+    assert(implicit == 9,        "10 - 3 + 2 = 9 (left-to-right)")
 }
 
 // Mixed: * and + with three terms: 1 + 2 * 3 + 4 = 1 + 6 + 4 = 11
