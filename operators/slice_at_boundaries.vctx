@@ -1,0 +1,20 @@
+// spec: §7.2
+// expect: pass
+// Edge case: Slice at 0 and at width-1 boundaries.
+
+sim TestSliceBoundaries {
+    wire w: u8 = 0b1010_0101 // 0xA5
+    
+    // Slice(word, hi, lo)
+    // MSB is bit 7, LSB is bit 0.
+    
+    wire msb: u1 = Slice(w, 7, 7).bits as u1
+    assert(msb == 1 as u1, "Slice(w, 7, 7) is bit 7 (1)")
+    
+    wire lsb: u1 = Slice(w, 0, 0).bits as u1
+    assert(lsb == 1 as u1, "Slice(w, 0, 0) is bit 0 (1)")
+    
+    wire mid: u2 = Slice(w, 4, 3).bits as u2
+    // 0b101[00]101 -> 00
+    assert(mid == 0 as u2, "Slice(w, 4, 3) is 0b00")
+}

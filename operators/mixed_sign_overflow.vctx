@@ -1,0 +1,20 @@
+// spec: §7.5
+// expect: pass
+// Edge case: mixed signedness arithmetic width and wrapping.
+// u8 + s8 -> s10 (ensures u8 max + s8 max doesn't overflow)
+// s10 range: -512 to 511.
+
+sim TestMixedSignAdd {
+    wire a: u8 = 255
+    wire b: s8 = 1
+    
+    // a + b = 256. 
+    // In s10, 256 is perfectly representable.
+    wire sum: s10 = a + b
+    assert(sum == 256 as s10, "u8(255) + s8(1) = s10(256); no overflow by default")
+
+    // Explicitly cast to s9 should wrap
+    // 256 in s9 is -256
+    wire sum_wrapped: s9 = (a + b) as s9
+    assert(sum_wrapped == -256 as s9, "Explicitly narrowed to s9: 255 + 1 = -256")
+}

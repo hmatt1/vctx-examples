@@ -1,0 +1,17 @@
+// spec: §8.1, §12.1
+// expect: pass
+// Edge case: simple arithmetic in carrier brackets.
+
+component AddOneWidth<W>(in x: u[W], out y: u[(W + 1)]) {
+    wire extended: u[(W + 1)]
+    extended := (x as u[(W + 1)])
+    y := extended
+}
+
+sim TestAddOneWidth {
+    wire a: u8 = 100
+    wire b: u9
+    AddOneWidth<8>(a, b)
+    cycle()
+    assert(b == 100 as u9, "W+1 carrier math")
+}

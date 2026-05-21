@@ -1,0 +1,28 @@
+// spec: §8.7, §9.1
+// expect: pass
+// Edge case: sign extension vs zero extension when casting between signed/unsigned and different widths.
+
+sim TestSignExtensionEdge {
+    // s8(-1) is 0xFF.
+    // Casting to s16 sign-extends: 0xFFFF (-1).
+    // Casting to u16? Source is s8 (signed), so it should sign-extend then reinterpret.
+    wire s: s8 = -1
+    wire u16_val: u16 = s as u16
+    assert(u16_val == 65535 as u16, "s8(-1) as u16 should sign-extend to 0xFFFF (65535)")
+
+    // u8(255) is 0xFF.
+    // Casting to s16 zero-extends (unsigned source): 0x00FF (255).
+    wire u: u8 = 255
+    wire s16_val: s16 = u as s16
+    assert(s16_val == 255 as s16, "u8(255) as s16 should zero-extend to 255")
+}
+
+sim TestCastingReinterpretSameWidth {
+    wire a: u8 = 255
+    wire b: s8 = a as s8
+    assert(b == -1 as s8, "u8(255) as s8 is -1")
+    
+    wire c: s8 = -128
+    wire d: u8 = c as u8
+    assert(d == 128 as u8, "s8(-128) as u8 is 128")
+}

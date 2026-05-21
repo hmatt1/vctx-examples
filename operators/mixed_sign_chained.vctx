@@ -1,0 +1,26 @@
+// spec: §7.5
+// expect: pass
+// Edge case: chained mixed-signedness operations.
+// u8 + s8 + u8 -> 
+//   (u8(200) + s8(100)) -> s10(300)
+//   s10(300) + u8(200) -> s12(500)
+// Checking promotion stability over multiple operations.
+
+sim TestMixedSignChained {
+    wire a: u8 = 200
+    wire b: s8 = 100
+    wire c: u8 = 200
+    
+    wire res: s12 = a + b + c
+    assert(res == 500 as s12, "u8(200) + s8(100) + u8(200) = s12(500)")
+    
+    // u8 * s8 * u8
+    // u8(10) * s8(10) -> s17(100)
+    // s17(100) * u8(10) -> s27(1000)
+    wire x: u8 = 10
+    wire y: s8 = -10
+    wire z: u8 = 10
+    
+    wire prod: s27 = x * y * z
+    assert(prod == -1000 as s27, "u8(10) * s8(-10) * u8(10) = s27(-1000)")
+}

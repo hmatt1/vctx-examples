@@ -1,0 +1,25 @@
+// spec: §7.5
+// expect: pass
+// Edge case: mixed signedness bitwise operators.
+// u8 & s8 -> max(8, 8) = s8
+// Bitwise operations should just operate on the underlying 2's complement representations.
+
+sim TestMixedSignBitwise {
+    wire u_val: u8 = 0b1111_1111 // 255
+    wire s_val: s8 = -1 // 0b1111_1111
+    
+    wire and_res: s9 = u_val & s_val
+    assert(and_res == 255 as s9, "0xFF & 0xFF = 0xFF (255 as s9)")
+    
+    wire u_mask: u8 = 0b0000_1111 // 15
+    wire s_data: s8 = -16 // 0b1111_0000
+    
+    wire and_res2: s9 = u_mask & s_data
+    assert(and_res2 == 0 as s9, "0x0F & 0xF0 = 0x00")
+    
+    wire or_res: s9 = u_mask | s_data
+    assert(or_res == 255 as s9, "0x0F | 0xF0 = 0xFF (255 as s9)")
+    
+    wire xor_res: s9 = u_mask ^ s_data
+    assert(xor_res == 255 as s9, "0x0F ^ 0xF0 = 0xFF (255 as s9)")
+}

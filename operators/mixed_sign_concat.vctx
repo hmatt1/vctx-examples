@@ -1,0 +1,18 @@
+// spec: §8.4
+// expect: pass
+// Edge case: concatenating signed and unsigned carriers.
+// concat(u4, s4) -> u8
+// The signedness of the parts should not affect the resulting unsigned bitstream.
+
+sim TestMixedSignConcat {
+    wire u_part: u4 = 0b1010 // 10
+    wire s_part: s4 = -1     // 0b1111
+    
+    assert(u_part == 10 as u4, "u_part is 10")
+    assert(s_part == -1 as s4, "s_part is -1")
+    
+    // MSB is u_part, LSB is s_part -> 1010_1111 (0xAF, 175)
+    wire res: u8 = concat(u_part, s_part)
+    
+    assert(res == 175 as u8, "concat(u4(10), s4(-1)) = u8(175)")
+}

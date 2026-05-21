@@ -1,0 +1,20 @@
+// spec: §7.1
+// expect: pass
+// Edge case: Unary operator precedence vs binary operators.
+// Level 12 (unary) vs Level 9 (shift) vs Level 10 (sum).
+
+sim TestUnaryPrecedence {
+    wire x: u8 = 0b0000_1111 // 15
+    // ~x is 0b1111_0000 (240)
+    // ~x << 1 should be (240 << 1) as u8 = 480 & 255 = 224 (0b1110_0000)
+    // If << were tighter: ~(x << 1) = ~(30) = ~0b0001_1110 = 0b1110_0001 = 225
+    wire res: u8 = (~x << 1) as u8
+    assert(res == 224 as u8, "~x << 1 = (~x) << 1 = 224")
+
+    wire y: s8 = 10
+    wire z: s8 = 20
+    // -y + z should be (-10) + 20 = 10
+    // If + were tighter: -(10 + 20) = -30
+    wire res2: s8 = (-y + z) as s8
+    assert(res2 == 10 as s8, "-y + z = (-y) + z = 10")
+}

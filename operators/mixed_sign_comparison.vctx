@@ -1,0 +1,27 @@
+// spec: §7.5
+// expect: pass
+// Edge case: mixed signedness comparison.
+// u8(200) vs s8(100).
+// If compared as s8, u8(200) is -56, so -56 < 100 is TRUE.
+// Correct behavior: promote both to s9 (or wider) where u8(200) is +200.
+// 200 < 100 is FALSE.
+
+sim TestMixedSignCompare {
+    wire u: u8 = 200
+    wire s: s8 = 100
+    
+    // 200 is NOT less than 100
+    assert((u < s) == false, "u8(200) < s8(100) should be false")
+    assert((u > s) == true,  "u8(200) > s8(100) should be true")
+    
+    // Negative comparison
+    wire sn: s8 = -1
+    // u8(200) is NOT less than s8(-1)
+    assert((u < sn) == false, "u8(200) < s8(-1) should be false")
+    assert((u > sn) == true,  "u8(200) > s8(-1) should be true")
+
+    // Equality
+    wire val_u255: u8 = 255
+    wire s_neg1: s8 = -1
+    assert((val_u255 == s_neg1) == false, "u8(255) == s8(-1) is false (255 != -1)")
+}

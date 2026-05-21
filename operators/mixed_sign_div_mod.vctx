@@ -1,0 +1,30 @@
+// spec: §7.5
+// expect: pass
+// Edge case: mixed signedness division and modulo.
+// u8 / s8 -> max(8, 8) = s8
+// Division by a negative signed value should work correctly.
+
+sim TestMixedSignDivMod {
+    wire u_val: u8 = 100
+    wire s_val: s8 = -2
+    
+    // 100 / -2 = -50
+    // The result should be s9 because u8 is promoted to s9 before operation.
+    wire q: s9 = u_val / s_val
+    assert(q == -50 as s9, "u8(100) / s8(-2) = -50")
+    
+    // Modulo
+    // 10 / -3 = 1
+    wire u_val2: u8 = 10
+    wire s_val2: s8 = -3
+    wire r: s9 = u_val2 % s_val2
+    // 10 / -3 = -3. Remainder: 10 - (-3 * -3) = 1.
+    assert(r == 1 as s9, "u8(10) % s8(-3) = 1")
+    
+    // What if the unsigned is the divisor?
+    wire s_val3: s8 = -10
+    wire u_val3: u8 = 3
+    wire r2: s9 = s_val3 % u_val3
+    // -10 / 3 = -3. Remainder: -10 - (3 * -3) = -1.
+    assert(r2 == -1 as s9, "s8(-10) % u8(3) = -1")
+}
