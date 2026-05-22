@@ -25,7 +25,7 @@ component ALU16(
 ) {
     // u17 captures the carry/borrow bit above the 16-bit result
     wire add_ext: u17 = a + b
-    wire sub_ext: u17 = a - b
+    wire sub_ext: u17 = (a - b) as u17
 
     wire res_add: u16 = add_ext[15..0]
     wire res_sub: u16 = sub_ext[15..0]

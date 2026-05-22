@@ -61,9 +61,9 @@ component ALU8(
     wire c_add: bool = sum_lo[8] as bool
     wire c_adc: bool = sum_ad[8] as bool
 
-    wire res_sub_full: u9 = a - b
+    wire res_sub_full: u9 = (a - b) as u9
     wire res_sub: u8 = res_sub_full[7..0]
-    wire sbc_full: u9 = a - b - cin_u
+    wire sbc_full: u9 = (a - b - cin_u) as u9
     wire res_sbc: u8 = sbc_full[7..0]
     wire c_sub: bool = a < b
     wire c_sbc: bool = a < b + cin_u
