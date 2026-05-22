@@ -25,7 +25,7 @@ component ALU(
 ) {
     // Extend to 9 bits so bit[8] captures carry (ADD) or borrow (SUB)
     wire add_ext: u9 = a + b
-    wire sub_ext: u9 = a - b
+    wire sub_ext: s9 = a - b
 
     // Pre-compute all results combinationally
     wire res_add: u8 = add_ext[7..0]
