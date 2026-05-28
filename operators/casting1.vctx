@@ -12,15 +12,15 @@ sim TestCast_S16_To_U16 {
     wire z: u16 = a as u16
     assert(z == 65535, "s16 -1 reinterpreted as u16 is 65535")
 
-    // s16 min (-32768) = 0x8000 = 32768 unsigned
+    // s17 min (-32768) = 0x8000 = 32768 unsigned
     wire b: s17 = -32768
     wire y: u16 = b as u16
-    assert(y == 32768, "s16 -32768 reinterpreted as u16 is 32768")
+    assert(y == 32768, "s17 -32768 reinterpreted as u16 is 32768")
 
     // Positive value: bits are identical
     wire c: s17 = 1000
     wire x: u16 = c as u16
-    assert(x == 1000, "Positive s16 1000 reinterpreted as u16 is still 1000")
+    assert(x == 1000, "Positive s17 1000 reinterpreted as u16 is still 1000")
 }
 
 sim TestCast_U16_To_S16 {
@@ -70,7 +70,7 @@ sim TestCast_S5_To_U5 {
     wire z: u5 = a as u5
     assert(z == 31, "s5 -1 reinterpreted as u5 is 31")
 
-    // s6 min: -16 = 0b10000 = 16 unsigned
+    // s6 value -16 (s5 min): 0b10000 = 16 unsigned
     wire b: s6 = -16
     wire y: u5 = b as u5
     assert(y == 16, "s6 -16 reinterpreted as u5 is 16")
@@ -107,7 +107,7 @@ sim TestCast_S8_To_U16_Negative {
     // -128 (s9) = 0x180 -> sign-extend to s16 = 0xFF80 -> as u16 = 65408
     wire b: s9 = -128
     wire y: u16 = b as u16
-    assert(y == 65408, "s8 -128 widened to u16 is 65408 (0xFF80)")
+    assert(y == 65408, "s9 -128 widened to u16 is 65408 (0xFF80)")
 }
 
 // ---- Cross-width: widening unsigned -> larger signed ----
@@ -179,4 +179,5 @@ sim TestCast_Zero_Identity {
     wire uz4: u16 = uz3 as u16
     wire sz3: s8 = uz4 as s8
     assert(sz3 == 0, "u8 zero widened to u16 then narrowed to s8 is still zero")
+}")
 }

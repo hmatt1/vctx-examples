@@ -38,7 +38,7 @@ sim TestConcatSignedMinValue {
     wire a: s9 = -128  // 0x80
     wire b: s8 = 0 as s8
     wire result: u16 = concat(a as u8, b as u8)
-    assert(result == 0x8000, "s8(-128) concat s8(0) = 0x8000")
+    assert(result == 0x8000, "s9(-128) concat s8(0) = 0x8000")
 }
 
 sim TestConcatSignedS16 {
@@ -52,7 +52,7 @@ sim TestConcatSignedS16NegHi {
     wire hi: s17 = -32768  // 0x8000
     wire lo: u16 = 0xBEEF
     wire result: u32 = concat(hi as u16, lo)
-    assert(result == 0x8000BEEF, "s16 min concat 0xBEEF = 0x8000BEEF")
+    assert(result == 0x8000BEEF, "s17 -32768 concat 0xBEEF = 0x8000BEEF")
 }
 
 // Packing a sign bit and magnitude separately.

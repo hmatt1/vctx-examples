@@ -71,7 +71,7 @@ sim TestSignedSubUnderflow {
     wire a: s9 = -128
     wire b: s8 = 1
     wire diff: s8 = (a - b) as s8
-    assert(diff == 127 as s8, "s8 -128 - 1 wraps to 127 (two's complement)")
+    assert(diff == 127 as s8, "s9 -128 - 1 wraps to 127 (two's complement)")
 }
 
 sim TestSignedSubNegFromNeg {

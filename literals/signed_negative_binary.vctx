@@ -19,7 +19,7 @@ sim TestNegativeBinary {
 }
 
 sim TestNegativeBinaryLarge {
-    // -0b1000_0000 equals -128 (Min s8)
+    // -0b1000_0000 equals -128 (Min s9)
     wire val: s9 = -0b1000_0000
     assert(val == -128, "Large negative binary (-128) assertion")
 }

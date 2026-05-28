@@ -60,7 +60,7 @@ sim TestCast_Signed_To_Unsigned {
     
     wire b: s9 = -128
     wire y: u8 = b as u8
-    assert(y == 128, "Casting s9 -128 to u8 reinterprets bits (10000000) as 128")
+    assert(y == 128, "Casting s9 -128 to u8 reinterprets bits as 128")
 }
 
 sim TestCast_Unsigned_To_Signed {

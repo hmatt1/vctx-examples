@@ -18,7 +18,7 @@ sim TestSignedLtNegNeg {
 sim TestSignedLtMinMax {
     wire a: s9 = -128
     wire b: s8 = 127
-    assert(a < b, "s8 min < s8 max")
+    assert(a < b, "s9 -128 < s8 max")
 }
 
 sim TestSignedLtFalseWhenEqual {
@@ -48,7 +48,7 @@ sim TestSignedGtNegNeg {
 sim TestSignedGtMaxMin {
     wire a: s8 = 127
     wire b: s9 = -128
-    assert(a > b, "s8 max > s8 min")
+    assert(a > b, "s8 max > s9 -128")
 }
 
 sim TestSignedLeqEqual {
@@ -126,9 +126,9 @@ sim TestSignedNeqFalseWhenEqual {
 sim TestSignedS16Comparisons {
     wire a: s17 = -32768
     wire b: s16 = 32767
-    assert(a < b,  "s16 min < s16 max")
-    assert(b > a,  "s16 max > s16 min")
-    assert(a <== a, "s16 min <== s16 min")
+    assert(a < b,  "s17 -32768 < s16 max")
+    assert(b > a,  "s16 max > s17 -32768")
+    assert(a <== a, "s17 -32768 <== s17 -32768")
     assert(b >== b, "s16 max >== s16 max")
 
     wire c: s16 = -1
