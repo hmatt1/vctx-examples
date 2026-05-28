@@ -104,7 +104,7 @@ sim TestCast_S8_To_U16_Negative {
     wire z: u16 = a as u16
     assert(z == 65535, "s8 -1 widened to u16 is 65535 (sign-extended)")
 
-    // -128 (s8) = 0x80 -> sign-extend to s16 = 0xFF80 -> as u16 = 65408
+    // -128 (s9) = 0x180 -> sign-extend to s16 = 0xFF80 -> as u16 = 65408
     wire b: s9 = -128
     wire y: u16 = b as u16
     assert(y == 65408, "s8 -128 widened to u16 is 65408 (0xFF80)")
