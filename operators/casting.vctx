@@ -58,9 +58,9 @@ sim TestCast_Signed_To_Unsigned {
     wire z: u8 = a as u8
     assert(z == 255, "Casting s8 -1 to u8 reinterprets bits (11111111) as 255")
     
-    wire b: s8 = -128
+    wire b: s9 = -128
     wire y: u8 = b as u8
-    assert(y == 128, "Casting s8 -128 to u8 reinterprets bits (10000000) as 128")
+    assert(y == 128, "Casting s9 -128 to u8 reinterprets bits (10000000) as 128")
 }
 
 sim TestCast_Unsigned_To_Signed {
@@ -92,7 +92,7 @@ sim TestCast_Math_Unsigned_Wrap {
 
 sim TestCast_Math_Signed_Wrap {
     wire max: s8 = 127
-    wire min: s8 = -128
+    wire min: s9 = -128
 
     // Overflow
     wire over: s8 = (max + 1) as s8

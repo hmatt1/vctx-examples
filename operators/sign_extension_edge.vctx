@@ -22,7 +22,7 @@ sim TestCastingReinterpretSameWidth {
     wire b: s8 = a as s8
     assert(b == -1 as s8, "u8(255) as s8 is -1")
     
-    wire c: s8 = -128
+    wire c: s9 = -128
     wire d: u8 = c as u8
     assert(d == 128 as u8, "s8(-128) as u8 is 128")
 }

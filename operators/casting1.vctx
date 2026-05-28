@@ -13,12 +13,12 @@ sim TestCast_S16_To_U16 {
     assert(z == 65535, "s16 -1 reinterpreted as u16 is 65535")
 
     // s16 min (-32768) = 0x8000 = 32768 unsigned
-    wire b: s16 = -32768
+    wire b: s17 = -32768
     wire y: u16 = b as u16
     assert(y == 32768, "s16 -32768 reinterpreted as u16 is 32768")
 
     // Positive value: bits are identical
-    wire c: s16 = 1000
+    wire c: s17 = 1000
     wire x: u16 = c as u16
     assert(x == 1000, "Positive s16 1000 reinterpreted as u16 is still 1000")
 }
@@ -47,7 +47,7 @@ sim TestCast_S32_To_U32 {
     wire z: u32 = a as u32
     assert(z == 4294967295, "s32 -1 reinterpreted as u32 is 4294967295")
 
-    wire b: s32 = -2147483648
+    wire b: s33 = -2147483648
     wire y: u32 = b as u32
     assert(y == 2147483648, "s32 min reinterpreted as u32 is 2147483648")
 }
@@ -70,10 +70,10 @@ sim TestCast_S5_To_U5 {
     wire z: u5 = a as u5
     assert(z == 31, "s5 -1 reinterpreted as u5 is 31")
 
-    // s5 min: -16 = 0b10000 = 16 unsigned
-    wire b: s5 = -16
+    // s6 min: -16 = 0b10000 = 16 unsigned
+    wire b: s6 = -16
     wire y: u5 = b as u5
-    assert(y == 16, "s5 -16 reinterpreted as u5 is 16")
+    assert(y == 16, "s6 -16 reinterpreted as u5 is 16")
 }
 
 sim TestCast_U5_To_S5 {
@@ -105,7 +105,7 @@ sim TestCast_S8_To_U16_Negative {
     assert(z == 65535, "s8 -1 widened to u16 is 65535 (sign-extended)")
 
     // -128 (s8) = 0x80 -> sign-extend to s16 = 0xFF80 -> as u16 = 65408
-    wire b: s8 = -128
+    wire b: s9 = -128
     wire y: u16 = b as u16
     assert(y == 65408, "s8 -128 widened to u16 is 65408 (0xFF80)")
 }

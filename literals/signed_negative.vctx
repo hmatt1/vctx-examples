@@ -8,8 +8,8 @@ sim TestS8Negative {
 
 sim TestS8Min {
     // Testing minimum value for 8-bit signed (-128)
-    wire val: s8 = -128
-    assert(val == -128, "s8 min value (-128) assertion")
+    wire val: s9 = -128
+    assert(val == -128, "s9 min value (-128) assertion")
 }
 
 sim TestS16Negative {

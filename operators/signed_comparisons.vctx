@@ -16,7 +16,7 @@ sim TestSignedLtNegNeg {
 }
 
 sim TestSignedLtMinMax {
-    wire a: s8 = -128
+    wire a: s9 = -128
     wire b: s8 = 127
     assert(a < b, "s8 min < s8 max")
 }
@@ -47,7 +47,7 @@ sim TestSignedGtNegNeg {
 
 sim TestSignedGtMaxMin {
     wire a: s8 = 127
-    wire b: s8 = -128
+    wire b: s9 = -128
     assert(a > b, "s8 max > s8 min")
 }
 
@@ -124,7 +124,7 @@ sim TestSignedNeqFalseWhenEqual {
 }
 
 sim TestSignedS16Comparisons {
-    wire a: s16 = -32768
+    wire a: s17 = -32768
     wire b: s16 = 32767
     assert(a < b,  "s16 min < s16 max")
     assert(b > a,  "s16 max > s16 min")
@@ -161,7 +161,7 @@ sim TestSignedComparePokeUpdate {
 
 sim TestSignedAllOpsOnSameValues {
     // Comprehensive: a < b, a == b, a > b at each relation boundary.
-    wire neg: s8 = -128
+    wire neg: s9 = -128
     wire pos: s8 = 127
     wire zer: s8 = 0
 
