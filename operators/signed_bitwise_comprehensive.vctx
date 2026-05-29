@@ -1,0 +1,121 @@
+// This example demonstrates various bitwise scenarios with signed, unsigned, and mixed types.
+// It serves as a comprehensive reference for vctx bitwise promotion rules.
+
+component BitwiseLogic(
+    in u_val: u8,
+    in s_val: s8,
+    out and_res: u8,
+    out or_res: u8,
+    out xor_res: u8
+) {
+    // Mixed: u8 & s8 -> u8 (since at least one is unsigned)
+    and_res := u_val & s_val
+    
+    // Mixed: u8 | s8 -> u8
+    or_res := u_val | s_val
+    
+    // Mixed: u8 ^ s8 -> u8
+    xor_res := u_val ^ s_val
+}
+
+sim TestSignedBitwiseComprehensive {
+    // Basic scenarios
+    wire sig1: s8 = -1  // 0xFF
+    wire sig2: s8 = -16 // 0xF0
+    wire uns1: u8 = 0x0F
+    wire uns2: u8 = 0xF0
+
+    // --- RULE 1: Signedness ---
+    // Pure signed stays signed. Mixed results in unsigned (Verilog style).
+
+    // s8 & s8 -> s8
+    wire res_s_s: s8 = sig1 & sig2
+    assert(res_s_s == -16, "s8 & s8 results in s8")
+    
+    // u8 | u8 -> u8
+    wire res_u_u: u8 = uns1 | uns2
+    assert(res_u_u == 0xFF, "u8 | u8 results in u8")
+    
+    // u8 ^ s8 -> u8
+    wire res_u_s: u8 = uns1 ^ sig1
+    assert(res_u_s == 0xF0, "u8 ^ s8 results in u8")
+    
+    // s8 & u8 -> u8
+    wire res_s_u: u8 = sig2 & uns1
+    assert(res_s_u == 0x00, "s8 & u8 results in u8")
+
+    // --- RULE 2: Width ---
+    // Result width is the maximum of operand widths.
+
+    wire u4_val: u4 = 0xF
+    wire s16_val: s16 = 0x1234
+    
+    // u4 & s16 -> u16 (max(4, 16) = 16. Unsigned because u4 is unsigned.)
+    wire res_mixed_w: u16 = u4_val & s16_val
+    assert(res_mixed_w == 0x0004, "u4 & s16 results in u16 (width is max)")
+
+    // s16 | u8 -> u16 (max(16, 8) = 16. Unsigned because u8 is unsigned.)
+    wire res_mixed_w2: u16 = s16_val | uns2
+    assert(res_mixed_w2 == 0x12F4, "s16 | u8 results in u16")
+
+    // --- RULE 3: Bitwise NOT (~) ---
+    // ~s8 -> s8, ~u8 -> u8
+
+    wire not_sig: s8 = ~sig2 // ~0xF0 -> 0x0F (15)
+    assert(not_sig == 15, "~s8 results in s8")
+
+    wire not_uns: u8 = ~uns1 // ~0x0F -> 0xF0 (240)
+    assert(not_uns == 240, "~u8 results in u8")
+
+    // --- RULE 4: Literals ---
+    // Literals are typed based on their value. 
+    // Hex/Binary literals are unsigned. Decimal literals are signed if negative.
+
+    // s8 & 0x0F (unsigned literal) -> u8
+    wire res_lit1: u8 = sig1 & 0x0F
+    assert(res_lit1 == 0x0F, "s8 & 0x0F (unsigned lit) -> u8")
+
+    // u8 | -1 (signed literal) -> u8
+    wire res_lit2: u8 = uns1 | -1
+    assert(res_lit2 == 0xFF, "u8 | -1 (signed lit) -> u8")
+
+    // --- RULE 5: Promotion & Extension ---
+    // Unsigned bitwise results are ZERO-EXTENDED when promoted to a wider type.
+    // Signed bitwise results are SIGN-EXTENDED when promoted to a wider type.
+
+    // Mixed result (u8) assigned to s16 -> Zero-extended
+    wire wide_m: s16 = (uns1 ^ sig1) // u8 result (0xF0)
+    assert(wide_m == 240, "Mixed (u8 result) is zero-extended to s16")
+
+    // Pure signed result (s8) assigned to s16 -> Sign-extended
+    wire wide_s: s16 = (sig1 & sig2) // s8 result (0xF0 = -16)
+    assert(wide_s == -16, "Pure signed (s8 result) is sign-extended to s16")
+    assert(wide_s as u16 == 0xFFF0, "Pure signed sign-extension bit check")
+
+    // --- RULE 6: Variadic Nesting ---
+    // Promotion rules apply at each node.
+
+    // (s8 & s8) & u8 -> s8 & u8 -> u8
+    wire variadic1: u8 = (sig1 & sig2) & uns1
+    assert(variadic1 == 0x00, "(s8 & s8) & u8 -> u8")
+
+    // (u8 | s8) | s8 -> u8 | s8 -> u8
+    wire variadic2: u8 = (uns1 | sig1) | sig2
+    assert(variadic2 == 0xFF, "(u8 | s8) | s8 -> u8")
+
+    // --- RULE 7: Mixed Widths (Signed) ---
+    // s4 & s8 -> s8
+
+    wire s4_val: s4 = -1 // 0xF
+    wire s8_val: s8 = 0x0F // 15
+    wire res_s4_s8: s8 = s4_val & s8_val
+    assert(res_s4_s8 == 15, "s4 & s8 results in s8")
+
+    // --- RULE 8: Mixed Widths (Unsigned) ---
+    // u4 | u16 -> u16
+
+    wire u4_val2: u4 = 0xA
+    wire u16_val2: u16 = 0x1000
+    wire res_u4_u16: u16 = u4_val2 | u16_val2
+    assert(res_u4_u16 == 0x100A, "u4 | u16 results in u16")
+}
