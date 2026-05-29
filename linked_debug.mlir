@@ -38,10 +38,10 @@ module {
       arc.sim.step %arg0 : !arc.sim.instance<@SimNestedGenericDouble_Harness>
       arc.sim.set_input %arg0, "clk" = %0 : !seq.clock, !arc.sim.instance<@SimNestedGenericDouble_Harness>
       arc.sim.step %arg0 : !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      %2 = arc.sim.get_port %arg0, "y" : i8, !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.emit "y", %2 : i8
-      %3 = arc.sim.get_port %arg0, "x" : i8, !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.emit "x", %3 : i8
+      %2 = arc.sim.get_port %arg0, "x" : i8, !arc.sim.instance<@SimNestedGenericDouble_Harness>
+      arc.sim.emit "x", %2 : i8
+      %3 = arc.sim.get_port %arg0, "y" : i8, !arc.sim.instance<@SimNestedGenericDouble_Harness>
+      arc.sim.emit "y", %3 : i8
       %4 = arc.sim.get_port %arg0, "y" : i8, !arc.sim.instance<@SimNestedGenericDouble_Harness>
       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22y\22}", %4 : i8
       %c0_i4 = hw.constant 0 : i4
