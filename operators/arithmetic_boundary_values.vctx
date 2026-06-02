@@ -1,0 +1,190 @@
+// spec: §7, §7.4, §7.5, §8.7
+// expect: pass
+// Documents what happens at the min/max boundary of each power-of-2 type.
+// In vctx, arithmetic produces a wider intermediate result; wrapping is explicit
+// via a narrowing cast back to the original type.
+//
+// Pattern used throughout:
+//   wire max: u8 = 255
+//   wire over: u8 = (max + 1) as u8   // u9 intermediate → u8: wraps to 0
+//
+// Unsigned: max+1 wraps to 0; 0-1 wraps to max.
+// Signed:   max+1 wraps to min; min-1 wraps to max.
+
+
+// ============================================================
+// u8  — range [0, 255]
+// ============================================================
+
+sim TestU8Boundaries {
+    wire max:  u8 = 255
+    wire zero: u8 = 0
+    wire over:  u8 = (max  + 1) as u8   // 256 as u8 = 0
+    wire under: u8 = (zero - 1) as u8   // -1  as u8 = 255
+    assert(over  == 0,   "u8 255 + 1 wraps to 0")
+    assert(under == 255, "u8 0 - 1 wraps to 255")
+}
+
+sim TestU8DoubleMax {
+    wire max:  u8 = 255
+    wire doubled: u8 = (max * 2) as u8  // 510 = 0x1FE → low 8 bits = 0xFE = 254
+    assert(doubled == 254, "u8 255 * 2 = 510 wraps to 254 (0xFE)")
+}
+
+
+// ============================================================
+// s8  — range [-128, 127]
+// ============================================================
+
+sim TestS8Boundaries {
+    wire max: s8 = 127
+    wire min: s8 = -128
+    wire over:  s8 = (max + 1) as s8   // 128 → s8: 0x80 = -128
+    wire under: s8 = (min - 1) as s8   // -129 → s8: 0x7F = 127
+    assert(over  == -128 as s8, "s8 127 + 1 wraps to -128 (min)")
+    assert(under == 127,        "s8 -128 - 1 wraps to 127 (max)")
+}
+
+// Adding min + min: -128 + -128 = -256; low 8 bits of -256 = 0x00 = 0.
+sim TestS8MinPlusMin {
+    wire min: s8 = -128
+    wire sum: s8 = (min + min) as s8
+    assert(sum == 0, "s8 -128 + -128 = -256 wraps to 0")
+}
+
+// Double max: 127 * 2 = 254; as s8 = 0xFE = -2.
+sim TestS8DoubleMax {
+    wire max:     s8 = 127
+    wire doubled: s8 = (max * 2) as s8
+    assert(doubled == -2 as s8, "s8 127 * 2 = 254 wraps to -2 (0xFE)")
+}
+
+
+// ============================================================
+// u16 — range [0, 65535]
+// ============================================================
+
+sim TestU16Boundaries {
+    wire max:  u16 = 65535
+    wire zero: u16 = 0
+    wire over:  u16 = (max  + 1) as u16   // 65536 → 0
+    wire under: u16 = (zero - 1) as u16   // -1    → 65535
+    assert(over  == 0,     "u16 65535 + 1 wraps to 0")
+    assert(under == 65535, "u16 0 - 1 wraps to 65535")
+}
+
+
+// ============================================================
+// s16 — range [-32768, 32767]
+// ============================================================
+
+sim TestS16Boundaries {
+    wire max: s16 = 32767
+    wire min: s16 = -32768
+    wire over:  s16 = (max + 1) as s16   // 32768 → -32768
+    wire under: s16 = (min - 1) as s16   // -32769 → 32767
+    assert(over  == -32768 as s16, "s16 32767 + 1 wraps to -32768 (min)")
+    assert(under == 32767,         "s16 -32768 - 1 wraps to 32767 (max)")
+}
+
+
+// ============================================================
+// u32 — range [0, 4294967295]
+// ============================================================
+
+sim TestU32Boundaries {
+    wire max:  u32 = 4294967295
+    wire zero: u32 = 0
+    wire over:  u32 = (max  + 1) as u32
+    wire under: u32 = (zero - 1) as u32
+    assert(over  == 0,          "u32 max + 1 wraps to 0")
+    assert(under == 4294967295, "u32 0 - 1 wraps to max (4294967295)")
+}
+
+sim TestU32HexBoundary {
+    wire max:  u32 = 0xFFFF_FFFF
+    wire over: u32 = (max + 1) as u32
+    assert(over == 0, "u32 0xFFFFFFFF + 1 wraps to 0")
+}
+
+
+// ============================================================
+// s32 — range [-2147483648, 2147483647]
+// ============================================================
+
+sim TestS32Boundaries {
+    wire max: s32 = 2147483647
+    wire min: s32 = -2147483648
+    wire over:  s32 = (max + 1) as s32
+    wire under: s32 = (min - 1) as s32
+    assert(over  == -2147483648 as s32, "s32 max + 1 wraps to min (-2147483648)")
+    assert(under == 2147483647,         "s32 min - 1 wraps to max (2147483647)")
+}
+
+
+// ============================================================
+// u64 — range [0, 2^64-1]
+// ============================================================
+
+sim TestU64Boundaries {
+    wire max:  u64 = 0xFFFF_FFFF_FFFF_FFFF
+    wire zero: u64 = 0
+    wire over:  u64 = (max  + 1) as u64
+    wire under: u64 = (zero - 1) as u64
+    assert(over  == 0,                      "u64 max + 1 wraps to 0")
+    assert(under == 0xFFFF_FFFF_FFFF_FFFF, "u64 0 - 1 wraps to max")
+}
+
+
+// ============================================================
+// s64 — range [-2^63, 2^63-1]
+// ============================================================
+
+sim TestS64Boundaries {
+    wire max: s64 = 0x7FFF_FFFF_FFFF_FFFF as s64
+    wire min: s64 = -9223372036854775808   as s64
+    wire over:  s64 = (max + 1) as s64
+    wire under: s64 = (min - 1) as s64
+    assert(over  == min, "s64 max + 1 wraps to min")
+    assert(under == max, "s64 min - 1 wraps to max")
+}
+
+
+// ============================================================
+// Key properties
+// ============================================================
+
+// Unsigned wrap is symmetric: over and under are each other's complement.
+sim TestU8WrapSymmetry {
+    wire max:   u8 = 255
+    wire zero:  u8 = 0
+    wire over:  u8 = (max  + 1) as u8
+    wire under: u8 = (zero - 1) as u8
+    assert(over == zero, "u8 max + 1 == 0")
+    assert(under == max, "u8 0 - 1 == max")
+}
+
+// Signed wrap: max+1 gives min; min-1 gives max.
+sim TestS8WrapSymmetry {
+    wire max: s8 = 127
+    wire min: s8 = -128
+    wire over:  s8 = (max + 1) as s8
+    wire under: s8 = (min - 1) as s8
+    assert(over  == min, "s8 max + 1 == min")
+    assert(under == max, "s8 min - 1 == max")
+}
+
+// Subtraction 0 - max = min + 1 (unsigned: 0 - 255 = -255 → u8 = 1).
+sim TestU8ZeroMinusMax {
+    wire zero: u8 = 0
+    wire max:  u8 = 255
+    wire diff: u8 = (zero - max) as u8   // -255 → low 8 bits = 0x01
+    assert(diff == 1, "u8 0 - 255 = -255 wraps to 1")
+}
+
+// Negating s8 min overflows: -(-128) = 128, wraps back to -128.
+sim TestS8NegateMin {
+    wire min:  s8 = -128
+    wire neg:  s8 = (0 as s8 - min) as s8   // 0 - (-128) = 128 → wraps to -128
+    assert(neg == -128 as s8, "s8 -(-128) = 128 overflows back to -128")
+}

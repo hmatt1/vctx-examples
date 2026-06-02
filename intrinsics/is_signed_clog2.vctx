@@ -1,0 +1,269 @@
+// spec: §12.1, §12.2
+// expect: pass
+// Comprehensive coverage of is_signed() and clog2() intrinsics.
+//
+// is_signed() — built-in intrinsic, comptime-folds like width():
+//   returns u1 (1 = signed, 0 = unsigned/bool)
+//   tested here for every scalar type including non-power-of-2 widths
+//
+// clog2(n) — ceiling of log2(n) for positive integer n:
+//   primary use: number of address bits needed for n entries
+//   e.g. clog2(256) = 8 means a 256-element table needs an 8-bit address
+//   uses std.comptime_math; must go through a comptime function + component
+
+
+// ============================================================
+// is_signed() — bool
+// ============================================================
+
+sim TestIsSignedBool {
+    wire x: bool = false
+    assert(is_signed(x) == 0 as u1, "is_signed(bool) = 0")
+}
+
+
+// ============================================================
+// is_signed() — power-of-2 unsigned
+// ============================================================
+
+sim TestIsSignedU1 {
+    wire x: u1 = 0 as u1
+    assert(is_signed(x) == 0 as u1, "is_signed(u1) = 0")
+}
+
+sim TestIsSignedU2 {
+    wire x: u2 = 0 as u2
+    assert(is_signed(x) == 0 as u1, "is_signed(u2) = 0")
+}
+
+sim TestIsSignedU4 {
+    wire x: u4 = 0 as u4
+    assert(is_signed(x) == 0 as u1, "is_signed(u4) = 0")
+}
+
+sim TestIsSignedU8 {
+    wire x: u8 = 0
+    assert(is_signed(x) == 0 as u1, "is_signed(u8) = 0")
+}
+
+sim TestIsSignedU16 {
+    wire x: u16 = 0
+    assert(is_signed(x) == 0 as u1, "is_signed(u16) = 0")
+}
+
+sim TestIsSignedU32 {
+    wire x: u32 = 0
+    assert(is_signed(x) == 0 as u1, "is_signed(u32) = 0")
+}
+
+sim TestIsSignedU64 {
+    wire x: u64 = 0
+    assert(is_signed(x) == 0 as u1, "is_signed(u64) = 0")
+}
+
+
+// ============================================================
+// is_signed() — power-of-2 signed
+// ============================================================
+
+sim TestIsSignedS1 {
+    wire x: s1 = 0 as s1
+    assert(is_signed(x) == 1 as u1, "is_signed(s1) = 1")
+}
+
+sim TestIsSignedS2 {
+    wire x: s2 = 0 as s2
+    assert(is_signed(x) == 1 as u1, "is_signed(s2) = 1")
+}
+
+sim TestIsSignedS4 {
+    wire x: s4 = 0 as s4
+    assert(is_signed(x) == 1 as u1, "is_signed(s4) = 1")
+}
+
+sim TestIsSignedS8 {
+    wire x: s8 = 0 as s8
+    assert(is_signed(x) == 1 as u1, "is_signed(s8) = 1")
+}
+
+sim TestIsSignedS16 {
+    wire x: s16 = 0 as s16
+    assert(is_signed(x) == 1 as u1, "is_signed(s16) = 1")
+}
+
+sim TestIsSignedS32 {
+    wire x: s32 = 0 as s32
+    assert(is_signed(x) == 1 as u1, "is_signed(s32) = 1")
+}
+
+sim TestIsSignedS64 {
+    wire x: s64 = 0 as s64
+    assert(is_signed(x) == 1 as u1, "is_signed(s64) = 1")
+}
+
+
+// ============================================================
+// is_signed() — non-power-of-2 unsigned
+// ============================================================
+
+sim TestIsSignedU3  { wire x: u3  = 0 as u3  assert(is_signed(x) == 0 as u1, "is_signed(u3) = 0")  }
+sim TestIsSignedU5  { wire x: u5  = 0 as u5  assert(is_signed(x) == 0 as u1, "is_signed(u5) = 0")  }
+sim TestIsSignedU7  { wire x: u7  = 0 as u7  assert(is_signed(x) == 0 as u1, "is_signed(u7) = 0")  }
+sim TestIsSignedU9  { wire x: u9  = 0 as u9  assert(is_signed(x) == 0 as u1, "is_signed(u9) = 0")  }
+sim TestIsSignedU12 { wire x: u12 = 0 as u12 assert(is_signed(x) == 0 as u1, "is_signed(u12) = 0") }
+sim TestIsSignedU24 { wire x: u24 = 0 as u24 assert(is_signed(x) == 0 as u1, "is_signed(u24) = 0") }
+sim TestIsSignedU48 { wire x: u48 = 0 as u48 assert(is_signed(x) == 0 as u1, "is_signed(u48) = 0") }
+
+
+// ============================================================
+// is_signed() — non-power-of-2 signed
+// ============================================================
+
+sim TestIsSignedS3  { wire x: s3  = 0 as s3  assert(is_signed(x) == 1 as u1, "is_signed(s3) = 1")  }
+sim TestIsSignedS5  { wire x: s5  = 0 as s5  assert(is_signed(x) == 1 as u1, "is_signed(s5) = 1")  }
+sim TestIsSignedS7  { wire x: s7  = 0 as s7  assert(is_signed(x) == 1 as u1, "is_signed(s7) = 1")  }
+sim TestIsSignedS9  { wire x: s9  = 0 as s9  assert(is_signed(x) == 1 as u1, "is_signed(s9) = 1")  }
+sim TestIsSignedS12 { wire x: s12 = 0 as s12 assert(is_signed(x) == 1 as u1, "is_signed(s12) = 1") }
+sim TestIsSignedS24 { wire x: s24 = 0 as s24 assert(is_signed(x) == 1 as u1, "is_signed(s24) = 1") }
+
+
+// ============================================================
+// is_signed() key properties
+// ============================================================
+
+// Result depends on the declared type, not the held value.
+sim TestIsSignedTypeNotValue {
+    wire neg: s8 = -1
+    wire pos: s8 = 127
+    assert(is_signed(neg) == is_signed(pos), "is_signed(s8=-1) == is_signed(s8=127): type, not value")
+}
+
+// Signed and unsigned of the same bit count differ only in is_signed().
+sim TestIsSignedOpposites {
+    wire u: u16 = 0
+    wire s: s16 = 0 as s16
+    assert(is_signed(u) == 0 as u1, "u16 is not signed")
+    assert(is_signed(s) == 1 as u1, "s16 is signed")
+    assert(is_signed(u) !== is_signed(s), "u16 and s16 have opposite is_signed()")
+}
+
+// bool and u1 are both unsigned.
+sim TestIsSignedBoolEqualsU1 {
+    wire b: bool = false
+    wire u: u1   = 0 as u1
+    assert(is_signed(b) == is_signed(u), "bool and u1 have the same is_signed() result")
+    assert(is_signed(b) == 0 as u1, "both are unsigned (0)")
+}
+
+
+// ============================================================
+// clog2() — ceiling log2 for positive n
+// Semantics: minimum bits needed to address n distinct entries.
+//   clog2(1)   = 0  (1 entry needs 0 address bits)
+//   clog2(2)   = 1  (2 entries need 1 address bit)
+//   clog2(4)   = 2  (exact power of 2)
+//   clog2(3)   = 2  (non-power: ceil(log2(3)) = 2)
+//   clog2(256) = 8  (byte-addressed 256-entry table)
+//
+// Implemented inline as a comptime function (no std import needed).
+// Results are emitted through components because comptime functions
+// must be called from a component or comptime context.
+// ============================================================
+
+comptime clog2_of(n: Int) -> u32 {
+    let x: Int = n - 1
+    let r: Int = 0
+    while (x > 0) {
+        x = x / 2
+        r = r + 1
+    }
+    return (r as u32)
+}
+
+component Clog2Powers(
+    out c1:    u32,    // clog2(1)    = 0
+    out c2:    u32,    // clog2(2)    = 1
+    out c4:    u32,    // clog2(4)    = 2
+    out c8:    u32,    // clog2(8)    = 3
+    out c16:   u32,    // clog2(16)   = 4
+    out c32:   u32,    // clog2(32)   = 5
+    out c64:   u32,    // clog2(64)   = 6
+    out c128:  u32,    // clog2(128)  = 7
+    out c256:  u32,    // clog2(256)  = 8
+    out c512:  u32,    // clog2(512)  = 9
+    out c1024: u32     // clog2(1024) = 10
+) {
+    c1    := clog2_of(1)
+    c2    := clog2_of(2)
+    c4    := clog2_of(4)
+    c8    := clog2_of(8)
+    c16   := clog2_of(16)
+    c32   := clog2_of(32)
+    c64   := clog2_of(64)
+    c128  := clog2_of(128)
+    c256  := clog2_of(256)
+    c512  := clog2_of(512)
+    c1024 := clog2_of(1024)
+}
+
+sim TestClog2PowersOfTwo {
+    wire c1: u32    wire c2: u32    wire c4: u32    wire c8: u32
+    wire c16: u32   wire c32: u32   wire c64: u32   wire c128: u32
+    wire c256: u32  wire c512: u32  wire c1024: u32
+    Clog2Powers(c1, c2, c4, c8, c16, c32, c64, c128, c256, c512, c1024)
+    cycle()
+    assert(c1    == 0  as u32, "clog2(1) = 0: 1 entry needs 0 address bits")
+    assert(c2    == 1  as u32, "clog2(2) = 1")
+    assert(c4    == 2  as u32, "clog2(4) = 2")
+    assert(c8    == 3  as u32, "clog2(8) = 3")
+    assert(c16   == 4  as u32, "clog2(16) = 4")
+    assert(c32   == 5  as u32, "clog2(32) = 5")
+    assert(c64   == 6  as u32, "clog2(64) = 6")
+    assert(c128  == 7  as u32, "clog2(128) = 7")
+    assert(c256  == 8  as u32, "clog2(256) = 8: byte-addressed 256-entry table")
+    assert(c512  == 9  as u32, "clog2(512) = 9")
+    assert(c1024 == 10 as u32, "clog2(1024) = 10")
+}
+
+
+component Clog2NonPowers(
+    out c3:   u32,    // clog2(3)   = 2  (ceil(log2(3)) = ceil(1.58) = 2)
+    out c5:   u32,    // clog2(5)   = 3
+    out c6:   u32,    // clog2(6)   = 3
+    out c7:   u32,    // clog2(7)   = 3
+    out c9:   u32,    // clog2(9)   = 4
+    out c15:  u32,    // clog2(15)  = 4
+    out c17:  u32,    // clog2(17)  = 5
+    out c100: u32,    // clog2(100) = 7
+    out c255: u32,    // clog2(255) = 8  (one less than power of 2)
+    out c257: u32     // clog2(257) = 9  (one more than power of 2)
+) {
+    c3   := clog2_of(3)
+    c5   := clog2_of(5)
+    c6   := clog2_of(6)
+    c7   := clog2_of(7)
+    c9   := clog2_of(9)
+    c15  := clog2_of(15)
+    c17  := clog2_of(17)
+    c100 := clog2_of(100)
+    c255 := clog2_of(255)
+    c257 := clog2_of(257)
+}
+
+sim TestClog2NonPowersOfTwo {
+    wire c3: u32    wire c5: u32    wire c6: u32    wire c7: u32
+    wire c9: u32    wire c15: u32   wire c17: u32   wire c100: u32
+    wire c255: u32  wire c257: u32
+    Clog2NonPowers(c3, c5, c6, c7, c9, c15, c17, c100, c255, c257)
+    cycle()
+    assert(c3   == 2 as u32, "clog2(3) = 2: need 2 bits for 3 entries (0,1,2)")
+    assert(c5   == 3 as u32, "clog2(5) = 3")
+    assert(c6   == 3 as u32, "clog2(6) = 3")
+    assert(c7   == 3 as u32, "clog2(7) = 3: just below 8 (2^3)")
+    assert(c9   == 4 as u32, "clog2(9) = 4: just above 8 (2^3)")
+    assert(c15  == 4 as u32, "clog2(15) = 4: just below 16 (2^4)")
+    assert(c17  == 5 as u32, "clog2(17) = 5: just above 16 (2^4)")
+    assert(c100 == 7 as u32, "clog2(100) = 7: 64 < 100 <= 128, need 7 bits")
+    assert(c255 == 8 as u32, "clog2(255) = 8: just below 256 (2^8)")
+    assert(c257 == 9 as u32, "clog2(257) = 9: just above 256 (2^8)")
+}

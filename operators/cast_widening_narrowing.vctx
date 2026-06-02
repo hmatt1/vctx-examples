@@ -1,0 +1,217 @@
+// spec: §7.5
+// expect: pass
+// Demonstrates widening (zero-extend / sign-extend) and narrowing (truncation)
+// casts across the full type ladder, plus chain-cast compositionality.
+// Note: casting.vctx covers the core rules; this file stresses the full width
+// progression and multi-hop chain invariants.
+
+
+// ============================================================
+// Zero-extension: u → wider u
+// High bytes filled with 0.
+// ============================================================
+
+sim TestWiden_U8_to_U16 {
+    wire a: u8  = 0xAB
+    wire b: u16 = a as u16
+    assert(b == 0x00AB, "u8 0xAB zero-extends to u16 0x00AB")
+}
+
+sim TestWiden_U8_to_U32 {
+    wire a: u8  = 0xFF
+    wire b: u32 = a as u32
+    assert(b == 0xFF, "u8 0xFF zero-extends to u32 0x000000FF")
+}
+
+sim TestWiden_U16_to_U32 {
+    wire a: u16 = 0xBEEF
+    wire b: u32 = a as u32
+    assert(b == 0xBEEF, "u16 0xBEEF zero-extends to u32 0x0000BEEF")
+}
+
+sim TestWiden_U32_to_U64 {
+    wire a: u32 = 0xDEADBEEF
+    wire b: u64 = a as u64
+    assert(b == 0xDEADBEEF, "u32 0xDEADBEEF zero-extends to u64")
+}
+
+sim TestWiden_U1_to_U8 {
+    wire hi: u1 = 1 as u1
+    wire lo: u1 = 0 as u1
+    assert((hi as u8) == 1, "u1 1 zero-extends to u8 1")
+    assert((lo as u8) == 0, "u1 0 zero-extends to u8 0")
+}
+
+
+// ============================================================
+// Sign-extension: s → wider s
+// High bytes filled with the sign bit (1 for negative, 0 for positive).
+// ============================================================
+
+sim TestWiden_S8_to_S16_Positive {
+    wire a: s8  = 100
+    wire b: s16 = a as s16
+    assert(b == 100, "positive s8 100 sign-extends to s16 100")
+}
+
+sim TestWiden_S8_to_S16_Negative {
+    wire a: s8  = -5
+    wire b: s16 = a as s16
+    assert(b == -5, "s8 -5 sign-extends to s16 -5 (high bits filled with 1)")
+}
+
+sim TestWiden_S8_to_S16_MinusOne {
+    wire a: s8  = -1
+    wire b: s16 = a as s16
+    assert(b == -1, "s8 -1 (all 1s) sign-extends to s16 -1 (all 1s)")
+}
+
+sim TestWiden_S8_to_S32 {
+    wire a: s8  = -128
+    wire b: s32 = a as s32
+    assert(b == -128, "s8 min (-128) sign-extends to s32 -128")
+}
+
+sim TestWiden_S16_to_S32 {
+    wire a: s16 = -32768
+    wire b: s32 = a as s32
+    assert(b == -32768, "s16 min (-32768) sign-extends to s32 min")
+}
+
+sim TestWiden_S8_to_S64 {
+    wire a: s8  = -1
+    wire b: s64 = a as s64
+    assert(b == -1, "s8 -1 sign-extends all the way to s64 -1 (all 1s)")
+}
+
+
+// ============================================================
+// Narrowing: u → narrower u
+// High bytes are discarded; only the low bits survive.
+// ============================================================
+
+sim TestNarrow_U16_to_U8 {
+    wire a: u16 = 0xABCD
+    wire b: u8  = a as u8
+    assert(b == 0xCD, "u16 0xABCD narrowed to u8: keeps low byte 0xCD")
+}
+
+sim TestNarrow_U32_to_U16 {
+    wire a: u32 = 0xDEADBEEF
+    wire b: u16 = a as u16
+    assert(b == 0xBEEF, "u32 0xDEADBEEF narrowed to u16: keeps low 2 bytes 0xBEEF")
+}
+
+sim TestNarrow_U32_to_U8 {
+    wire a: u32 = 0xDEADBEEF
+    wire b: u8  = a as u8
+    assert(b == 0xEF, "u32 0xDEADBEEF narrowed to u8: keeps only 0xEF")
+}
+
+sim TestNarrow_U64_to_U8 {
+    wire a: u64 = 0xCAFEBABEDEADBEEF
+    wire b: u8  = a as u8
+    assert(b == 0xEF, "u64 narrowed to u8: keeps lowest byte 0xEF")
+}
+
+
+// ============================================================
+// Narrowing: s → narrower s
+// ============================================================
+
+sim TestNarrow_S16_to_S8_Fits {
+    wire a: s16 = 42
+    wire b: s8  = a as s8
+    assert(b == 42, "s16 42 fits cleanly in s8")
+}
+
+sim TestNarrow_S16_to_S8_Truncates {
+    wire a: s16 = 257      // 0x0101
+    wire b: s8  = a as s8  // low 8 bits = 0x01 = 1
+    assert(b == 1, "s16 257 (0x0101) narrowed to s8 is 1")
+}
+
+sim TestNarrow_S32_to_S8 {
+    wire a: s32 = -1       // all 1s in 32 bits
+    wire b: s8  = a as s8  // low 8 bits = 0xFF = -1 in s8
+    assert(b == -1 as s8, "s32 -1 narrowed to s8 is -1 (all 1s in both)")
+}
+
+
+// ============================================================
+// Chain casts: u → u → u
+// Each step drops higher bytes. Compositionality: the result
+// equals a single direct truncation to the final type.
+// ============================================================
+
+sim TestChain_U32_U16_U8 {
+    wire a: u32  = 0xDEADBEEF
+    wire b: u16  = a as u16       // 0xBEEF
+    wire c: u8   = b as u8        // 0xEF
+    wire d: u8   = a as u8        // direct truncation: also 0xEF
+    assert(c == 0xEF, "chain u32→u16→u8: low byte is 0xEF")
+    assert(c == d, "(u32 as u16) as u8 == u32 as u8")
+}
+
+sim TestChainInvariant_HighZero {
+    wire a: u32  = 0xFF00FF00
+    wire chain:  u8 = (a as u16) as u8   // u16=0xFF00, u8=0x00
+    wire direct: u8 = a as u8            // low byte = 0x00
+    assert(chain == 0, "(u32 0xFF00FF00 as u16=0xFF00) as u8 = 0x00")
+    assert(chain == direct, "chain matches direct truncation")
+}
+
+
+// ============================================================
+// Chain casts: s → s → s
+// ============================================================
+
+sim TestChain_S32_S16_S8_MinusOne {
+    wire a: s32 = -1        // 0xFFFF_FFFF
+    wire b: s16 = a as s16  // 0xFFFF = -1
+    wire c: s8  = b as s8   // 0xFF   = -1
+    assert(b == -1, "s32 -1 narrowed to s16 is -1")
+    assert(c == -1 as s8, "s16 -1 narrowed to s8 is -1")
+}
+
+sim TestChain_S32_S16_S8_Value {
+    wire a: s32 = 0x00010203
+    wire b: s16 = a as s16  // 0x0203 = 515 — positive in s16
+    wire c: s8  = b as s8   // 0x03   = 3
+    assert(b == 515, "s32 0x00010203 narrowed to s16 is 515")
+    assert(c == 3, "s16 515 narrowed to s8 is 3")
+}
+
+
+// ============================================================
+// Chain casts: cross-sign (sign-extend then reinterpret)
+// ============================================================
+
+// s8(-5) widened to s16(-5) then reinterpreted as u16.
+// 0xFFFB = 65531.
+sim TestChain_S8_S16_U16 {
+    wire a: s8  = -5
+    wire b: s16 = a as s16   // sign-extend: -5 in 16 bits = 0xFFFB
+    wire c: u16 = b as u16   // reinterpret 0xFFFB = 65531
+    assert(b == -5, "s8 -5 sign-extends to s16 -5")
+    assert(c == 65531, "s16 -5 (0xFFFB) reinterpreted as u16 is 65531")
+}
+
+// u8(200) widened to u16(200) then reinterpreted as s16.
+// 200 < 32768 so the MSB of u16 is 0 → positive in s16.
+sim TestChain_U8_U16_S16 {
+    wire a: u8  = 200
+    wire b: u16 = a as u16   // zero-extend: 0x00C8 = 200
+    wire c: s16 = b as s16   // reinterpret: 200, still positive
+    assert(b == 200, "u8 200 zero-extends to u16 200")
+    assert(c == 200, "u16 200 as s16 is 200 (MSB of u16 is 0, so positive)")
+}
+
+// u8(255) → u16(255) → s16(255): still positive.
+// u8 max zero-extends to 0x00FF; s16 MSB is 0 → positive range.
+sim TestChain_U8_U16_S16_Max {
+    wire a: u8  = 255
+    wire b: u16 = a as u16   // 0x00FF
+    wire c: s16 = b as s16   // 255 — well within s16 positive range
+    assert(c == 255, "u8 255 zero-extends to u16, then u16 255 as s16 is 255 (not negative)")
+}
