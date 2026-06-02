@@ -1,0 +1,264 @@
+// spec: §12.1, §12.2
+// expect: pass
+// Demonstrates width() on every scalar type:
+//   bool, power-of-2 unsigned (u1–u64), power-of-2 signed (s1–s64),
+//   and non-power-of-2 custom widths.
+// width() is a compile-time type intrinsic: it returns the bit width of the
+// declared type, independent of the runtime value held in the wire.
+
+
+// ============================================================
+// bool
+// ============================================================
+
+sim TestWidthBool {
+    wire x: bool = false
+    assert(width(x) == 1 as u32, "width(bool) = 1")
+}
+
+
+// ============================================================
+// Power-of-2 unsigned: u1, u2, u4, u8, u16, u32, u64
+// ============================================================
+
+sim TestWidthU1 {
+    wire x: u1 = 0 as u1
+    assert(width(x) == 1 as u32, "width(u1) = 1")
+}
+
+sim TestWidthU2 {
+    wire x: u2 = 0 as u2
+    assert(width(x) == 2 as u32, "width(u2) = 2")
+}
+
+sim TestWidthU4 {
+    wire x: u4 = 0 as u4
+    assert(width(x) == 4 as u32, "width(u4) = 4")
+}
+
+sim TestWidthU8 {
+    wire x: u8 = 0
+    assert(width(x) == 8 as u32, "width(u8) = 8")
+}
+
+sim TestWidthU16 {
+    wire x: u16 = 0
+    assert(width(x) == 16 as u32, "width(u16) = 16")
+}
+
+sim TestWidthU32 {
+    wire x: u32 = 0
+    assert(width(x) == 32 as u32, "width(u32) = 32")
+}
+
+sim TestWidthU64 {
+    wire x: u64 = 0
+    assert(width(x) == 64 as u32, "width(u64) = 64")
+}
+
+
+// ============================================================
+// Power-of-2 signed: s1, s2, s4, s8, s16, s32, s64
+// ============================================================
+
+sim TestWidthS1 {
+    wire x: s1 = 0 as s1
+    assert(width(x) == 1 as u32, "width(s1) = 1")
+}
+
+sim TestWidthS2 {
+    wire x: s2 = 0 as s2
+    assert(width(x) == 2 as u32, "width(s2) = 2")
+}
+
+sim TestWidthS4 {
+    wire x: s4 = 0 as s4
+    assert(width(x) == 4 as u32, "width(s4) = 4")
+}
+
+sim TestWidthS8 {
+    wire x: s8 = 0 as s8
+    assert(width(x) == 8 as u32, "width(s8) = 8")
+}
+
+sim TestWidthS16 {
+    wire x: s16 = 0 as s16
+    assert(width(x) == 16 as u32, "width(s16) = 16")
+}
+
+sim TestWidthS32 {
+    wire x: s32 = 0 as s32
+    assert(width(x) == 32 as u32, "width(s32) = 32")
+}
+
+sim TestWidthS64 {
+    wire x: s64 = 0 as s64
+    assert(width(x) == 64 as u32, "width(s64) = 64")
+}
+
+
+// ============================================================
+// Non-power-of-2 unsigned
+// ============================================================
+
+sim TestWidthU3 {
+    wire x: u3 = 0 as u3
+    assert(width(x) == 3 as u32, "width(u3) = 3")
+}
+
+sim TestWidthU5 {
+    wire x: u5 = 0 as u5
+    assert(width(x) == 5 as u32, "width(u5) = 5")
+}
+
+sim TestWidthU6 {
+    wire x: u6 = 0 as u6
+    assert(width(x) == 6 as u32, "width(u6) = 6")
+}
+
+sim TestWidthU7 {
+    wire x: u7 = 0 as u7
+    assert(width(x) == 7 as u32, "width(u7) = 7")
+}
+
+sim TestWidthU9 {
+    wire x: u9 = 0 as u9
+    assert(width(x) == 9 as u32, "width(u9) = 9")
+}
+
+sim TestWidthU10 {
+    wire x: u10 = 0 as u10
+    assert(width(x) == 10 as u32, "width(u10) = 10")
+}
+
+sim TestWidthU12 {
+    wire x: u12 = 0 as u12
+    assert(width(x) == 12 as u32, "width(u12) = 12")
+}
+
+sim TestWidthU13 {
+    wire x: u13 = 0 as u13
+    assert(width(x) == 13 as u32, "width(u13) = 13")
+}
+
+sim TestWidthU17 {
+    wire x: u17 = 0 as u17
+    assert(width(x) == 17 as u32, "width(u17) = 17")
+}
+
+sim TestWidthU24 {
+    wire x: u24 = 0 as u24
+    assert(width(x) == 24 as u32, "width(u24) = 24")
+}
+
+sim TestWidthU33 {
+    wire x: u33 = 0 as u33
+    assert(width(x) == 33 as u32, "width(u33) = 33")
+}
+
+sim TestWidthU48 {
+    wire x: u48 = 0 as u48
+    assert(width(x) == 48 as u32, "width(u48) = 48")
+}
+
+
+// ============================================================
+// Non-power-of-2 signed
+// ============================================================
+
+sim TestWidthS3 {
+    wire x: s3 = 0 as s3
+    assert(width(x) == 3 as u32, "width(s3) = 3")
+}
+
+sim TestWidthS5 {
+    wire x: s5 = 0 as s5
+    assert(width(x) == 5 as u32, "width(s5) = 5")
+}
+
+sim TestWidthS6 {
+    wire x: s6 = 0 as s6
+    assert(width(x) == 6 as u32, "width(s6) = 6")
+}
+
+sim TestWidthS7 {
+    wire x: s7 = 0 as s7
+    assert(width(x) == 7 as u32, "width(s7) = 7")
+}
+
+sim TestWidthS9 {
+    wire x: s9 = 0 as s9
+    assert(width(x) == 9 as u32, "width(s9) = 9")
+}
+
+sim TestWidthS10 {
+    wire x: s10 = 0 as s10
+    assert(width(x) == 10 as u32, "width(s10) = 10")
+}
+
+sim TestWidthS12 {
+    wire x: s12 = 0 as s12
+    assert(width(x) == 12 as u32, "width(s12) = 12")
+}
+
+sim TestWidthS17 {
+    wire x: s17 = 0 as s17
+    assert(width(x) == 17 as u32, "width(s17) = 17")
+}
+
+sim TestWidthS24 {
+    wire x: s24 = 0 as s24
+    assert(width(x) == 24 as u32, "width(s24) = 24")
+}
+
+sim TestWidthS33 {
+    wire x: s33 = 0 as s33
+    assert(width(x) == 33 as u32, "width(s33) = 33")
+}
+
+
+// ============================================================
+// Key properties
+// ============================================================
+
+// width() reflects the declared type, not the held value.
+sim TestWidthTypeNotValue {
+    wire lo: u8 = 0
+    wire hi: u8 = 255
+    assert(width(lo) == width(hi), "width(u8=0) == width(u8=255): type, not value")
+    assert(width(lo) == 8 as u32,  "both are 8 bits")
+}
+
+// Signed and unsigned of the same bit count have identical width().
+sim TestWidthSignedUnsignedSameBits {
+    wire u: u16  = 0
+    wire s: s16  = 0 as s16
+    assert(width(u) == width(s), "u16 and s16 have the same width")
+    assert(width(u) == 16 as u32, "both are 16 bits")
+}
+
+// bool and u1 are each 1 bit.
+sim TestWidthBoolEqualsU1 {
+    wire b: bool = false
+    wire u: u1   = 0 as u1
+    assert(width(b) == width(u), "bool and u1 have the same width")
+    assert(width(b) == 1 as u32, "both are 1 bit")
+}
+
+// width() matches across signed/unsigned pairs for every power-of-2 size.
+sim TestWidthPairedSignednessAll {
+    wire u1v:  u1  = 0 as u1   wire s1v:  s1  = 0 as s1
+    wire u2v:  u2  = 0 as u2   wire s2v:  s2  = 0 as s2
+    wire u4v:  u4  = 0 as u4   wire s4v:  s4  = 0 as s4
+    wire u8v:  u8  = 0         wire s8v:  s8  = 0 as s8
+    wire u16v: u16 = 0         wire s16v: s16 = 0 as s16
+    wire u32v: u32 = 0         wire s32v: s32 = 0 as s32
+    wire u64v: u64 = 0         wire s64v: s64 = 0 as s64
+    assert(width(u1v)  == width(s1v),  "u1  == s1:  1 bit")
+    assert(width(u2v)  == width(s2v),  "u2  == s2:  2 bits")
+    assert(width(u4v)  == width(s4v),  "u4  == s4:  4 bits")
+    assert(width(u8v)  == width(s8v),  "u8  == s8:  8 bits")
+    assert(width(u16v) == width(s16v), "u16 == s16: 16 bits")
+    assert(width(u32v) == width(s32v), "u32 == s32: 32 bits")
+    assert(width(u64v) == width(s64v), "u64 == s64: 64 bits")
+}
