@@ -2,56 +2,43 @@ module {
 
 
 
-  hw.module private @regression_brackets_nested_generic_double_call_RootNested(in %clk : !seq.clock, in %rst : i1, in %x : i8, out y : i8) {
-    %UsesWidth_inst_13_1.y = hw.instance "UsesWidth_inst_13_1" sym @UsesWidth_inst_13_1 @regression_brackets_nested_generic_double_call_UsesWidth_8(clk: %clk: !seq.clock, rst: %rst: i1, x: %x: i8) -> (y: i8)
-    hw.output %UsesWidth_inst_13_1.y : i8
+  hw.module private @comptime_comptime_clog2_fold_Clog2Demo(in %clk : !seq.clock, in %rst : i1, out w : i32) {
+    %c4_i32 = hw.constant 4 : i32
+    hw.output %c4_i32 : i32
   }
-  hw.module private @regression_brackets_nested_generic_double_call_UsesWidth_8(in %clk : !seq.clock, in %rst : i1, in %x : i8, out y : i8) {
-    %false = hw.constant false
-    %0 = comb.concat %false, %x : i1, i8
-    %false_0 = hw.constant false
-    %1 = comb.concat %false_0, %x : i1, i8
-    %2 = comb.add %0, %1 : i9
-    %3 = comb.extract %2 from 0 : (i9) -> i8
-    hw.output %3 : i8
-  }
-  hw.module @SimNestedGenericDouble_Harness(in %clk : !seq.clock, in %rst : i1, in %x : i8, out x : i8, out y : i8) {
-    %RootNested_inst_17_1.y = hw.instance "RootNested_inst_17_1" sym @RootNested_inst_17_1 @regression_brackets_nested_generic_double_call_RootNested(clk: %clk: !seq.clock, rst: %rst: i1, x: %x: i8) -> (y: i8)
-    hw.output %x, %RootNested_inst_17_1.y : i8, i8
+  hw.module @ComptimeClog2Fold_Harness(in %clk : !seq.clock, in %rst : i1, out w : i32) {
+    %Clog2Demo_inst_13_1.w = hw.instance "Clog2Demo_inst_13_1" sym @Clog2Demo_inst_13_1 @comptime_comptime_clog2_fold_Clog2Demo(clk: %clk: !seq.clock, rst: %rst: i1) -> (w: i32)
+    hw.output %Clog2Demo_inst_13_1.w : i32
   }
   func.func @entry() {
-    %c-2_i4 = hw.constant -2 : i4
-    %c7_i8 = hw.constant 7 : i8
+    %c-4_i3 = hw.constant -4 : i3
     %true = hw.constant true
     %false = hw.constant false
     %0 = seq.const_clock high
     %1 = seq.const_clock low
-    arc.sim.instantiate @SimNestedGenericDouble_Harness as %arg0 {
-      arc.sim.set_input %arg0, "rst" = %true : i1, !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.set_input %arg0, "x" = %c7_i8 : i8, !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.set_input %arg0, "clk" = %1 : !seq.clock, !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.step %arg0 : !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.set_input %arg0, "clk" = %0 : !seq.clock, !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.step %arg0 : !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.set_input %arg0, "rst" = %false : i1, !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.set_input %arg0, "clk" = %1 : !seq.clock, !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.step %arg0 : !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.set_input %arg0, "clk" = %0 : !seq.clock, !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.step %arg0 : !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      %2 = arc.sim.get_port %arg0, "x" : i8, !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.emit "x", %2 : i8
-      %3 = arc.sim.get_port %arg0, "y" : i8, !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.emit "y", %3 : i8
-      %4 = arc.sim.get_port %arg0, "y" : i8, !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22y\22}", %4 : i8
-      %c0_i4 = hw.constant 0 : i4
-      %5 = comb.concat %c0_i4, %c-2_i4 : i4, i4
+    arc.sim.instantiate @ComptimeClog2Fold_Harness as %arg0 {
+      arc.sim.set_input %arg0, "rst" = %true : i1, !arc.sim.instance<@ComptimeClog2Fold_Harness>
+      arc.sim.set_input %arg0, "clk" = %1 : !seq.clock, !arc.sim.instance<@ComptimeClog2Fold_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@ComptimeClog2Fold_Harness>
+      arc.sim.set_input %arg0, "clk" = %0 : !seq.clock, !arc.sim.instance<@ComptimeClog2Fold_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@ComptimeClog2Fold_Harness>
+      arc.sim.set_input %arg0, "rst" = %false : i1, !arc.sim.instance<@ComptimeClog2Fold_Harness>
+      arc.sim.set_input %arg0, "clk" = %1 : !seq.clock, !arc.sim.instance<@ComptimeClog2Fold_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@ComptimeClog2Fold_Harness>
+      arc.sim.set_input %arg0, "clk" = %0 : !seq.clock, !arc.sim.instance<@ComptimeClog2Fold_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@ComptimeClog2Fold_Harness>
+      %2 = arc.sim.get_port %arg0, "w" : i32, !arc.sim.instance<@ComptimeClog2Fold_Harness>
+      arc.sim.emit "w", %2 : i32
+      %3 = arc.sim.get_port %arg0, "w" : i32, !arc.sim.instance<@ComptimeClog2Fold_Harness>
+      arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22w\22}", %3 : i32
+      %c0_i29 = hw.constant 0 : i29
+      %4 = comb.concat %c0_i29, %c-4_i3 : i29, i3
       %false_0 = hw.constant false
-      %6 = comb.concat %false_0, %4 : i1, i8
+      %5 = comb.concat %false_0, %3 : i1, i32
       %false_1 = hw.constant false
-      %7 = comb.concat %false_1, %5 : i1, i8
-      %8 = comb.icmp eq %6, %7 : i9
-      arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22UsesWidth<8> doubles via double_uW<8>\22, \22line\22: 22, \22column\22: 12, \22condition\22: \22y == 14 as u8\22, \22scope\22: \22SimNestedGenericDouble\22}", %8 : i1
+      %6 = comb.concat %false_1, %4 : i1, i32
+      %7 = comb.icmp eq %5, %6 : i33
+      arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22clog2_int(16) == 4\22, \22line\22: 17, \22column\22: 12, \22condition\22: \22w == 4 as u32\22, \22scope\22: \22ComptimeClog2Fold\22}", %7 : i1
     }
     return
   }
