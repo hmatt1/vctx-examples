@@ -1,0 +1,70 @@
+// spec: §12.1 (Expression builtins - width), §10 (Generics and specialization)
+// description: Comprehensive verification of using width() to drive a generic parameter.
+// rule: width() evaluates to a comptime Int, making it valid as an Int generic argument.
+// expect: pass
+
+// A generic delay line whose capacity (width) is parameterized.
+component GenericDelay<Int W>(
+    in d: u[W],
+    out q: u[W]
+) {
+    reg pipe: u[W] = 0
+    pipe <= d
+    q := pipe
+}
+
+sim TestWidthDrivesGenericParam {
+    // 1. Declare signals of various widths
+    wire data8: u8 = 0xAA
+    wire data16: u16 = 0xCAFE
+    wire data5: u [ 5 ] = 31
+
+    wire out8: u8
+    wire out16: u16
+    wire out5: u [ 5 ]
+
+    // 2. Instantiate generic components using width() of the signals
+    // This allows the component to auto-scale without hardcoding '8' or '16'.
+    GenericDelay<width(data8)>(d -- data8, q -- out8)
+    GenericDelay<width(data16)>(d -- data16, q -- out16)
+    GenericDelay<width(data5)>(d -- data5, q -- out5)
+
+    // 3. Verify structural latency (1 cycle)
+    // At Cycle 0, outputs should be 0 (reset state)
+    assert(out8 == 0, "out8 init 0")
+    assert(out16 == 0, "out16 init 0")
+    assert(out5 == 0, "out5 init 0")
+
+    // Cycle 1: Values should propagate
+    cycle()
+    assert(out8 == 0xAA, "out8 latched 0xAA")
+    assert(out16 == 0xCAFE, "out16 latched 0xCAFE")
+    assert(out5 == 31, "out5 latched 31")
+
+    // 4. Update data and re-verify
+    poke(data8, 0x55)
+    poke(data16, 0xBEEF)
+    poke(data5, 10)
+    cycle()
+
+    assert(out8 == 0x55, "out8 latched 0x55")
+    assert(out16 == 0xBEEF, "out16 latched 0xBEEF")
+    assert(out5 == 10, "out5 latched 10")
+
+    // 5. Verify Metadata
+    assert(width(out8) == 8, "out8 width is 8")
+    assert(width(out16) == 16, "out16 width is 16")
+    assert(width(out5) == 5, "out5 width is 5")
+
+    // 6. Complex expressions in generic parameter
+    // We can perform math on the width before passing it.
+    // e.g., A delay line twice as wide as the input.
+    wire out16_from8: u[width(data8) * 2]
+    GenericDelay<width(data8) * 2>(
+        d -- (data8 as u16), // Cast to fit the doubled width
+        q -- out16_from8
+    )
+    cycle() // Latches the 0x55 casted to u16
+    assert(out16_from8 == 0x0055, "Double-width scaled generic latched")
+    assert(width(out16_from8) == 16, "Double-width scaled generic width is 16")
+}

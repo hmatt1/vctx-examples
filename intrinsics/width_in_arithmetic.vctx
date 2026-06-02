@@ -1,0 +1,68 @@
+// spec: §12.1 (Expression builtins - width), §2.1 (Int type)
+// description: Comprehensive verification of using the width() intrinsic in arithmetic and comparisons.
+// rule: width(x) returns an Int, which can participate in Int arithmetic and be cast to hardware carriers.
+// expect: pass
+
+sim TestWidthInArithmetic {
+    wire x8: u8 = 0
+    wire y16: u16 = 0
+    wire z8: s8 = 0
+
+    // --- 1. Basic Arithmetic with width() ---
+    // Result of width() is Int.
+    
+    // Addition: width(x) + width(y)
+    wire sum_w: u8 = (width(x8) + width(y16)) as u8
+    assert(sum_w == 24, "width(u8) + width(u16) = 24")
+
+    // Multiplication: width(x) * 2
+    wire double_w: u8 = (width(x8) * 2) as u8
+    assert(double_w == 16, "width(u8) * 2 = 16")
+
+    // Subtraction and complex expressions
+    wire diff_w: u8 = (width(y16) - width(x8)) as u8
+    assert(diff_w == 8, "width(u16) - width(u8) = 8")
+
+    // --- 2. Comparisons with width() ---
+    // width(a) == width(b)
+    assert(width(x8) == width(z8), "u8 and s8 have same width 8")
+    assert(width(x8) !== width(y16), "u8 and u16 have different widths")
+    assert(width(y16) > width(x8), "u16 width > u8 width")
+    assert(width(x8) <== 8, "u8 width <== 8")
+
+    // --- 3. Nested width() and math ---
+    // width(concat(x, y)) == width(x) + width(y)
+    assert(width(concat(x8, y16)) == (width(x8) + width(y16)), "width(concat) identity")
+
+    // --- 4. width() of Expressions ---
+    // The width of (x + y) depends on promotion rules.
+    // u8 + u16 -> u17 (max(8, 16)+1)
+    assert(width(x8 + y16) == 17, "width of u8 + u16 is 17")
+    
+    // u8 * u8 -> u16
+    assert(width(x8 * x8) == 16, "width of u8 * u8 is 16")
+
+    // --- 5. Non-Power-of-2 Widths ---
+    wire u7: u [ 7 ] = 0
+    wire u9: u [ 9 ] = 0
+    assert(width(u7) + width(u9) == 16, "u7 + u9 widths sum to 16")
+    assert(width(u7) < width(u9), "7 < 9")
+
+    // --- 6. Usage as Array Dimension (Parametric scaling) ---
+    // width(x) used in a comptime context
+    wire scaled_arr: u8[width(x8)] // u8[8]
+    assert(len(scaled_arr) == 8, "Array dimensioned by width(x8)")
+
+    // --- 7. Comptime Identity Law ---
+    // width(width(x)) -> width of an Int. 
+    // In vctx, Int width is implementation-defined or infinite at comptime, 
+    // but usually width() on a Type/Carrier is what's tested.
+    assert(width(u64) == 64, "width() on Type literal u64")
+    assert(width(bool) == 1, "width() on Type literal bool")
+
+    // --- 8. width() in Ternary ---
+    wire sel: bool = true
+    wire dynamic_w := sel ? width(x8) : width(y16)
+    // Note: dynamic_w is an Int.
+    assert(dynamic_w == 8, "Ternary selection of width")
+}

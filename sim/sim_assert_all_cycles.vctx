@@ -1,0 +1,81 @@
+// spec: §13 (Simulation builtins)
+// description: Comprehensive verification of tick-by-tick assertion coverage.
+// rule: Assertions evaluate the settled combinational state at the current simulation time.
+// expect: pass
+
+component CycleCounter(
+    in step: u8,
+    out count: u8
+) {
+    reg r_count: u8 = 0
+    r_count <= (r_count + step) as u8
+    count := r_count
+}
+
+sim TestSimAssertAllCycles {
+    wire step_val: u8 = 1
+    wire out_count: u8
+
+    CycleCounter(step_val, out_count)
+
+    // --- 1. Continuous Tick-by-Tick Monitoring ---
+    // Verify that we can assert state accurately at every discrete time step.
+    
+    assert(out_count == 0, "Cycle 0: Init")
+    
+    cycle()
+    assert(out_count == 1, "Cycle 1")
+    
+    cycle()
+    assert(out_count == 2, "Cycle 2")
+    
+    cycle()
+    assert(out_count == 3, "Cycle 3")
+    
+    cycle()
+    assert(out_count == 4, "Cycle 4")
+    
+    cycle()
+    assert(out_count == 5, "Cycle 5")
+    
+    cycle()
+    assert(out_count == 6, "Cycle 6")
+    
+    cycle()
+    assert(out_count == 7, "Cycle 7")
+    
+    cycle()
+    assert(out_count == 8, "Cycle 8")
+
+    // --- 2. Step Change Monitoring ---
+    poke(step_val, 5)
+    
+    cycle()
+    assert(out_count == 13, "Cycle 9: 8 + 5 = 13")
+    
+    cycle()
+    assert(out_count == 18, "Cycle 10: 13 + 5 = 18")
+    
+    cycle()
+    assert(out_count == 23, "Cycle 11: 18 + 5 = 23")
+
+    // --- 3. Zero Step (Hold State) Monitoring ---
+    poke(step_val, 0)
+    
+    cycle()
+    assert(out_count == 23, "Cycle 12: Hold 23")
+    
+    cycle()
+    assert(out_count == 23, "Cycle 13: Hold 23")
+    
+    cycle()
+    assert(out_count == 23, "Cycle 14: Hold 23")
+
+    // --- 4. Interleaved Pokes and Asserts ---
+    // Verifying that poking doesn't disrupt the current cycle's settled state before the next cycle()
+    poke(step_val, 100)
+    assert(out_count == 23, "Cycle 14: Poke does not change current register state")
+    
+    cycle()
+    assert(out_count == 123, "Cycle 15: 23 + 100 = 123")
+}

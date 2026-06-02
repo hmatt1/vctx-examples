@@ -1,0 +1,56 @@
+// spec: §12.1 (Expression builtins - is_comptime), §18 (Comptime evaluation)
+// description: Comprehensive verification of the is_comptime() intrinsic across all context types.
+// rule: is_comptime(x) returns true only if x can be fully resolved at compile-time.
+// expect: pass
+
+sim TestIsComptimeAllCases {
+    // --- 1. Literals (Always Comptime) ---
+    assert(is_comptime(42), "Integer literal is comptime")
+    assert(is_comptime(0xFF), "Hex literal is comptime")
+    assert(is_comptime(true), "Boolean literal is comptime")
+    assert(is_comptime("Hi"), "String literal is comptime")
+
+    // --- 2. Wires from Literals (Comptime through Propagation) ---
+    wire w_lit: u8 = 10
+    assert(is_comptime(w_lit), "Wire driven by a literal is comptime")
+
+    // --- 3. Registers (Never Comptime) ---
+    // Rule: Registers are hardware state and evolve over time; their value is NOT known at comptime.
+    reg r_state: u8 = 0
+    assert(not is_comptime(r_state), "Register is NOT comptime")
+
+    // --- 4. Input Ports (Never Comptime) ---
+    // Note: Inside a component, input ports are dynamic. 
+    // In a sim block, wires can be poked, so they are dynamic if not driven by a literal initializer.
+    wire dyn_input: u8
+    poke(dyn_input, 5)
+    assert(not is_comptime(dyn_input), "Poked/Dynamic wire is NOT comptime")
+
+    // --- 5. Arithmetic of Comptime Values (Always Comptime) ---
+    assert(is_comptime(10 + 20), "Arithmetic of literals is comptime")
+    assert(is_comptime(w_lit * 2), "Arithmetic of comptime wire is comptime")
+
+    // --- 6. Arithmetic with Dynamic Values (Never Comptime) ---
+    assert(not is_comptime(dyn_input + 1), "Math with dynamic wire is NOT comptime")
+    assert(not is_comptime(r_state - 1), "Math with register is NOT comptime")
+
+    // --- 7. Comptime Constants (let) ---
+    let C = 100
+    assert(is_comptime(C), "Comptime 'let' constant is comptime")
+    assert(is_comptime(C / 2), "Arithmetic with 'let' constant is comptime")
+
+    // --- 8. Function Calls ---
+    // Rule: Function calls with all-comptime arguments are comptime.
+    // (We'll use a builtin here as an example)
+    assert(is_comptime(clog2(16)), "clog2(16) is comptime")
+
+    // --- 9. Ternary Conditions ---
+    // If condition is comptime, and selected arm is comptime, result is comptime?
+    // Usually, Vctx treats the ternary itself as a hardware mux if any part is dynamic.
+    assert(is_comptime(true ? 1 : 2), "Literal ternary is comptime")
+    assert(not is_comptime(dyn_input > 0 ? 1 : 2), "Dynamic condition ternary is NOT comptime")
+
+    // --- 10. Type/Intrinsic Metadata ---
+    assert(is_comptime(width(w_lit)), "width() result is always comptime")
+    assert(is_comptime(is_signed(r_state)), "is_signed() result is always comptime")
+}

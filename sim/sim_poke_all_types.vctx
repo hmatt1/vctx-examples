@@ -1,0 +1,90 @@
+// spec: §13 (Simulation builtins)
+// description: Comprehensive verification of poke() across all standard scalar types.
+// rule: poke() immediately updates the target wire and evaluates dependent combinational logic.
+// expect: pass
+
+component CombinationalEcho(
+    in b_in: bool, out b_out: bool,
+    in u8_in: u8, out u8_out: u8,
+    in s8_in: s8, out s8_out: s8,
+    in u16_in: u16, out u16_out: u16,
+    in u5_in: u5, out u5_out: u5,
+    in s64_in: s64, out s64_out: s64
+) {
+    b_out := b_in
+    // Add minor combinational logic to ensure it's evaluating, not just aliasing
+    u8_out := (u8_in + 1) as u8
+    s8_out := (s8_in - 1) as s8
+    u16_out := (u16_in * 2) as u16
+    u5_out := (u5_in ^ 0x1F) as u5 // Invert bits
+    s64_out := (s64_in + 1000) as s64
+}
+
+sim TestSimPokeAllTypes {
+    // 1. Declare stimulus wires
+    wire b: bool = false
+    wire u8v: u8 = 0
+    wire s8v: s8 = 0
+    wire u16v: u16 = 0
+    wire u5v: u5 = 0
+    wire s64v: s64 = 0
+
+    // 2. Declare observation wires
+    wire b_o: bool
+    wire u8_o: u8
+    wire s8_o: s8
+    wire u16_o: u16
+    wire u5_o: u5
+    wire s64_o: s64
+
+    // 3. Connect DUT
+    CombinationalEcho(
+        b, b_o,
+        u8v, u8_o,
+        s8v, s8_o,
+        u16v, u16_o,
+        u5v, u5_o,
+        s64v, s64_o
+    )
+
+    // --- PHASE 1: Verify Initial State (Pre-poke) ---
+    assert(b_o == false, "Init bool")
+    assert(u8_o == 1, "Init u8 (0+1)")
+    assert(s8_o == -1, "Init s8 (0-1)")
+    assert(u16_o == 0, "Init u16 (0*2)")
+    assert(u5_o == 0x1F, "Init u5 (0^1F)")
+    assert(s64_o == 1000, "Init s64 (0+1000)")
+
+    // --- PHASE 2: Poke and Immediate Verify (Combinational) ---
+    
+    // Poke Boolean
+    poke(b, true)
+    assert(b_o == true, "poke(bool) immediately evaluates")
+
+    // Poke u8
+    poke(u8v, 100)
+    assert(u8_o == 101, "poke(u8) immediately evaluates (100+1)")
+
+    // Poke s8 (Negative)
+    poke(s8v, -50)
+    assert(s8_o == -51, "poke(s8) immediately evaluates (-50-1)")
+
+    // Poke u16 (Hex)
+    poke(u16v, 0x1000) // 4096
+    assert(u16_o == 0x2000, "poke(u16) immediately evaluates (0x1000 * 2)")
+
+    // Poke u5 (Odd width)
+    poke(u5v, 0b01010) // 10
+    // 10 ^ 31 = 01010 ^ 11111 = 10101 = 21
+    assert(u5_o == 21, "poke(u5) immediately evaluates")
+
+    // Poke s64 (Large magnitude)
+    poke(s64v, -9000000000000000000)
+    assert(s64_o == -8999999999999999000, "poke(s64) immediately evaluates")
+
+    // --- PHASE 3: Re-poke to prove stability ---
+    poke(b, false)
+    poke(u8v, 255) // max
+    assert(b_o == false, "Re-poke(bool)")
+    assert(u8_o == 0, "Re-poke(u8 max) wraps to 0 (255+1 as u8)")
+}

@@ -1,0 +1,67 @@
+// spec: §7.5 (Operator result rules - Shifts)
+// description: Comprehensive verification that shifting by zero is an identity operation.
+// identity: x << 0 == x, x >> 0 == x
+// expect: pass
+
+sim TestShiftByZero {
+    // --- 1. Unsigned Identity (u1, u8, u64) ---
+    wire u1_val: u1 = 1
+    assert(u1_val << 0 == 1, "u1: 1 << 0 = 1")
+    assert(u1_val >> 0 == 1, "u1: 1 >> 0 = 1")
+
+    wire u8_val: u8 = 0xA5
+    assert(u8_val << 0 == 0xA5, "u8: 0xA5 << 0 = 0xA5")
+    assert(u8_val >> 0 == 0xA5, "u8: 0xA5 >> 0 = 0xA5")
+
+    wire u64_val: u64 = 0xDEAD_BEEF_CAFE_BABE
+    assert(u64_val << 0 == 0xDEAD_BEEF_CAFE_BABE, "u64: identity << 0")
+    assert(u64_val >> 0 == 0xDEAD_BEEF_CAFE_BABE, "u64: identity >> 0")
+
+    // --- 2. Signed Identity (s8, s64) ---
+    wire s8_neg: s8 = -42
+    assert(s8_neg << 0 == -42, "s8: -42 << 0 = -42")
+    assert(s8_neg >> 0 == -42, "s8: -42 >> 0 = -42")
+
+    wire s64_min: s64 = -9223372036854775808
+    assert(s64_min << 0 == s64_min, "s64: min << 0 identity")
+    assert(s64_min >> 0 == s64_min, "s64: min >> 0 identity")
+
+    // --- 3. Dynamic Zero Shift ---
+    // Verifying identity when the shift amount is a runtime wire
+    wire zero_amt: u4 = 0
+    assert(u8_val << zero_amt == 0xA5, "Dynamic u8 << wire(0)")
+    assert(u8_val >> zero_amt == 0xA5, "Dynamic u8 >> wire(0)")
+    assert(s8_neg << zero_amt == -42,  "Dynamic s8 << wire(0)")
+    assert(s8_neg >> zero_amt == -42,  "Dynamic s8 >> wire(0)")
+
+    // --- 4. Odd Widths (u3, s5) ---
+    wire u3_val: u [ 3 ] = 7
+    assert(u3_val << 0 == 7, "u3: 7 << 0 = 7")
+    
+    wire s5_val: s [ 5 ] = -16
+    assert(s5_val >> 0 == -16, "s5: -16 >> 0 = -16")
+
+    // --- 5. Result Metadata Verification ---
+    // Rule: Shift result matches LHS width and signedness exactly.
+    wire res_l := u8_val << 0
+    wire res_r := s8_neg >> 0
+    
+    assert(width(res_l) == 8, "u8 << 0 result width is 8")
+    assert(is_signed(res_l) == false, "u8 << 0 result is unsigned")
+    
+    assert(width(res_r) == 8, "s8 >> 0 result width is 8")
+    assert(is_signed(res_r) == true, "s8 >> 0 result is signed")
+
+    // --- 6. Complex Expression Interaction ---
+    // Identity should hold inside arithmetic
+    assert((u8_val << 0) + 1 == 0xA6, "Identity in addition")
+    assert((s8_neg >> 0) * 2 == -84,  "Identity in multiplication")
+    
+    // Identity in comparison
+    assert((u8_val >> 0) == u8_val, "x >> 0 == x comparison")
+
+    // --- 7. Bool as 1-bit value ---
+    wire b_val: bool = true
+    // bool behaves as u1
+    assert(b_val << 0 == true, "bool: true << 0 = true")
+}

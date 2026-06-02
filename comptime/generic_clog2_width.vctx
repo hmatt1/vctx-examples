@@ -1,0 +1,94 @@
+// spec: §12.1 (Expression builtins - clog2), §10.3 (Int generics), §8.1 (Type grammar)
+// description: Comprehensive verification of deriving bit-widths from generic parameters using clog2().
+// rule: clog2(N) returns the ceiling log2 of N, suitable for dimensioning registers/wires.
+// expect: pass
+
+// A generic counter that counts from 0 up to (MAX_COUNT - 1).
+// The width of the 'count' register is derived from clog2(MAX_COUNT).
+component GenericCounter<Int MAX_COUNT>(
+    in en: bool,
+    out val: u[clog2(MAX_COUNT)],
+    out w_out: u8
+) {
+    // 1. Calculate required width at comptime
+    let W = clog2(MAX_COUNT)
+    
+    // 2. Declare register with derived width
+    reg count: u[W] = 0
+    
+    when en {
+        // Increment and wrap logic
+        when count == (MAX_COUNT - 1) as u[W] {
+            count <= 0
+        } otherwise {
+            count <= (count + 1) as u[W]
+        }
+    }
+    
+    val := count
+    w_out := W as u8
+}
+
+sim TestGenericClog2Width {
+    // --- CASE 1: Exact Power of Two (MAX=8, Width=3) ---
+    wire en8: bool = true
+    wire v8: u3
+    wire w8: u8
+    GenericCounter<8>(en8, v8, w8)
+    
+    assert(w8 == 3, "clog2(8) should be 3")
+    assert(width(v8) == 3, "Output width for MAX=8 should be 3")
+    
+    cycle(7)
+    assert(v8 == 7, "Counter at 7")
+    cycle()
+    assert(v8 == 0, "Counter wrapped at 8")
+
+    // --- CASE 2: Non-Power of Two (MAX=10, Width=4) ---
+    // 10 requires 4 bits (holds up to 15).
+    wire en10: bool = true
+    wire v10: u4
+    wire w10: u8
+    GenericCounter<10>(en10, v10, w10)
+    
+    assert(w10 == 4, "clog2(10) should be 4")
+    assert(width(v10) == 4, "Output width for MAX=10 should be 4")
+    
+    cycle(9)
+    assert(v10 == 9, "Counter at 9")
+    cycle()
+    assert(v10 == 0, "Counter wrapped at 10")
+
+    // --- CASE 3: Large Non-Power of Two (MAX=1000, Width=10) ---
+    // 2^9 = 512, 2^10 = 1024. 1000 fits in 10 bits.
+    wire en1000: bool = true
+    wire v1000: u10
+    wire w1000: u8
+    GenericCounter<1000>(en1000, v1000, w1000)
+    
+    assert(w1000 == 10, "clog2(1000) should be 10")
+    assert(width(v1000) == 10, "Output width for MAX=1000 should be 10")
+
+    // --- CASE 4: Smallest Boundary (MAX=2, Width=1) ---
+    wire v2: u1
+    wire w2: u8
+    GenericCounter<2>(true, v2, w2)
+    assert(w2 == 1, "clog2(2) = 1")
+    assert(width(v2) == 1, "u1 output")
+
+    // --- CASE 5: Single value (MAX=1, Width=0??) ---
+    // In hardware, a 1-entry counter might be degenerate.
+    // clog2(1) is defined as 0. 
+    // Vctx should handle u[0] or reject it? 
+    // Spec §8.8: "non-positive widths/dimensions ... are errors."
+    // Let's test the boundary at 2.
+
+    // --- CASE 6: Identity with literal math ---
+    assert(clog2(1) == 0, "clog2(1) identity")
+    assert(clog2(2) == 1, "clog2(2) identity")
+    assert(clog2(3) == 2, "clog2(3) identity")
+    assert(clog2(4) == 2, "clog2(4) identity")
+    assert(clog2(5) == 3, "clog2(5) identity")
+    assert(clog2(128) == 7, "clog2(128) identity")
+    assert(clog2(129) == 8, "clog2(129) identity")
+}

@@ -1,0 +1,95 @@
+// spec: §7.1 (Precedence / Operator spellings), §7.5 (Operator result rules)
+// description: Comprehensive test for all comparison operators across all standard scalar types.
+// operators: ==, !==, <, >, <==, >==
+// rule: Comparison results are always u1/bool (unsigned, width 1).
+// expect: pass
+
+sim TestComparisonAllOperators {
+    // --- 1. Boolean Comparisons ---
+    wire bt: bool = true
+    wire bf: bool = false
+    assert(bt == bt,   "bool: T == T")
+    assert(bt !== bf,  "bool: T !== F")
+    assert(bt > bf,    "bool: T > F (1 > 0)")
+    assert(bf < bt,    "bool: F < T (0 < 1)")
+    assert(bt >== bf,  "bool: T >== F")
+    assert(bf <== bt,  "bool: F <== T")
+
+    // --- 2. Unsigned 8-bit (u8) ---
+    wire u8a: u8 = 10
+    wire u8b: u8 = 20
+    wire u8c: u8 = 10
+    assert(u8a == u8c,   "u8: 10 == 10")
+    assert(u8a !== u8b,  "u8: 10 !== 20")
+    assert(u8a < u8b,    "u8: 10 < 20")
+    assert(u8b > u8a,    "u8: 20 > 10")
+    assert(u8a <== u8c,  "u8: 10 <== 10")
+    assert(u8a >== u8c,  "u8: 10 >== 10")
+    assert(u8b >== u8a,  "u8: 20 >== 10")
+
+    // --- 3. Signed 8-bit (s8) ---
+    wire s8n: s8 = -50
+    wire s8p: s8 = 50
+    wire s8z: s8 = 0
+    assert(s8n < s8p,    "s8: -50 < 50")
+    assert(s8p > s8n,    "s8: 50 > -50")
+    assert(s8n < s8z,    "s8: -50 < 0")
+    assert(s8z > s8n,    "s8: 0 > -50")
+    assert(s8n <== -50,  "s8: -50 <== -50")
+    assert(s8n !== s8p,  "s8: -50 !== 50")
+
+    // --- 4. 64-bit Unsigned (u64) ---
+    wire u64_max: u64 = 0xFFFF_FFFF_FFFF_FFFF
+    wire u64_zero: u64 = 0
+    assert(u64_max > u64_zero, "u64: max > 0")
+    assert(u64_zero < u64_max, "u64: 0 < max")
+    assert(u64_max == 0xFFFF_FFFF_FFFF_FFFF, "u64: equality")
+    assert(u64_max >== 0,      "u64: max >== 0")
+
+    // --- 5. 64-bit Signed (s64) ---
+    wire s64_min: s64 = -9223372036854775808
+    wire s64_max: s64 = 9223372036854775807
+    assert(s64_min < s64_max,  "s64: min < max")
+    assert(s64_max > s64_min,  "s64: max > min")
+    assert(s64_min <== s64_min, "s64: min <== min")
+    assert(s64_max >== s64_max, "s64: max >== max")
+
+    // --- 6. Type result verification ---
+    wire res_eq := (u8a == u8b)
+    assert(width(res_eq) == 1, "Comparison result width is 1")
+    assert(is_signed(res_eq) == false, "Comparison result is unsigned")
+
+    // --- 7. Mixed Width Comparisons (Promotion) ---
+    // Rule: Promote to max width, then compare.
+    wire u16_val: u16 = 1000
+    wire u8_val: u8 = 255
+    assert(u16_val > u8_val, "Mixed: u16(1000) > u8(255)")
+    assert(u8_val < u16_val, "Mixed: u8(255) < u16(1000)")
+
+    // --- 8. Mixed Signedness Comparisons ---
+    // Rule: Promotion to signed (Width+1) if any operand is signed.
+    wire u8_200: u8 = 200
+    wire s8_100: s8 = 100
+    assert(u8_200 > s8_100,  "Mixed: u8(200) > s8(100)")
+    
+    wire s8_neg: s8 = -1
+    assert(u8_200 > s8_neg,  "Mixed: u8(200) > s8(-1)")
+    assert(s8_neg < u8_200,  "Mixed: s8(-1) < u8(200)")
+
+    // --- 9. Operator Priority / Precedence ---
+    // Comparisons have lower precedence than shifts, higher than logical 'and'/'or'
+    assert(1 << 4 > 10, "Precedence: (1<<4) > 10 is T (16 > 10)")
+    assert(1 << 2 < 10, "Precedence: (1<<2) < 10 is T (4 < 10)")
+    
+    assert(true and 10 > 5, "Precedence: true and (10 > 5) is T")
+    assert(false or 10 > 5, "Precedence: false or (10 > 5) is T")
+
+    // --- 10. Odd Widths (u3, s5) ---
+    wire u3_a: u [ 3 ] = 7
+    wire u3_b: u [ 3 ] = 0
+    assert(u3_a > u3_b, "u3: 7 > 0")
+    
+    wire s5_a: s [ 5 ] = -16
+    wire s5_b: s [ 5 ] = 15
+    assert(s5_a < s5_b, "s5: -16 < 15")
+}

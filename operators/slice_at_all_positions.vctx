@@ -1,0 +1,82 @@
+// spec: §7.2 (Slicing), §7.6 (Dynamic indexing)
+// description: Comprehensive verification of single-bit extraction at all bit positions.
+// rule: Bit 0 is the least significant bit (LSB). Single bit slices result in u1.
+// expect: pass
+
+sim TestSliceAtAllPositions {
+    // --- 1. Exhaustive u8 Bit Extraction (Bits 0-7) ---
+    // Pattern: 0b1011_0100 (0xB4)
+    // Bits:    7654_3210
+    // Values:  1011_0100
+    wire u8_val: u8 = 0xB4
+    
+    assert(u8_val[0..0] == 0, "u8: bit 0")
+    assert(u8_val[1..1] == 0, "u8: bit 1")
+    assert(u8_val[2..2] == 1, "u8: bit 2")
+    assert(u8_val[3..3] == 0, "u8: bit 3")
+    assert(u8_val[4..4] == 1, "u8: bit 4")
+    assert(u8_val[5..5] == 1, "u8: bit 5")
+    assert(u8_val[6..6] == 0, "u8: bit 6")
+    assert(u8_val[7..7] == 1, "u8: bit 7 (MSB)")
+
+    // --- 2. Exhaustive u16 Bit Extraction (Bits 0-15) ---
+    // Pattern: 0x8001 (1000_0000_0000_0001)
+    wire u16_val: u16 = 0x8001
+    assert(u16_val[0..0] == 1, "u16: bit 0")
+    assert(u16_val[1..1] == 0, "u16: bit 1")
+    assert(u16_val[2..2] == 0, "u16: bit 2")
+    assert(u16_val[3..3] == 0, "u16: bit 3")
+    assert(u16_val[4..4] == 0, "u16: bit 4")
+    assert(u16_val[5..5] == 0, "u16: bit 5")
+    assert(u16_val[6..6] == 0, "u16: bit 6")
+    assert(u16_val[7..7] == 0, "u16: bit 7")
+    assert(u16_val[8..8] == 0, "u16: bit 8")
+    assert(u16_val[9..9] == 0, "u16: bit 9")
+    assert(u16_val[10..10] == 0, "u16: bit 10")
+    assert(u16_val[11..11] == 0, "u16: bit 11")
+    assert(u16_val[12..12] == 0, "u16: bit 12")
+    assert(u16_val[13..13] == 0, "u16: bit 13")
+    assert(u16_val[14..14] == 0, "u16: bit 14")
+    assert(u16_val[15..15] == 1, "u16: bit 15 (MSB)")
+
+    // --- 3. Dynamic Bit-Pick vs Static Slice ---
+    // Rule: data[i] (dynamic) == data[i..i] (static)
+    wire idx: u3 = 4
+    assert(u8_val[idx] == u8_val[4..4], "Dynamic pick matches static slice")
+    
+    poke(idx, 7)
+    assert(u8_val[idx] == u8_val[7..7], "Dynamic pick tracks index change")
+
+    // --- 4. Signed Bit Extraction (MSB is Sign Bit) ---
+    wire s8_neg: s8 = -128 // 1000_0000
+    assert(s8_neg[7..7] == 1, "s8: MSB of -128 is 1")
+    assert(s8_neg[0..0] == 0, "s8: LSB of -128 is 0")
+
+    wire s8_neg1: s8 = -1 // 1111_1111
+    assert(s8_neg1[7..7] == 1, "s8: MSB of -1 is 1")
+    assert(s8_neg1[0..0] == 1, "s8: LSB of -1 is 1")
+
+    // --- 5. Result Metadata Verification ---
+    wire bit_res := u16_val[15..15]
+    assert(width(bit_res) == 1, "Single bit slice width is 1")
+    assert(is_signed(bit_res) == false, "Single bit slice is unsigned")
+
+    // --- 6. Odd Width Extraction ---
+    wire u3_val: u [ 3 ] = 0b101
+    assert(u3_val[0..0] == 1, "u3: bit 0")
+    assert(u3_val[1..1] == 0, "u3: bit 1")
+    assert(u3_val[2..2] == 1, "u3: bit 2")
+
+    // --- 7. Concatenated Extraction ---
+    // Extracting bits from the result of a concat
+    wire c_res := concat(u8_val, u8_val) // 16 bits
+    assert(c_res[15..15] == u8_val[7..7], "Extract from concat result (MSB)")
+    assert(c_res[7..7] == u8_val[7..7],   "Extract from concat result (Mid)")
+    assert(c_res[0..0] == u8_val[0..0],   "Extract from concat result (LSB)")
+
+    // --- 8. Large Width (64-bit) Boundaries ---
+    wire u64_val: u64 = 0x8000_0000_0000_0001
+    assert(u64_val[63..63] == 1, "u64 MSB")
+    assert(u64_val[0..0] == 1,   "u64 LSB")
+    assert(u64_val[32..32] == 0, "u64 middle bit")
+}

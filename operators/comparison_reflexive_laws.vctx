@@ -1,0 +1,82 @@
+// spec: §7.1 (Operator spellings), §7.5 (Operator result rules)
+// description: Comprehensive verification of relational identity laws (Reflexivity, Irreflexivity, Antisymmetry, and Trichotomy).
+// rules:
+//   - Reflexivity: a == a, a <== a, a >== a are always true.
+//   - Irreflexivity: a < a, a > a, a !== a are always false.
+//   - Antisymmetry: (a <== b) and (b <== a) iff (a == b).
+//   - Trichotomy: Exactly one of (a < b), (a == b), (a > b) is true.
+// expect: pass
+
+sim TestComparisonReflexiveLaws {
+    // --- 1. Unsigned 8-bit (u8) ---
+    wire a8: u8 = 42
+    wire b8: u8 = 100
+    
+    // Reflexivity
+    assert(a8 == a8,   "u8: a == a")
+    assert(a8 <== a8,  "u8: a <== a")
+    assert(a8 >== a8,  "u8: a >== a")
+
+    // Irreflexivity
+    assert(not (a8 < a8),   "u8: a < a is false")
+    assert(not (a8 > a8),   "u8: a > a is false")
+    assert(not (a8 !== a8), "u8: a !== a is false")
+
+    // Symmetry of Inequality
+    assert((a8 !== b8) == (b8 !== a8), "u8: inequality is symmetric")
+
+    // Antisymmetry
+    // If a <= b and b <= a, then a == b
+    wire a8_copy: u8 = 42
+    assert((a8 <== a8_copy) and (a8_copy <== a8) == (a8 == a8_copy), "u8: antisymmetry")
+
+    // Trichotomy (Exactly one must be true)
+    // (a<b) xor (a==b) xor (a>b) is true
+    assert((a8 < b8) or (a8 == b8) or (a8 > b8), "u8: at least one of <, ==, > is true")
+    assert(not ((a8 < b8) and (a8 == b8)), "u8: cannot be both < and ==")
+    assert(not ((a8 > b8) and (a8 == b8)), "u8: cannot be both > and ==")
+
+    // --- 2. Signed 8-bit (s8) ---
+    wire sa8: s8 = -10
+    wire sb8: s8 = -10
+    
+    assert(sa8 == sb8,   "s8: same values equal")
+    assert(sa8 <== sb8,  "s8: same values <== ")
+    assert(not (sa8 < sb8), "s8: same values not <")
+
+    wire sc8: s8 = 5
+    assert(sa8 < sc8,    "s8: -10 < 5")
+    assert(not (sc8 < sa8), "s8: 5 not < -10 (Asymmetry)")
+
+    // --- 3. 64-bit Unsigned (u64) ---
+    wire a64: u64 = 0xDEAD_BEEF_CAFE_BABE
+    assert(a64 == a64,   "u64: large value reflexivity")
+    assert(a64 <== a64,  "u64: large value <==")
+    assert(not (a64 !== a64), "u64: large value not !=")
+
+    // --- 4. Boolean (bool) ---
+    wire bt: bool = true
+    wire bf: bool = false
+    
+    assert(bt == bt,   "bool: true == true")
+    assert(bf == bf,   "bool: false == false")
+    assert(bt >== bf,  "bool: true >== false")
+    assert(bf <== bt,  "bool: false <== true")
+    assert(bt !== bf,  "bool: true !== false")
+    
+    // --- 5. Boundary Values (0, Max, Min) ---
+    wire s8_min: s8 = -128
+    wire s8_max: s8 = 127
+    
+    assert(s8_min == s8_min, "s8 min reflexivity")
+    assert(s8_max == s8_max, "s8 max reflexivity")
+    assert(s8_min < s8_max,  "min < max")
+    assert(not (s8_max < s8_min), "max not < min")
+
+    // --- 6. Transitivity (Bonus check) ---
+    // a < b and b < c implies a < c
+    wire x8: u8 = 10
+    wire y8: u8 = 20
+    wire z8: u8 = 30
+    assert(((x8 < y8) and (y8 < z8)) == (x8 < z8), "u8: transitivity")
+}

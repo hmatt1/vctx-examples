@@ -1,0 +1,73 @@
+// spec: §3.5 (Literals), §7.5 (Operator result rules), §12.1 (clog2 builtin)
+// description: Comprehensive verification of power-of-two constants and their relationship to shifts.
+// identity: x * (1 << N) == x << N, x / (1 << N) == x >> N
+// expect: pass
+
+sim TestPowerOfTwoConstants {
+    // --- 1. Basic Power-of-Two Representations ---
+    assert(1 << 0 == 1,   "2^0 = 1")
+    assert(1 << 1 == 2,   "2^1 = 2")
+    assert(1 << 2 == 4,   "2^2 = 4")
+    assert(1 << 3 == 8,   "2^3 = 8")
+    assert(1 << 4 == 16,  "2^4 = 16")
+    assert(1 << 5 == 32,  "2^5 = 32")
+    assert(1 << 6 == 64,  "2^6 = 64")
+    assert(1 << 7 == 128, "2^7 = 128")
+
+    // --- 2. Bit Pattern Verification (Single Bit Set) ---
+    // Powers of two should have exactly one bit set.
+    wire u8_val: u8 = 0b0001_0000 // 16
+    assert(u8_val == (1 << 4), "16 is 2^4")
+    assert(u8_val[4] == 1, "Bit 4 is set")
+    assert(u8_val[3] == 0, "Bit 3 is clear")
+
+    // --- 3. Multiplication vs Shift Equivalence ---
+    // Rule: x * 2^N == x << N
+    wire x: u8 = 5
+    assert(x * 2 == (x << 1) as u9, "x * 2 == x << 1")
+    assert(x * 4 == (x << 2) as u10, "x * 4 == x << 2")
+    assert(x * 16 == (x << 4) as u12, "x * 16 == x << 4")
+
+    // Verifying width promotion in the identity
+    // u8 * untyped(2) -> u9. u8 << 1 -> u8.
+    // To compare them, we must normalize the widths.
+    wire m_res := x * 2
+    wire s_res := x << 1
+    assert(m_res == s_res as u9, "Multiplication/Shift width match check")
+
+    // --- 4. Division vs Shift Equivalence (Unsigned) ---
+    // Rule: u / 2^N == u >> N
+    wire u: u8 = 160
+    assert(u / 2 == u >> 1, "160 / 2 = 160 >> 1 (80)")
+    assert(u / 16 == u >> 4, "160 / 16 = 160 >> 4 (10)")
+    assert(u / 128 == u >> 7, "160 / 128 = 160 >> 7 (1)")
+
+    // --- 5. Large Powers of Two (up to 2^63) ---
+    wire u64_pow: u64 = 0x8000_0000_0000_0000 // 2^63
+    assert(u64_pow == (1 as u64 << 63), "Large power of 2 check")
+    
+    wire u32_pow: u32 = 0x0001_0000 // 2^16
+    assert(u32_pow == 65536, "2^16 is 65536")
+
+    // --- 6. clog2 Builtin Interaction ---
+    // Rule: clog2(2^N) == N
+    assert(clog2(1) == 0, "clog2(1) = 0")
+    assert(clog2(2) == 1, "clog2(2) = 1")
+    assert(clog2(4) == 2, "clog2(4) = 2")
+    assert(clog2(8) == 3, "clog2(8) = 3")
+    assert(clog2(256) == 8, "clog2(256) = 8")
+    assert(clog2(65536) == 16, "clog2(65536) = 16")
+
+    // clog2 for non-powers (Upper bound)
+    assert(clog2(3) == 2, "clog2(3) = 2 (Upper bound of 2^2)")
+    assert(clog2(7) == 3, "clog2(7) = 3 (Upper bound of 2^3)")
+
+    // --- 7. Signed Power of Two ---
+    // s8 range: -128 (2^7 negative) to 127
+    wire s8_val: s8 = -128
+    assert(s8_val == ((-1) as s8 << 7), "-128 is -1 shifted left by 7")
+    
+    // Multiplication by negative power of 2
+    wire s8_pos: s8 = 10
+    assert(s8_pos * (-2) == -20 as s9, "10 * -2 = -20")
+}

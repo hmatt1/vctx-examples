@@ -1,0 +1,95 @@
+// spec: §6.4 (when), §6.3 (Assignments)
+// description: Comprehensive verification that registers hold their state when not explicitly updated.
+// rule: Missing `when` arms for a register preserve its current state (unlike wires which default to zero).
+// expect: pass
+
+component MultiCycleHold(
+    in load: bool,
+    in val_8: u8,
+    in val_16: u16,
+    in val_s8: s8,
+    out out_8: u8,
+    out out_16: u16,
+    out out_s8: s8
+) {
+    reg r8: u8 = 0
+    reg r16: u16 = 0
+    reg rs8: s8 = 0
+
+    when load {
+        r8 <= val_8
+        r16 <= val_16
+        rs8 <= val_s8
+    }
+    // Crucially, there is no `otherwise` branch.
+    // When `load` is false, the registers must hold their previous value.
+
+    out_8 := r8
+    out_16 := r16
+    out_s8 := rs8
+}
+
+sim TestRegHoldAcrossCycles {
+    wire load: bool = false
+    wire v8: u8 = 0
+    wire v16: u16 = 0
+    wire vs8: s8 = 0
+    
+    wire o8: u8
+    wire o16: u16
+    wire os8: s8
+
+    MultiCycleHold(load, v8, v16, vs8, o8, o16, os8)
+
+    // 1. Initial State
+    assert(o8 == 0, "r8 init 0")
+    assert(o16 == 0, "r16 init 0")
+    assert(os8 == 0, "rs8 init 0")
+
+    // 2. Load Values (Cycle 1)
+    load := true
+    v8 := 42
+    v16 := 0xBEEF
+    vs8 := -50
+    cycle()
+
+    // Values should now be visible on outputs
+    assert(o8 == 42, "r8 loaded 42")
+    assert(o16 == 0xBEEF, "r16 loaded 0xBEEF")
+    assert(os8 == -50, "rs8 loaded -50")
+
+    // 3. Hold Values (Cycles 2-6)
+    load := false
+    
+    // Change input wires to ensure they aren't leaking through
+    v8 := 99
+    v16 := 0x1234
+    vs8 := 100
+    
+    cycle(5) // Advance 5 idle cycles
+
+    // Assert they held their state
+    assert(o8 == 42, "r8 held 42 across 5 cycles")
+    assert(o16 == 0xBEEF, "r16 held 0xBEEF across 5 cycles")
+    assert(os8 == -50, "rs8 held -50 across 5 cycles")
+
+    // 4. Second Load (Cycle 7)
+    load := true
+    cycle()
+    
+    assert(o8 == 99, "r8 loaded 99")
+    assert(o16 == 0x1234, "r16 loaded 0x1234")
+    assert(os8 == 100, "rs8 loaded 100")
+
+    // 5. Long Hold (Cycles 8-17)
+    load := false
+    v8 := 0
+    v16 := 0
+    vs8 := 0
+    
+    cycle(10) // Advance 10 idle cycles
+    
+    assert(o8 == 99, "r8 held 99 across 10 cycles")
+    assert(o16 == 0x1234, "r16 held 0x1234 across 10 cycles")
+    assert(os8 == 100, "rs8 held 100 across 10 cycles")
+}

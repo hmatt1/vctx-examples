@@ -1,0 +1,88 @@
+// spec: §11 (Instantiation and connections), §5.1 (Components)
+// description: Comprehensive verification of multiple component instances with varying constant and dynamic inputs.
+// rule: Each component instance is structurally distinct. They maintain isolated state and constant resolution.
+// expect: pass
+
+component StatefulMultiplier(
+    in a: u8,
+    in b: u8,
+    in en: bool,
+    out result: u16
+) {
+    // Internal register state
+    reg product: u16 = 0
+    
+    when en {
+        product <= a * b
+    }
+    
+    result := product
+}
+
+sim TestComponentMultiInstanceValues {
+    // We instantiate StatefulMultiplier three times.
+    // Inst 1: Driven by variables
+    // Inst 2: Driven by constants
+    // Inst 3: Driven by mixed constants and variables
+
+    wire dyn_a: u8 = 0
+    wire dyn_b: u8 = 0
+    wire en_all: bool = false
+
+    wire out_dyn: u16
+    wire out_const: u16
+    wire out_mixed: u16
+
+    // Instance 1: Dynamic
+    StatefulMultiplier(dyn_a, dyn_b, en_all, out_dyn)
+
+    // Instance 2: Constants (10 * 5)
+    StatefulMultiplier(10, 5, en_all, out_const)
+
+    // Instance 3: Mixed (dyn_a * 100)
+    StatefulMultiplier(dyn_a, 100, en_all, out_mixed)
+
+    // --- PHASE 1: Initial state ---
+    assert(out_dyn == 0,   "Init dyn = 0")
+    assert(out_const == 0, "Init const = 0")
+    assert(out_mixed == 0, "Init mixed = 0")
+
+    // --- PHASE 2: Enable pipeline ---
+    poke(en_all, true)
+    poke(dyn_a, 2)
+    poke(dyn_b, 3)
+    cycle()
+
+    // --- PHASE 3: Verify isolated execution ---
+    // Inst 1 should be 2 * 3 = 6
+    assert(out_dyn == 6, "Instance 1 (Dynamic): 2 * 3 = 6")
+
+    // Inst 2 should be 10 * 5 = 50 (Unaffected by dyn_a/dyn_b)
+    assert(out_const == 50, "Instance 2 (Constant): 10 * 5 = 50")
+
+    // Inst 3 should be 2 * 100 = 200
+    assert(out_mixed == 200, "Instance 3 (Mixed): 2 * 100 = 200")
+
+    // --- PHASE 4: Update partial state ---
+    poke(dyn_a, 5)
+    cycle()
+
+    // Inst 1: 5 * 3 = 15
+    assert(out_dyn == 15, "Instance 1 updated: 5 * 3 = 15")
+    
+    // Inst 2: Holds 50 (since inputs are constant)
+    assert(out_const == 50, "Instance 2 holds constant 50")
+    
+    // Inst 3: 5 * 100 = 500
+    assert(out_mixed == 500, "Instance 3 updated: 5 * 100 = 500")
+
+    // --- PHASE 5: Deassert enable ---
+    poke(en_all, false)
+    poke(dyn_a, 99)
+    cycle()
+
+    // State should not change, isolating internal registers
+    assert(out_dyn == 15, "Instance 1 held 15")
+    assert(out_const == 50, "Instance 2 held 50")
+    assert(out_mixed == 500, "Instance 3 held 500")
+}

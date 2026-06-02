@@ -1,0 +1,77 @@
+// spec: §11 (Instantiation and connections), §5.1 (Components)
+// description: Comprehensive verification of component fanout (one signal driving multiple sinks).
+// rule: A single output or wire can be connected to the inputs of arbitrarily many components.
+// expect: pass
+
+component Add10(in d: u8, out q: u8) {
+    q := (d + 10) as u8
+}
+
+component Mul2(in d: u8, out q: u8) {
+    q := (d * 2) as u8
+}
+
+component DelayReg(in d: u8, out q: u8) {
+    reg r: u8 = 0
+    r <= d
+    q := r
+}
+
+sim TestComponentFanout {
+    // 1. The Single Source (Fanout root)
+    wire source: u8 = 0
+
+    // 2. The Sinks
+    wire out_add: u8
+    wire out_mul: u8
+    wire out_delay: u8
+
+    // 3. Connect the single source to three different components
+    Add10(source, out_add)
+    Mul2(source, out_mul)
+    DelayReg(source, out_delay)
+
+    // --- PHASE 1: Initial State (Source = 0) ---
+    assert(out_add == 10, "0 + 10 = 10")
+    assert(out_mul == 0,  "0 * 2 = 0")
+    assert(out_delay == 0, "Delay init 0")
+
+    // --- PHASE 2: Update Source (Source = 5) ---
+    poke(source, 5)
+    
+    // Combinational sinks update immediately
+    assert(out_add == 15, "5 + 10 = 15")
+    assert(out_mul == 10, "5 * 2 = 10")
+    
+    // Sequential sink requires a cycle
+    assert(out_delay == 0, "Delay holds old value")
+    cycle()
+    assert(out_delay == 5, "Delay latches 5")
+
+    // --- PHASE 3: Update Source (Source = 100) ---
+    poke(source, 100)
+    
+    assert(out_add == 110, "100 + 10 = 110")
+    assert(out_mul == 200, "100 * 2 = 200")
+    
+    cycle()
+    assert(out_delay == 100, "Delay latches 100")
+
+    // --- PHASE 4: Extreme Fanout ---
+    // Instantiate 5 identical components driven by the same source
+    wire c1, c2, c3, c4, c5: u8
+    Add10(source, c1)
+    Add10(source, c2)
+    Add10(source, c3)
+    Add10(source, c4)
+    Add10(source, c5)
+
+    assert(c1 == 110, "Fanout to instance 1")
+    assert(c2 == 110, "Fanout to instance 2")
+    assert(c3 == 110, "Fanout to instance 3")
+    assert(c4 == 110, "Fanout to instance 4")
+    assert(c5 == 110, "Fanout to instance 5")
+    
+    // Verify independence
+    assert(c1 == c2 and c2 == c3 and c3 == c4 and c4 == c5, "All sinks received identical data")
+}

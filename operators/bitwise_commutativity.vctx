@@ -1,0 +1,73 @@
+// spec: §7.5 (Operator result rules - Bitwise)
+// description: Comprehensive verification of commutativity and associativity for bitwise operators.
+// identities: 
+//   - Commutativity: a op b == b op a
+//   - Associativity: (a op b) op c == a op (b op c)
+// expect: pass
+
+sim TestBitwiseCommutativity {
+    // --- 1. Commutativity (u8) ---
+    wire a8: u8 = 0b1100_1100 // 0xCC
+    wire b8: u8 = 0b1010_1010 // 0xAA
+    
+    assert((a8 & b8) == (b8 & a8), "u8: a & b == b & a")
+    assert((a8 | b8) == (b8 | a8), "u8: a | b == b | a")
+    assert((a8 ^ b8) == (b8 ^ a8), "u8: a ^ b == b ^ a")
+
+    // --- 2. Commutativity with Mixed Signedness (u8 vs s8) ---
+    // Rule: Promote to signed (Width+1) if any operand is signed.
+    wire u8_val: u8 = 0x80 // 128
+    wire s8_val: s8 = -1   // 0xFF
+    
+    // (u8 & s8) vs (s8 & u8)
+    wire res_us := u8_val & s8_val
+    wire res_su := s8_val & u8_val
+    assert(res_us == res_su, "Mixed: u8 & s8 == s8 & u8")
+    assert(width(res_us) == 8, "Mixed width check (max of 8, 8)")
+    assert(is_signed(res_us) == true, "Mixed sign check (signed wins)")
+
+    // --- 3. Commutativity with Mixed Widths (u8 vs u16) ---
+    // Rule: Result width is max(L, R).
+    wire u8_m: u8 = 0xFF
+    wire u16_m: u16 = 0x00AA
+    
+    assert((u8_m & u16_m) == (u16_m & u8_m), "Mixed width: u8 & u16 == u16 & u8")
+    assert(width(u8_m | u16_m) == 16, "Mixed width result check")
+
+    // --- 4. Associativity (u16) ---
+    wire x16: u16 = 0x1234
+    wire y16: u16 = 0x5678
+    wire z16: u16 = 0x9ABC
+    
+    assert(((x16 & y16) & z16) == (x16 & (y16 & z16)), "u16: (x & y) & z == x & (y & z)")
+    assert(((x16 | y16) | z16) == (x16 | (y16 | z16)), "u16: (x | y) | z == x | (y | z)")
+    assert(((x16 ^ y16) ^ z16) == (x16 ^ (y16 ^ z16)), "u16: (x ^ y) ^ z == x ^ (y ^ z)")
+
+    // --- 5. 64-bit Associativity (u64) ---
+    wire x64: u64 = 0xDEAD_BEEF_CAFE_BABE
+    wire y64: u64 = 0x1111_2222_3333_4444
+    wire z64: u64 = 0xAAAA_BBBB_CCCC_DDDD
+    
+    assert(((x64 ^ y64) ^ z64) == (x64 ^ (y64 ^ z64)), "u64: associativity ^")
+
+    // --- 6. Non-power-of-2 Width Commutativity (u3, s5) ---
+    wire u3_a: u [ 3 ] = 7
+    wire s5_b: s [ 5 ] = -1
+    
+    assert((u3_a & s5_b) == (s5_b & u3_a), "Odd: u3 & s5 == s5 & u3")
+    assert(width(u3_a | s5_b) == 5, "Odd width result is 5")
+
+    // --- 7. Distributive Laws (Bonus integrity check) ---
+    // a & (b | c) == (a & b) | (a & c)
+    assert((a8 & (b8 | 0x0F)) == ((a8 & b8) | (a8 & 0x0F)), "Distributive: & over |")
+    
+    // a | (b & c) == (a | b) & (a | c)
+    assert((a8 | (b8 & 0x0F)) == ((a8 | b8) & (a8 | 0x0F)), "Distributive: | over &")
+
+    // --- 8. Order-Independent Type Resolution ---
+    // Confirming that the specialized type doesn't care about order
+    wire check1 := u8_val ^ s8_val
+    wire check2 := s8_val ^ u8_val
+    assert(is_signed(check1) == is_signed(check2), "Symmetric signedness")
+    assert(width(check1) == width(check2), "Symmetric width")
+}

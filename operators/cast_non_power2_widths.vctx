@@ -1,0 +1,87 @@
+// spec: §8.7 (Casts), §9.2 (Assignments)
+// description: Comprehensive test for casting between non-power-of-two bit-widths.
+// expect: pass
+
+sim TestCastNonPower2Widths {
+    // 1. Unsigned Widening (Zero-extension)
+    // u7 (0x7F) -> u8 (0x007F)
+    wire u7_max: u [ 7 ] = 0x7F
+    wire u8_widen: u8 = u7_max // Implicit widening allowed
+    assert(u8_widen == 127, "u7(0x7F) implicitly widened to u8(127)")
+    assert(width(u8_widen) == 8, "width is 8")
+
+    // u7 (0x7F) -> u9
+    wire u9_widen: u [ 9 ] = u7_max as u [ 9 ]
+    assert(u9_widen == 127, "u7(0x7F) explicitly widened to u9(127)")
+    assert(width(u9_widen) == 9, "width is 9")
+
+    // 2. Signed Widening (Sign-extension)
+    // s5 (-1, 0x1F) -> s8 (-1, 0xFF)
+    wire s5_neg1: s [ 5 ] = -1 // bit pattern 11111
+    wire s8_widen: s8 = s5_neg1 // Implicit sign-extension
+    assert(s8_widen == -1, "s5(-1) implicitly widened to s8(-1)")
+    assert(s8_widen == 0xFF as s8, "s8 bit pattern should be 0xFF")
+
+    // s3 (-4, 0x4) -> s4 (-4, 0xC)
+    // Wait, s3 min is -4 (100). s4 min is -8.
+    // s3(-4) is 100. Sign-extended to s4 is 1100 -> -4.
+    wire s3_min: s [ 3 ] = -4
+    wire s4_widen: s [ 4 ] = s3_min
+    assert(s4_widen == -4, "s3(-4) sign-extended to s4(-4)")
+
+    // 3. Narrowing (Truncation of high bits)
+    // u9 (0x1FF) -> u8 (0xFF)
+    wire u9_val: u [ 9 ] = 0x1FF
+    wire u8_narrow: u8 = u9_val as u8
+    assert(u8_narrow == 255, "u9(0x1FF) truncated to u8(0xFF)")
+    
+    // s9 (-1, 0x1FF) -> s8 (-1, 0xFF)
+    wire s9_neg1: s [ 9 ] = -1
+    wire s8_narrow: s8 = s9_neg1 as s8
+    assert(s8_narrow == -1, "s9(-1) truncated to s8(-1)")
+
+    // u31 (0x7FFFFFFF) -> u7 (0x7F)
+    wire u31_val: u [ 31 ] = 0x7FFFFFFF
+    wire u7_narrow: u [ 7 ] = u31_val as u [ 7 ]
+    assert(u7_narrow == 127, "u31 truncated to u7")
+
+    // 4. Mixed Signedness + Non-power-of-2 Width
+    // u7 (0x7F, 127) -> s8 (127, 0x7F)
+    wire s8_mixed: s8 = u7_max as s8
+    assert(s8_mixed == 127, "u7(127) to s8(127)")
+
+    // s7 (-1, 0x7F) -> u8 (127, 0x7F)
+    // Wait, s7(-1) is 1111111 (0x7F). 
+    // Casting s7 to u8:
+    // First, sign-extend s7 to s8: 11111111 (0xFF, -1)
+    // Then reinterpret s8 as u8: 255
+    // OR does it reinterpret first then extend?
+    // Spec §8.7: "Signed widening sign-extends."
+    // If we do `s7 as u8`, it first becomes s8 (sign-extended) then u8.
+    wire s7_neg1: s [ 7 ] = -1
+    wire u8_mixed: u8 = s7_neg1 as u8
+    assert(u8_mixed == 255, "s7(-1) cast to u8 is 255 (via sign-extension)")
+
+    // 5. Odd width boundaries
+    // u3 (7) -> s4 (7)
+    wire u3_max: u [ 3 ] = 7
+    wire s4_res: s [ 4 ] = u3_max as s [ 4 ]
+    assert(s4_res == 7, "u3(7) zero-extended to s4(7)")
+
+    // s3 (-1, 0x7) -> u4 (15, 0xF)
+    wire s3_neg1: s [ 3 ] = -1
+    wire u4_res: u [ 4 ] = s3_neg1 as u [ 4 ]
+    assert(u4_res == 15, "s3(-1) sign-extended to u4(15)")
+
+    // 6. Truncation of non-zero high bits
+    // u5 (0x1F, 31) -> u3 (0x7, 7)
+    wire u5_val: u [ 5 ] = 31
+    wire u3_narrow: u [ 3 ] = u5_val as u [ 3 ]
+    assert(u3_narrow == 7, "u5(31) truncated to u3(7)")
+
+    // s5 (-16, 0x10) -> s3 (0x0, 0)
+    // s5(-16) is 10000. Truncate high 2 bits -> 000 -> 0.
+    wire s5_min: s [ 5 ] = -16
+    wire s3_narrow: s [ 3 ] = s5_min as s [ 3 ]
+    assert(s3_narrow == 0, "s5(-16, 10000) truncated to s3(0, 000)")
+}

@@ -1,0 +1,77 @@
+// spec: §3.5 (Literals), §8.6 (Literals), §8.7 (Casts)
+// description: Comprehensive verification of negative literal representation and two's complement mapping.
+// rule: Negative literals are unary '-' applied to untyped literals, receiving type from context or casts.
+// expect: pass
+
+sim TestNegativeLiterals {
+    // --- 1. The s1 Case (1-bit Signed) ---
+    // s1 range: -1 (binary 1) to 0 (binary 0)
+    wire s1_neg1: s1 = -1
+    assert(s1_neg1 == -1, "s1: -1 equals literal -1")
+    assert(s1_neg1 as u1 == 1, "s1(-1) bit pattern is 1")
+    assert(width(s1_neg1) == 1, "s1 width is 1")
+
+    // --- 2. 8-bit Signed (s8) ---
+    wire s8_neg1: s8 = -1
+    wire s8_min: s8 = -128
+    wire s8_mid: s8 = -42
+
+    assert(s8_neg1 == -1, "s8: -1")
+    assert(s8_neg1 as u8 == 0xFF, "s8(-1) is 0xFF")
+    
+    assert(s8_min == -128, "s8: min value -128")
+    assert(s8_min as u8 == 0x80, "s8(-128) is 0x80")
+    
+    assert(s8_mid == -42, "s8: mid value -42")
+    assert(s8_mid as u8 == 0xD6, "s8(-42) is 0xD6 (256-42=214=0xD6)")
+
+    // --- 3. 16-bit Signed (s16) ---
+    wire s16_neg1: s16 = -1
+    wire s16_min: s16 = -32768
+    
+    assert(s16_neg1 == -1, "s16: -1")
+    assert(s16_neg1 as u16 == 0xFFFF, "s16(-1) is 0xFFFF")
+    assert(s16_min == -32768, "s16: min -32768")
+    assert(s16_min as u16 == 0x8000, "s16(-32768) is 0x8000")
+
+    // --- 4. 64-bit Signed (s64) ---
+    wire s64_neg1: s64 = -1
+    wire s64_min: s64 = -9223372036854775808
+    
+    assert(s64_neg1 == -1, "s64: -1")
+    assert(s64_neg1 as u64 == 0xFFFF_FFFF_FFFF_FFFF, "s64(-1) is all ones")
+    assert(s64_min == -9223372036854775808, "s64: min value")
+    assert(s64_min as u64 == 0x8000_0000_0000_0000, "s64 min pattern")
+
+    // --- 5. Non-power-of-2 Signed (s5, s31) ---
+    wire s5_neg1: s [ 5 ] = -1
+    assert(s5_neg1 as u5 == 0x1F, "s5(-1) is 0x1F (11111)")
+    
+    wire s5_min: s [ 5 ] = -16
+    assert(s5_min as u5 == 0x10, "s5(-16) is 0x10 (10000)")
+
+    // --- 6. Hex and Binary Negative Literals ---
+    // You can apply '-' to hex/binary untyped literals
+    wire s8_hex: s8 = -0x01
+    wire s8_bin: s8 = -0b0000_0001
+    assert(s8_hex == -1, "Negative hex literal")
+    assert(s8_bin == -1, "Negative binary literal")
+
+    // --- 7. Arithmetic with Negative Literals ---
+    wire val: s8 = 10
+    assert(val + (-5) == 5,  "Addition of negative literal")
+    assert(val - (-5) == 15, "Subtraction of negative literal")
+    assert(val * (-2) == -20, "Multiplication by negative literal")
+    
+    // --- 8. Literal Inference and Casting ---
+    // Verifying that '-1' can be cast to any signed width
+    assert((-1 as s8) == -1, "Cast to s8")
+    assert((-1 as s32) == -1, "Cast to s32")
+    
+    // Boundary check for positive literal that becomes negative
+    // 128 as s8 is -128 (bit pattern 0x80)
+    // So - (128 as s8) would be - (-128) = +128 (which overflows back to -128)
+    // Correct way: use untyped literal context.
+    wire wrapped_min: s8 = -128
+    assert(wrapped_min == -128, "Direct assignment of -128 to s8")
+}

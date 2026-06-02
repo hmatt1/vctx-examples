@@ -1,0 +1,43 @@
+// spec: §3.5 (Literals)
+// description: Comprehensive verification of underscore formatting in numeric literals.
+// rule: Underscores `_` are ignored during parsing and can be used for readability.
+// expect: pass
+
+sim TestUnderscoreFormattingValues {
+    // --- 1. Decimal Literals ---
+    wire d_plain: u32 = 1000000
+    wire d_fmt: u32 = 1_000_000
+    assert(d_plain == d_fmt, "1000000 == 1_000_000")
+    
+    // Multiple underscores or irregular grouping
+    wire d_odd: u16 = 1_2_3_4_5
+    assert(d_odd == 12345, "1_2_3_4_5 == 12345")
+
+    // --- 2. Hexadecimal Literals ---
+    wire h_plain: u16 = 0xFFFF
+    wire h_fmt: u16 = 0xFF_FF
+    assert(h_plain == h_fmt, "0xFFFF == 0xFF_FF")
+
+    wire h32_plain: u32 = 0xDEADBEEF
+    wire h32_fmt: u32 = 0xDEAD_BEEF
+    assert(h32_plain == h32_fmt, "0xDEADBEEF == 0xDEAD_BEEF")
+
+    // Irregular hex grouping
+    wire h_odd: u16 = 0x1_2_3_4
+    assert(h_odd == 0x1234, "0x1_2_3_4 == 0x1234")
+
+    // --- 3. Binary Literals ---
+    wire b_plain: u8 = 0b11110000
+    wire b_fmt: u8 = 0b1111_0000
+    assert(b_plain == b_fmt, "0b11110000 == 0b1111_0000")
+
+    // Irregular binary grouping
+    wire b_odd: u8 = 0b1_0_1_0_1_0_1_0
+    assert(b_odd == 0b10101010, "0b1_0_1_0... == 0xAA")
+
+    // --- 4. Mathematical Equivalences ---
+    // Proving that formatting doesn't disrupt parsing in arithmetic
+    assert(1_000 + 2_000 == 3_000, "1_000 + 2_000 = 3_000")
+    assert(0x10_00 * 2 == 0x20_00, "0x10_00 * 2 = 0x20_00")
+    assert(0b10_00 >> 1 == 0b01_00, "0b10_00 >> 1 = 0b01_00")
+}

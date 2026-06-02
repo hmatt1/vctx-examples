@@ -1,0 +1,60 @@
+// spec: §7.5 (Operator result rules - Bitwise), §8.3 (Scalar types)
+// description: Comprehensive verification of the bitwise NOT operator (~) across all scalar types.
+// rule: ~x inverts every bit of x, preserving width. Result matches LHS type.
+// expect: pass
+
+sim TestBitwiseNotAllTypes {
+    // --- 1. Unsigned Power-of-2 (u1 to u64) ---
+    assert(~(0 as u1) == 1, "u1: ~0 = 1")
+    assert(~(1 as u1) == 0, "u1: ~1 = 0")
+
+    assert(~(0x00 as u8) == 0xFF, "u8: ~0x00 = 0xFF")
+    assert(~(0xAA as u8) == 0x55, "u8: ~0xAA = 0x55")
+
+    assert(~(0x0000 as u16) == 0xFFFF, "u16: ~0x0000 = 0xFFFF")
+    assert(~(0xCAFE as u16) == 0x3501, "u16: ~0xCAFE = 0x3501")
+
+    assert(~(0 as u64) == 0xFFFF_FFFF_FFFF_FFFF, "u64: ~0 = all ones")
+
+    // --- 2. Signed Power-of-2 (s8 to s64) ---
+    // Rule: ~x in two's complement is -(x+1)
+    assert(~(0 as s8) == -1,   "s8: ~0 = -1")
+    assert(~(-1 as s8) == 0,   "s8: ~(-1) = 0")
+    assert(~(127 as s8) == -128, "s8: ~127 = -128 (MSB was 0, becomes 1)")
+    assert(~(-128 as s8) == 127, "s8: ~(-128) = 127")
+
+    assert(~(0 as s16) == -1, "s16: ~0 = -1")
+    assert(~(0 as s64) == -1, "s64: ~0 = -1")
+
+    // --- 3. Boolean (bool) ---
+    // bool behaves as u1 for bitwise ops.
+    assert(~true == (false as u1), "bool: ~T = F")
+    assert(~false == (true as u1),  "bool: ~F = T")
+
+    // --- 4. Non-Power-of-2 Widths ---
+    wire u3_val: u [ 3 ] = 0b101 // 5
+    assert(~u3_val == 0b010, "u3: ~0b101 = 0b010 (2)")
+    assert(width(~u3_val) == 3, "u3 width preserved")
+
+    wire s5_val: s [ 5 ] = 0b01111 // 15
+    // ~01111 = 10000 = -16
+    assert(~s5_val == -16, "s5: ~15 = -16")
+    assert(width(~s5_val) == 5, "s5 width preserved")
+
+    // --- 5. Double Negation Law ---
+    wire x8: u8 = 0x12
+    assert(~~x8 == x8, "u8: ~~x = x")
+    
+    wire sx16: s16 = -1234
+    assert(~~sx16 == sx16, "s16: ~~x = x")
+
+    // --- 6. Interaction with Arithmetic ---
+    // ~x + 1 == -x (Two's complement identity)
+    wire val: s8 = 42
+    assert((~val + 1) == -val, "~x + 1 = -x")
+    
+    // Result width check
+    wire res_not := ~val
+    assert(width(res_not) == 8, "Bitwise NOT result width matches operand")
+    assert(is_signed(res_not) == true, "Bitwise NOT result signedness matches operand")
+}

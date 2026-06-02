@@ -1,0 +1,119 @@
+// spec: §6.2 (Declarations), §6.7 (Global clock and reset), §13 (Simulation builtins)
+// description: Comprehensive test of register reset values across all scalar types.
+// rule: A register's `=` initializer defines its reset value. `reset()` restores this value.
+// expect: pass
+
+component RegResetStates(
+    in mutate: bool,
+    out r_bool_t: bool,
+    out r_bool_f: bool,
+    out r_u8_zero: u8,
+    out r_u8_max: u8,
+    out r_s8_min: s8,
+    out r_s8_neg1: s8,
+    out r_u16_pat: u16,
+    out r_s16_pos: s16,
+    out r_u64_max: u64,
+    out r_u5_odd: u5,
+    out r_s3_odd: s3
+) {
+    // 1. Declare registers with various reset values
+    reg b_t: bool = true
+    reg b_f: bool = false
+    reg u8z: u8 = 0
+    reg u8m: u8 = 255
+    reg s8m: s8 = -128
+    reg s8n: s8 = -1
+    reg u16p: u16 = 0xAAAA
+    reg s16p: s16 = 32767
+    reg u64m: u64 = 0xFFFF_FFFF_FFFF_FFFF
+    reg u5o: u5 = 15
+    reg s3o: s3 = -4 // s3 min
+
+    // 2. Mutation logic
+    when mutate {
+        b_t <= false
+        b_f <= true
+        u8z <= 100
+        u8m <= 100
+        s8m <= 100
+        s8n <= 100
+        u16p <= 0
+        s16p <= 0
+        u64m <= 0
+        u5o <= 0
+        s3o <= 0
+    }
+
+    // 3. Drive outputs
+    r_bool_t := b_t
+    r_bool_f := b_f
+    r_u8_zero := u8z
+    r_u8_max := u8m
+    r_s8_min := s8m
+    r_s8_neg1 := s8n
+    r_u16_pat := u16p
+    r_s16_pos := s16p
+    r_u64_max := u64m
+    r_u5_odd := u5o
+    r_s3_odd := s3o
+}
+
+sim TestRegResetAllTypes {
+    wire mutate: bool = false
+    wire r_bool_t: bool
+    wire r_bool_f: bool
+    wire r_u8_zero: u8
+    wire r_u8_max: u8
+    wire r_s8_min: s8
+    wire r_s8_neg1: s8
+    wire r_u16_pat: u16
+    wire r_s16_pos: s16
+    wire r_u64_max: u64
+    wire r_u5_odd: u5
+    wire r_s3_odd: s3
+
+    RegResetStates(
+        mutate,
+        r_bool_t, r_bool_f, r_u8_zero, r_u8_max, r_s8_min, r_s8_neg1,
+        r_u16_pat, r_s16_pos, r_u64_max, r_u5_odd, r_s3_odd
+    )
+
+    // PHASE 1: Verify Initial Reset State (Time 0)
+    assert(r_bool_t == true, "bool true init")
+    assert(r_bool_f == false, "bool false init")
+    assert(r_u8_zero == 0, "u8 zero init")
+    assert(r_u8_max == 255, "u8 max init")
+    assert(r_s8_min == -128, "s8 min init")
+    assert(r_s8_neg1 == -1, "s8 -1 init")
+    assert(r_u16_pat == 0xAAAA, "u16 pattern init")
+    assert(r_s16_pos == 32767, "s16 pos init")
+    assert(r_u64_max == 0xFFFF_FFFF_FFFF_FFFF, "u64 max init")
+    assert(r_u5_odd == 15, "u5 odd init")
+    assert(r_s3_odd == -4, "s3 odd init")
+
+    // PHASE 2: Mutate State
+    mutate := true
+    cycle() // Advance clock to latch new values
+    mutate := false // Deassert mutation
+
+    assert(r_bool_t == false, "bool mutated")
+    assert(r_u8_zero == 100, "u8 zero mutated")
+    assert(r_s8_min == 100, "s8 min mutated")
+
+    // PHASE 3: Assert Global Reset
+    reset() // Asserts global 'rst' for 1 cycle, forcing registers to their '=' initializers
+
+    // PHASE 4: Verify Restored State
+    assert(r_bool_t == true, "bool true restored")
+    assert(r_bool_f == false, "bool false restored")
+    assert(r_u8_zero == 0, "u8 zero restored")
+    assert(r_u8_max == 255, "u8 max restored")
+    assert(r_s8_min == -128, "s8 min restored")
+    assert(r_s8_neg1 == -1, "s8 -1 restored")
+    assert(r_u16_pat == 0xAAAA, "u16 pattern restored")
+    assert(r_s16_pos == 32767, "s16 pos restored")
+    assert(r_u64_max == 0xFFFF_FFFF_FFFF_FFFF, "u64 max restored")
+    assert(r_u5_odd == 15, "u5 odd restored")
+    assert(r_s3_odd == -4, "s3 odd restored")
+}

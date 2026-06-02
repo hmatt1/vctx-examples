@@ -1,0 +1,73 @@
+// spec: §8.6 (Literals), §7.5 (Operator result rules), §8.7 (Casts)
+// description: Comprehensive verification of the "all-ones" bit pattern across all scalar types.
+// rule: All-ones represents the maximum value for unsigned types, and -1 for two's complement signed types.
+// expect: pass
+
+sim TestAllOnesAllTypes {
+    // --- 1. Unsigned Types (Max Value) ---
+    wire u8_ones: u8 = 0xFF
+    assert(u8_ones == 255, "u8 all-ones is 255")
+
+    wire u16_ones: u16 = 0xFFFF
+    assert(u16_ones == 65535, "u16 all-ones is 65535")
+
+    wire u32_ones: u32 = 0xFFFF_FFFF
+    assert(u32_ones == 4294967295, "u32 all-ones is max")
+
+    wire u64_ones: u64 = 0xFFFF_FFFF_FFFF_FFFF
+    assert(u64_ones == 0xFFFF_FFFF_FFFF_FFFF, "u64 all-ones")
+
+    // --- 2. Signed Types (-1) ---
+    // The all-ones pattern in two's complement is always -1.
+    wire s8_ones: s8 = 0xFF as s8
+    assert(s8_ones == -1, "s8 all-ones is -1")
+
+    wire s16_ones: s16 = 0xFFFF as s16
+    assert(s16_ones == -1, "s16 all-ones is -1")
+
+    wire s64_ones: s64 = 0xFFFF_FFFF_FFFF_FFFF as s64
+    assert(s64_ones == -1, "s64 all-ones is -1")
+
+    // --- 3. The `~0` Idiom ---
+    // Rule: `~` preserves the width of the LHS. 
+    // To get an all-ones pattern for a specific width, apply `~` to `0` of that width.
+    wire u8_inv0 := ~(0 as u8)
+    assert(u8_inv0 == 0xFF, "~(u8(0)) is 0xFF")
+    assert(width(u8_inv0) == 8, "width is 8")
+
+    wire s16_inv0 := ~(0 as s16)
+    assert(s16_inv0 == -1, "~(s16(0)) is -1")
+    assert(width(s16_inv0) == 16, "width is 16")
+
+    wire u64_inv0 := ~(0 as u64)
+    assert(u64_inv0 == 0xFFFF_FFFF_FFFF_FFFF, "~(u64(0)) is all-ones")
+
+    // --- 4. Boolean (u1) ---
+    // The all-ones pattern for a 1-bit value is 1 (true).
+    wire b_ones: bool = true
+    assert(b_ones == 1, "bool true is 1")
+    assert(~(0 as u1) == 1, "~u1(0) is 1")
+
+    // --- 5. Non-Power-of-2 Widths ---
+    wire u3_ones: u [ 3 ] = 7 // 0b111
+    assert(u3_ones == 7, "u3 all-ones is 7")
+    assert(~(0 as u [ 3 ]) == 7, "~u3(0) is 7")
+
+    wire s5_ones: s [ 5 ] = -1 // 0b11111
+    assert(s5_ones == -1, "s5 all-ones is -1")
+    assert(~(0 as s [ 5 ]) == -1, "~s5(0) is -1")
+
+    // --- 6. Arithmetic with All-Ones ---
+    // Unsigned max + 1 wraps to 0 (though Vctx promotes width for +, so it becomes 256 in u9)
+    // To observe wrapping, we must cast back.
+    assert(((u8_ones + 1) as u8) == 0, "u8 max + 1 wraps to 0 (when cast to u8)")
+    assert(((u16_ones + 1) as u16) == 0, "u16 max + 1 wraps to 0 (when cast to u16)")
+
+    // Signed -1 + 1 is 0
+    assert(s8_ones + 1 == 0, "s8 -1 + 1 is 0")
+
+    // --- 7. Comparison of All-Ones Bit Patterns ---
+    // While the bit patterns are identical, their semantic values differ.
+    assert((u8_ones == (s8_ones as u8)), "Bit patterns match")
+    assert(u8_ones > s8_ones, "255 > -1")
+}

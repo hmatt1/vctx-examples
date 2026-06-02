@@ -1,0 +1,72 @@
+// spec: §7.5 (Operator result rules - Shifts)
+// description: Comprehensive contrast between logical (unsigned) and arithmetic (signed) shifts.
+// rules: 
+//   - Unsigned >> : Logical shift (zero-fill).
+//   - Signed >>   : Arithmetic shift (sign-fill / preserve sign bit).
+//   - << (All)    : Logical shift (zero-fill).
+// expect: pass
+
+sim TestShiftArithmeticVsLogical {
+    // --- 1. The MSB Case (0x80 / 1000_0000) ---
+    // Unsigned: 128 >> 1 should be 64 (0100_0000)
+    // Signed:   -128 >> 1 should be -64 (1100_0000)
+    wire u_msb: u8 = 128
+    wire s_msb: s8 = -128
+    
+    assert(u_msb >> 1 == 64,  "u8: 0x80 >> 1 = 0x40 (Zero-fill)")
+    assert(s_msb >> 1 == -64, "s8: 0x80 >> 1 = 0xC0 (Sign-fill)")
+    
+    // --- 2. The All-Ones Case (0xFF / 1111_1111) ---
+    // Unsigned: 255 >> 4 should be 15 (0000_1111)
+    // Signed:   -1 >> 4 should be -1 (1111_1111)
+    wire u_ones: u8 = 0xFF
+    wire s_ones: s8 = -1
+    
+    assert(u_ones >> 4 == 15, "u8: 0xFF >> 4 = 0x0F (Zero-fill)")
+    assert(s_ones >> 4 == -1, "s8: 0xFF >> 4 = 0xFF (Sign-fill)")
+
+    // --- 3. Positive Signed Right Shift (0x40 / 0100_0000) ---
+    // Positive signed values should still zero-fill (since sign bit is 0)
+    wire s_pos: s8 = 64
+    assert(s_pos >> 1 == 32, "s8(pos): 0x40 >> 1 = 0x20 (Zero-fill because sign=0)")
+
+    // --- 4. Left Shift Consistency (Always Logical) ---
+    // Both should zero-fill from the right
+    assert(u_msb << 1 == 0,   "u8: 0x80 << 1 = 0 (Truncated)")
+    assert(s_msb << 1 == 0,   "s8: 0x80 << 1 = 0 (Truncated)")
+    
+    wire u_low: u8 = 1
+    wire s_low: s8 = 1
+    assert(u_low << 7 == 128, "u8: 1 << 7 = 0x80")
+    assert(s_low << 7 == -128, "s8: 1 << 7 = 0x80 (-128)")
+
+    // --- 5. Large Width Verification (32/64-bit) ---
+    // s32 negative sign extension
+    wire s32_neg: s32 = -1
+    assert(s32_neg >> 16 == -1, "s32: -1 >> 16 = -1 (Arithmetic)")
+    
+    wire u32_max: u32 = 0xFFFF_FFFF
+    assert(u32_max >> 16 == 0xFFFF, "u32: 0xFFFFFFFF >> 16 = 0x0000FFFF (Logical)")
+
+    // s64 min value shift
+    wire s64_min: s64 = -9223372036854775808 // 0x8000_0000_0000_0000
+    assert(s64_min >> 63 == -1, "s64: min >> 63 = -1 (Arithmetic sign fill)")
+    
+    wire u64_msb: u64 = 0x8000_0000_0000_0000
+    assert(u64_msb >> 63 == 1, "u64: msb >> 63 = 1 (Logical zero fill)")
+
+    // --- 6. Type Reinterpretation (Casting Interop) ---
+    // Show that we can force logical shift on signed data by casting to unsigned
+    wire s_data: s8 = -128
+    assert((s_data as u8 >> 1) == 64, "Forcing logical shift via u8 cast")
+    
+    // Show that we can force arithmetic shift on unsigned data by casting to signed
+    wire u_data: u8 = 128
+    assert((u_data as s8 >> 1) == -64, "Forcing arithmetic shift via s8 cast")
+
+    // --- 7. Mixed Width Right Shift ---
+    // RHS (amount) is treated as unsigned, doesn't affect arithmetic/logical nature of LHS
+    wire amt: u16 = 4
+    assert(s_ones >> amt == -1, "Signed >> u16 amount is still arithmetic")
+    assert(u_ones >> amt == 15, "Unsigned >> u16 amount is still logical")
+}

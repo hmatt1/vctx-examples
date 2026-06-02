@@ -1,0 +1,65 @@
+// spec: §13 (Simulation builtins), §6.7 (Global clock and reset)
+// description: Comprehensive verification of resetting a simulation and resuming operation.
+// rule: reset() forces all registers to their initial '=' values. Simulation continues normally afterward.
+// expect: pass
+
+component StatefulMachine(
+    in step: u8,
+    out state_out: u8
+) {
+    // Initial state is 10
+    reg current_state: u8 = 10
+    
+    // Simple state machine: add step value each cycle
+    current_state <= (current_state + step) as u8
+    
+    state_out := current_state
+}
+
+sim TestSimResetThenRun {
+    wire step_in: u8 = 0
+    wire out_val: u8
+
+    StatefulMachine(step_in, out_val)
+
+    // --- PHASE 1: Initial Run ---
+    assert(out_val == 10, "Initial state is 10")
+
+    poke(step_in, 5)
+    cycle(4) // 10 + (5 * 4) = 30
+    
+    assert(out_val == 30, "State accumulated to 30")
+
+    // --- PHASE 2: Global Reset ---
+    // The reset() builtin asserts the global 'rst' signal for one cycle.
+    reset()
+    
+    // Verify state was cleared back to the initializer
+    assert(out_val == 10, "State reverted to 10 after reset()")
+
+    // Verify that the input wire (step_in) retained its value (5)
+    // The reset() only affects registers, not the stimulus environment wires.
+    // So the next cycle should add 5 again.
+
+    // --- PHASE 3: Resume Operation ---
+    cycle() // 10 + 5 = 15
+    assert(out_val == 15, "State machine resumed from reset, added 5 -> 15")
+
+    // Change input and run again
+    poke(step_in, 20)
+    cycle(2) // 15 + (20 * 2) = 55
+    
+    assert(out_val == 55, "Continued operation after reset (55)")
+
+    // --- PHASE 4: Multiple Resets ---
+    // Resetting twice in a row should be safe
+    reset()
+    assert(out_val == 10, "First reset")
+    
+    reset()
+    assert(out_val == 10, "Second reset (no-op)")
+    
+    poke(step_in, 1)
+    cycle()
+    assert(out_val == 11, "Resumed after double reset")
+}

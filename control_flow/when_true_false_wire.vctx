@@ -1,0 +1,110 @@
+// spec: §6.4 (when), §6.2 (Declarations)
+// description: Comprehensive verification of 'when' blocks with literal and wire conditions.
+// rule: Assignments in 'when' arms become muxed drivers. Missing arms use the declaration value.
+// expect: pass
+
+component WhenConditionSources(
+    in cond_wire: bool,
+    in a: u8,
+    in b: u8,
+    out y_true: u8,
+    out y_false: u8,
+    out y_wire: u8,
+    out y_computed: u8,
+    out y_reg: u8
+) {
+    // --- 1. Literal True ---
+    // Rule: This block is effectively always active.
+    wire w_true: u8 = 0
+    when true {
+        w_true := a
+    }
+    y_true := w_true
+
+    // --- 2. Literal False ---
+    // Rule: This block is effectively never active. Target should stay at declaration value.
+    wire w_false: u8 = 42
+    when false {
+        w_false := b
+    }
+    y_false := w_false
+
+    // --- 3. Simple Wire Condition ---
+    wire w_wire: u8 = 0
+    when cond_wire {
+        w_wire := a
+    } otherwise {
+        w_wire := b
+    }
+    y_wire := w_wire
+
+    // --- 4. Complex Computed Condition ---
+    wire w_comp: u8 = 0
+    wire is_special := (a > 100) and (b < 50)
+    when is_special {
+        w_comp := 0xFF
+    } otherwise {
+        w_comp := 0x00
+    }
+    y_computed := w_comp
+
+    // --- 5. Register with Wire Condition ---
+    reg r8: u8 = 7
+    when cond_wire {
+        r8 <= a
+    }
+    // No otherwise: holds previous value if cond_wire is false.
+    y_reg := r8
+}
+
+sim TestWhenTrueFalseWire {
+    wire cond: bool = false
+    wire a: u8 = 100
+    wire b: u8 = 200
+    wire yt, yf, yw, yc, yr: u8
+
+    WhenConditionSources(cond, a, b, yt, yf, yw, yc, yr)
+
+    // INITIAL STATE (cond=false)
+    assert(yt == 100, "when(true) always selects its arm (a=100)")
+    assert(yf == 42,  "when(false) never selects its arm, keeps decl value 42")
+    assert(yw == 200, "when(cond=false) selects otherwise arm (b=200)")
+    assert(yc == 0,   "when(a>100 and b<50) is false (100 is not > 100)")
+    assert(yr == 7,   "reg init value")
+
+    // UPDATE INPUTS
+    poke(cond, true)
+    poke(a, 150)
+    poke(b, 20)
+    
+    // Combinational values update immediately
+    assert(yt == 150, "when(true) tracks 'a' change")
+    assert(yf == 42,  "when(false) still ignores its arm")
+    assert(yw == 150, "when(cond=true) selects primary arm (a=150)")
+    
+    // yc check: (150 > 100) is T, (20 < 50) is T. Result T -> 0xFF
+    assert(yc == 0xFF, "when(computed) is now true")
+
+    // Sequential value update requires a cycle
+    cycle()
+    assert(yr == 150, "reg updated because cond was true")
+
+    // DEASSERT CONDITION
+    poke(cond, false)
+    // Combinational yw should switch back to 'otherwise' (b=20)
+    assert(yw == 20, "when(cond=false) switches to otherwise")
+    
+    cycle()
+    assert(yr == 150, "reg holds value because cond was false during cycle")
+
+    // --- 6. Nested Literal Verification ---
+    wire nested_w: u8 = 0
+    when true {
+        when false {
+            nested_w := 1
+        } otherwise {
+            nested_w := 2
+        }
+    }
+    assert(nested_w == 2, "Nested literal condition resolution")
+}

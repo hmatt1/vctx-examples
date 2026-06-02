@@ -1,0 +1,73 @@
+// spec: §7.5 (Operator result rules - Shifts, Division)
+// description: Comprehensive verification of the equivalence between right shift and division.
+// rules: 
+//   - Unsigned: u >> N == u / 2^N (Exactly equivalent).
+//   - Signed: s >> N performs 'floor' division (rounds toward negative infinity).
+//             s / 2^N performs 'truncation' (rounds toward zero).
+// expect: pass
+
+sim TestShiftRightDivideEquiv {
+    // --- 1. Unsigned Equivalence (Exact Match) ---
+    wire u8_val: u8 = 160 // 0xA0
+    
+    // 160 / 2^1 == 160 >> 1 (80)
+    assert((u8_val >> 1) == 80, "u8: 160 >> 1 = 80")
+    assert((u8_val >> 1) == (u8_val / 2), "u8: x >> 1 == x / 2")
+
+    // 160 / 2^4 == 160 >> 4 (10)
+    assert((u8_val >> 4) == 10, "u8: 160 >> 4 = 10")
+    assert((u8_val >> 4) == (u8_val / 16), "u8: x >> 4 == x / 16")
+
+    // With Remainder (Truncation naturally happens in both)
+    wire u8_odd: u8 = 165 // 165 / 16 = 10.3125 -> 10
+    assert((u8_odd >> 4) == 10, "u8: 165 >> 4 = 10")
+    assert((u8_odd >> 4) == (u8_odd / 16), "u8: x >> 4 == x / 16 (with remainder)")
+
+    // --- 2. Signed Equivalence (Positive Values - Exact Match) ---
+    wire s8_pos: s8 = 100 // 0x64
+    
+    assert((s8_pos >> 2) == 25, "s8(pos): 100 >> 2 = 25")
+    assert((s8_pos >> 2) == (s8_pos / 4), "s8(pos): x >> 2 == x / 4")
+
+    wire s8_pos_odd: s8 = 103 // 103 / 4 = 25.75 -> 25
+    assert((s8_pos_odd >> 2) == 25, "s8(pos): 103 >> 2 = 25")
+    assert((s8_pos_odd >> 2) == (s8_pos_odd / 4), "s8(pos): x >> 2 == x / 4 (with remainder)")
+
+    // --- 3. Signed Divergence (Negative Values with Remainder) ---
+    // Rule: Shift is floor division. '/' is truncation toward zero.
+    
+    // Case A: No remainder. They match.
+    wire s8_neg_even: s8 = -100 // 1001_1100
+    assert((s8_neg_even >> 2) == -25, "s8(neg): -100 >> 2 = -25")
+    assert((s8_neg_even >> 2) == (s8_neg_even / 4), "s8(neg): Exact division matches")
+
+    // Case B: With remainder. They diverge!
+    wire s8_neg_odd: s8 = -103 // 1001_1001
+    // Division truncates toward zero: -103 / 4 = -25.75 -> -25
+    assert((s8_neg_odd / 4) == -25, "s8(neg): -103 / 4 = -25 (Truncate toward zero)")
+    
+    // Shift is floor division (sign fills 1s): -103 >> 2 = -26
+    // 1001_1001 >> 2 -> 1110_0110 = -26
+    assert((s8_neg_odd >> 2) == -26, "s8(neg): -103 >> 2 = -26 (Floor division)")
+    
+    // Explicitly verify the divergence
+    assert((s8_neg_odd >> 2) !== (s8_neg_odd / 4), "Shift and Division diverge for negative odd values")
+
+    // --- 4. The -1 Edge Case ---
+    wire s8_neg1: s8 = -1 // 0xFF
+    
+    // -1 / 2 = -0.5 -> 0 (Truncate to zero)
+    assert((s8_neg1 / 2) == 0, "s8: -1 / 2 = 0")
+    
+    // -1 >> 1 = -1 (Floor to -1)
+    // 1111_1111 >> 1 = 1111_1111
+    assert((s8_neg1 >> 1) == -1, "s8: -1 >> 1 = -1")
+
+    // --- 5. Large Type Unsigned Equivalence (u64) ---
+    wire u64_val: u64 = 0x0000_0000_0000_1000 // 4096
+    assert((u64_val >> 12) == 1, "u64: 4096 >> 12 = 1")
+    assert((u64_val >> 12) == (u64_val / 4096), "u64: x >> 12 == x / 4096")
+
+    // --- 6. Identity (Shift/Divide by 1 = 2^0) ---
+    assert((u8_val >> 0) == (u8_val / 1), "Identity division/shift")
+}

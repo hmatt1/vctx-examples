@@ -1,0 +1,68 @@
+// spec: §8.4 (Arrays), §7.6 (Dynamic indexing and slicing)
+// description: Comprehensive test for array indexing at boundary conditions.
+// rule: Arrays are 0-indexed. Valid indices are 0 to (dimension - 1).
+// expect: pass
+
+sim TestArrayIndexBoundaries {
+    // 1. u8 Array Boundaries
+    wire u8_arr: u8[4] = [10, 20, 30, 40]
+    
+    // Constant indexing
+    assert(u8_arr[0] == 10, "u8_arr[0] is first element")
+    assert(u8_arr[3] == 40, "u8_arr[3] is last element of length 4")
+    
+    // Dynamic indexing
+    wire idx_0: u2 = 0
+    wire idx_3: u2 = 3
+    assert(u8_arr[idx_0] == 10, "dynamic u8_arr[0]")
+    assert(u8_arr[idx_3] == 40, "dynamic u8_arr[3]")
+
+    // 2. bool Array Boundaries
+    wire bool_arr: bool[2] = [true, false]
+    
+    assert(bool_arr[0] == true, "bool_arr[0] is true")
+    assert(bool_arr[1] == false, "bool_arr[1] is false")
+
+    wire b_idx_0: u1 = 0
+    wire b_idx_1: u1 = 1
+    assert(bool_arr[b_idx_0] == true, "dynamic bool_arr[0]")
+    assert(bool_arr[b_idx_1] == false, "dynamic bool_arr[1]")
+
+    // 3. u16 Array Boundaries (Larger Elements)
+    wire u16_arr: u16[8] = [
+        0x1111, 0x2222, 0x3333, 0x4444, 
+        0x5555, 0x6666, 0x7777, 0x8888
+    ]
+
+    assert(u16_arr[0] == 0x1111, "u16_arr[0]")
+    assert(u16_arr[7] == 0x8888, "u16_arr[7]")
+
+    wire idx_7: u3 = 7
+    assert(u16_arr[idx_7] == 0x8888, "dynamic u16_arr[7]")
+
+    // 4. Single Element Array
+    wire single_arr: s8[1] = [-42]
+    assert(single_arr[0] == -42, "single element array index 0")
+
+    wire s_idx: u1 = 0
+    assert(single_arr[s_idx] == -42, "dynamic single element array index 0")
+
+    // 5. Indexing via arithmetic (Comptime folding required for static indices)
+    wire len_minus_1_u8 = u8_arr[4 - 1]
+    assert(len_minus_1_u8 == 40, "indexing via comptime arithmetic")
+
+    // 6. Mutating boundaries (Registers)
+    reg r_arr: u8[3] = [0, 0, 0]
+    
+    when true {
+        r_arr[0] <= 99
+        r_arr[2] <= 100
+    }
+    
+    cycle()
+    
+    // Check that boundaries were mutated
+    assert(r_arr[0] == 99, "r_arr[0] mutated")
+    assert(r_arr[1] == 0, "r_arr[1] untouched")
+    assert(r_arr[2] == 100, "r_arr[2] mutated")
+}

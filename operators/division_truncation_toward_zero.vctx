@@ -1,0 +1,64 @@
+// spec: §7.5 (Operator result rules)
+// description: Comprehensive test for integer division truncation direction.
+// rule: Vctx division truncates toward zero (e.g., -7 / 3 == -2).
+// expect: pass
+
+sim TestDivisionTruncation {
+    // 1. Positive / Positive (Truncate Down)
+    wire p_a: s8 = 7
+    wire p_b: s8 = 3
+    assert(p_a / p_b == 2, "7 / 3 = 2")
+    
+    wire p_c: s8 = 1
+    assert(p_c / p_b == 0, "1 / 3 = 0")
+
+    // 2. Positive / Negative (Truncate Up toward Zero)
+    wire n_b: s8 = -3
+    assert(p_a / n_b == -2, "7 / -3 = -2")
+    assert(p_c / n_b == 0, "1 / -3 = 0")
+
+    // 3. Negative / Positive (Truncate Up toward Zero)
+    wire n_a: s8 = -7
+    assert(n_a / p_b == -2, "-7 / 3 = -2")
+    
+    wire n_c: s8 = -1
+    assert(n_c / p_b == 0, "-1 / 3 = 0")
+
+    // 4. Negative / Negative (Truncate Down toward Zero)
+    assert(n_a / n_b == 2, "-7 / -3 = 2")
+    assert(n_c / n_b == 0, "-1 / -3 = 0")
+
+    // 5. Width and Large Values (s16, s64)
+    wire s16_a: s16 = 1000
+    wire s16_b: s16 = -333
+    assert(s16_a / s16_b == -3, "1000 / -333 = -3")
+
+    wire s64_a: s64 = -9000000000000000000
+    wire s64_b: s64 = 3000000000000000000
+    assert(s64_a / s64_b == -3, "Large s64 division")
+
+    // 6. Identity and Sign Flip
+    wire val: s8 = 42
+    assert(val / 1 == 42, "x / 1 = x")
+    assert(val / -1 == -42, "x / -1 = -x")
+
+    // 7. Edge Case: Min / -1
+    // s8 min is -128. -128 / -1 is 128.
+    // Result width is max(L, R) = 8.
+    // 128 in s8 is 0x80, which is -128 (overflow/wrap behavior).
+    wire s8_min: s8 = -128
+    wire neg_1: s8 = -1
+    assert(s8_min / neg_1 == -128, "-128 / -1 wraps to -128 in s8")
+
+    // 8. Edge Case: Resulting in Exactly Zero
+    assert(5 / 10 == 0, "5 / 10 = 0")
+    assert(-5 / 10 == 0, "-5 / 10 = 0")
+    assert(5 / -10 == 0, "5 / -10 = 0")
+    assert(-5 / -10 == 0, "-5 / -10 = 0")
+    
+    // 9. Exact Division
+    assert(12 / 4 == 3, "12 / 4 = 3")
+    assert(-12 / 4 == -3, "-12 / 4 = -3")
+    assert(12 / -4 == -3, "12 / -4 = -3")
+    assert(-12 / -4 == 3, "-12 / -4 = 3")
+}

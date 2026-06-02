@@ -1,0 +1,179 @@
+// spec: §6.2 (Declarations), §6.3 (Assignments), §6.7 (Global clock and reset)
+// description: Comprehensive verification that registers of all scalar types hold and cycle correctly.
+// rule: Registers (<=) update on the next clock edge and hold their state until the next assignment.
+// expect: pass
+
+component MultiTypeRegBank(
+    in load: bool,
+    in b_in: bool,
+    in u8_in: u8,
+    in u16_in: u16,
+    in u32_in: u32,
+    in u64_in: u64,
+    in s8_in: s8,
+    in s16_in: s16,
+    in s32_in: s32,
+    in s64_in: s64,
+    in u7_in: u[7],
+    in s5_in: s[5],
+
+    out b_out: bool,
+    out u8_out: u8,
+    out u16_out: u16,
+    out u32_out: u32,
+    out u64_out: u64,
+    out s8_out: s8,
+    out s16_out: s16,
+    out s32_out: s32,
+    out s64_out: s64,
+    out u7_out: u[7],
+    out s5_out: s[5]
+) {
+    // 1. Declare registers for all types
+    reg rb: bool = false
+    reg r8: u8 = 0
+    reg r16: u16 = 0
+    reg r32: u32 = 0
+    reg r64: u64 = 0
+    reg rs8: s8 = 0
+    reg rs16: s16 = 0
+    reg rs32: s32 = 0
+    reg rs64: s64 = 0
+    reg r7: u[7] = 0
+    reg rs5: s[5] = 0
+
+    // 2. Conditional Latching
+    when load {
+        rb <= b_in
+        r8 <= u8_in
+        r16 <= u16_in
+        r32 <= u32_in
+        r64 <= u64_in
+        rs8 <= s8_in
+        rs16 <= s16_in
+        rs32 <= s32_in
+        rs64 <= s64_in
+        r7 <= u7_in
+        rs5 <= s5_in
+    }
+
+    // 3. Driven Outputs
+    b_out := rb
+    u8_out := r8
+    u16_out := r16
+    u32_out := r32
+    u64_out := r64
+    s8_out := rs8
+    s16_out := rs16
+    s32_out := rs32
+    s64_out := rs64
+    u7_out := r7
+    s5_out := rs5
+}
+
+sim TestRegAllScalarTypes {
+    // Wires for DUT
+    wire load: bool = false
+    wire b, u8_v, u16_v, u32_v, u64_v, s8_v, s16_v, s32_v, s64_v, u7_v, s5_v: u1 // dummy types for broad declaration
+    // (Correcting type for harness)
+    wire bi: bool = false
+    wire u8i: u8 = 0
+    wire u16i: u16 = 0
+    wire u32i: u32 = 0
+    wire u64i: u64 = 0
+    wire s8i: s8 = 0
+    wire s16i: s16 = 0
+    wire s32i: s32 = 0
+    wire s64i: s64 = 0
+    wire u7i: u[7] = 0
+    wire s5i: s[5] = 0
+
+    // Sinks
+    wire bo: bool
+    wire u8o: u8
+    wire u16o: u16
+    wire u32o: u32
+    wire u64o: u64
+    wire s8o: s8
+    wire s16o: s16
+    wire s32o: s32
+    wire s64o: s64
+    wire u7o: u[7]
+    wire s5o: s[5]
+
+    MultiTypeRegBank(
+        load -- load,
+        b_in -- bi, u8_in -- u8i, u16_in -- u16i, u32_in -- u32i, u64_in -- u64i,
+        s8_in -- s8i, s16_in -- s16i, s32_in -- s32i, s64_in -- s64i,
+        u7_in -- u7i, s5_in -- s5i,
+        b_out -- bo, u8_out -- u8o, u16_out -- u16o, u32_out -- u32o, u64_out -- u64o,
+        s8_out -- s8o, s16_out -- s16o, s32_out -- s32o, s64_out -- s64o,
+        u7_out -- u7o, s5_out -- s5o
+    )
+
+    // --- PHASE 1: Verify Reset Defaults ---
+    assert(bo == false, "bool reset")
+    assert(u8o == 0,    "u8 reset")
+    assert(u64o == 0,   "u64 reset")
+    assert(s8o == 0,    "s8 reset")
+
+    // --- PHASE 2: Load Pattern 1 (Values) ---
+    poke(load, true)
+    poke(bi, true)
+    poke(u8i, 0xAA)
+    poke(u16i, 0xCAFE)
+    poke(u32i, 0xDEADBEEF)
+    poke(u64i, 0x0123456789ABCDEF)
+    poke(s8i, -42)
+    poke(s16i, -1000)
+    poke(s32i, -2000000000)
+    poke(s64i, -9000000000000000000)
+    poke(u7i, 127)
+    poke(s5i, -16)
+
+    // Before clock, outputs should still be 0
+    assert(u8o == 0, "Pre-clock: u8 still 0")
+    
+    cycle() // Latch pattern 1
+    poke(load, false) // Disable load to test holding
+
+    assert(bo == true, "bool latched T")
+    assert(u8o == 0xAA, "u8 latched")
+    assert(u16o == 0xCAFE, "u16 latched")
+    assert(u32o == 3735928559, "u32 latched")
+    assert(u64o == 0x0123456789ABCDEF, "u64 latched")
+    assert(s8o == -42, "s8 latched")
+    assert(s16o == -1000, "s16 latched")
+    assert(s32o == -2000000000, "s32 latched")
+    assert(s64o == -9000000000000000000, "s64 latched")
+    assert(u7o == 127, "u7 latched")
+    assert(s5o == -16, "s5 latched")
+
+    // --- PHASE 3: Hold Across Multiple Cycles ---
+    // Zero out inputs to ensure no combinatorial leakage
+    poke(bi, false)
+    poke(u8i, 0)
+    poke(s8i, 0)
+    
+    cycle(5)
+    
+    assert(bo == true, "bool held")
+    assert(u8o == 0xAA, "u8 held")
+    assert(s8o == -42, "s8 held")
+    assert(u64o == 0x0123456789ABCDEF, "u64 held")
+
+    // --- PHASE 4: Pattern 2 (Flip bits) ---
+    poke(load, true)
+    poke(u8i, 0x55)
+    poke(s8i, 42)
+    cycle()
+    
+    assert(u8o == 0x55, "u8 updated to 0x55")
+    assert(s8o == 42,   "s8 updated to 42")
+
+    // --- PHASE 5: Global Reset ---
+    reset()
+    assert(bo == false, "bool restored")
+    assert(u8o == 0,    "u8 restored")
+    assert(s8o == 0,    "s8 restored")
+}

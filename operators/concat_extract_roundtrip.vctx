@@ -1,0 +1,81 @@
+// spec: §7.2 (Postfix expressions - Slicing), §12.1 (Expression builtins - concat)
+// description: Comprehensive verification of concatenation and slicing roundtrip identity.
+// rule: Concat places the first argument in the MSB. Slicing back must recover the exact original values.
+// expect: pass
+
+sim TestConcatExtractRoundtrip {
+    // --- 1. Symmetrical Roundtrip (8 + 8 -> 16) ---
+    wire hi8: u8 = 0xAA // 1010_1010
+    wire lo8: u8 = 0x55 // 0101_0101
+    
+    // Concat
+    wire c16: u16 = concat(hi8, lo8)
+    assert(c16 == 0xAA55, "concat(0xAA, 0x55) = 0xAA55")
+    assert(width(c16) == 16, "Width is 16")
+
+    // Extract
+    wire ex_hi8: u8 = c16[15..8]
+    wire ex_lo8: u8 = c16[7..0]
+    
+    assert(ex_hi8 == hi8, "Recovered MSB matches exactly")
+    assert(ex_lo8 == lo8, "Recovered LSB matches exactly")
+
+    // --- 2. Asymmetrical Roundtrip (4 + 12 -> 16) ---
+    wire hi4: u4 = 0xF
+    wire lo12: u [ 12 ] = 0xABC
+
+    wire c16_asym: u16 = concat(hi4, lo12)
+    assert(c16_asym == 0xFABC, "concat(u4, u12) = 0xFABC")
+
+    wire ex_hi4: u4 = c16_asym[15..12]
+    wire ex_lo12: u [ 12 ] = c16_asym[11..0]
+
+    assert(ex_hi4 == hi4, "Recovered u4 matches exactly")
+    assert(ex_lo12 == lo12, "Recovered u12 matches exactly")
+
+    // --- 3. Large Width Roundtrip (32 + 32 -> 64) ---
+    wire hi32: u32 = 0xDEAD_BEEF
+    wire lo32: u32 = 0xCAFE_BABE
+
+    wire c64: u64 = concat(hi32, lo32)
+    assert(c64 == 0xDEAD_BEEF_CAFE_BABE, "Large concat")
+
+    wire ex_hi32: u32 = c64[63..32]
+    wire ex_lo32: u32 = c64[31..0]
+
+    assert(ex_hi32 == hi32, "Recovered u32 MSB")
+    assert(ex_lo32 == lo32, "Recovered u32 LSB")
+
+    // --- 4. Signed Concatenation (Reinterpreted as Bits) ---
+    // Concat treats arguments as raw bit vectors. Result is unsigned by default (or follows spec rules).
+    // The spec states: `concat` produces a carrier whose width is sum. Signedness typically follows standard rules, but slicing extracts unsigned bits.
+    wire s8_hi: s8 = -1  // 0xFF
+    wire s8_lo: s8 = 127 // 0x7F
+
+    wire cs16 := concat(s8_hi, s8_lo)
+    assert(cs16 == 0xFF7F as u16, "Signed concat is treated as raw bits")
+
+    wire ex_s8_hi := cs16[15..8] as s8
+    wire ex_s8_lo := cs16[7..0] as s8
+
+    assert(ex_s8_hi == s8_hi, "Recovered s8 MSB")
+    assert(ex_s8_lo == s8_lo, "Recovered s8 LSB")
+
+    // --- 5. Single Bit and Multi-Argument Concat (1 + 2 + 5 -> 8) ---
+    wire b1: u1 = 1
+    wire b2: u2 = 2 // 10
+    wire b5: u5 = 21 // 10101
+    
+    // Concat 3 items. Expected: 1_10_10101 = 1101_0101 = 0xD5 = 213
+    wire c8_multi := concat(b1, b2, b5)
+    assert(c8_multi == 213, "Multi-arg concat 1_10_10101")
+    assert(width(c8_multi) == 8, "Width is 8")
+
+    wire ex_b1: u1 = c8_multi[7..7] // Single bit slice
+    wire ex_b2: u2 = c8_multi[6..5]
+    wire ex_b5: u5 = c8_multi[4..0]
+
+    assert(ex_b1 == b1, "Recovered u1")
+    assert(ex_b2 == b2, "Recovered u2")
+    assert(ex_b5 == b5, "Recovered u5")
+}

@@ -1,0 +1,78 @@
+// spec: §7.1 (Precedence), §7.5 (Operator result rules), §8.3 (bool)
+// description: Comprehensive verification of all supported operations on the bool type.
+// expect: pass
+
+sim TestBoolAllOpsComprehensive {
+    wire T: bool = true
+    wire F: bool = false
+
+    // --- 1. Logical Operators ---
+    assert((T and T) == true,   "Logical AND")
+    assert((T or F) == true,    "Logical OR")
+    assert((not T) == false,    "Logical NOT")
+
+    // --- 2. Bitwise Operators ---
+    // Rule: bool acts as a 1-bit unsigned integer (u1)
+    assert((T & T) == true,     "Bitwise AND")
+    assert((T | F) == true,     "Bitwise OR")
+    assert((T ^ T) == false,    "Bitwise XOR")
+    assert((~T) == (false as u1), "Bitwise NOT (yields u1)")
+
+    // --- 3. Equality Operators ---
+    assert((T == T) == true,    "Equality")
+    assert((T !== F) == true,   "Inequality")
+
+    // --- 4. Relational Operators ---
+    // false (0) is less than true (1)
+    assert((F < T) == true,     "Less than")
+    assert((T > F) == true,     "Greater than")
+    assert((T <== T) == true,   "Less than or equal")
+    assert((F >== F) == true,   "Greater than or equal")
+    assert((T < F) == false,    "True is NOT less than False")
+
+    // --- 5. Ternary Selection ---
+    assert((T ? T : F) == true, "Ternary condition TRUE")
+    assert((F ? T : F) == false,"Ternary condition FALSE")
+
+    // --- 6. Shifts (Valid but degenerate) ---
+    // bool behaves as u1, so shifting by 0 is identity. Shifting left by > 0 overflows to 0.
+    assert((T << 0) == true,    "Shift Left 0 (Identity)")
+    assert((T >> 0) == true,    "Shift Right 0 (Identity)")
+    assert((T << 1) == false,   "Shift Left 1 (Overflow to 0)")
+
+    // --- 7. Arithmetic ---
+    // While arithmetic on booleans is obscure, bool acts as u1.
+    // u1 + u1 -> u2.
+    assert(((T + T) as u2) == 2, "T + T (1 + 1 = 2)")
+    assert(((T + F) as u2) == 1, "T + F (1 + 0 = 1)")
+    // u1 - u1 -> u2 (unsigned subtraction, though vctx promotes width)
+    // Actually, T - T = 0.
+    assert((T - T) == 0,         "T - T (1 - 1 = 0)")
+
+    // --- 8. Complex Composition ---
+    // not (A and B) == ~ (A & B) == (not A or not B)
+    wire comp_logic := not (T and F)
+    wire comp_bit   := ~(T & F)
+    assert((comp_logic as u1) == comp_bit, "Logical and Bitwise equivalence")
+
+    // Precedence: > has higher priority than 'and'
+    assert(T and (T > F) == true, "Precedence check")
+
+    // --- 9. Type Metadata Verification ---
+    wire res_and := T and F
+    wire res_or  := T or F
+    wire res_not := not T
+    wire res_eq  := T == F
+    wire res_lt  := T < F
+    wire res_tern := T ? T : F
+
+    // All these should yield a width of 1 and be unsigned
+    assert(width(res_and) == 1, "Result width of AND is 1")
+    assert(width(res_or) == 1,  "Result width of OR is 1")
+    assert(width(res_not) == 1, "Result width of NOT is 1")
+    assert(width(res_eq) == 1,  "Result width of == is 1")
+    assert(width(res_lt) == 1,  "Result width of < is 1")
+    assert(width(res_tern) == 1,"Result width of ternary is 1")
+
+    assert(is_signed(res_and) == false, "Result of AND is unsigned")
+}

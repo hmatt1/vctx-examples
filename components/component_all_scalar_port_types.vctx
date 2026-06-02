@@ -1,0 +1,109 @@
+// spec: §5.1 (Components), §8.3 (Scalar types), §11 (Instantiation)
+// description: Comprehensive verification that all scalar types are supported as component ports.
+// rule: Components must support in/out ports for any valid hardware carrier type.
+// expect: pass
+
+component ScalarPassThru(
+    in b: bool,   out yb: bool,
+    in u1: u1,    out y1: u1,
+    in u8: u8,    out y8: u8,
+    in u16: u16,  out y16: u16,
+    in u32: u32,  out y32: u32,
+    in u64: u64,  out y64: u64,
+    in s8: s8,    out ys8: s8,
+    in s16: s16,  out ys16: s16,
+    in s32: s32,  out ys32: s32,
+    in s64: s64,  out ys64: s64,
+    in u7: u[7],  out y7: u[7],
+    in s5: s[5],  out ys5: s[5]
+) {
+    // Structural Passthrough
+    yb := b
+    y1 := u1
+    y8 := u8
+    y16 := u16
+    y32 := u32
+    y64 := u64
+    ys8 := s8
+    ys16 := s16
+    ys32 := s32
+    ys64 := s64
+    y7 := u7
+    ys5 := s5
+}
+
+sim TestComponentAllScalarPorts {
+    // 1. Declare harness wires
+    wire b: bool = true
+    wire u1: u1 = 0
+    wire u8: u8 = 0xFF
+    wire u16: u16 = 0xCAFE
+    wire u32: u32 = 0xDEADBEEF
+    wire u64: u64 = 0x0123456789ABCDEF
+    wire s8: s8 = -128
+    wire s16: s16 = -32768
+    wire s32: s32 = -2000000000
+    wire s64: s64 = -9000000000000000000
+    wire u7: u[7] = 127
+    wire s5: s[5] = -16
+
+    // Output sinks
+    wire yb: bool
+    wire y1, y7: u1
+    wire y8: u8
+    wire y16: u16
+    wire y32: u32
+    wire y64: u64
+    wire ys8: s8
+    wire ys16: s16
+    wire ys32: s32
+    wire ys64: s64
+    wire y7_out: u[7]
+    wire ys5: s[5]
+
+    // 2. Instantiate with named connections (§11)
+    ScalarPassThru(
+        b -- b, yb -- yb,
+        u1 -- u1, y1 -- y1,
+        u8 -- u8, y8 -- y8,
+        u16 -- u16, y16 -- y16,
+        u32 -- u32, y32 -- y32,
+        u64 -- u64, y64 -- y64,
+        s8 -- s8, ys8 -- ys8,
+        s16 -- s16, ys16 -- ys16,
+        s32 -- s32, ys32 -- ys32,
+        s64 -- s64, ys64 -- ys64,
+        u7 -- u7, y7 -- y7_out,
+        s5 -- s5, ys5 -- ys5
+    )
+
+    // 3. Verify Passthrough Correctness
+    assert(yb == true, "bool passthrough")
+    assert(y1 == 0,    "u1 passthrough")
+    assert(y8 == 255,  "u8 passthrough")
+    assert(y16 == 0xCAFE, "u16 passthrough")
+    assert(y32 == 0xDEADBEEF, "u32 passthrough")
+    assert(y64 == 0x0123456789ABCDEF, "u64 passthrough")
+    
+    assert(ys8 == -128, "s8 passthrough")
+    assert(ys16 == -32768, "s16 passthrough")
+    assert(ys32 == -2000000000, "s32 passthrough")
+    assert(ys64 == -9000000000000000000, "s64 passthrough")
+    
+    assert(y7_out == 127, "u7 (non-power2) passthrough")
+    assert(ys5 == -16,    "s5 (non-power2) passthrough")
+
+    // 4. Update and Re-verify (Dynamic check)
+    poke(b, false)
+    poke(u1, 1)
+    poke(s8, 42)
+    
+    assert(yb == false, "bool update passthrough")
+    assert(y1 == 1,     "u1 update passthrough")
+    assert(ys8 == 42,   "s8 update passthrough")
+
+    // 5. Metadata verification on outputs
+    assert(width(y64) == 64, "output u64 width check")
+    assert(is_signed(ys64) == true, "output s64 sign check")
+    assert(width(y7_out) == 7, "output u7 width check")
+}

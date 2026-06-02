@@ -1,0 +1,86 @@
+// spec: §7.5 (Operator result rules)
+// description: Comprehensive test for multiplication bit-width doubling and signedness promotion.
+// rule 1: width(L * R) == width(L) + width(R) for same-signedness.
+// rule 2: width(uN * sM) == (N+1) + M (Unsigned promoted to Width+1 signed).
+// expect: pass
+
+component MultiplyWidths(
+    in a4: u4, in b4: u4, out y8: u8,
+    in a8: u8, in b8: u8, out y16: u16,
+    in a16: u16, in b16: u16, out y32: u32,
+    in s4a: s4, in s4b: s4, out sy8: s8
+) {
+    y8 := a4 * b4
+    y16 := a8 * b8
+    y32 := a16 * b16
+    sy8 := s4a * s4b
+}
+
+sim TestMultiplyWidths {
+    // 1. Unsigned Power-of-2 Widths
+    wire u4_a: u4 = 0xF
+    wire u4_b: u4 = 0xF
+    wire u8_res := u4_a * u4_b
+    assert(width(u8_res) == 8, "u4 * u4 should have width 8")
+    assert(u8_res == 225, "15 * 15 = 225")
+
+    wire u8_a: u8 = 0xFF
+    wire u8_b: u8 = 0xFF
+    wire u16_res := u8_a * u8_b
+    assert(width(u16_res) == 16, "u8 * u8 should have width 16")
+    assert(u16_res == 65025, "255 * 255 = 65025")
+
+    // 2. Odd (Non-Power-of-2) Widths
+    wire u3_a: u3 = 7
+    wire u5_b: u5 = 31
+    wire u8_odd := u3_a * u5_b
+    assert(width(u8_odd) == 8, "u3 * u5 should have width 8")
+    assert(u8_odd == 217, "7 * 31 = 217")
+
+    // 3. Signed Width Doubling
+    wire s4_a: s4 = -8 // min value
+    wire s4_b: s4 = 7  // max value
+    wire s8_res := s4_a * s4_b
+    assert(width(s8_res) == 8, "s4 * s4 should have width 8")
+    assert(is_signed(s8_res) == true, "s4 * s4 should be signed")
+    assert(s8_res == -56, "-8 * 7 = -56")
+
+    wire s5_a: s5 = -16
+    wire s5_b: s5 = -16
+    wire s10_res := s5_a * s5_b
+    assert(width(s10_res) == 10, "s5 * s5 should have width 10")
+    assert(s10_res == 256 as s10, "-16 * -16 = 256")
+
+    // 4. Mixed Signedness Promotion (Rule: uN * sM -> s[(N+1) + M])
+    wire u4_m: u4 = 15
+    wire s4_m: s4 = 7
+    wire mixed_res := u4_m * s4_m
+    // u4 behaves as s5 (0 to 15). s5 * s4 = s9.
+    assert(width(mixed_res) == 9, "u4 * s4 should have width 9")
+    assert(is_signed(mixed_res) == true, "u4 * s4 should be signed")
+    assert(mixed_res == 105 as s9, "15 * 7 = 105")
+
+    wire u8_m: u8 = 255
+    wire s8_m: s8 = -128
+    wire mixed_large := u8_m * s8_m
+    // u8 as s9. s9 * s8 = s17.
+    assert(width(mixed_large) == 17, "u8 * s8 should have width 17")
+    assert(mixed_large == -32640 as s17, "255 * -128 = -32640")
+
+    // 5. Extreme Value Capacity Verification
+    // The doubled width must be able to hold (max * max)
+    wire u64_a: u64 = 0xFFFF_FFFF_FFFF_FFFF
+    wire u64_b: u64 = 0xFFFF_FFFF_FFFF_FFFF
+    wire u128_res := u64_a * u64_b
+    assert(width(u128_res) == 128, "u64 * u64 should have width 128")
+    // (2^64-1)^2 = 2^128 - 2^65 + 1. This should fit in 128 bits.
+    // We won't assert the 128-bit literal here as it's hard to type, 
+    // but verifying width is key.
+
+    // 6. Large Signed Extremes
+    wire s64_a: s64 = -9223372036854775808 // -2^63
+    wire s64_b: s64 = -9223372036854775808
+    wire s128_res := s64_a * s64_b
+    assert(width(s128_res) == 128, "s64 * s64 should have width 128")
+    assert(is_signed(s128_res) == true, "Result must be signed")
+}

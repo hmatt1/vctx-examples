@@ -1,0 +1,71 @@
+// spec: §7.5 (Operator result rules - Bitwise), §3.5 (Hex literals)
+// description: Comprehensive verification of bitwise masking patterns for extraction and combination.
+// expect: pass
+
+sim TestBitwiseMasksPatterns {
+    // --- 1. Nibble Extraction (u8) ---
+    // Extracting lower and upper 4 bits
+    wire val8: u8 = 0xA5 // 1010_0101
+    
+    wire lo_nibble := val8 & 0x0F
+    wire hi_nibble := (val8 & 0xF0) >> 4
+    
+    assert(lo_nibble == 0x05, "Extract low nibble: 0xA5 & 0x0F = 0x05")
+    assert(hi_nibble == 0x0A, "Extract high nibble: (0xA5 & 0xF0) >> 4 = 0x0A")
+
+    // --- 2. Byte Extraction (u16/u32) ---
+    wire val16: u16 = 0xBEEF
+    wire lo_byte := val16 & 0x00FF
+    wire hi_byte := (val16 & 0xFF00) >> 8
+    
+    assert(lo_byte == 0xEF, "Extract low byte from u16")
+    assert(hi_byte == 0xBE, "Extract high byte from u16")
+
+    wire val32: u32 = 0xDEADBEEF
+    wire mid_byte := (val32 & 0x00FF0000) >> 16
+    assert(mid_byte == 0xAD, "Extract middle byte (bits 23:16) from u32")
+
+    // --- 3. Setting and Combining Fields (|) ---
+    // Combine two nibbles back into a byte
+    wire combined8 := (hi_nibble << 4) | lo_nibble
+    assert(combined8 == 0xA5 as u12, "Recombine nibbles via OR") 
+    // Note: u8<<4 -> u8. u8|u8 -> u8. wait, shift doesn't change width.
+    // Let's check width. u8 << 4 is u8. u8 | u8 is u8.
+    assert(width(combined8) == 8, "Combined width is 8")
+
+    // Overlaying a value using a mask
+    // Change middle nibble of 0x1234 to 0xF -> 0x1F34
+    wire orig16: u16 = 0x1234
+    wire mask: u16 = 0xF0FF // Mask to clear bits 11:8
+    wire cleared := orig16 & mask
+    wire updated := cleared | (0x0F00 as u16)
+    assert(updated == 0x1F34, "Field update via clear-then-set pattern")
+
+    // --- 4. Toggle Bits (^) ---
+    // Flip even bits of 0xAA (10101010) -> 0x00
+    // Wait, 0xAA ^ 0xAA = 0.
+    wire toggle_pattern: u8 = 0x55
+    wire toggled := val8 ^ toggle_pattern // 0xA5 ^ 0x55 = 1010_0101 ^ 0101_0101 = 1111_0000 = 0xF0
+    assert(toggled == 0xF0, "Toggle bits using XOR mask")
+
+    // --- 5. 64-bit Masking (u64) ---
+    wire val64: u64 = 0x0123456789ABCDEF
+    wire lower32 := val64 & 0xFFFFFFFF
+    wire upper32 := (val64 & 0xFFFFFFFF00000000) >> 32
+    
+    assert(lower32 == 0x89ABCDEF, "u64: extract lower 32 bits")
+    assert(upper32 == 0x01234567, "u64: extract upper 32 bits")
+
+    // --- 6. Non-power-of-2 Masking ---
+    wire val7: u[7] = 0b1101011 // 0x6B
+    // Extract lower 3 bits
+    wire lo3 := val7 & 0x07
+    assert(lo3 == 0b011, "u7: extract 3-bit field")
+    assert(width(lo3) == 7, "Mask result width matches LHS")
+
+    // --- 7. Boolean / bit-pick interop with masks ---
+    // Masking vs Slicing
+    wire mask_bit0 := val8 & 0x01
+    wire slice_bit0 := val8[0..0]
+    assert((mask_bit0 as bool) == (slice_bit0 as bool), "Masking bit 0 equivalent to slicing bit 0")
+}

@@ -1,0 +1,93 @@
+// spec: §8.6 (Literals), §7.5 (Operator result rules), §12.1 (Intrinsics)
+// description: Comprehensive verification of literal type and width inference.
+// rule: Untyped literals receive types from context (assignment, comparison, operators) 
+//       or default to the smallest carrier that can hold the value.
+// expect: pass
+
+sim TestLiteralTypeInference {
+    // --- 1. Smallest-Fit Inference (No context via :=) ---
+    // Rule: Literal should occupy the minimum bits required for its magnitude.
+    
+    // 0 and 1 should infer as 1-bit unsigned
+    wire inf_0 := 0
+    wire inf_1 := 1
+    assert(width(inf_0) == 1, "0 defaults to u1")
+    assert(width(inf_1) == 1, "1 defaults to u1")
+    assert(is_signed(inf_1) == false, "Small positive defaults to unsigned")
+
+    // 255 should infer as 8-bit unsigned
+    wire inf_255 := 255
+    assert(width(inf_255) == 8, "255 defaults to u8")
+
+    // 256 should infer as 9-bit unsigned (or u16 depending on implementation padding, 
+    // but vctx spec suggests exact fit for scalars)
+    wire inf_256 := 256
+    assert(width(inf_256) == 9, "256 requires 9 bits (1_0000_0000)")
+
+    // --- 2. Inference from Assignment (LHS Context) ---
+    // Rule: Literal adapts to the width of the target wire.
+    wire u16_target: u16 = 42
+    assert(width(u16_target) == 16, "LHS context forces u16")
+    
+    wire s32_target: s32 = -100
+    assert(width(s32_target) == 32, "LHS context forces s32")
+    assert(is_signed(s32_target) == true, "LHS context forces signed")
+
+    // --- 3. Inference from Binary Operators ---
+    // Rule: In 'x + 1', '1' should promote to match x's width or result width.
+    wire u8_val: u8 = 100
+    wire u8_sum := u8_val + 1 
+    // u8 + u1 -> u9 (per max(L,R)+1 rule)
+    assert(width(u8_sum) == 9, "u8 + untyped(1) -> u9")
+    
+    wire s16_val: s16 = 1000
+    wire s16_sub := s16_val - 500
+    // s16 + untyped(500) -> s17
+    assert(width(s16_sub) == 17, "s16 - untyped(500) -> s17")
+
+    // --- 4. Inference from Comparisons ---
+    // Rule: In 'x == 255', '255' should be interpreted in x's domain.
+    wire u32_val: u32 = 0x1234_5678
+    assert(u32_val !== 0, "Comparison with 0 (u32 context)")
+    assert(u32_val > 0x1000, "Comparison with hex literal")
+
+    // --- 5. Negative Literal Inference ---
+    // Rule: Negative literals infer as the smallest signed type that fits.
+    
+    // -1 fits in s1 (value 1)
+    wire inf_neg1 := -1
+    assert(width(inf_neg1) == 1, "-1 defaults to s1")
+    assert(is_signed(inf_neg1) == true, "Negative literal is signed")
+
+    // -128 fits in s8
+    wire inf_neg128 := -128
+    assert(width(inf_neg128) == 8, "-128 defaults to s8")
+
+    // -129 requires s9
+    wire inf_neg129 := -129
+    assert(width(inf_neg129) == 9, "-129 defaults to s9")
+
+    // --- 6. Literal Width in Intrinsics ---
+    // Verifying that width() can be called on a literal
+    assert(width(0xF) == 4, "width(0xF) is 4")
+    assert(width(0x10) == 5, "width(0x10) is 5")
+    assert(width(0xFFFF_FFFF) == 32, "width(32-bit hex) is 32")
+
+    // --- 7. Large Number Inference ---
+    wire inf_large := 0x1_0000_0000_0000 // 33 bits
+    assert(width(inf_large) == 49, "Large hex literal width") 
+    // 0x1_... is 1 followed by 12 zeros. 12 * 4 + 1 = 49 bits.
+    
+    // --- 8. Ternary Context Inference ---
+    // Rule: Literal arms should match the other arm's type.
+    wire ctrl: bool = true
+    wire u8_a: u8 = 10
+    wire tern_res := ctrl ? u8_a : 20 
+    // '20' should be inferred as u8 to match u8_a
+    assert(width(tern_res) == 8, "Ternary arm inference")
+
+    // --- 9. Array Literal Inference ---
+    // Rule: Array literal elements infer from the array type.
+    wire u8_arr: u8[3] = [1, 2, 3]
+    assert(width(u8_arr[0]) == 8, "Array element inference")
+}

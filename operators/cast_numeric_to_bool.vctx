@@ -1,0 +1,81 @@
+// spec: §8.7 (Casts), §8.3 (Scalar types - bool)
+// description: Comprehensive verification of casting numeric values to boolean types.
+// rule: 0 -> false, non-zero -> true for all numeric types.
+// expect: pass
+
+sim TestCastNumericToBool {
+    // 1. Cast from Unsigned Types (u1, u8, u16, u64)
+    
+    // From u1 (Direct mapping)
+    wire u1_1: u1 = 1
+    wire u1_0: u1 = 0
+    assert(u1_1 as bool == true,  "u1(1) as bool = true")
+    assert(u1_0 as bool == false, "u1(0) as bool = false")
+
+    // From u8 (Zero vs Non-Zero)
+    wire u8_0: u8 = 0
+    wire u8_1: u8 = 1
+    wire u8_max: u8 = 255
+    assert(u8_0 as bool == false, "u8(0) as bool = false")
+    assert(u8_1 as bool == true,  "u8(1) as bool = true")
+    assert(u8_max as bool == true, "u8(255) as bool = true")
+
+    // From u16 (Large values)
+    wire u16_val: u16 = 0x8000
+    assert(u16_val as bool == true, "u16(0x8000) as bool = true")
+    assert(0 as u16 as bool == false, "0 as u16 as bool = false")
+
+    // From u64
+    wire u64_val: u64 = 0xFFFF_FFFF_FFFF_FFFF
+    assert(u64_val as bool == true, "u64 max as bool = true")
+
+    // 2. Cast from Signed Types (s8, s16, s64)
+    // Rule: Any bit set (including sign bit) makes it true.
+    
+    // Zero
+    wire s8_0: s8 = 0
+    assert(s8_0 as bool == false, "s8(0) as bool = false")
+
+    // Positive
+    wire s8_pos: s8 = 127
+    assert(s8_pos as bool == true, "s8(127) as bool = true")
+
+    // Negative (All negative values are non-zero)
+    wire s8_neg1: s8 = -1
+    wire s8_min: s8 = -128
+    assert(s8_neg1 as bool == true, "s8(-1) as bool = true")
+    assert(s8_min as bool == true,  "s8(-128) as bool = true")
+
+    // Large Signed
+    wire s64_min: s64 = -9223372036854775808
+    assert(s64_min as bool == true, "s64 min as bool = true")
+
+    // 3. Result Metadata Verification
+    wire b_res := 42 as s8 as bool
+    assert(width(b_res) == 1, "bool result must have width 1")
+    assert(is_signed(b_res) == false, "bool result is unsigned")
+
+    // 4. Usage in Logical Expressions
+    // Using numeric values as conditions via explicit casts
+    wire val_a: u8 = 10
+    wire val_b: u8 = 0
+    assert((val_a as bool and true) == true, "u8(10) as bool and T = T")
+    assert((val_b as bool or false) == false, "u8(0) as bool or F = F")
+
+    // 5. Ternary and Muxing
+    // Numeric value controls a ternary through casting
+    wire control: u8 = 1
+    wire result := (control as bool) ? 100 as u8 : 200 as u8
+    assert(result == 100, "Numeric control of ternary")
+
+    // 6. Non-power-of-2 Widths
+    wire u3_val: u3 = 4
+    wire u3_zero: u3 = 0
+    assert(u3_val as bool == true, "u3(4) as bool = true")
+    assert(u3_zero as bool == false, "u3(0) as bool = false")
+
+    // 7. Double Casting (Numeric -> Bool -> Numeric)
+    // This is effectively a "normalize to 1 or 0" operation
+    wire normalized_255 := 255 as u8 as bool as u8
+    assert(normalized_255 == 1, "u8(255) normalized through bool is 1")
+}

@@ -1,0 +1,60 @@
+// spec: §3.5 (Literals), §8.6 (Literal types)
+// description: Comprehensive verification of binary literals and common bit patterns.
+// rule: Binary literals use the '0b' or '0B' prefix and can include underscores for readability.
+// expect: pass
+
+sim TestBinaryLiteralsPatterns {
+    // --- 1. Basic Patterns (8-bit) ---
+    wire b_ones: u8 = 0b1111_1111
+    wire b_zeros: u8 = 0b0000_0000
+    wire b_alt1: u8 = 0b1010_1010 // 0xAA (170)
+    wire b_alt2: u8 = 0b0101_0101 // 0x55 (85)
+    
+    assert(b_ones == 255, "0b1111_1111 is 255")
+    assert(b_zeros == 0, "0b0000_0000 is 0")
+    assert(b_alt1 == 170, "0b1010_1010 is 170")
+    assert(b_alt2 == 85, "0b0101_0101 is 85")
+
+    // --- 2. Nibble Patterns (4-bit) ---
+    wire nib_hi: u8 = 0b1111_0000 // 0xF0 (240)
+    wire nib_lo: u8 = 0b0000_1111 // 0x0F (15)
+    
+    assert(nib_hi == 240, "High nibble 0b1111_0000 is 240")
+    assert(nib_lo == 15, "Low nibble 0b0000_1111 is 15")
+
+    // --- 3. Prefix Case Sensitivity ---
+    // Both '0b' and '0B' are valid prefixes
+    assert(0b101 == 5, "Lowercase 0b prefix")
+    assert(0B101 == 5, "Uppercase 0B prefix")
+
+    // --- 4. Underscore Placement ---
+    // Underscores can be placed anywhere between digits for readability
+    assert(0b1_0_1 == 5, "Underscores between single digits")
+    assert(0b1111_0000_1111_0000 == 61680, "Underscores separating nibbles/bytes")
+
+    // --- 5. Zero-Padding and Inference ---
+    // Untyped binary literals infer to the smallest width that fits their magnitude
+    wire inf_1 := 0b1
+    assert(width(inf_1) == 1, "0b1 infers as 1-bit")
+    
+    wire inf_3 := 0b11
+    assert(width(inf_3) == 2, "0b11 infers as 2-bit")
+
+    wire inf_pad := 0b0000_0011
+    // The magnitude is 3, so it should infer as 2-bit, regardless of the leading zeros
+    assert(width(inf_pad) == 2, "Zero-padded 0b0000_0011 infers as 2-bit based on magnitude")
+
+    // --- 6. Large Binary Literals ---
+    // 16-bit
+    wire b16_pat: u16 = 0b1000_0000_0000_0001
+    assert(b16_pat == 32769, "16-bit binary pattern 0x8001")
+
+    // 32-bit
+    wire b32_pat: u32 = 0b1111_1111_0000_0000_1111_1111_0000_0000
+    assert(b32_pat == 4278255360, "32-bit binary pattern 0xFF00FF00")
+
+    // --- 7. Boolean Interop ---
+    // Binary literals are numeric, but 1 and 0 can cast to bool
+    assert((0b1 as bool) == true, "0b1 casts to true")
+    assert((0b0 as bool) == false, "0b0 casts to false")
+}

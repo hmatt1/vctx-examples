@@ -1,0 +1,67 @@
+// spec: §7.5 (Operator result rules - Shifts)
+// description: Comprehensive test for shift operations at width boundaries (N-1, N).
+// rules: 
+//   - Unsigned: Logical shifts (zero-fill).
+//   - Signed: Arithmetic right shift (sign-fill), Logical left shift.
+//   - Shift by Width: Unsigned results in 0, Signed right shift results in sign-fill.
+// expect: pass
+
+sim TestShiftBoundaries {
+    // --- 1. Unsigned u8 Boundaries (Width 8) ---
+    wire u8_val: u8 = 1
+    assert(u8_val << 0 == 1, "u8: shift left by 0 (identity)")
+    assert(u8_val >> 0 == 1, "u8: shift right by 0 (identity)")
+
+    assert(u8_val << 7 == 128, "u8: 1 << 7 = 128 (MSB set)")
+    assert(u8_val << 8 == 0,   "u8: 1 << 8 = 0 (Overflow)")
+
+    wire u8_msb: u8 = 128 // 0x80
+    assert(u8_msb >> 7 == 1, "u8: 128 >> 7 = 1 (LSB set)")
+    assert(u8_msb >> 8 == 0, "u8: 128 >> 8 = 0 (Logical fill)")
+
+    // --- 2. Signed s8 Boundaries (Width 8) ---
+    wire s8_neg1: s8 = -1 // 0xFF
+    assert(s8_neg1 << 7 == -128, "s8: -1 << 7 = -128 (0x80)")
+    assert(s8_neg1 << 8 == 0,    "s8: -1 << 8 = 0 (Left shift is logical/truncating)")
+
+    // Arithmetic Right Shift (Sign Extension)
+    assert(s8_neg1 >> 7 == -1, "s8: -1 >> 7 = -1 (Sign preserved)")
+    assert(s8_neg1 >> 8 == -1, "s8: -1 >> 8 = -1 (Sign fill)")
+
+    wire s8_min: s8 = -128 // 1000_0000
+    assert(s8_min >> 7 == -1, "s8: -128 >> 7 = -1 (Arithmetic right shift fills with 1s)")
+    
+    wire s8_pos: s8 = 64 // 0100_0000
+    assert(s8_pos >> 6 == 0, "s8: 64 >> 6 = 1 (No, 64 is 2^6, 64>>6 is 1)")
+    assert(64 as s8 >> 6 == 1, "s8: 64 >> 6 = 1")
+    assert(64 as s8 >> 7 == 0, "s8: 64 >> 7 = 0 (Logical zero-fill for positive signed)")
+
+    // --- 3. Larger Widths (u16, s16) ---
+    wire u16_val: u16 = 1
+    assert(u16_val << 15 == 0x8000, "u16: 1 << 15")
+    assert(u16_val << 16 == 0,      "u16: 1 << 16")
+
+    wire s16_neg: s16 = -1
+    assert(s16_neg >> 15 == -1, "s16: arithmetic right shift max")
+
+    // --- 4. Dynamic Shift Amounts ---
+    // Verifying that boundaries work when the shift amount is a runtime value
+    wire amt_7: u3 = 7
+    wire amt_8: u4 = 8
+    
+    assert(u8_val << amt_7 == 128, "Dynamic u8 << 7")
+    assert(u8_val << amt_8 == 0,   "Dynamic u8 << 8")
+    
+    wire amt_15: u4 = 15
+    assert(s16_neg >> amt_15 == -1, "Dynamic s16 >> 15")
+
+    // --- 5. All-Ones Pattern ---
+    wire u8_ones: u8 = 0xFF
+    assert(u8_ones >> 7 == 1, "u8: 0xFF >> 7 = 1 (Logical)")
+    assert(u8_ones << 7 == 128, "u8: 0xFF << 7 = 128 (Logical truncation)")
+
+    // --- 6. Identity Laws (Idea #10 placeholder) ---
+    wire x: u32 = 0x12345678
+    assert(x << 0 == x, "Identity L")
+    assert(x >> 0 == x, "Identity R")
+}

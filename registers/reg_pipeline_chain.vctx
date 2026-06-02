@@ -1,0 +1,127 @@
+// spec: §6.2 (Declarations), §6.3 (Assignments), §6.7 (Global clock and reset)
+// description: Comprehensive verification of register pipeline chains and cycle-accurate latency.
+// rule: A chain of N registers takes exactly N clock cycles for data to traverse from input to output.
+// expect: pass
+
+component Pipeline4Stage(
+    in d: u8,
+    out q: u8,
+    out stage1: u8,
+    out stage2: u8,
+    out stage3: u8
+) {
+    // 4-stage pipeline
+    reg r1: u8 = 0
+    reg r2: u8 = 0
+    reg r3: u8 = 0
+    reg r4: u8 = 0
+
+    // Sequential updates
+    r1 <= d
+    r2 <= r1
+    r3 <= r2
+    r4 <= r3
+
+    // Expose internal stages for verification
+    stage1 := r1
+    stage2 := r2
+    stage3 := r3
+    q      := r4
+}
+
+sim TestRegPipelineChain {
+    wire d: u8 = 0
+    wire q: u8
+    wire s1: u8
+    wire s2: u8
+    wire s3: u8
+
+    Pipeline4Stage(d, q, s1, s2, s3)
+
+    // Cycle 0: Initial state (after reset)
+    assert(s1 == 0 and s2 == 0 and s3 == 0 and q == 0, "Initial pipeline is empty")
+
+    // Cycle 1: Pulse 0xAA into the pipeline
+    d := 0xAA
+    cycle()
+    assert(s1 == 0xAA, "0xAA at stage 1")
+    assert(s2 == 0,    "0xAA not yet at stage 2")
+
+    // Cycle 2: Pulse 0xBB into pipeline, 0xAA moves to stage 2
+    d := 0xBB
+    cycle()
+    assert(s1 == 0xBB, "0xBB at stage 1")
+    assert(s2 == 0xAA, "0xAA at stage 2")
+    assert(s3 == 0,    "0xAA not yet at stage 3")
+
+    // Cycle 3: Pulse 0xCC, move others
+    d := 0xCC
+    cycle()
+    assert(s1 == 0xCC, "0xCC at stage 1")
+    assert(s2 == 0xBB, "0xBB at stage 2")
+    assert(s3 == 0xAA, "0xAA at stage 3")
+    assert(q  == 0,    "0xAA not yet at output")
+
+    // Cycle 4: Pulse 0xDD, 0xAA reaches output
+    d := 0xDD
+    cycle()
+    assert(s1 == 0xDD, "0xDD at stage 1")
+    assert(s2 == 0xCC, "0xCC at stage 2")
+    assert(s3 == 0xBB, "0xBB at stage 3")
+    assert(q  == 0xAA, "0xAA reached output (q) after exactly 4 cycles")
+
+    // Cycle 5: Stop input, pipeline starts to clear
+    d := 0
+    cycle()
+    assert(q == 0xBB, "0xBB reaches output")
+    
+    cycle()
+    assert(q == 0xCC, "0xCC reaches output")
+    
+    cycle()
+    assert(q == 0xDD, "0xDD reaches output")
+
+    cycle()
+    assert(q == 0, "Pipeline is clear again")
+
+    // --- 2. Bool Pipeline Chain ---
+    reg b1: bool = false
+    reg b2: bool = false
+    wire b_in: bool = true
+    b1 <= b_in
+    b2 <= b1
+    
+    cycle()
+    assert(b1 == true, "bool stage 1")
+    cycle()
+    assert(b2 == true, "bool stage 2 (after 2 cycles)")
+
+    // --- 3. Signed Pipeline Chain ---
+    reg sn1: s16 = 0
+    reg sn2: s16 = 0
+    wire s_in: s16 = -12345
+    sn1 <= s_in
+    sn2 <= sn1
+    
+    cycle()
+    assert(sn1 == -12345, "signed stage 1")
+    cycle()
+    assert(sn2 == -12345, "signed stage 2")
+
+    // --- 4. Parallel Data Flow (Shift Register Pattern) ---
+    // Verifying that multiple stages can be updated in a single cycle 
+    // without "leaking" through (Registers use previous cycle values).
+    wire val: u8 = 0xFF
+    reg rA: u8 = 0
+    reg rB: u8 = 0
+    
+    rA <= val
+    rB <= rA // rB gets the *previous* value of rA
+    
+    cycle()
+    assert(rA == 0xFF, "rA updated")
+    assert(rB == 0,    "rB holds OLD value of rA (0) for one cycle")
+    
+    cycle()
+    assert(rB == 0xFF, "rB updated with rA's previous value")
+}

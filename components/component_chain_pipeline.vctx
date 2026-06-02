@@ -1,0 +1,109 @@
+// spec: §5.1 (Components), §6.7 (Global clock and reset), §11 (Instantiation)
+// description: Comprehensive verification of linear component chains (A -> B -> C) and pipeline latency.
+// rule: A chain of N components, each with one register, introduces exactly N cycles of latency.
+// expect: pass
+
+component PipeStage(in d: u8, out q: u8) {
+    // Each stage adds 1 and registers the result
+    reg r: u8 = 0
+    r <= (d + 1) as u8
+    q := r
+}
+
+component PipelineChain3(
+    in d: u8,
+    out q: u8,
+    out s1: u8,
+    out s2: u8
+) {
+    wire w1: u8
+    wire w2: u8
+
+    // Chain: Stage1 -> Stage2 -> Stage3
+    st1: PipeStage(d, w1)
+    st2: PipeStage(w1, w2)
+    st3: PipeStage(w2, q)
+
+    // Expose intermediate wires for verification
+    s1 := w1
+    s2 := w2
+}
+
+sim TestComponentChainPipeline {
+    wire d: u8 = 0
+    wire q: u8
+    wire s1: u8
+    wire s2: u8
+
+    PipelineChain3(d, q, s1, s2)
+
+    // PHASE 1: Reset State
+    // All registers in all stages should be 0
+    assert(s1 == 0 and s2 == 0 and q == 0, "Pipeline starts at 0")
+
+    // PHASE 2: Feed Value 100
+    poke(d, 100)
+    cycle()
+    
+    // After 1 cycle: Stage 1 has (100+1)
+    assert(s1 == 101, "Stage 1: 100+1 = 101")
+    assert(s2 == 0,   "Stage 2: Still empty")
+    assert(q  == 0,   "Stage 3: Still empty")
+
+    // After 2 cycles: Stage 2 has (101+1)
+    cycle()
+    assert(s1 == 1,   "Stage 1: (Input 0+1) = 1")
+    assert(s2 == 102, "Stage 2: 101+1 = 102")
+    assert(q  == 0,   "Stage 3: Still empty")
+
+    // After 3 cycles: Stage 3 (Output) has (102+1)
+    cycle()
+    assert(s2 == 2,   "Stage 2: (1+1) = 2")
+    assert(q  == 103, "Stage 3: 102+1 = 103 reached output")
+
+    // PHASE 3: Streaming Data (Continuous Pipeline)
+    // We feed a sequence 10, 20, 30
+    poke(d, 10)
+    cycle() // Cycle 4
+    poke(d, 20)
+    cycle() // Cycle 5
+    poke(d, 30)
+    cycle() // Cycle 6
+
+    // At Cycle 6:
+    // Stage 1 should have 30+1 = 31
+    // Stage 2 should have 20+1+1 = 22
+    // Stage 3 should have 10+1+1+1 = 13
+    assert(s1 == 31, "Streaming: Stage 1 has 31")
+    assert(s2 == 22, "Streaming: Stage 2 has 22")
+    assert(q  == 13, "Streaming: Stage 3 has 13")
+
+    // PHASE 4: Reset Verification
+    reset()
+    assert(s1 == 0 and s2 == 0 and q == 0, "Chain reset to 0")
+
+    // PHASE 5: Signed Component Chain
+    // Using simple regs for brevity here to verify signed interop in chains
+    reg rs1: s8 = 0
+    reg rs2: s8 = 0
+    wire si: s8 = -10
+    rs1 <= si
+    rs2 <= rs1
+    
+    cycle()
+    assert(rs1 == -10, "Signed chain stage 1")
+    cycle()
+    assert(rs2 == -10, "Signed chain stage 2")
+
+    // PHASE 6: Non-Power-of-2 Width Chain
+    reg r7a: u7 = 0
+    reg r7b: u7 = 0
+    wire i7: u7 = 127
+    r7a <= i7
+    r7b <= r7a
+    
+    cycle()
+    assert(r7a == 127, "u7 chain stage 1")
+    cycle()
+    assert(r7b == 127, "u7 chain stage 2")
+}

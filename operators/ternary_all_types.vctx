@@ -1,0 +1,86 @@
+// spec: §7.1 (Precedence), §9.4 (Ternary arms)
+// description: Comprehensive verification of the ternary operator across all scalar types.
+// rule: Runtime ternary arms must match width and signedness exactly.
+// expect: pass
+
+sim TestTernaryAllTypes {
+    wire cond_t: bool = true
+    wire cond_f: bool = false
+
+    // --- 1. Boolean Ternary ---
+    wire b_t: bool = true
+    wire b_f: bool = false
+    assert((cond_t ? b_t : b_f) == true,  "bool: true condition selects true arm")
+    assert((cond_f ? b_t : b_f) == false, "bool: false condition selects false arm")
+
+    // --- 2. Unsigned Types (u1, u8, u16, u32, u64) ---
+    wire u1_1: u1 = 1
+    wire u1_0: u1 = 0
+    assert((cond_t ? u1_1 : u1_0) == 1, "u1 ternary")
+
+    wire u8_a: u8 = 100
+    wire u8_b: u8 = 200
+    wire u8_res := cond_f ? u8_a : u8_b
+    assert(u8_res == 200, "u8 ternary")
+    assert(width(u8_res) == 8, "u8 ternary width")
+    assert(is_signed(u8_res) == false, "u8 ternary sign")
+
+    wire u16_a: u16 = 0xAAAA
+    wire u16_b: u16 = 0x5555
+    assert((cond_t ? u16_a : u16_b) == 0xAAAA, "u16 ternary")
+
+    wire u32_a: u32 = 100000
+    wire u32_b: u32 = 200000
+    assert((cond_f ? u32_a : u32_b) == 200000, "u32 ternary")
+
+    wire u64_a: u64 = 0xFFFF_FFFF_FFFF_FFFF
+    wire u64_b: u64 = 0
+    assert((cond_t ? u64_a : u64_b) == 0xFFFF_FFFF_FFFF_FFFF, "u64 ternary")
+
+    // --- 3. Signed Types (s8, s16, s32, s64) ---
+    wire s8_a: s8 = -50
+    wire s8_b: s8 = 50
+    wire s8_res := cond_t ? s8_a : s8_b
+    assert(s8_res == -50, "s8 ternary")
+    assert(width(s8_res) == 8, "s8 ternary width")
+    assert(is_signed(s8_res) == true, "s8 ternary sign")
+
+    wire s16_a: s16 = -32768
+    wire s16_b: s16 = 32767
+    assert((cond_f ? s16_a : s16_b) == 32767, "s16 ternary")
+
+    wire s32_a: s32 = -100000
+    wire s32_b: s32 = 100000
+    assert((cond_t ? s32_a : s32_b) == -100000, "s32 ternary")
+
+    wire s64_a: s64 = -9223372036854775808
+    wire s64_b: s64 = 9223372036854775807
+    assert((cond_f ? s64_a : s64_b) == 9223372036854775807, "s64 ternary")
+
+    // --- 4. Comptime evaluation vs Runtime ---
+    // If the condition is known at comptime, it should fold.
+    assert((true ? 42 as u8 : 99 as u8) == 42, "Comptime condition true")
+    assert((false ? 42 as s16 : 99 as s16) == 99, "Comptime condition false")
+
+    // --- 5. Non-power-of-2 Widths ---
+    wire u5_a: u5 = 31
+    wire u5_b: u5 = 0
+    assert((cond_t ? u5_a : u5_b) == 31, "u5 ternary")
+    
+    wire s7_a: s7 = -64
+    wire s7_b: s7 = 63
+    assert((cond_f ? s7_a : s7_b) == 63, "s7 ternary")
+
+    // --- 6. Explicit Casting for Mismatched Arms (§9.4) ---
+    // The language spec requires identical width/sign for ternary arms.
+    // If we want to mix u8 and s8, we must cast one to match the other.
+    wire mixed_u8: u8 = 200
+    wire mixed_s8: s8 = -1
+    // Cast s8 to u8
+    wire res_cast_u8 := cond_t ? mixed_u8 : (mixed_s8 as u8)
+    assert(res_cast_u8 == 200, "Ternary with explicit cast to u8")
+    
+    // Cast u8 to s8 (Note: u8(200) as s8 is -56)
+    wire res_cast_s8 := cond_f ? (mixed_u8 as s8) : mixed_s8
+    assert(res_cast_s8 == -1, "Ternary with explicit cast to s8")
+}

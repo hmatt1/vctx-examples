@@ -1,0 +1,62 @@
+// spec: §7.5 (Operator result rules), §8.3 (Scalar types - bool)
+// description: Comprehensive verification of De Morgan's Laws for boolean logic.
+// Laws:
+//   1. not (a and b) == (not a) or (not b)
+//   2. not (a or b)  == (not a) and (not b)
+// expect: pass
+
+sim TestBoolDeMorgan {
+    // --- 1. Law 1: not (a and b) == (not a) or (not b) ---
+    // Row 1: F, F
+    assert((not (false and false)) == (not false or not false), "Law 1: F, F")
+    // Row 2: F, T
+    assert((not (false and true))  == (not false or not true),  "Law 1: F, T")
+    // Row 3: T, F
+    assert((not (true and false))  == (not true or not false),  "Law 1: T, F")
+    // Row 4: T, T
+    assert((not (true and true))   == (not true or not true),   "Law 1: T, T")
+
+    // --- 2. Law 2: not (a or b) == (not a) and (not b) ---
+    // Row 1: F, F
+    assert((not (false or false)) == (not false and not false), "Law 2: F, F")
+    // Row 2: F, T
+    assert((not (false or true))  == (not false and not true),  "Law 2: F, T")
+    // Row 3: T, F
+    assert((not (true or false))  == (not true and not false),  "Law 2: T, F")
+    // Row 4: T, T
+    assert((not (true or true))   == (not true and not true),   "Law 2: T, T")
+
+    // --- 3. Bitwise Equivalents (u1/bool interop) ---
+    // Confirm De Morgan holds for &, |, ~
+    wire a: bool = true
+    wire b: bool = false
+    
+    // ~ (a & b) == (~a | ~b)
+    // Note: ~ results in u1, so we cast for bool comparison if needed, 
+    // or just compare as u1.
+    assert((~(a & b)) == ((~a) | (~b)), "Bitwise De Morgan 1")
+    assert((~(a | b)) == ((~a) & (~b)), "Bitwise De Morgan 2")
+
+    // --- 4. Multi-variable De Morgan ---
+    // not (a and b and c) == (not a or not b or not c)
+    wire c: bool = true
+    assert((not (a and b and c)) == (not a or not b or not c), "3-variable De Morgan AND")
+    assert((not (a or b or c))   == (not a and not b and not c), "3-variable De Morgan OR")
+
+    // --- 5. Double Negation Law (!!a == a) ---
+    assert((not not true)  == true,  "!!T == T")
+    assert((not not false) == false, "!!F == F")
+    assert((~~a) == (a as u1), "~~a == a (as u1)")
+
+    // --- 6. Nested Logic Stress ---
+    // not (a and (b or c)) == (not a) or (not b and not c)
+    wire res_lhs := not (a and (b or c))
+    wire res_rhs := (not a) or (not b and not c)
+    assert(res_lhs == res_rhs, "Complex Nested De Morgan")
+
+    // --- 7. Identity with True/False ---
+    assert((not (a and true))  == (not a), "not (a and T) == not a")
+    assert((not (a or false))  == (not a), "not (a or F) == not a")
+    assert((not (a and false)) == true,    "not (a and F) == T")
+    assert((not (a or true))   == false,   "not (a or T) == F")
+}

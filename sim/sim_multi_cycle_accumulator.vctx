@@ -1,0 +1,82 @@
+// spec: §13 (Simulation builtins), §6.4 (when / registers)
+// description: Comprehensive verification of multi-cycle sequential simulation logic.
+// rule: Registers update on cycle(), retaining state across cycles unless explicitly driven.
+// expect: pass
+
+component Accumulator(
+    in en: bool,
+    in d: u16,
+    out q: u16
+) {
+    reg acc: u16 = 0
+    
+    when en {
+        acc <= (acc + d) as u16
+    }
+    // No otherwise -> holds state when not enabled
+    
+    q := acc
+}
+
+sim TestSimMultiCycleAccumulator {
+    wire en: bool = false
+    wire d: u16 = 0
+    wire q: u16
+
+    Accumulator(en, d, q)
+
+    // --- PHASE 1: Initial State ---
+    assert(q == 0, "Accumulator starts at 0")
+
+    // --- PHASE 2: Single-Cycle Accumulation ---
+    // Enable and add 10
+    poke(en, true)
+    poke(d, 10)
+    
+    // Output doesn't change before the clock edge
+    assert(q == 0, "Combinational output holds pre-clock value")
+    
+    cycle() // Tick 1
+    assert(q == 10, "Accumulated 10 after 1 cycle")
+
+    // Add 25
+    poke(d, 25)
+    cycle() // Tick 2
+    assert(q == 35, "Accumulated 25 -> 35")
+
+    // --- PHASE 3: Disable and Hold State ---
+    poke(en, false)
+    poke(d, 100) // This should be ignored
+    
+    cycle() // Tick 3
+    assert(q == 35, "State held when en=false")
+    
+    cycle() // Tick 4
+    assert(q == 35, "State held across multiple disabled cycles")
+
+    // --- PHASE 4: Multi-Cycle Fast-Forward (cycle(N)) ---
+    poke(en, true)
+    poke(d, 5)
+    
+    // Advance 10 cycles. 10 * 5 = 50. Total should be 35 + 50 = 85.
+    cycle(10) // Ticks 5-14
+    assert(q == 85, "Accumulated 5 for 10 cycles (35 + 50 = 85)")
+
+    // --- PHASE 5: Wrapping/Overflow over Multiple Cycles ---
+    // Add a value that will cause an overflow.
+    // u16 max is 65535. Current is 85.
+    // Add 60000 twice: 85 + 60000 + 60000 = 120085.
+    // 120085 % 65536 = 54549
+    poke(d, 60000)
+    cycle(2) // Ticks 15-16
+    
+    assert(q == 54549, "Accumulator wrapped correctly over 2 cycles")
+
+    // --- PHASE 6: Large Value Reset via Accumulation ---
+    // Adding to reach exactly 0.
+    // Current: 54549. Need: 65536 - 54549 = 10987.
+    poke(d, 10987)
+    cycle() // Tick 17
+    
+    assert(q == 0, "Accumulated exactly to 0 (wrap boundary)")
+}

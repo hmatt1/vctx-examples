@@ -1,0 +1,141 @@
+// spec: §6.4 (when), §7.1 (Ternary), §9.4 (Ternary arms)
+// description: Comprehensive verification that 'when' muxing is equivalent to ternary expressions.
+// rule: `wire y: T = V; when cond { y := x }` is equivalent to `y := cond ? x : V`.
+// expect: pass
+
+component MuxEquiv(
+    in cond: bool,
+    in a: u8,
+    in b: u8,
+    out y_when: u8,
+    out y_ternary: u8,
+    in sa: s16,
+    in sb: s16,
+    out sy_when: s16,
+    out sy_ternary: s16
+) {
+    // --- 1. Basic Mux Equivalence (u8) ---
+    // When-style
+    wire w8: u8 = 42 // Default/Initial value
+    when cond {
+        w8 := a
+    } otherwise {
+        w8 := b
+    }
+    y_when := w8
+
+    // Ternary-style
+    y_ternary := cond ? a : b
+
+    // --- 2. Signed Mux Equivalence (s16) ---
+    // When-style
+    wire sw16: s16 = -1
+    when cond {
+        sw16 := sa
+    } otherwise {
+        sw16 := sb
+    }
+    sy_when := sw16
+
+    // Ternary-style
+    sy_ternary := cond ? sa : sb
+}
+
+component NestedMuxEquiv(
+    in c1: bool,
+    in c2: bool,
+    in a: u8,
+    in b: u8,
+    in c: u8,
+    out y_when: u8,
+    out y_ternary: u8
+) {
+    // --- 3. Nested Mux Equivalence ---
+    // If/Elsewhen/Otherwise style
+    wire w: u8 = 0
+    when c1 {
+        w := a
+    } elsewhen c2 {
+        w := b
+    } otherwise {
+        w := c
+    }
+    y_when := w
+
+    // Nested Ternary style
+    y_ternary := c1 ? a : (c2 ? b : c)
+}
+
+sim TestWhenMuxEquivalence {
+    wire cond: bool = false
+    wire a: u8 = 100
+    wire b: u8 = 200
+    wire y_w: u8
+    wire y_t: u8
+    
+    wire sa: s16 = -1000
+    wire sb: s16 = 5000
+    wire sy_w: s16
+    wire sy_t: s16
+
+    MuxEquiv(cond, a, b, y_w, y_t, sa, sb, sy_w, sy_t)
+
+    // PHASE 1: Basic Equivalence (cond = false)
+    assert(y_w == b, "When: select b")
+    assert(y_t == b, "Ternary: select b")
+    assert(y_w == y_t, "u8 equivalence (F)")
+    
+    assert(sy_w == sb, "When signed: select sb")
+    assert(sy_t == sb, "Ternary signed: select sb")
+    assert(sy_w == sy_t, "s16 equivalence (F)")
+
+    // PHASE 2: Basic Equivalence (cond = true)
+    poke(cond, true)
+    assert(y_w == a, "When: select a")
+    assert(y_t == a, "Ternary: select a")
+    assert(y_w == y_t, "u8 equivalence (T)")
+    
+    assert(sy_w == sa, "When signed: select sa")
+    assert(sy_t == sa, "Ternary signed: select sa")
+    assert(sy_w == sy_t, "s16 equivalence (T)")
+
+    // PHASE 3: Nested Equivalence
+    wire c1: bool = false
+    wire c2: bool = false
+    wire na: u8 = 1
+    wire nb: u8 = 2
+    wire nc: u8 = 3
+    wire ny_w: u8
+    wire ny_t: u8
+
+    NestedMuxEquiv(c1, c2, na, nb, nc, ny_w, ny_t)
+
+    // (F, F) -> select nc (3)
+    assert(ny_w == 3, "Nested when (F,F)")
+    assert(ny_t == 3, "Nested ternary (F,F)")
+
+    // (F, T) -> select nb (2)
+    poke(c2, true)
+    assert(ny_w == 2, "Nested when (F,T)")
+    assert(ny_t == 2, "Nested ternary (F,T)")
+
+    // (T, T) -> select na (1) (Priority)
+    poke(c1, true)
+    assert(ny_w == 1, "Nested when (T,T)")
+    assert(ny_t == 1, "Nested ternary (T,T)")
+
+    // --- 4. Default Declaration Rule ---
+    // Verifying `wire y: u8 = 7; when en { y := x }` == `en ? x : 7`
+    wire en: bool = false
+    wire x_val: u8 = 99
+    wire y_decl: u8 = 7
+    when en {
+        y_decl := x_val
+    }
+    
+    assert(y_decl == 7, "Implicit default from declaration (F)")
+    
+    poke(en, true)
+    assert(y_decl == 99, "Explicit update in when (T)")
+    assert(y_decl == (en ? x_val : 7), "Equivalence to decl-based ternary")
+}

@@ -1,0 +1,66 @@
+// spec: §7.5 (Operator result rules), §8.3 (Scalar types - bool)
+// description: Comprehensive verification of logical short-circuit identities for 'and' and 'or'.
+// identities:
+//   - false and x == false
+//   - true  and x == x
+//   - true  or  x == true
+//   - false or  x == x
+// expect: pass
+
+sim TestBoolShortCircuit {
+    wire x_t: bool = true
+    wire x_f: bool = false
+
+    // --- 1. AND Short-Circuit Identities ---
+    // Rule: false is the absorbing element for AND.
+    assert((false and x_t) == false, "false and true = false")
+    assert((false and x_f) == false, "false and false = false")
+    
+    // Rule: true is the identity element for AND.
+    assert((true  and x_t) == true,  "true and true = true")
+    assert((true  and x_f) == false, "true and false = false")
+
+    // --- 2. OR Short-Circuit Identities ---
+    // Rule: true is the absorbing element for OR.
+    assert((true  or x_t) == true, "true or true = true")
+    assert((true  or x_f) == true, "true or false = true")
+
+    // Rule: false is the identity element for OR.
+    assert((false or x_t) == true,  "false or true = true")
+    assert((false or x_f) == false, "false or false = false")
+
+    // --- 3. Interaction with u1 ---
+    wire u1_x: u1 = 1
+    assert((0 as u1 and u1_x) == 0, "u1: 0 and 1 = 0")
+    assert((1 as u1 and u1_x) == 1, "u1: 1 and 1 = 1")
+    assert((1 as u1 or  u1_x) == 1, "u1: 1 or 1 = 1")
+    assert((0 as u1 or  u1_x) == 1, "u1: 0 or 1 = 1")
+
+    // --- 4. Nested Short-Circuit Chains ---
+    // (false and a and b) should be false immediately
+    wire a: bool = true
+    wire b: bool = true
+    assert((false and a and b) == false, "Nested AND short-circuit")
+    assert((true or a or b)    == true,  "Nested OR short-circuit")
+
+    // (a and true and b) should be (a and b)
+    assert((a and true and b) == (a and b), "Identity in chain")
+
+    // --- 5. Combinatorial Logic Simplification ---
+    // This verifies that the identities hold when terms are complex expressions
+    wire complex_true: bool = (10 > 5)
+    wire complex_false: bool = (2 + 2 == 5)
+    
+    assert((complex_false and (a or b)) == false, "Complex absorbing AND")
+    assert((complex_true  or  (a and b)) == true,  "Complex absorbing OR")
+
+    // --- 6. Order Independence (Commutativity of Identities) ---
+    assert((x_t and false) == false, "true and false = false (reversed)")
+    assert((x_f or  true)  == true,  "false or true = true (reversed)")
+
+    // --- 7. Multiple Contradictions ---
+    // false and true and false
+    assert((false and true and false) == false, "Multiple false in chain")
+    // true or false or true
+    assert((true or false or true) == true, "Multiple true in chain")
+}

@@ -1,0 +1,66 @@
+// spec: §7.1 (Ternary precedence), §9.4 (Ternary arms)
+// description: Comprehensive verification of the ternary identity law: cond ? x : x == x.
+// identity: The result of a ternary where both arms are identical must be the value of the arms.
+// expect: pass
+
+sim TestTernarySameValue {
+    // --- 1. Basic u8 Identity ---
+    wire x8: u8 = 42
+    wire cond: bool = true
+    
+    // Result should be 42 regardless of cond
+    assert((true  ? x8 : x8) == 42, "u8: literal true selects 42")
+    assert((false ? x8 : x8) == 42, "u8: literal false selects 42")
+    assert((cond  ? x8 : x8) == 42, "u8: wire true selects 42")
+    
+    // Changing condition at runtime
+    wire cond_f: bool = false
+    assert((cond_f ? x8 : x8) == 42, "u8: wire false selects 42")
+
+    // --- 2. Signed s16 Identity ---
+    wire sx16: s16 = -12345
+    assert((cond   ? sx16 : sx16) == -12345, "s16: identity check")
+    assert((cond_f ? sx16 : sx16) == -12345, "s16: identity check (false)")
+
+    // --- 3. Large Width u64 Identity ---
+    wire x64: u64 = 0xDEAD_BEEF_CAFE_BABE
+    assert((cond ? x64 : x64) == 0xDEAD_BEEF_CAFE_BABE, "u64: identity check")
+
+    // --- 4. Boolean Identity ---
+    wire bt: bool = true
+    wire bf: bool = false
+    assert((cond ? bt : bt) == true,  "bool(T): identity check")
+    assert((cond ? bf : bf) == false, "bool(F): identity check")
+
+    // --- 5. Complex Conditions ---
+    // The identity should hold even if the condition is a complex runtime expression
+    wire a: u8 = 10
+    wire b: u8 = 20
+    assert(((a > b) ? x8 : x8) == 42, "Complex condition (F) selects x")
+    assert(((a < b) ? x8 : x8) == 42, "Complex condition (T) selects x")
+
+    // --- 6. Type Metadata Verification ---
+    // The result type must match the arms' type.
+    wire res_u8 := cond ? x8 : x8
+    assert(width(res_u8) == 8, "Result width matches arms")
+    assert(is_signed(res_u8) == false, "Result signedness matches arms")
+
+    wire res_s16 := cond ? sx16 : sx16
+    assert(width(res_s16) == 16, "Result width matches arms (s16)")
+    assert(is_signed(res_s16) == true, "Result signedness matches arms (s16)")
+
+    // --- 7. Nested Identities ---
+    // cond1 ? (cond2 ? x : x) : x == x
+    wire cond2: bool = false
+    assert((cond ? (cond2 ? x8 : x8) : x8) == 42, "Nested ternary identity")
+
+    // --- 8. Boundary Values ---
+    wire s8_min: s8 = -128
+    wire s8_max: s8 = 127
+    assert((cond ? s8_min : s8_min) == -128, "s8 min identity")
+    assert((cond ? s8_max : s8_max) == 127,  "s8 max identity")
+
+    // --- 9. Comptime Literal Identity ---
+    // (Literal condition with literal values)
+    assert((true ? 100 : 100) == 100, "Comptime literal ternary identity")
+}

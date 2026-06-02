@@ -1,0 +1,94 @@
+// spec: §8.6 (Literals), §8.3 (Scalar types), §12.1 (Intrinsics)
+// description: Comprehensive verification of zero value initialization across all scalar types.
+// rule: The literal 0 must adapt to any hardware carrier, preserving the carrier's width and signedness.
+// expect: pass
+
+sim TestZeroValueAllTypes {
+    // --- 1. Unsigned Power-of-2 Zeros ---
+    wire z1: u1 = 0
+    assert(z1 == 0, "u1 is 0")
+    assert(width(z1) == 1, "u1 width")
+    assert(is_signed(z1) == false, "u1 is unsigned")
+
+    wire z8: u8 = 0
+    assert(z8 == 0, "u8 is 0")
+    assert(width(z8) == 8, "u8 width")
+
+    wire z16: u16 = 0
+    assert(z16 == 0, "u16 is 0")
+    assert(width(z16) == 16, "u16 width")
+
+    wire z32: u32 = 0
+    assert(z32 == 0, "u32 is 0")
+    assert(width(z32) == 32, "u32 width")
+
+    wire z64: u64 = 0
+    assert(z64 == 0, "u64 is 0")
+    assert(width(z64) == 64, "u64 width")
+
+    // --- 2. Signed Power-of-2 Zeros ---
+    wire zs8: s8 = 0
+    assert(zs8 == 0, "s8 is 0")
+    assert(width(zs8) == 8, "s8 width")
+    assert(is_signed(zs8) == true, "s8 is signed")
+
+    wire zs16: s16 = 0
+    assert(zs16 == 0, "s16 is 0")
+    assert(width(zs16) == 16, "s16 width")
+
+    wire zs32: s32 = 0
+    assert(zs32 == 0, "s32 is 0")
+
+    wire zs64: s64 = 0
+    assert(zs64 == 0, "s64 is 0")
+    assert(width(zs64) == 64, "s64 width")
+
+    // --- 3. Boolean Zero ---
+    wire zb: bool = false // 'false' is the semantic zero for bool
+    assert(zb == 0, "bool false is numeric 0")
+    assert(width(zb) == 1, "bool width is 1")
+    assert(is_signed(zb) == false, "bool is unsigned")
+
+    // --- 4. Non-Power-of-2 Width Zeros ---
+    wire zu3: u[3] = 0
+    assert(zu3 == 0, "u3 is 0")
+    assert(width(zu3) == 3, "u3 width is 3")
+
+    wire zs5: s[5] = 0
+    assert(zs5 == 0, "s5 is 0")
+    assert(width(zs5) == 5, "s5 width is 5")
+    assert(is_signed(zs5) == true, "s5 is signed")
+
+    // --- 5. Register Zero Initialization ---
+    reg r8: u8 = 0
+    reg rs16: s16 = 0
+    assert(r8 == 0, "u8 reg init 0")
+    assert(rs16 == 0, "s16 reg init 0")
+    
+    // Cycle and re-verify (ensuring reset value is 0)
+    cycle()
+    assert(r8 == 0, "u8 reg remains 0")
+    
+    // Mutate and reset
+    r8 <= 100
+    cycle()
+    assert(r8 == 100, "u8 reg mutated to 100")
+    reset()
+    assert(r8 == 0, "u8 reg reset to 0")
+
+    // --- 6. Identity Properties of Zero ---
+    // Verifying zero behavior in arithmetic for various types
+    assert(z8 + 0 == 0, "0 + 0 = 0")
+    assert(zs8 - 0 == 0, "0 - 0 = 0")
+    assert(z16 * 0 == 0, "0 * 0 = 0")
+    
+    // Zero as dividend
+    assert(0 / 10 == 0, "0 / 10 = 0")
+    assert(0 % 10 == 0, "0 % 10 = 0")
+
+    // --- 7. Comparison with Literal 0 ---
+    // Literal 0 should adapt to any comparison context
+    assert(z64 == 0, "u64 equality with literal 0")
+    assert(zs64 == 0, "s64 equality with literal 0")
+    assert(zu3 == 0, "u3 equality with literal 0")
+}

@@ -1,0 +1,68 @@
+// spec: §8.7 (Casts), §8.3 (Scalar types - bool)
+// description: Comprehensive verification of casting boolean values to numeric carriers.
+// rule: true -> 1, false -> 0 for all numeric types.
+// expect: pass
+
+sim TestCastBoolToNumeric {
+    // 1. Cast to Unsigned Types (u1, u8, u16, u32, u64)
+    wire t: bool = true
+    wire f: bool = false
+
+    // To u1 (Direct mapping)
+    assert(t as u1 == 1, "true as u1 = 1")
+    assert(f as u1 == 0, "false as u1 = 0")
+
+    // To u8 (Widening)
+    wire u8_t := t as u8
+    wire u8_f := f as u8
+    assert(u8_t == 1, "true as u8 = 1")
+    assert(u8_f == 0, "false as u8 = 0")
+    assert(width(u8_t) == 8, "width check u8")
+    assert(is_signed(u8_t) == false, "signedness check u8")
+
+    // To u16
+    assert(t as u16 == 1, "true as u16 = 1")
+    assert(f as u16 == 0, "false as u16 = 0")
+
+    // To u64 (Large widening)
+    assert(t as u64 == 1, "true as u64 = 1")
+    assert(f as u64 == 0, "false as u64 = 0")
+
+    // 2. Cast to Signed Types (s8, s16, s32, s64)
+    // Rule: Boolean true is always positive 1.
+    wire s8_t := t as s8
+    wire s8_f := f as s8
+    assert(s8_t == 1, "true as s8 = 1")
+    assert(s8_f == 0, "false as s8 = 0")
+    assert(width(s8_t) == 8, "width check s8")
+    assert(is_signed(s8_t) == true, "signedness check s8")
+
+    assert(t as s16 == 1, "true as s16 = 1")
+    assert(t as s64 == 1, "true as s64 = 1")
+
+    // 3. Round-trip Casts
+    // bool -> u8 -> bool
+    assert((u8_t as bool) == true, "u8(1) back to bool is true")
+    assert((u8_f as bool) == false, "u8(0) back to bool is false")
+
+    // 4. Expression Casting
+    // Casting the result of a logical expression
+    wire cond: bool = (10 > 5)
+    assert(cond as u8 == 1, "(10 > 5) as u8 = 1")
+    
+    wire complex_cond: bool = (true and false)
+    assert(complex_cond as s8 == 0, "(T and F) as s8 = 0")
+
+    // 5. Arithmetic with Casts
+    // Using bools in arithmetic by casting them
+    wire sum: u8 = (t as u8) + (t as u8) + (f as u8)
+    assert(sum == 2, "T + T + F (as u8) = 2")
+
+    // 6. Non-power-of-2 Widths
+    assert(t as u3 == 1, "true as u3 = 1")
+    assert(t as s5 == 1, "true as s5 = 1")
+
+    // 7. Literal Casting
+    assert(true as u8 == 1, "literal true as u8 = 1")
+    assert(false as s16 == 0, "literal false as s16 = 0")
+}

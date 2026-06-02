@@ -1,0 +1,63 @@
+// spec: §7.5 (Operator result rules)
+// description: Comprehensive test for modulo (%) behavior regarding signs.
+// rule: The sign of the result of (a % b) follows the sign of the dividend (a).
+// expect: pass
+
+sim TestModuloSign {
+    // 1. Positive Dividend, Positive Divisor -> Positive Result
+    wire p_a: s8 = 7
+    wire p_b: s8 = 3
+    assert(p_a % p_b == 1, "7 % 3 = 1")
+    
+    // 2. Positive Dividend, Negative Divisor -> Positive Result
+    wire n_b: s8 = -3
+    assert(p_a % n_b == 1, "7 % -3 = 1 (Sign follows dividend 7)")
+
+    // 3. Negative Dividend, Positive Divisor -> Negative Result
+    wire n_a: s8 = -7
+    assert(n_a % p_b == -1, "-7 % 3 = -1 (Sign follows dividend -7)")
+
+    // 4. Negative Dividend, Negative Divisor -> Negative Result
+    assert(n_a % n_b == -1, "-7 % -3 = -1 (Sign follows dividend -7)")
+
+    // 5. Zero Dividend
+    assert(0 % p_b == 0, "0 % 3 = 0")
+    assert(0 % n_b == 0, "0 % -3 = 0")
+
+    // 6. Large Values (s16, s64)
+    wire s16_a: s16 = 1000
+    wire s16_b: s16 = -333
+    // 1000 = (-333 * -3) + 1. Sign follows 1000.
+    assert(s16_a % s16_b == 1, "1000 % -333 = 1")
+
+    wire s64_a: s64 = -9223372036854775807
+    wire s64_b: s64 = 10
+    // Result should be -7.
+    assert(s64_a % s64_b == -7, "Large s64 modulo sign check")
+
+    // 7. Modulo Resulting in Zero
+    assert(12 % 4 == 0, "12 % 4 = 0")
+    assert(-12 % 4 == 0, "-12 % 4 = 0")
+    assert(12 % -4 == 0, "12 % -4 = 0")
+    assert(-12 % -4 == 0, "-12 % -4 = 0")
+
+    // 8. Identity: x % x and x % 1
+    wire val: s8 = 42
+    assert(val % val == 0, "x % x = 0")
+    assert(val % 1 == 0, "x % 1 = 0")
+    assert(val % -1 == 0, "x % -1 = 0")
+
+    // 9. Dividend smaller than Divisor
+    assert(3 % 7 == 3, "3 % 7 = 3")
+    assert(-3 % 7 == -3, "-3 % 7 = -3")
+    assert(3 % -7 == 3, "3 % -7 = 3")
+    assert(-3 % -7 == -3, "-3 % -7 = -3")
+
+    // 10. Width Check (max(L, R))
+    // u8 % u4 -> u8
+    wire u8_v: u8 = 255
+    wire u4_v: u4 = 10
+    wire u8_mod := u8_v % u4_v
+    assert(width(u8_mod) == 8, "u8 % u4 result width is 8")
+    assert(u8_mod == 5, "255 % 10 = 5")
+}

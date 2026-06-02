@@ -1,0 +1,129 @@
+// spec: §6.4 (when), §16 (Scheduling / implicit zero)
+// description: Comprehensive verification of multi-level nested 'when' blocks.
+// rule: Inner 'when' blocks are subject to the conditions of all enclosing 'when' blocks.
+// expect: pass
+
+component NestedWhen(
+    in c1: bool,
+    in c2: bool,
+    in c3: bool,
+    in a: u8,
+    in b: u8,
+    in c: u8,
+    in d: u8,
+    out y: u8
+) {
+    wire w: u8 = 42 // Absolute default
+
+    when c1 {
+        // Level 1: c1 is True
+        when c2 {
+            // Level 2: (c1 and c2) is True
+            w := a
+        } otherwise {
+            // Level 2: (c1 and not c2) is True
+            when c3 {
+                // Level 3: (c1 and not c2 and c3) is True
+                w := b
+            }
+            // else keeps level 1/root default
+        }
+    } elsewhen c3 {
+        // Level 1: (not c1 and c3) is True
+        w := c
+    } otherwise {
+        // Level 1: (not c1 and not c3) is True
+        when c2 {
+             // Level 2: (not c1 and not c3 and c2) is True
+             w := d
+        }
+        // else keeps absolute default 42
+    }
+
+    y := w
+}
+
+sim TestWhenNested {
+    wire c1: bool = false
+    wire c2: bool = false
+    wire c3: bool = false
+    wire a: u8 = 10
+    wire b: u8 = 20
+    wire c: u8 = 30
+    wire d: u8 = 40
+    wire y: u8
+
+    NestedWhen(c1, c2, c3, a, b, c, d, y)
+
+    // PATH 1: Root Default (F, F, F)
+    assert(y == 42, "(F,F,F) -> Absolute default")
+
+    // PATH 2: Level 1 Otherwise -> Level 2 (F, T, F)
+    poke(c2, true)
+    assert(y == d, "(F,T,F) -> d (40)")
+
+    // PATH 3: Level 1 Elsewhen (F, F, T)
+    poke(c2, false)
+    poke(c3, true)
+    assert(y == c, "(F,F,T) -> c (30)")
+
+    // PATH 4: Level 1 Elsewhen (Priority check) (F, T, T)
+    // (not c1 and c3) takes priority over the otherwise->when(c2)
+    poke(c2, true)
+    assert(y == c, "(F,T,T) -> c (30) [Priority]")
+
+    // PATH 5: Level 1 Primary -> Level 2 Primary (T, T, F)
+    poke(c1, true)
+    poke(c3, false)
+    assert(y == a, "(T,T,F) -> a (10)")
+
+    // PATH 6: Level 1 Primary -> Level 2 Otherwise -> Level 3 (T, F, T)
+    poke(c2, false)
+    poke(c3, true)
+    assert(y == b, "(T,F,T) -> b (20)")
+
+    // PATH 7: Level 1 Primary -> Level 2 Otherwise -> Level 3 False (T, F, F)
+    poke(c3, false)
+    assert(y == 42, "(T,F,F) -> Absolute default (No matching inner arm)")
+
+    // --- Extra: Partial Assignment Nesting ---
+    // Verifying that inner 'when' only drives its target if the outer 'when' is also true.
+    wire inner_out: u8 = 7
+    wire cond_out: bool = false
+    wire cond_in: bool = true
+    
+    when cond_out {
+        when cond_in {
+            inner_out := 99
+        }
+    }
+    
+    assert(inner_out == 7, "Inner when ignored because outer when is false")
+    
+    poke(cond_out, true)
+    assert(inner_out == 99, "Inner when active because outer when is true")
+
+    // --- Extra: Register Nesting ---
+    reg r8: u8 = 0
+    when c1 {
+        when c2 {
+            r8 <= 100
+        }
+        // no else
+    }
+    
+    // (T, T) -> updates
+    cycle()
+    assert(r8 == 100, "Nested reg updated")
+    
+    // (T, F) -> holds
+    poke(c2, false)
+    cycle()
+    assert(r8 == 100, "Nested reg holds (inner false)")
+    
+    // (F, T) -> holds
+    poke(c1, false)
+    poke(c2, true)
+    cycle()
+    assert(r8 == 100, "Nested reg holds (outer false)")
+}

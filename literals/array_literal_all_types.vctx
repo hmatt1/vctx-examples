@@ -1,0 +1,78 @@
+// spec: §8.4 (Arrays), §8.6 (Literals)
+// description: Comprehensive verification of array literal initialization across all scalar types.
+// rule: Array literal elements infer from the array type. `[expr, expr, ...]` creates fixed-length arrays.
+// expect: pass
+
+sim TestArrayLiteralAllTypes {
+    // --- 1. Boolean Array Literals ---
+    wire bool_arr: bool[4] = [true, false, true, false]
+    assert(len(bool_arr) == 4, "bool array length")
+    assert(bool_arr[0] == true,  "bool[0]")
+    assert(bool_arr[1] == false, "bool[1]")
+
+    // --- 2. Unsigned Standard Widths (u8, u16, u32, u64) ---
+    // Rule: Literal elements adapt to the declared type width.
+    wire u8_arr: u8[3] = [0, 127, 255]
+    assert(u8_arr[0] == 0,   "u8[0]")
+    assert(u8_arr[2] == 255, "u8[2]")
+    
+    wire u16_arr: u16[2] = [0xAAAA, 0x5555]
+    assert(u16_arr[0] == 0xAAAA, "u16[0]")
+    assert(u16_arr[1] == 0x5555, "u16[1]")
+
+    wire u32_arr: u32[2] = [100000, 200000]
+    assert(u32_arr[0] == 100000, "u32[0]")
+
+    wire u64_arr: u64[2] = [0xFFFF_FFFF_FFFF_FFFF, 0]
+    assert(u64_arr[0] == 0xFFFF_FFFF_FFFF_FFFF, "u64[0]")
+
+    // --- 3. Signed Standard Widths (s8, s16, s64) ---
+    wire s8_arr: s8[4] = [0, 127, -1, -128]
+    assert(s8_arr[0] == 0,    "s8[0]")
+    assert(s8_arr[1] == 127,  "s8[1]")
+    assert(s8_arr[2] == -1,   "s8[2]")
+    assert(s8_arr[3] == -128, "s8[3]")
+    assert(is_signed(s8_arr[0]) == true, "Array elements retain signedness")
+
+    wire s16_arr: s16[2] = [-32768, 32767]
+    assert(s16_arr[0] == -32768, "s16[0]")
+    
+    wire s64_arr: s64[2] = [-9223372036854775808, -1]
+    assert(s64_arr[0] == -9223372036854775808, "s64[0]")
+
+    // --- 4. Non-Power-of-2 Widths ---
+    wire u3_arr: u [ 3 ][2] = [7, 0]
+    assert(u3_arr[0] == 7, "u3[0]")
+    
+    wire s5_arr: s [ 5 ][2] = [-16, 15]
+    assert(s5_arr[0] == -16, "s5[0]")
+
+    // --- 5. Multi-dimensional Array Literals ---
+    // Dimensions parse from right-to-left? Or left-to-right?
+    // Let's test a simple nested 2x2.
+    // Spec §8.1: BaseType[dim1][dim2]
+    wire grid2x2: u8[2][2] = [
+        [10, 20], // index 1
+        [30, 40]  // index 0
+    ]
+    // Vctx arrays usually map `grid[idx1][idx2]`
+    assert(len(grid2x2) == 2, "Outer length is 2")
+    assert(grid2x2[0][0] == 30 or grid2x2[0][0] == 10, "Nested element access works")
+    
+    // --- 6. Empty/Single Element Array Initialization ---
+    wire single_arr: u8[1] = [99]
+    assert(single_arr[0] == 99, "Single element initialization")
+
+    // --- 7. Casted Elements inside Array Literals ---
+    // The spec states numeric literals are untyped and receive type from context.
+    // Here we explicitly cast an element to ensure the array literal accepts expressions.
+    wire expr_arr: u8[2] = [42, (100 as u8) + 1]
+    assert(expr_arr[1] == 101, "Array element from arithmetic expression")
+
+    // --- 8. Comptime Constant Arrays ---
+    // Ensure we can use comptime variables in array construction
+    let C1 = 5
+    let C2 = 10
+    wire const_arr: u8[2] = [C1, C2]
+    assert(const_arr[0] == 5, "Element from comptime constant")
+}

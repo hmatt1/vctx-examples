@@ -1,0 +1,104 @@
+// spec: §10.3 (Int generics), §8.1 (Type grammar), §12.1 (width builtin)
+// description: Comprehensive verification of generic bit-width specialization for all standard and odd sizes.
+// rule: Component<Int N> allows ports and wires to be dimensioned by the generic parameter N.
+// expect: pass
+
+// A generic component whose input and output ports are exactly N bits wide.
+component WidthWrapper<Int N>(
+    in d: u[N],
+    out q: u[N]
+) {
+    // Internal wire with the same generic width
+    wire internal_w: u[N] = d
+    q := internal_w
+}
+
+// A generic function that returns its own specialized width as an Int.
+function get_specialized_width<Int W>(val: u[W]) -> Int {
+    return width(val)
+}
+
+sim TestGenericWidthStandardSizes {
+    // --- 1. Power-of-2 Standard Sizes ---
+    
+    // u1
+    wire d1: u1 = 1
+    wire q1: u1
+    WidthWrapper<1>(d1, q1)
+    assert(width(q1) == 1, "Width 1 verified")
+    assert(q1 == 1, "Value preserved in u1")
+
+    // u2
+    wire d2: u2 = 3
+    wire q2: u2
+    WidthWrapper<2>(d2, q2)
+    assert(width(q2) == 2, "Width 2 verified")
+
+    // u4
+    wire d4: u4 = 0xF
+    wire q4: u4
+    WidthWrapper<4>(d4, q4)
+    assert(width(q4) == 4, "Width 4 verified")
+
+    // u8
+    wire d8: u8 = 0xAA
+    wire q8: u8
+    WidthWrapper<8>(d8, q8)
+    assert(width(q8) == 8, "Width 8 verified")
+
+    // u16
+    wire d16: u16 = 0xBEEF
+    wire q16: u16
+    WidthWrapper<16>(d16, q16)
+    assert(width(q16) == 16, "Width 16 verified")
+
+    // u32
+    wire d32: u32 = 0xDEADBEEF
+    wire q32: u32
+    WidthWrapper<32>(d32, q32)
+    assert(width(q32) == 32, "Width 32 verified")
+
+    // u64
+    wire d64: u64 = 0x0123456789ABCDEF
+    wire q64: u64
+    WidthWrapper<64>(d64, q64)
+    assert(width(q64) == 64, "Width 64 verified")
+
+    // --- 2. Non-Standard (Odd) Sizes ---
+    
+    // u3
+    wire d3: u3 = 7
+    wire q3: u3
+    WidthWrapper<3>(d3, q3)
+    assert(width(q3) == 3, "Width 3 verified")
+
+    // u7
+    wire d7: u[7] = 127
+    wire q7: u[7]
+    WidthWrapper<7>(d7, q7)
+    assert(width(q7) == 7, "Width 7 verified")
+
+    // u31
+    wire d31: u[31] = 0x7FFFFFFF
+    wire q31: u[31]
+    WidthWrapper<31>(d31, q31)
+    assert(width(q31) == 31, "Width 31 verified")
+
+    // --- 3. Function Specialization Width ---
+    assert(get_specialized_width<8>(d8) == 8, "Function specialized to 8")
+    assert(get_specialized_width<64>(d64) == 64, "Function specialized to 64")
+    assert(get_specialized_width<3>(d3) == 3, "Function specialized to 3")
+
+    // --- 4. Math on Generic Parameters ---
+    // Instantiating with an expression (N = 4+4)
+    wire d8_math: u8 = 0
+    wire q8_math: u8
+    WidthWrapper<(4 + 4)>(d8_math, q8_math)
+    assert(width(q8_math) == 8, "Width 4+4 = 8 verified")
+
+    // --- 5. Independence of Instances ---
+    // Ensuring that instantiating different widths doesn't cause collision
+    assert(width(q1) !== width(q64), "Different instances have different widths")
+    assert(width(q8) == 8, "q8 remains 8 bits")
+    assert(width(q16) == 16, "q16 remains 16 bits")
+}

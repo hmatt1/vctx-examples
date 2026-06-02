@@ -1,0 +1,66 @@
+// spec: §7.5 (Operator result rules), §8.3 (Scalar types - bool)
+// description: Exhaustive verification of truth tables for logical and bitwise operators on bool/u1.
+// expect: pass
+
+sim TestBoolTruthTable {
+    // --- 1. Logical AND (and) ---
+    assert((false and false) == false, "F and F = F")
+    assert((false and true)  == false, "F and T = F")
+    assert((true  and false) == false, "T and F = F")
+    assert((true  and true)  == true,  "T and T = T")
+
+    // --- 2. Logical OR (or) ---
+    assert((false or false) == false, "F or F = F")
+    assert((false or true)  == true,  "F or T = T")
+    assert((true  or false) == true,  "T or F = T")
+    assert((true  or true)  == true,  "T or T = T")
+
+    // --- 3. Logical NOT (not) ---
+    assert((not false) == true,  "not F = T")
+    assert((not true)  == false, "not T = F")
+    assert((not not true) == true, "Double negation")
+
+    // --- 4. Equality (==) and Inequality (!==) ---
+    assert((true  == true)  == true,  "T == T is T")
+    assert((true  == false) == false, "T == F is F")
+    assert((false == false) == true,  "F == F is T")
+    assert((true  !== false) == true,  "T !== F is T")
+    assert((true  !== true)  == false, "T !== T is F")
+
+    // --- 5. Bitwise Operators on bool (interpreted as u1) ---
+    // & (AND), | (OR), ^ (XOR), ~ (NOT/INV)
+    assert((true  & true)  == true,  "T & T = T")
+    assert((true  | false) == true,  "T | F = T")
+    assert((true  ^ true)  == false, "T ^ T = F (XOR)")
+    assert((true  ^ false) == true,  "T ^ F = T (XOR)")
+    assert((false ^ false) == false, "F ^ F = F (XOR)")
+    assert((~true)  == false as u1, "~T = F (as u1)")
+    assert((~false) == true as u1,  "~F = T (as u1)")
+
+    // --- 6. u1 Interop ---
+    wire u1_zero: u1 = 0
+    wire u1_one: u1 = 1
+    assert(u1_zero == false, "u1(0) == false")
+    assert(u1_one  == true,  "u1(1) == true")
+    
+    wire b_from_u1: bool = u1_one as bool
+    assert(b_from_u1 == true, "bool from u1(1) cast")
+
+    // --- 7. Complex Logical Expressions (Precedence) ---
+    // 'not' has higher precedence than 'and', 'and' higher than 'or'
+    // not a or b == (not a) or b
+    assert((not true or true) == true, "not T or T -> (not T) or T -> F or T -> T")
+    assert((not (true or true)) == false, "not (T or T) -> not T -> F")
+    
+    // a or b and c == a or (b and c)
+    assert((false or true and false) == false, "F or T and F -> F or (T and F) -> F or F -> F")
+    assert(((false or true) and false) == false, "(F or T) and F -> T and F -> F")
+
+    // --- 8. Multi-input Logic ---
+    wire a: bool = true
+    wire b: bool = true
+    wire c: bool = false
+    assert((a and b and c) == false, "T and T and F = F")
+    assert((a or b or c)   == true,  "T or T or F = T")
+    assert((a ^ b ^ c)     == false, "T ^ T ^ F -> F ^ F -> F")
+}

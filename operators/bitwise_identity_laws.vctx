@@ -1,0 +1,76 @@
+// spec: §7.5 (Operator result rules - Bitwise)
+// description: Comprehensive verification of bitwise algebraic identity laws.
+// identities: Idempotence, Identity, Null, Complement, and Double Negation.
+// expect: pass
+
+sim TestBitwiseIdentityLaws {
+    // --- 1. 8-bit Unsigned Identities (u8) ---
+    wire x8: u8 = 0b1010_1100 // 0xAC
+    wire zero8: u8 = 0
+    wire ones8: u8 = 0xFF
+
+    // Idempotence
+    assert((x8 & x8) == x8, "u8: x & x = x")
+    assert((x8 | x8) == x8, "u8: x | x = x")
+    
+    // Identity Elements
+    assert((x8 & ones8) == x8, "u8: x & 0xFF = x")
+    assert((x8 | zero8) == x8, "u8: x | 0 = x")
+    assert((x8 ^ zero8) == x8, "u8: x ^ 0 = x")
+
+    // Null / Absorbing Elements
+    assert((x8 & zero8) == 0,    "u8: x & 0 = 0")
+    assert((x8 | ones8) == ones8, "u8: x | 0xFF = 0xFF")
+
+    // Self-Inverse / Complement
+    assert((x8 ^ x8) == 0,     "u8: x ^ x = 0")
+    assert((x8 & (~x8)) == 0,  "u8: x & ~x = 0")
+    assert((x8 | (~x8)) == ones8, "u8: x | ~x = 0xFF")
+    assert((x8 ^ ones8) == (~x8), "u8: x ^ 0xFF = ~x")
+
+    // Double Negation
+    assert((~(~x8)) == x8, "u8: ~(~x) = x")
+
+    // --- 2. 16-bit Signed Identities (s16) ---
+    // Rule: Bitwise ops on signed treat them as bit patterns.
+    wire sx16: s16 = -42
+    wire szero16: s16 = 0
+    wire sones16: s16 = -1 // 0xFFFF
+
+    assert((sx16 & sx16) == sx16, "s16: idempotence AND")
+    assert((sx16 | szero16) == sx16, "s16: identity OR")
+    assert((sx16 ^ sx16) == 0, "s16: self-inverse XOR")
+    assert((sx16 | sones16) == -1, "s16: absorbing OR (-1)")
+    assert((sx16 & sones16) == sx16, "s16: identity AND (-1)")
+    assert((~(~sx16)) == sx16, "s16: double negation")
+
+    // --- 3. 64-bit Extremes (u64) ---
+    wire x64: u64 = 0xDEAD_BEEF_CAFE_BABE
+    wire ones64: u64 = 0xFFFF_FFFF_FFFF_FFFF
+    assert((x64 ^ x64) == 0, "u64: x ^ x = 0")
+    assert((x64 | ones64) == ones64, "u64: x | ones = ones")
+    assert((~(~x64)) == x64, "u64: double negation")
+
+    // --- 4. Boolean / 1-bit interop ---
+    wire bt: bool = true
+    wire bf: bool = false
+    // bool behaves as u1 for bitwise operators
+    assert((bt & bt) == true,  "bool: T & T = T")
+    assert((bt | bf) == true,  "bool: T | F = T")
+    assert((bt ^ bt) == false, "bool: T ^ T = F")
+    assert((bt ^ bf) == true,  "bool: T ^ F = T")
+    assert((~bt) == false as u1, "bool: ~T = F (as u1)")
+
+    // --- 5. Complex Commutative/Associative Identities ---
+    // (a & b) | (a & ~b) == a
+    wire a: u8 = 0xCC // 1100_1100
+    wire b: u8 = 0xAA // 1010_1010
+    wire res := (a & b) | (a & (~b))
+    assert(res == a, "Bitwise simplification: (a&b)|(a&~b) = a")
+
+    // --- 6. Interaction with Literal Inference ---
+    // Verify that literal 0/ones adapt to width
+    assert((x8 & 0) == 0, "u8 & literal 0")
+    assert((x8 | 0xFF) == 0xFF, "u8 | literal 0xFF")
+    assert((x8 ^ 0) == x8, "u8 ^ literal 0")
+}

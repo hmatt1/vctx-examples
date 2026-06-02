@@ -1,0 +1,101 @@
+// spec: §7.1 (Ternary precedence / Right-associativity), §9.4 (Ternary arms)
+// description: Comprehensive verification of nested ternary expressions and right-associativity.
+// rule: Ternary is right-associative: a ? b : c ? d : e == a ? b : (c ? d : e)
+// expect: pass
+
+sim TestTernaryNested {
+    // --- 1. Basic Nested Ternary (False-arm nesting) ---
+    // Rule: a ? b : (c ? d : e)
+    wire c1: bool = false
+    wire c2: bool = true
+    wire a: u8 = 1
+    wire b: u8 = 2
+    wire c: u8 = 3
+    
+    // (F, T) -> Should select 'b' (2)
+    wire res1 := c1 ? a : (c2 ? b : c)
+    assert(res1 == 2, "Nested ternary: false ? a : (true ? b : c) = b")
+
+    // (F, F) -> Should select 'c' (3)
+    poke(c2, false)
+    assert((c1 ? a : (c2 ? b : c)) == 3, "Nested ternary: false ? a : (false ? b : c) = c")
+
+    // (T, F) -> Should select 'a' (1)
+    poke(c1, true)
+    assert((c1 ? a : (c2 ? b : c)) == 1, "Nested ternary: true ? a : (...) = a")
+
+    // --- 2. Verification of Right-Associativity ---
+    // Rule: a ? b : c ? d : e is parsed as a ? b : (c ? d : e)
+    // If (F, T, F) -> false ? 10 : true ? 20 : 30
+    // Right-assoc: false ? 10 : (true ? 20 : 30) -> (true ? 20 : 30) -> 20
+    // Left-assoc (Hypothetical): (false ? 10 : true) ? 20 : 30 -> (true) ? 20 : 30 -> 20
+    // Actually, if (F, F, T) -> false ? 10 : false ? 20 : 30
+    // Right-assoc: false ? 10 : (false ? 20 : 30) -> (false ? 20 : 30) -> 30
+    // Left-assoc: (false ? 10 : false) ? 20 : 30 -> (false) ? 20 : 30 -> 30
+    // Wait, let's find a case where order matters.
+    // If we use mixed result types that wouldn't fit in a bool condition:
+    // a ? b : c ? d : e
+    // If d, e are u8, then (c ? d : e) is u8.
+    // So a ? b : u8_expr -> b and u8_expr must match.
+    
+    wire ra := false ? 10 as u8 : (false ? 20 as u8 : 30 as u8)
+    wire rb := false ? 10 as u8 :  false ? 20 as u8 : 30 as u8
+    assert(ra == 30, "Right-assoc explicit")
+    assert(rb == 30, "Right-assoc implicit")
+    assert(ra == rb, "Implicit matches explicit right-associativity")
+
+    // --- 3. True-arm Nesting ---
+    // Pattern: a ? (b ? c : d) : e
+    wire tc1: bool = true
+    wire tc2: bool = false
+    wire tv_c: u8 = 100
+    wire tv_d: u8 = 150
+    wire tv_e: u8 = 200
+    
+    // (T, F) -> Should select tv_d (150)
+    assert((tc1 ? (tc2 ? tv_c : tv_d) : tv_e) == 150, "True-arm nesting: (T, F) selects d")
+    
+    // (T, T) -> Should select tv_c (100)
+    poke(tc2, true)
+    assert((tc1 ? (tc2 ? tv_c : tv_d) : tv_e) == 100, "True-arm nesting: (T, T) selects c")
+    
+    // (F, T) -> Should select tv_e (200)
+    poke(tc1, false)
+    assert((tc1 ? (tc2 ? tv_c : tv_d) : tv_e) == 200, "True-arm nesting: (F, T) selects e")
+
+    // --- 4. Deeply Nested (3 levels) ---
+    // a ? b : (c ? d : (e ? f : g))
+    wire v1: u8 = 10
+    wire v2: u8 = 20
+    wire v3: u8 = 30
+    wire v4: u8 = 40
+    
+    wire deep := false ? v1 : (false ? v2 : (true ? v3 : v4))
+    assert(deep == 30, "Deep nesting selection")
+
+    // --- 5. Nested Signed Ternaries ---
+    wire s_c1: bool = true
+    wire s_c2: bool = false
+    wire s_a: s16 = -100
+    wire s_b: s16 = -200
+    wire s_c: s16 = -300
+    
+    // (T, F) -> Should select s_a (since we nest in false arm)
+    // Wait, if it's s_c1 ? s_a : (s_c2 ? s_b : s_c)
+    assert((s_c1 ? s_a : (s_c2 ? s_b : s_c)) == -100, "Signed nested (T) selects a")
+    
+    poke(s_c1, false)
+    // (F, F) -> selects s_c
+    assert((s_c1 ? s_a : (s_c2 ? s_b : s_c)) == -300, "Signed nested (F,F) selects c")
+
+    // --- 6. Type Metadata Check ---
+    wire res_type := c1 ? (c2 ? a : b) : c
+    assert(width(res_type) == 8, "Nested result width matches arms")
+    assert(is_signed(res_type) == false, "Nested result signedness matches arms")
+
+    // --- 7. Boolean Nested Logic ---
+    // Effectively a complex logical expression
+    wire b_res := tc1 ? (tc2 ? true : false) : true
+    // (F, T) -> selects true
+    assert(b_res == true, "Boolean nested ternary")
+}
