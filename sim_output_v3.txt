@@ -1,8 +1,0 @@
-Running all simulations in project...
-[E_SIM_PRECHECK_FAILED]
-Bail out! Simulation precheck failed.
-Static check codes: [E_WIDTH_MISMATCH]
-intrinsics.width_drives_generic_param [11:9] [E_WIDTH_MISMATCH] Width mismatch: LHS is u[W], RHS is u1. Widths must match for assignment.
-
-Compilation aborted: Found 1 error(s) across the project files. Please fix them before simulating.
-Finished in 105.40s
