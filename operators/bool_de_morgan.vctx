@@ -50,8 +50,8 @@ sim TestBoolDeMorgan {
 
     // --- 6. Nested Logic Stress ---
     // not (a and (b or c)) == (not a) or (not b and not c)
-    wire res_lhs := not (a and (b or c))
-    wire res_rhs := (not a) or (not b and not c)
+    wire res_lhs: u8 = not (a and (b or c))
+    wire res_rhs: u8 = (not a) or (not b and not c)
     assert(res_lhs == res_rhs, "Complex Nested De Morgan")
 
     // --- 7. Identity with True/False ---

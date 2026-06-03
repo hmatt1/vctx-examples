@@ -1,0 +1,29 @@
+Running all simulations in project...
+[E_SIM_PRECHECK_FAILED]
+Bail out! Simulation precheck failed.
+Static check codes: [E_TYPE_SIGN_MISMATCH] [E_WIDTH_MISMATCH]
+literals.literal_type_inference [67:10] [E_TYPE_SIGN_MISMATCH] Signedness mismatch: cannot assign s9 to u9 without an explicit cast.
+operators.bitwise_commutativity [23:10] [E_TYPE_SIGN_MISMATCH] Signedness mismatch: cannot assign u8 to s8 without an explicit cast.
+operators.bitwise_masks_patterns [18:10] [E_WIDTH_MISMATCH] Width mismatch after specialization: LHS (u8) is narrower than RHS (u16); assignment would truncate. Use an explicit cast or fix types.
+operators.bitwise_masks_patterns [19:10] [E_WIDTH_MISMATCH] Width mismatch after specialization: LHS (u8) is narrower than RHS (u16); assignment would truncate. Use an explicit cast or fix types.
+operators.bitwise_masks_patterns [25:10] [E_WIDTH_MISMATCH] Width mismatch after specialization: LHS (u8) is narrower than RHS (u32); assignment would truncate. Use an explicit cast or fix types.
+operators.bitwise_masks_patterns [40:10] [E_WIDTH_MISMATCH] Width mismatch after specialization: LHS (u8) is narrower than RHS (u16); assignment would truncate. Use an explicit cast or fix types.
+operators.bitwise_masks_patterns [41:10] [E_WIDTH_MISMATCH] Width mismatch after specialization: LHS (u8) is narrower than RHS (u16); assignment would truncate. Use an explicit cast or fix types.
+operators.bitwise_masks_patterns [53:10] [E_WIDTH_MISMATCH] Width mismatch after specialization: LHS (u32) is narrower than RHS (u64); assignment would truncate. Use an explicit cast or fix types.
+operators.bitwise_masks_patterns [54:10] [E_WIDTH_MISMATCH] Width mismatch after specialization: LHS (u32) is narrower than RHS (u64); assignment would truncate. Use an explicit cast or fix types.
+operators.bitwise_set_clear_toggle [10:10] [E_TYPE_SIGN_MISMATCH] Signedness mismatch: cannot assign u8 to s8 without an explicit cast.
+operators.bitwise_set_clear_toggle [14:10] [E_TYPE_SIGN_MISMATCH] Signedness mismatch: cannot assign u8 to s8 without an explicit cast.
+operators.bitwise_set_clear_toggle [18:10] [E_TYPE_SIGN_MISMATCH] Signedness mismatch: cannot assign u8 to s8 without an explicit cast.
+operators.bitwise_set_clear_toggle [67:10] [E_WIDTH_MISMATCH] Width mismatch after specialization: LHS (s8) is narrower than RHS (u64); assignment would truncate. Use an explicit cast or fix types.
+operators.bitwise_set_clear_toggle [70:10] [E_WIDTH_MISMATCH] Width mismatch after specialization: LHS (u8) is narrower than RHS (u64); assignment would truncate. Use an explicit cast or fix types.
+operators.cast_bool_to_numeric [58:10] [E_WIDTH_MISMATCH] Width mismatch after specialization: LHS (u8) is narrower than RHS (u9); assignment would truncate. Use an explicit cast or fix types.
+operators.concat_extract_roundtrip [58:10] [E_TYPE_SIGN_MISMATCH] Signedness mismatch: cannot assign s8 to u8 without an explicit cast.
+operators.concat_extract_roundtrip [59:10] [E_TYPE_SIGN_MISMATCH] Signedness mismatch: cannot assign s8 to u8 without an explicit cast.
+operators.concat_standard_pairs [75:10] [E_WIDTH_MISMATCH] Width mismatch after specialization: LHS (u8) is narrower than RHS (u16); assignment would truncate. Use an explicit cast or fix types.
+operators.shift_left_multiply_equiv [50:10] [E_TYPE_SIGN_MISMATCH] Signedness mismatch: cannot assign u8 to s8 without an explicit cast.
+operators.shift_left_multiply_equiv [67:10] [E_WIDTH_MISMATCH] Width mismatch after specialization: LHS (u64) is narrower than RHS (u97); assignment would truncate. Use an explicit cast or fix types.
+operators.slice_at_all_positions [72:10] [E_WIDTH_MISMATCH] Width mismatch after specialization: LHS (u8) is narrower than RHS (u16); assignment would truncate. Use an explicit cast or fix types.
+operators.ternary_all_types [84:10] [E_TYPE_SIGN_MISMATCH] Signedness mismatch: cannot assign s8 to u8 without an explicit cast.
+
+Compilation aborted: Found 22 error(s) across the project files. Please fix them before simulating.
+Finished in 132.89s

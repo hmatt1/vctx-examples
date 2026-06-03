@@ -115,7 +115,7 @@ sim TestRegAllScalarTypes {
     assert(bo == false, "bool reset")
     assert(u8o == 0,    "u8 reset")
     assert(u64o == 0,   "u64 reset")
-    assert(s8o == 0,    "s8 reset")
+    assert(s8o == 0,    "val_s8 reset")
 
     // --- PHASE 2: Load Pattern 1 (Values) ---
     poke(load, true)
@@ -142,8 +142,8 @@ sim TestRegAllScalarTypes {
     assert(u16o == 0xCAFE, "u16 latched")
     assert(u32o == 3735928559, "u32 latched")
     assert(u64o == 0x0123456789ABCDEF, "u64 latched")
-    assert(s8o == -42, "s8 latched")
-    assert(s16o == -1000, "s16 latched")
+    assert(s8o == -42, "val_s8 latched")
+    assert(s16o == -1000, "val_s16 latched")
     assert(s32o == -2000000000, "s32 latched")
     assert(s64o == -9000000000000000000, "s64 latched")
     assert(u7o == 127, "u7 latched")
@@ -159,7 +159,7 @@ sim TestRegAllScalarTypes {
     
     assert(bo == true, "bool held")
     assert(u8o == 0xAA, "u8 held")
-    assert(s8o == -42, "s8 held")
+    assert(s8o == -42, "val_s8 held")
     assert(u64o == 0x0123456789ABCDEF, "u64 held")
 
     // --- PHASE 4: Pattern 2 (Flip bits) ---
@@ -169,11 +169,11 @@ sim TestRegAllScalarTypes {
     cycle()
     
     assert(u8o == 0x55, "u8 updated to 0x55")
-    assert(s8o == 42,   "s8 updated to 42")
+    assert(s8o == 42,   "val_s8 updated to 42")
 
     // --- PHASE 5: Global Reset ---
     reset()
     assert(bo == false, "bool restored")
     assert(u8o == 0,    "u8 restored")
-    assert(s8o == 0,    "s8 restored")
+    assert(s8o == 0,    "val_s8 restored")
 }

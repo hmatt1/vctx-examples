@@ -14,15 +14,15 @@ sim TestBitwiseCommutativity {
     assert((a8 | b8) == (b8 | a8), "u8: a | b == b | a")
     assert((a8 ^ b8) == (b8 ^ a8), "u8: a ^ b == b ^ a")
 
-    // --- 2. Commutativity with Mixed Signedness (u8 vs s8) ---
+    // --- 2. Commutativity with Mixed Signedness (u8 vs val_s8) ---
     // Rule: Promote to signed (Width+1) if any operand is signed.
     wire u8_val: u8 = 0x80 // 128
     wire s8_val: s8 = -1   // 0xFF
     
-    // (u8 & s8) vs (s8 & u8)
-    wire res_us := u8_val & s8_val
-    wire res_su := s8_val & u8_val
-    assert(res_us == res_su, "Mixed: u8 & s8 == s8 & u8")
+    // (u8 & val_s8) vs (val_s8 & u8)
+    wire res_us: s8 = (u8_val & s8_val) as s8
+    wire res_su: s8 = (s8_val & u8_val) as s8
+    assert(res_us == res_su, "Mixed: u8 & val_s8 == val_s8 & u8")
     assert(width(res_us) == 8, "Mixed width check (max of 8, 8)")
     assert(is_signed(res_us) == true, "Mixed sign check (signed wins)")
 
@@ -66,8 +66,8 @@ sim TestBitwiseCommutativity {
 
     // --- 8. Order-Independent Type Resolution ---
     // Confirming that the specialized type doesn't care about order
-    wire check1 := u8_val ^ s8_val
-    wire check2 := s8_val ^ u8_val
+    wire check1: u8 = u8_val ^ s8_val
+    wire check2: u8 = s8_val ^ u8_val
     assert(is_signed(check1) == is_signed(check2), "Symmetric signedness")
     assert(width(check1) == width(check2), "Symmetric width")
 }

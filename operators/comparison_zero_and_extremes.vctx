@@ -4,34 +4,34 @@
 // expect: pass
 
 sim TestComparisonZeroAndExtremes {
-    // --- 1. Signed 8-bit (s8) ---
+    // --- 1. Signed 8-bit (val_s8) ---
     wire s8_0: s8 = 0
     wire s8_min: s8 = -128
     wire s8_max: s8 = 127
     
-    assert(s8_min < s8_0,   "s8: min < 0")
-    assert(s8_min < s8_max, "s8: min < max")
-    assert(s8_0 < s8_max,   "s8: 0 < max")
+    assert(s8_min < s8_0,   "val_s8: min < 0")
+    assert(s8_min < s8_max, "val_s8: min < max")
+    assert(s8_0 < s8_max,   "val_s8: 0 < max")
     
-    assert(s8_max > s8_0,   "s8: max > 0")
-    assert(s8_max > s8_min, "s8: max > min")
-    assert(s8_0 > s8_min,   "s8: 0 > min")
+    assert(s8_max > s8_0,   "val_s8: max > 0")
+    assert(s8_max > s8_min, "val_s8: max > min")
+    assert(s8_0 > s8_min,   "val_s8: 0 > min")
     
     // Boundary offsets
     wire s8_min_plus_1: s8 = -127
     wire s8_max_minus_1: s8 = 126
-    assert(s8_min < s8_min_plus_1, "s8: min < min+1")
-    assert(s8_max > s8_max_minus_1, "s8: max > max-1")
+    assert(s8_min < s8_min_plus_1, "val_s8: min < min+1")
+    assert(s8_max > s8_max_minus_1, "val_s8: max > max-1")
 
-    // --- 2. Signed 16-bit (s16) ---
+    // --- 2. Signed 16-bit (val_s16) ---
     wire s16_0: s16 = 0
     wire s16_min: s16 = -32768
     wire s16_max: s16 = 32767
     
-    assert(s16_min < s16_0,   "s16: min < 0")
-    assert(s16_min < s16_max, "s16: min < max")
-    assert(s16_0 < s16_max,   "s16: 0 < max")
-    assert(s16_max > s16_min, "s16: max > min")
+    assert(s16_min < s16_0,   "val_s16: min < 0")
+    assert(s16_min < s16_max, "val_s16: min < max")
+    assert(s16_0 < s16_max,   "val_s16: 0 < max")
+    assert(s16_max > s16_min, "val_s16: max > min")
 
     // --- 3. Signed 32-bit (s32) ---
     wire s32_0: s32 = 0

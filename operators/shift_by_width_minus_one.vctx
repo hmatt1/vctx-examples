@@ -19,30 +19,30 @@ sim TestShiftBoundaries {
     assert(u8_msb >> 7 == 1, "u8: 128 >> 7 = 1 (LSB set)")
     assert(u8_msb >> 8 == 0, "u8: 128 >> 8 = 0 (Logical fill)")
 
-    // --- 2. Signed s8 Boundaries (Width 8) ---
+    // --- 2. Signed val_s8 Boundaries (Width 8) ---
     wire s8_neg1: s8 = -1 // 0xFF
-    assert(s8_neg1 << 7 == -128, "s8: -1 << 7 = -128 (0x80)")
-    assert(s8_neg1 << 8 == 0,    "s8: -1 << 8 = 0 (Left shift is logical/truncating)")
+    assert(s8_neg1 << 7 == -128, "val_s8: -1 << 7 = -128 (0x80)")
+    assert(s8_neg1 << 8 == 0,    "val_s8: -1 << 8 = 0 (Left shift is logical/truncating)")
 
     // Arithmetic Right Shift (Sign Extension)
-    assert(s8_neg1 >> 7 == -1, "s8: -1 >> 7 = -1 (Sign preserved)")
-    assert(s8_neg1 >> 8 == -1, "s8: -1 >> 8 = -1 (Sign fill)")
+    assert(s8_neg1 >> 7 == -1, "val_s8: -1 >> 7 = -1 (Sign preserved)")
+    assert(s8_neg1 >> 8 == -1, "val_s8: -1 >> 8 = -1 (Sign fill)")
 
     wire s8_min: s8 = -128 // 1000_0000
-    assert(s8_min >> 7 == -1, "s8: -128 >> 7 = -1 (Arithmetic right shift fills with 1s)")
+    assert(s8_min >> 7 == -1, "val_s8: -128 >> 7 = -1 (Arithmetic right shift fills with 1s)")
     
     wire s8_pos: s8 = 64 // 0100_0000
-    assert(s8_pos >> 6 == 0, "s8: 64 >> 6 = 1 (No, 64 is 2^6, 64>>6 is 1)")
-    assert(64 as s8 >> 6 == 1, "s8: 64 >> 6 = 1")
-    assert(64 as s8 >> 7 == 0, "s8: 64 >> 7 = 0 (Logical zero-fill for positive signed)")
+    assert(s8_pos >> 6 == 0, "val_s8: 64 >> 6 = 1 (No, 64 is 2^6, 64>>6 is 1)")
+    assert(64 as s8 >> 6 == 1, "val_s8: 64 >> 6 = 1")
+    assert(64 as s8 >> 7 == 0, "val_s8: 64 >> 7 = 0 (Logical zero-fill for positive signed)")
 
-    // --- 3. Larger Widths (u16, s16) ---
+    // --- 3. Larger Widths (u16, val_s16) ---
     wire u16_val: u16 = 1
     assert(u16_val << 15 == 0x8000, "u16: 1 << 15")
     assert(u16_val << 16 == 0,      "u16: 1 << 16")
 
     wire s16_neg: s16 = -1
-    assert(s16_neg >> 15 == -1, "s16: arithmetic right shift max")
+    assert(s16_neg >> 15 == -1, "val_s16: arithmetic right shift max")
 
     // --- 4. Dynamic Shift Amounts ---
     // Verifying that boundaries work when the shift amount is a runtime value
@@ -53,7 +53,7 @@ sim TestShiftBoundaries {
     assert(u8_val << amt_8 == 0,   "Dynamic u8 << 8")
     
     wire amt_15: u4 = 15
-    assert(s16_neg >> amt_15 == -1, "Dynamic s16 >> 15")
+    assert(s16_neg >> amt_15 == -1, "Dynamic val_s16 >> 15")
 
     // --- 5. All-Ones Pattern ---
     wire u8_ones: u8 = 0xFF

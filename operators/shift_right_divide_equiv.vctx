@@ -26,29 +26,29 @@ sim TestShiftRightDivideEquiv {
     // --- 2. Signed Equivalence (Positive Values - Exact Match) ---
     wire s8_pos: s8 = 100 // 0x64
     
-    assert((s8_pos >> 2) == 25, "s8(pos): 100 >> 2 = 25")
-    assert((s8_pos >> 2) == (s8_pos / 4), "s8(pos): x >> 2 == x / 4")
+    assert((s8_pos >> 2) == 25, "val_s8(pos): 100 >> 2 = 25")
+    assert((s8_pos >> 2) == (s8_pos / 4), "val_s8(pos): x >> 2 == x / 4")
 
     wire s8_pos_odd: s8 = 103 // 103 / 4 = 25.75 -> 25
-    assert((s8_pos_odd >> 2) == 25, "s8(pos): 103 >> 2 = 25")
-    assert((s8_pos_odd >> 2) == (s8_pos_odd / 4), "s8(pos): x >> 2 == x / 4 (with remainder)")
+    assert((s8_pos_odd >> 2) == 25, "val_s8(pos): 103 >> 2 = 25")
+    assert((s8_pos_odd >> 2) == (s8_pos_odd / 4), "val_s8(pos): x >> 2 == x / 4 (with remainder)")
 
     // --- 3. Signed Divergence (Negative Values with Remainder) ---
     // Rule: Shift is floor division. '/' is truncation toward zero.
     
     // Case A: No remainder. They match.
     wire s8_neg_even: s8 = -100 // 1001_1100
-    assert((s8_neg_even >> 2) == -25, "s8(neg): -100 >> 2 = -25")
-    assert((s8_neg_even >> 2) == (s8_neg_even / 4), "s8(neg): Exact division matches")
+    assert((s8_neg_even >> 2) == -25, "val_s8(neg): -100 >> 2 = -25")
+    assert((s8_neg_even >> 2) == (s8_neg_even / 4), "val_s8(neg): Exact division matches")
 
     // Case B: With remainder. They diverge!
     wire s8_neg_odd: s8 = -103 // 1001_1001
     // Division truncates toward zero: -103 / 4 = -25.75 -> -25
-    assert((s8_neg_odd / 4) == -25, "s8(neg): -103 / 4 = -25 (Truncate toward zero)")
+    assert((s8_neg_odd / 4) == -25, "val_s8(neg): -103 / 4 = -25 (Truncate toward zero)")
     
     // Shift is floor division (sign fills 1s): -103 >> 2 = -26
     // 1001_1001 >> 2 -> 1110_0110 = -26
-    assert((s8_neg_odd >> 2) == -26, "s8(neg): -103 >> 2 = -26 (Floor division)")
+    assert((s8_neg_odd >> 2) == -26, "val_s8(neg): -103 >> 2 = -26 (Floor division)")
     
     // Explicitly verify the divergence
     assert((s8_neg_odd >> 2) !== (s8_neg_odd / 4), "Shift and Division diverge for negative odd values")
@@ -57,11 +57,11 @@ sim TestShiftRightDivideEquiv {
     wire s8_neg1: s8 = -1 // 0xFF
     
     // -1 / 2 = -0.5 -> 0 (Truncate to zero)
-    assert((s8_neg1 / 2) == 0, "s8: -1 / 2 = 0")
+    assert((s8_neg1 / 2) == 0, "val_s8: -1 / 2 = 0")
     
     // -1 >> 1 = -1 (Floor to -1)
     // 1111_1111 >> 1 = 1111_1111
-    assert((s8_neg1 >> 1) == -1, "s8: -1 >> 1 = -1")
+    assert((s8_neg1 >> 1) == -1, "val_s8: -1 >> 1 = -1")
 
     // --- 5. Large Type Unsigned Equivalence (u64) ---
     wire u64_val: u64 = 0x0000_0000_0000_1000 // 4096

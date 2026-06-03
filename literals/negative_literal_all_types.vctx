@@ -4,35 +4,35 @@
 // expect: pass
 
 sim TestNegativeLiterals {
-    // --- 1. The s1 Case (1-bit Signed) ---
-    // s1 range: -1 (binary 1) to 0 (binary 0)
-    wire s1_neg1: s1 = -1
-    assert(s1_neg1 == -1, "s1: -1 equals literal -1")
-    assert(s1_neg1 as u1 == 1, "s1(-1) bit pattern is 1")
-    assert(width(s1_neg1) == 1, "s1 width is 1")
+    // --- 1. The val_s1 Case (1-bit Signed) ---
+    // val_s1 range: -1 (binary 1) to 0 (binary 0)
+    wire s1_neg1: s1 = -1 as s1
+    assert(s1_neg1 == -1, "val_s1: -1 equals literal -1")
+    assert(s1_neg1 as u1 == 1, "val_s1(-1) bit pattern is 1")
+    assert(width(s1_neg1) == 1, "val_s1 width is 1")
 
-    // --- 2. 8-bit Signed (s8) ---
+    // --- 2. 8-bit Signed (val_s8) ---
     wire s8_neg1: s8 = -1
     wire s8_min: s8 = -128
     wire s8_mid: s8 = -42
 
-    assert(s8_neg1 == -1, "s8: -1")
-    assert(s8_neg1 as u8 == 0xFF, "s8(-1) is 0xFF")
+    assert(s8_neg1 == -1, "val_s8: -1")
+    assert(s8_neg1 as u8 == 0xFF, "val_s8(-1) is 0xFF")
     
-    assert(s8_min == -128, "s8: min value -128")
-    assert(s8_min as u8 == 0x80, "s8(-128) is 0x80")
+    assert(s8_min == -128, "val_s8: min value -128")
+    assert(s8_min as u8 == 0x80, "val_s8(-128) is 0x80")
     
-    assert(s8_mid == -42, "s8: mid value -42")
-    assert(s8_mid as u8 == 0xD6, "s8(-42) is 0xD6 (256-42=214=0xD6)")
+    assert(s8_mid == -42, "val_s8: mid value -42")
+    assert(s8_mid as u8 == 0xD6, "val_s8(-42) is 0xD6 (256-42=214=0xD6)")
 
-    // --- 3. 16-bit Signed (s16) ---
+    // --- 3. 16-bit Signed (val_s16) ---
     wire s16_neg1: s16 = -1
     wire s16_min: s16 = -32768
     
-    assert(s16_neg1 == -1, "s16: -1")
-    assert(s16_neg1 as u16 == 0xFFFF, "s16(-1) is 0xFFFF")
-    assert(s16_min == -32768, "s16: min -32768")
-    assert(s16_min as u16 == 0x8000, "s16(-32768) is 0x8000")
+    assert(s16_neg1 == -1, "val_s16: -1")
+    assert(s16_neg1 as u16 == 0xFFFF, "val_s16(-1) is 0xFFFF")
+    assert(s16_min == -32768, "val_s16: min -32768")
+    assert(s16_min as u16 == 0x8000, "val_s16(-32768) is 0x8000")
 
     // --- 4. 64-bit Signed (s64) ---
     wire s64_neg1: s64 = -1
@@ -65,7 +65,7 @@ sim TestNegativeLiterals {
     
     // --- 8. Literal Inference and Casting ---
     // Verifying that '-1' can be cast to any signed width
-    assert((-1 as s8) == -1, "Cast to s8")
+    assert((-1 as s8) == -1, "Cast to val_s8")
     assert((-1 as s32) == -1, "Cast to s32")
     
     // Boundary check for positive literal that becomes negative
@@ -73,5 +73,5 @@ sim TestNegativeLiterals {
     // So - (128 as s8) would be - (-128) = +128 (which overflows back to -128)
     // Correct way: use untyped literal context.
     wire wrapped_min: s8 = -128
-    assert(wrapped_min == -128, "Direct assignment of -128 to s8")
+    assert(wrapped_min == -128, "Direct assignment of -128 to val_s8")
 }

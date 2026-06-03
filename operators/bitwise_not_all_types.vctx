@@ -16,14 +16,14 @@ sim TestBitwiseNotAllTypes {
 
     assert(~(0 as u64) == 0xFFFF_FFFF_FFFF_FFFF, "u64: ~0 = all ones")
 
-    // --- 2. Signed Power-of-2 (s8 to s64) ---
+    // --- 2. Signed Power-of-2 (val_s8 to s64) ---
     // Rule: ~x in two's complement is -(x+1)
-    assert(~(0 as s8) == -1,   "s8: ~0 = -1")
-    assert(~(-1 as s8) == 0,   "s8: ~(-1) = 0")
-    assert(~(127 as s8) == -128, "s8: ~127 = -128 (MSB was 0, becomes 1)")
-    assert(~(-128 as s8) == 127, "s8: ~(-128) = 127")
+    assert(~(0 as s8) == -1,   "val_s8: ~0 = -1")
+    assert(~(-1 as s8) == 0,   "val_s8: ~(-1) = 0")
+    assert(~(127 as s8) == -128, "val_s8: ~127 = -128 (MSB was 0, becomes 1)")
+    assert(~(-128 as s8) == 127, "val_s8: ~(-128) = 127")
 
-    assert(~(0 as s16) == -1, "s16: ~0 = -1")
+    assert(~(0 as s16) == -1, "val_s16: ~0 = -1")
     assert(~(0 as s64) == -1, "s64: ~0 = -1")
 
     // --- 3. Boolean (bool) ---
@@ -46,7 +46,7 @@ sim TestBitwiseNotAllTypes {
     assert(~~x8 == x8, "u8: ~~x = x")
     
     wire sx16: s16 = -1234
-    assert(~~sx16 == sx16, "s16: ~~x = x")
+    assert(~~sx16 == sx16, "val_s16: ~~x = x")
 
     // --- 6. Interaction with Arithmetic ---
     // ~x + 1 == -x (Two's complement identity)
@@ -54,7 +54,7 @@ sim TestBitwiseNotAllTypes {
     assert((~val + 1) == -val, "~x + 1 = -x")
     
     // Result width check
-    wire res_not := ~val
+    wire res_not: s8 = ~val
     assert(width(res_not) == 8, "Bitwise NOT result width matches operand")
     assert(is_signed(res_not) == true, "Bitwise NOT result signedness matches operand")
 }

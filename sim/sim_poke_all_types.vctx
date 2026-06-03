@@ -50,7 +50,7 @@ sim TestSimPokeAllTypes {
     // --- PHASE 1: Verify Initial State (Pre-poke) ---
     assert(b_o == false, "Init bool")
     assert(u8_o == 1, "Init u8 (0+1)")
-    assert(s8_o == -1, "Init s8 (0-1)")
+    assert(s8_o == -1, "Init val_s8 (0-1)")
     assert(u16_o == 0, "Init u16 (0*2)")
     assert(u5_o == 0x1F, "Init u5 (0^1F)")
     assert(s64_o == 1000, "Init s64 (0+1000)")
@@ -65,9 +65,9 @@ sim TestSimPokeAllTypes {
     poke(u8v, 100)
     assert(u8_o == 101, "poke(u8) immediately evaluates (100+1)")
 
-    // Poke s8 (Negative)
+    // Poke val_s8 (Negative)
     poke(s8v, -50)
-    assert(s8_o == -51, "poke(s8) immediately evaluates (-50-1)")
+    assert(s8_o == -51, "poke(val_s8) immediately evaluates (-50-1)")
 
     // Poke u16 (Hex)
     poke(u16v, 0x1000) // 4096

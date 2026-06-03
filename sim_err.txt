@@ -1,0 +1,18 @@
+Running all simulations in project...
+Failed to plan checks for comptime.generic_clog2_width: File not found: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\<type_subst:clog2(8)>.vctx
+[E_SIM_PRECHECK_FAILED]
+Bail out! Simulation precheck failed.
+Static check codes: [E_PORT_WIDTH_MISMATCH]
+Project / graph load errors:
+  [1:0] [E_IMPORT_NOT_FOUND] File not found: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\<type_subst:clog2(8)>.vctx
+
+components.component_multi_instance_values [40:24] [E_PORT_WIDTH_MISMATCH] Port Width Mismatch: Port 'a' expects u8 (8 bits), but got u4 (4 bits). Explicit cast required.
+components.component_multi_instance_values [40:28] [E_PORT_WIDTH_MISMATCH] Port Width Mismatch: Port 'b' expects u8 (8 bits), but got u3 (3 bits). Explicit cast required.
+components.component_multi_instance_values [43:31] [E_PORT_WIDTH_MISMATCH] Port Width Mismatch: Port 'b' expects u8 (8 bits), but got u7 (7 bits). Explicit cast required.
+components.multi_instance [230:28] [E_PORT_WIDTH_MISMATCH] Port Width Mismatch: Port 'a' expects u8 (8 bits), but got u4 (4 bits). Explicit cast required.
+components.multi_instance [230:32] [E_PORT_WIDTH_MISMATCH] Port Width Mismatch: Port 'b' expects u8 (8 bits), but got u3 (3 bits). Explicit cast required.
+components.multi_instance [231:28] [E_PORT_WIDTH_MISMATCH] Port Width Mismatch: Port 'a' expects u8 (8 bits), but got u5 (5 bits). Explicit cast required.
+components.multi_instance [231:32] [E_PORT_WIDTH_MISMATCH] Port Width Mismatch: Port 'b' expects u8 (8 bits), but got u2 (2 bits). Explicit cast required.
+
+Compilation aborted: Found 1 error(s) across the project files. Please fix them before simulating.
+Finished in 127.22s

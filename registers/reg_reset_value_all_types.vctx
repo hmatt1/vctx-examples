@@ -28,7 +28,7 @@ component RegResetStates(
     reg s16p: s16 = 32767
     reg u64m: u64 = 0xFFFF_FFFF_FFFF_FFFF
     reg u5o: u5 = 15
-    reg s3o: s3 = -4 // s3 min
+    reg s3o: s3 = -4 // val_s3 min
 
     // 2. Mutation logic
     when mutate {
@@ -84,13 +84,13 @@ sim TestRegResetAllTypes {
     assert(r_bool_f == false, "bool false init")
     assert(r_u8_zero == 0, "u8 zero init")
     assert(r_u8_max == 255, "u8 max init")
-    assert(r_s8_min == -128, "s8 min init")
-    assert(r_s8_neg1 == -1, "s8 -1 init")
+    assert(r_s8_min == -128, "val_s8 min init")
+    assert(r_s8_neg1 == -1, "val_s8 -1 init")
     assert(r_u16_pat == 0xAAAA, "u16 pattern init")
-    assert(r_s16_pos == 32767, "s16 pos init")
+    assert(r_s16_pos == 32767, "val_s16 pos init")
     assert(r_u64_max == 0xFFFF_FFFF_FFFF_FFFF, "u64 max init")
     assert(r_u5_odd == 15, "u5 odd init")
-    assert(r_s3_odd == -4, "s3 odd init")
+    assert(r_s3_odd == -4, "val_s3 odd init")
 
     // PHASE 2: Mutate State
     mutate := true
@@ -99,7 +99,7 @@ sim TestRegResetAllTypes {
 
     assert(r_bool_t == false, "bool mutated")
     assert(r_u8_zero == 100, "u8 zero mutated")
-    assert(r_s8_min == 100, "s8 min mutated")
+    assert(r_s8_min == 100, "val_s8 min mutated")
 
     // PHASE 3: Assert Global Reset
     reset() // Asserts global 'rst' for 1 cycle, forcing registers to their '=' initializers
@@ -109,11 +109,11 @@ sim TestRegResetAllTypes {
     assert(r_bool_f == false, "bool false restored")
     assert(r_u8_zero == 0, "u8 zero restored")
     assert(r_u8_max == 255, "u8 max restored")
-    assert(r_s8_min == -128, "s8 min restored")
-    assert(r_s8_neg1 == -1, "s8 -1 restored")
+    assert(r_s8_min == -128, "val_s8 min restored")
+    assert(r_s8_neg1 == -1, "val_s8 -1 restored")
     assert(r_u16_pat == 0xAAAA, "u16 pattern restored")
-    assert(r_s16_pos == 32767, "s16 pos restored")
+    assert(r_s16_pos == 32767, "val_s16 pos restored")
     assert(r_u64_max == 0xFFFF_FFFF_FFFF_FFFF, "u64 max restored")
     assert(r_u5_odd == 15, "u5 odd restored")
-    assert(r_s3_odd == -4, "s3 odd restored")
+    assert(r_s3_odd == -4, "val_s3 odd restored")
 }

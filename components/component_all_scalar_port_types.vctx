@@ -24,8 +24,8 @@ component ScalarPassThru(
     y16 := u16
     y32 := u32
     y64 := u64
-    ys8 := s8
-    ys16 := s16
+    ys8 := val_s8
+    ys16 := val_s16
     ys32 := s32
     ys64 := s64
     y7 := u7
@@ -40,8 +40,8 @@ sim TestComponentAllScalarPorts {
     wire u16: u16 = 0xCAFE
     wire u32: u32 = 0xDEADBEEF
     wire u64: u64 = 0x0123456789ABCDEF
-    wire s8: s8 = -128
-    wire s16: s16 = -32768
+    wire val_s8: s8 = -128
+    wire val_s16: s16 = -32768
     wire s32: s32 = -2000000000
     wire s64: s64 = -9000000000000000000
     wire u7: u[7] = 127
@@ -69,8 +69,8 @@ sim TestComponentAllScalarPorts {
         u16 -- u16, y16 -- y16,
         u32 -- u32, y32 -- y32,
         u64 -- u64, y64 -- y64,
-        s8 -- s8, ys8 -- ys8,
-        s16 -- s16, ys16 -- ys16,
+        val_s8 -- val_s8, ys8 -- ys8,
+        val_s16 -- val_s16, ys16 -- ys16,
         s32 -- s32, ys32 -- ys32,
         s64 -- s64, ys64 -- ys64,
         u7 -- u7, y7 -- y7_out,
@@ -85,8 +85,8 @@ sim TestComponentAllScalarPorts {
     assert(y32 == 0xDEADBEEF, "u32 passthrough")
     assert(y64 == 0x0123456789ABCDEF, "u64 passthrough")
     
-    assert(ys8 == -128, "s8 passthrough")
-    assert(ys16 == -32768, "s16 passthrough")
+    assert(ys8 == -128, "val_s8 passthrough")
+    assert(ys16 == -32768, "val_s16 passthrough")
     assert(ys32 == -2000000000, "s32 passthrough")
     assert(ys64 == -9000000000000000000, "s64 passthrough")
     
@@ -96,11 +96,11 @@ sim TestComponentAllScalarPorts {
     // 4. Update and Re-verify (Dynamic check)
     poke(b, false)
     poke(u1, 1)
-    poke(s8, 42)
+    poke(val_s8, 42)
     
     assert(yb == false, "bool update passthrough")
     assert(y1 == 1,     "u1 update passthrough")
-    assert(ys8 == 42,   "s8 update passthrough")
+    assert(ys8 == 42,   "val_s8 update passthrough")
 
     // 5. Metadata verification on outputs
     assert(width(y64) == 64, "output u64 width check")

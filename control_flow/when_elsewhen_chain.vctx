@@ -4,7 +4,7 @@
 // expect: pass
 
 component PriorityEncoder4(
-    in sel: bool[4],
+    in sel0: bool, in sel1: bool, in sel2: bool, in sel3: bool,
     in val0: u8,
     in val1: u8,
     in val2: u8,
@@ -17,13 +17,13 @@ component PriorityEncoder4(
     // Catch-all: otherwise (0)
     wire res: u8 = 0
     
-    when sel[3] {
+    when sel3 {
         res := val3
-    } elsewhen sel[2] {
+    } elsewhen sel2 {
         res := val2
-    } elsewhen sel[1] {
+    } elsewhen sel1 {
         res := val1
-    } elsewhen sel[0] {
+    } elsewhen sel0 {
         res := val0
     } otherwise {
         res := 0xEE // Error/Default pattern
@@ -33,36 +33,36 @@ component PriorityEncoder4(
 }
 
 sim TestWhenElsewhenChain {
-    wire sel: bool[4] = [false, false, false, false]
+    wire sel0, sel1, sel2, sel3: bool = false
     wire v0: u8 = 10
     wire v1: u8 = 20
     wire v2: u8 = 30
     wire v3: u8 = 40
     wire y: u8
 
-    PriorityEncoder4(sel, v0, v1, v2, v3, y)
+    PriorityEncoder4(sel0, sel1, sel2, sel3, v0, v1, v2, v3, y)
 
     // PATH 1: Catch-all (All False)
     assert(y == 0xEE, "Priority chain: otherwise arm")
 
     // PATH 2: Lowest Priority (sel[0])
-    poke(sel[0], true)
+    poke(sel0, true)
     assert(y == 10, "Priority chain: sel[0] arm")
 
     // PATH 3: Overriding with higher priority (sel[1])
-    poke(sel[1], true)
+    poke(sel1, true)
     assert(y == 20, "Priority chain: sel[1] overrides sel[0]")
 
     // PATH 4: Overriding with even higher (sel[2])
-    poke(sel[2], true)
+    poke(sel2, true)
     assert(y == 30, "Priority chain: sel[2] overrides sel[1]")
 
     // PATH 5: Highest Priority (sel[3])
-    poke(sel[3], true)
+    poke(sel3, true)
     assert(y == 40, "Priority chain: sel[3] wins overall")
 
     // PATH 6: Deassert highest, check next level
-    poke(sel[3], false)
+    poke(sel3, false)
     assert(y == 30, "Priority chain: falls back to sel[2]")
 
     // --- 2. Multiple Assignments in Chain ---

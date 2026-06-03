@@ -8,7 +8,7 @@ component GenericDelay<Int W>(
     in d: u[W],
     out q: u[W]
 ) {
-    reg pipe: u[W] = 0
+    reg pipe: u[W] = 0 as u[W]
     pipe <= d
     q := pipe
 }

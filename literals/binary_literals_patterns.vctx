@@ -34,13 +34,13 @@ sim TestBinaryLiteralsPatterns {
 
     // --- 5. Zero-Padding and Inference ---
     // Untyped binary literals infer to the smallest width that fits their magnitude
-    wire inf_1 := 0b1
+    wire inf_1: u1 = 0b1
     assert(width(inf_1) == 1, "0b1 infers as 1-bit")
     
-    wire inf_3 := 0b11
+    wire inf_3: u2 = 0b11
     assert(width(inf_3) == 2, "0b11 infers as 2-bit")
 
-    wire inf_pad := 0b0000_0011
+    wire inf_pad: u2 = 0b0000_0011
     // The magnitude is 3, so it should infer as 2-bit, regardless of the leading zeros
     assert(width(inf_pad) == 2, "Zero-padded 0b0000_0011 infers as 2-bit based on magnitude")
 

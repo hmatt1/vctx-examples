@@ -14,22 +14,22 @@ sim TestCastSameWidthSignFlip {
     // 1111 (15 -> -1)
     assert(15 as u4 as s4 == -1, "u4(15) -> s4(-1) [0xF]")
 
-    // 2. 8-bit Flips (u8 <-> s8)
+    // 2. 8-bit Flips (u8 <-> val_s8)
     wire u8_val: u8 = 0xAA // 10101010 (170)
     wire s8_val: s8 = u8_val as s8
     // 10101010 as signed is -86
-    assert(s8_val == -86, "u8(170) -> s8(-86)")
-    assert(s8_val as u8 == 170, "s8(-86) -> u8(170) round-trip")
+    assert(s8_val == -86, "u8(170) -> val_s8(-86)")
+    assert(s8_val as u8 == 170, "val_s8(-86) -> u8(170) round-trip")
 
     wire s8_neg: s8 = -128 // 10000000
-    assert(s8_neg as u8 == 128, "s8(-128) -> u8(128)")
+    assert(s8_neg as u8 == 128, "val_s8(-128) -> u8(128)")
 
-    // 3. 16-bit Flips (u16 <-> s16)
+    // 3. 16-bit Flips (u16 <-> val_s16)
     wire u16_val: u16 = 0x8000 // 32768
-    assert(u16_val as s16 == -32768, "u16(32768) -> s16(-32768)")
+    assert(u16_val as s16 == -32768, "u16(32768) -> val_s16(-32768)")
     
     wire s16_neg: s16 = -1 // 0xFFFF
-    assert(s16_neg as u16 == 65535, "s16(-1) -> u16(65535)")
+    assert(s16_neg as u16 == 65535, "val_s16(-1) -> u16(65535)")
 
     // 4. 64-bit Flips (u64 <-> s64)
     wire u64_val: u64 = 0xFFFF_FFFF_FFFF_FFFF
@@ -38,7 +38,7 @@ sim TestCastSameWidthSignFlip {
     wire s64_min: s64 = -9223372036854775808 // 0x8000...
     assert(s64_min as u64 == 0x8000_0000_0000_0000, "s64 min -> u64 2^63")
 
-    // 5. Odd width Flips (u3 <-> s3)
+    // 5. Odd width Flips (u3 <-> val_s3)
     // 000 (0)
     // 001 (1)
     // 010 (2)
@@ -47,9 +47,9 @@ sim TestCastSameWidthSignFlip {
     // 101 (5 -> -3)
     // 110 (6 -> -2)
     // 111 (7 -> -1)
-    assert(4 as u [ 3 ] as s [ 3 ] == -4, "u3(4) -> s3(-4)")
-    assert(7 as u [ 3 ] as s [ 3 ] == -1, "u3(7) -> s3(-1)")
-    assert(-1 as s [ 3 ] as u [ 3 ] == 7, "s3(-1) -> u3(7)")
+    assert(4 as u [ 3 ] as s [ 3 ] == -4, "u3(4) -> val_s3(-4)")
+    assert(7 as u [ 3 ] as s [ 3 ] == -1, "u3(7) -> val_s3(-1)")
+    assert(-1 as s [ 3 ] as u [ 3 ] == 7, "val_s3(-1) -> u3(7)")
 
     // 6. Chain of Flips
     wire val: u8 = 200
@@ -59,6 +59,6 @@ sim TestCastSameWidthSignFlip {
     // Confirm that flipping signedness doesn't affect adjacent logic or bits
     wire a: u8 = 0xF0
     wire b: u8 = 0x0F
-    wire combined := (a as s8) | (b as s8)
+    wire combined: u8 = (a as s8) | (b as s8)
     assert(combined as u8 == 0xFF, "Bitwise logic works through same-width casts")
 }

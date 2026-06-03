@@ -17,10 +17,10 @@ sim TestShiftByZero {
     assert(u64_val << 0 == 0xDEAD_BEEF_CAFE_BABE, "u64: identity << 0")
     assert(u64_val >> 0 == 0xDEAD_BEEF_CAFE_BABE, "u64: identity >> 0")
 
-    // --- 2. Signed Identity (s8, s64) ---
+    // --- 2. Signed Identity (val_s8, s64) ---
     wire s8_neg: s8 = -42
-    assert(s8_neg << 0 == -42, "s8: -42 << 0 = -42")
-    assert(s8_neg >> 0 == -42, "s8: -42 >> 0 = -42")
+    assert(s8_neg << 0 == -42, "val_s8: -42 << 0 = -42")
+    assert(s8_neg >> 0 == -42, "val_s8: -42 >> 0 = -42")
 
     wire s64_min: s64 = -9223372036854775808
     assert(s64_min << 0 == s64_min, "s64: min << 0 identity")
@@ -31,8 +31,8 @@ sim TestShiftByZero {
     wire zero_amt: u4 = 0
     assert(u8_val << zero_amt == 0xA5, "Dynamic u8 << wire(0)")
     assert(u8_val >> zero_amt == 0xA5, "Dynamic u8 >> wire(0)")
-    assert(s8_neg << zero_amt == -42,  "Dynamic s8 << wire(0)")
-    assert(s8_neg >> zero_amt == -42,  "Dynamic s8 >> wire(0)")
+    assert(s8_neg << zero_amt == -42,  "Dynamic val_s8 << wire(0)")
+    assert(s8_neg >> zero_amt == -42,  "Dynamic val_s8 >> wire(0)")
 
     // --- 4. Odd Widths (u3, s5) ---
     wire u3_val: u [ 3 ] = 7
@@ -43,14 +43,14 @@ sim TestShiftByZero {
 
     // --- 5. Result Metadata Verification ---
     // Rule: Shift result matches LHS width and signedness exactly.
-    wire res_l := u8_val << 0
-    wire res_r := s8_neg >> 0
+    wire res_l: u8 = u8_val << 0
+    wire res_r: s8 = s8_neg >> 0
     
     assert(width(res_l) == 8, "u8 << 0 result width is 8")
     assert(is_signed(res_l) == false, "u8 << 0 result is unsigned")
     
-    assert(width(res_r) == 8, "s8 >> 0 result width is 8")
-    assert(is_signed(res_r) == true, "s8 >> 0 result is signed")
+    assert(width(res_r) == 8, "val_s8 >> 0 result width is 8")
+    assert(is_signed(res_r) == true, "val_s8 >> 0 result is signed")
 
     // --- 6. Complex Expression Interaction ---
     // Identity should hold inside arithmetic

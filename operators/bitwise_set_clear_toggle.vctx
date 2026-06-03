@@ -7,50 +7,50 @@ sim TestBitwiseSetClearToggle {
     wire val8: u8 = 0b0000_0000
     
     // Set LSB (bit 0)
-    wire set0 := val8 | (1 as u8 << 0)
+    wire set0: u8 = val8 | (1 as u8 << 0)
     assert(set0 == 0x01, "Set bit 0: 0 | 1 = 1")
     
     // Set bit 4
-    wire set4 := val8 | (1 as u8 << 4)
+    wire set4: u8 = val8 | (1 as u8 << 4)
     assert(set4 == 0x10, "Set bit 4: 0 | 16 = 16")
     
     // Set MSB (bit 7)
-    wire set7 := val8 | (1 as u8 << 7)
+    wire set7: u8 = val8 | (1 as u8 << 7)
     assert(set7 == 0x80, "Set bit 7: 0 | 128 = 128")
 
     // --- 2. Clear Bit N (val & (~(1 << N))) ---
     wire ones8: u8 = 0xFF
     
     // Clear LSB (bit 0)
-    wire clr0 := ones8 & (~(1 as u8 << 0))
+    wire clr0: u8 = ones8 & (~(1 as u8 << 0))
     assert(clr0 == 0xFE, "Clear bit 0: 0xFF & ~0x01 = 0xFE")
     
     // Clear bit 4
-    wire clr4 := ones8 & (~(1 as u8 << 4))
+    wire clr4: u8 = ones8 & (~(1 as u8 << 4))
     assert(clr4 == 0xEF, "Clear bit 4: 0xFF & ~0x10 = 0xEF")
     
     // Clear MSB (bit 7)
-    wire clr7 := ones8 & (~(1 as u8 << 7))
+    wire clr7: u8 = ones8 & (~(1 as u8 << 7))
     assert(clr7 == 0x7F, "Clear bit 7: 0xFF & ~0x80 = 0x7F")
 
     // --- 3. Toggle Bit N (val ^ (1 << N)) ---
     wire pat8: u8 = 0b1010_1010 // 0xAA
     
     // Toggle bit 0 (0 -> 1)
-    wire tgl0 := pat8 ^ (1 as u8 << 0)
+    wire tgl0: u8 = pat8 ^ (1 as u8 << 0)
     assert(tgl0 == 0xAB, "Toggle bit 0: 0xAA ^ 0x01 = 0xAB")
     
     // Toggle bit 1 (1 -> 0)
-    wire tgl1 := pat8 ^ (1 as u8 << 1)
+    wire tgl1: u8 = pat8 ^ (1 as u8 << 1)
     assert(tgl1 == 0xA8, "Toggle bit 1: 0xAA ^ 0x02 = 0xA8")
     
     // Toggle MSB (1 -> 0)
-    wire tgl7 := pat8 ^ (1 as u8 << 7)
+    wire tgl7: u8 = pat8 ^ (1 as u8 << 7)
     assert(tgl7 == 0x2A, "Toggle bit 7: 0xAA ^ 0x80 = 0x2A")
 
     // --- 4. Dynamic Bit Position (Using Wires) ---
     wire idx: u3 = 3
-    wire dyn_set := val8 | (1 as u8 << idx)
+    wire dyn_set: u8 = val8 | (1 as u8 << idx)
     assert(dyn_set == 0x08, "Dynamic set bit 3")
     
     poke(idx, 5)
@@ -59,15 +59,15 @@ sim TestBitwiseSetClearToggle {
 
     // --- 5. Multi-Bit Operations ---
     // Set bits 0 and 7
-    wire multi_set := val8 | (1 as u8 << 0) | (1 as u8 << 7)
+    wire multi_set: u8 = val8 | (1 as u8 << 0) | (1 as u8 << 7)
     assert(multi_set == 0x81, "Set bits 0 and 7")
 
     // --- 6. Large Widths (u64) ---
     wire val64: u64 = 0
-    wire set63 := val64 | (1 as u64 << 63)
+    wire set63: u64 = val64 | (1 as u64 << 63)
     assert(set63 == 0x8000_0000_0000_0000, "Set u64 bit 63")
     
-    wire clr63 := set63 & (~(1 as u64 << 63))
+    wire clr63: u64 = set63 & (~(1 as u64 << 63))
     assert(clr63 == 0, "Clear u64 bit 63")
 
     // --- 7. Check Bit N (val >> N) & 1 ---

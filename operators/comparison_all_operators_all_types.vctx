@@ -27,16 +27,16 @@ sim TestComparisonAllOperators {
     assert(u8a >== u8c,  "u8: 10 >== 10")
     assert(u8b >== u8a,  "u8: 20 >== 10")
 
-    // --- 3. Signed 8-bit (s8) ---
+    // --- 3. Signed 8-bit (val_s8) ---
     wire s8n: s8 = -50
     wire s8p: s8 = 50
     wire s8z: s8 = 0
-    assert(s8n < s8p,    "s8: -50 < 50")
-    assert(s8p > s8n,    "s8: 50 > -50")
-    assert(s8n < s8z,    "s8: -50 < 0")
-    assert(s8z > s8n,    "s8: 0 > -50")
-    assert(s8n <== -50,  "s8: -50 <== -50")
-    assert(s8n !== s8p,  "s8: -50 !== 50")
+    assert(s8n < s8p,    "val_s8: -50 < 50")
+    assert(s8p > s8n,    "val_s8: 50 > -50")
+    assert(s8n < s8z,    "val_s8: -50 < 0")
+    assert(s8z > s8n,    "val_s8: 0 > -50")
+    assert(s8n <== -50,  "val_s8: -50 <== -50")
+    assert(s8n !== s8p,  "val_s8: -50 !== 50")
 
     // --- 4. 64-bit Unsigned (u64) ---
     wire u64_max: u64 = 0xFFFF_FFFF_FFFF_FFFF
@@ -55,7 +55,7 @@ sim TestComparisonAllOperators {
     assert(s64_max >== s64_max, "s64: max >== max")
 
     // --- 6. Type result verification ---
-    wire res_eq := (u8a == u8b)
+    wire res_eq: u1 = (u8a == u8b)
     assert(width(res_eq) == 1, "Comparison result width is 1")
     assert(is_signed(res_eq) == false, "Comparison result is unsigned")
 
@@ -70,10 +70,10 @@ sim TestComparisonAllOperators {
     // Rule: Promotion to signed (Width+1) if any operand is signed.
     wire u8_200: u8 = 200
     wire s8_100: s8 = 100
-    assert(u8_200 > s8_100,  "Mixed: u8(200) > s8(100)")
+    assert(u8_200 > s8_100,  "Mixed: u8(200) > val_s8(100)")
     
     wire s8_neg: s8 = -1
-    assert(u8_200 > s8_neg,  "Mixed: u8(200) > s8(-1)")
+    assert(u8_200 > s8_neg,  "Mixed: u8(200) > val_s8(-1)")
     assert(s8_neg < u8_200,  "Mixed: s8(-1) < u8(200)")
 
     // --- 9. Operator Priority / Precedence ---

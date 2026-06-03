@@ -1,53 +1,53 @@
 // spec: §7.5, §9.1
 // description: Comprehensive test for comparing signed and unsigned values at their bit-pattern boundaries.
-// rule: Vctx treats u8(255) as +255 and s8(-1) as -1. They are not equal despite identical bit patterns.
+// rule: Vctx treats u8(255) as +255 and val_s8(-1) as -1. They are not equal despite identical bit patterns.
 // expect: pass
 
 sim TestComparisonBoundaries {
     // 1. Same bit-pattern (0xFF), different signedness
-    wire u255: u8 = 255
+    wire val_u255: u8 = 255
     wire s_neg1: s8 = -1
 
     // Equality: +255 != -1
-    assert((u255 == s_neg1) == false, "u8(255) == s8(-1) should be false")
-    assert((u255 !== s_neg1) == true, "u8(255) !== s8(-1) should be true using !== spelling")
+    assert((val_u255 == s_neg1) == false, "u8(255) == val_s8(-1) should be false")
+    assert((val_u255 !== s_neg1) == true, "u8(255) !== val_s8(-1) should be true using !== spelling")
 
     // Magnitude: 255 > -1
-    assert((u255 > s_neg1) == true, "255 > -1")
-    assert((u255 < s_neg1) == false, "255 is not less than -1")
-    assert((u255 >== s_neg1) == true, "255 >== -1 (inclusive spelling)")
+    assert((val_u255 > s_neg1) == true, "255 > -1")
+    assert((val_u255 < s_neg1) == false, "255 is not less than -1")
+    assert((val_u255 >== s_neg1) == true, "255 >== -1 (inclusive spelling)")
 
     // 2. Bit-pattern Equivalence (using explicit casts)
     // To compare bit patterns, we must cast to a common type
-    assert((u255 == s_neg1 as u8) == true, "Comparing bit patterns via u8 cast")
-    assert((u255 as s8 == s_neg1) == true, "Comparing bit patterns via s8 cast (both are -1 as s8)")
+    assert((val_u255 == s_neg1 as u8) == true, "Comparing bit patterns via u8 cast")
+    assert((val_u255 as s8 == s_neg1) == true, "Comparing bit patterns via val_s8 cast (both are -1 as s8)")
 
     // 3. The 128 Boundary (0x80)
-    // u8(128) is +128. s8(-128) is -128.
-    wire u128: u8 = 128
+    // u8(128) is +128. val_s8(-128) is -128.
+    wire val_u128: u8 = 128
     wire s_neg128: s8 = -128
-    assert((u128 == s_neg128) == false, "+128 != -128")
-    assert((u128 > s_neg128) == true, "128 > -128")
-    assert((u128 as s8 == s_neg128) == true, "Bit pattern 0x80 is identical")
+    assert((val_u128 == s_neg128) == false, "+128 != -128")
+    assert((val_u128 > s_neg128) == true, "128 > -128")
+    assert((val_u128 as s8 == s_neg128) == true, "Bit pattern 0x80 is identical")
 
-    // 4. Large Widths (s16, u16)
-    wire u65535: u16 = 65535
+    // 4. Large Widths (val_s16, u16)
+    wire val_u65535: u16 = 65535
     wire s_neg1_16: s16 = -1
-    assert((u65535 == s_neg1_16) == false, "u16(65535) != s16(-1)")
-    assert((u65535 > s_neg1_16) == true, "65535 > -1")
+    assert((val_u65535 == s_neg1_16) == false, "u16(65535) != val_s16(-1)")
+    assert((val_u65535 > s_neg1_16) == true, "65535 > -1")
 
     // 5. Mixed Width and Signedness
-    // u8(255) vs s16(-1)
-    assert((u255 == s_neg1_16) == false, "+255 != -1 (s16)")
-    assert((u255 > s_neg1_16) == true, "255 > -1")
+    // u8(255) vs val_s16(-1)
+    assert((val_u255 == s_neg1_16) == false, "+255 != -1 (val_s16)")
+    assert((val_u255 > s_neg1_16) == true, "255 > -1")
 
     // 6. Zero Boundary
     // 0 is the same for both
-    wire u0: u8 = 0
-    wire s0: s8 = 0
-    assert((u0 == s0) == true, "0 == 0 regardless of signedness")
-    assert((u0 >== s0) == true, "0 >== 0")
-    assert((u0 <== s0) == true, "0 <== 0")
+    wire val_u0: u8 = 0
+    wire val_s0: s8 = 0
+    assert((val_u0 == val_s0) == true, "0 == 0 regardless of signedness")
+    assert((val_u0 >== val_s0) == true, "0 >== 0")
+    assert((val_u0 <== val_s0) == true, "0 <== 0")
 
     // 7. Verification of Inclusive Spellings (§7.1)
     // vctx uses <== and >== for inclusive comparisons

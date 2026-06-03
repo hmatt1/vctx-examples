@@ -31,18 +31,18 @@ sim TestBitwiseIdentityLaws {
     // Double Negation
     assert((~(~x8)) == x8, "u8: ~(~x) = x")
 
-    // --- 2. 16-bit Signed Identities (s16) ---
+    // --- 2. 16-bit Signed Identities (val_s16) ---
     // Rule: Bitwise ops on signed treat them as bit patterns.
     wire sx16: s16 = -42
     wire szero16: s16 = 0
     wire sones16: s16 = -1 // 0xFFFF
 
-    assert((sx16 & sx16) == sx16, "s16: idempotence AND")
-    assert((sx16 | szero16) == sx16, "s16: identity OR")
-    assert((sx16 ^ sx16) == 0, "s16: self-inverse XOR")
-    assert((sx16 | sones16) == -1, "s16: absorbing OR (-1)")
-    assert((sx16 & sones16) == sx16, "s16: identity AND (-1)")
-    assert((~(~sx16)) == sx16, "s16: double negation")
+    assert((sx16 & sx16) == sx16, "val_s16: idempotence AND")
+    assert((sx16 | szero16) == sx16, "val_s16: identity OR")
+    assert((sx16 ^ sx16) == 0, "val_s16: self-inverse XOR")
+    assert((sx16 | sones16) == -1, "val_s16: absorbing OR (-1)")
+    assert((sx16 & sones16) == sx16, "val_s16: identity AND (-1)")
+    assert((~(~sx16)) == sx16, "val_s16: double negation")
 
     // --- 3. 64-bit Extremes (u64) ---
     wire x64: u64 = 0xDEAD_BEEF_CAFE_BABE
@@ -65,7 +65,7 @@ sim TestBitwiseIdentityLaws {
     // (a & b) | (a & ~b) == a
     wire a: u8 = 0xCC // 1100_1100
     wire b: u8 = 0xAA // 1010_1010
-    wire res := (a & b) | (a & (~b))
+    wire res: u8 = (a & b) | (a & (~b))
     assert(res == a, "Bitwise simplification: (a&b)|(a&~b) = a")
 
     // --- 6. Interaction with Literal Inference ---

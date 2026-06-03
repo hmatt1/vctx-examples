@@ -20,7 +20,7 @@ sim TestTernaryAllTypes {
 
     wire u8_a: u8 = 100
     wire u8_b: u8 = 200
-    wire u8_res := cond_f ? u8_a : u8_b
+    wire u8_res: u8 = cond_f ? u8_a : u8_b
     assert(u8_res == 200, "u8 ternary")
     assert(width(u8_res) == 8, "u8 ternary width")
     assert(is_signed(u8_res) == false, "u8 ternary sign")
@@ -37,17 +37,17 @@ sim TestTernaryAllTypes {
     wire u64_b: u64 = 0
     assert((cond_t ? u64_a : u64_b) == 0xFFFF_FFFF_FFFF_FFFF, "u64 ternary")
 
-    // --- 3. Signed Types (s8, s16, s32, s64) ---
+    // --- 3. Signed Types (val_s8, val_s16, s32, s64) ---
     wire s8_a: s8 = -50
     wire s8_b: s8 = 50
-    wire s8_res := cond_t ? s8_a : s8_b
-    assert(s8_res == -50, "s8 ternary")
-    assert(width(s8_res) == 8, "s8 ternary width")
-    assert(is_signed(s8_res) == true, "s8 ternary sign")
+    wire s8_res: s8 = cond_t ? s8_a : s8_b
+    assert(s8_res == -50, "val_s8 ternary")
+    assert(width(s8_res) == 8, "val_s8 ternary width")
+    assert(is_signed(s8_res) == true, "val_s8 ternary sign")
 
     wire s16_a: s16 = -32768
     wire s16_b: s16 = 32767
-    assert((cond_f ? s16_a : s16_b) == 32767, "s16 ternary")
+    assert((cond_f ? s16_a : s16_b) == 32767, "val_s16 ternary")
 
     wire s32_a: s32 = -100000
     wire s32_b: s32 = 100000
@@ -73,14 +73,14 @@ sim TestTernaryAllTypes {
 
     // --- 6. Explicit Casting for Mismatched Arms (§9.4) ---
     // The language spec requires identical width/sign for ternary arms.
-    // If we want to mix u8 and s8, we must cast one to match the other.
+    // If we want to mix u8 and val_s8, we must cast one to match the other.
     wire mixed_u8: u8 = 200
     wire mixed_s8: s8 = -1
-    // Cast s8 to u8
-    wire res_cast_u8 := cond_t ? mixed_u8 : (mixed_s8 as u8)
+    // Cast val_s8 to u8
+    wire res_cast_u8: u8 = cond_t ? mixed_u8 : (mixed_s8 as u8)
     assert(res_cast_u8 == 200, "Ternary with explicit cast to u8")
     
-    // Cast u8 to s8 (Note: u8(200) as s8 is -56)
-    wire res_cast_s8 := cond_f ? (mixed_u8 as s8) : mixed_s8
-    assert(res_cast_s8 == -1, "Ternary with explicit cast to s8")
+    // Cast u8 to val_s8 (Note: u8(200) as s8 is -56)
+    wire res_cast_s8: s8 = cond_f ? (mixed_u8 as s8) : mixed_s8
+    assert(res_cast_s8 == -1, "Ternary with explicit cast to val_s8")
 }

@@ -1,0 +1,10 @@
+Running all simulations in project...
+[E_SIM_PRECHECK_FAILED]
+Bail out! Simulation precheck failed.
+Static check codes: [E_WIDTH_MISMATCH] [E_TYPE_SIGN_MISMATCH]
+operators.shift_left_multiply_equiv [67:10] [E_WIDTH_MISMATCH] Width mismatch after specialization: LHS (u64) is narrower than RHS (u97); assignment would truncate. Use an explicit cast or fix types.
+operators.slice_at_all_positions [72:10] [E_WIDTH_MISMATCH] Width mismatch after specialization: LHS (u8) is narrower than RHS (u16); assignment would truncate. Use an explicit cast or fix types.
+operators.ternary_all_types [84:10] [E_TYPE_SIGN_MISMATCH] Signedness mismatch: cannot assign s8 to u8 without an explicit cast.
+
+Compilation aborted: Found 3 error(s) across the project files. Please fix them before simulating.
+Finished in 129.28s

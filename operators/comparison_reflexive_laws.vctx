@@ -36,17 +36,17 @@ sim TestComparisonReflexiveLaws {
     assert(not ((a8 < b8) and (a8 == b8)), "u8: cannot be both < and ==")
     assert(not ((a8 > b8) and (a8 == b8)), "u8: cannot be both > and ==")
 
-    // --- 2. Signed 8-bit (s8) ---
+    // --- 2. Signed 8-bit (val_s8) ---
     wire sa8: s8 = -10
     wire sb8: s8 = -10
     
-    assert(sa8 == sb8,   "s8: same values equal")
-    assert(sa8 <== sb8,  "s8: same values <== ")
-    assert(not (sa8 < sb8), "s8: same values not <")
+    assert(sa8 == sb8,   "val_s8: same values equal")
+    assert(sa8 <== sb8,  "val_s8: same values <== ")
+    assert(not (sa8 < sb8), "val_s8: same values not <")
 
     wire sc8: s8 = 5
-    assert(sa8 < sc8,    "s8: -10 < 5")
-    assert(not (sc8 < sa8), "s8: 5 not < -10 (Asymmetry)")
+    assert(sa8 < sc8,    "val_s8: -10 < 5")
+    assert(not (sc8 < sa8), "val_s8: 5 not < -10 (Asymmetry)")
 
     // --- 3. 64-bit Unsigned (u64) ---
     wire a64: u64 = 0xDEAD_BEEF_CAFE_BABE
@@ -68,8 +68,8 @@ sim TestComparisonReflexiveLaws {
     wire s8_min: s8 = -128
     wire s8_max: s8 = 127
     
-    assert(s8_min == s8_min, "s8 min reflexivity")
-    assert(s8_max == s8_max, "s8 max reflexivity")
+    assert(s8_min == s8_min, "val_s8 min reflexivity")
+    assert(s8_max == s8_max, "val_s8 max reflexivity")
     assert(s8_min < s8_max,  "min < max")
     assert(not (s8_max < s8_min), "max not < min")
 

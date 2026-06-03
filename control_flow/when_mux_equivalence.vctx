@@ -27,7 +27,7 @@ component MuxEquiv(
     // Ternary-style
     y_ternary := cond ? a : b
 
-    // --- 2. Signed Mux Equivalence (s16) ---
+    // --- 2. Signed Mux Equivalence (val_s16) ---
     // When-style
     wire sw16: s16 = -1
     when cond {
@@ -87,7 +87,7 @@ sim TestWhenMuxEquivalence {
     
     assert(sy_w == sb, "When signed: select sb")
     assert(sy_t == sb, "Ternary signed: select sb")
-    assert(sy_w == sy_t, "s16 equivalence (F)")
+    assert(sy_w == sy_t, "val_s16 equivalence (F)")
 
     // PHASE 2: Basic Equivalence (cond = true)
     poke(cond, true)
@@ -97,7 +97,7 @@ sim TestWhenMuxEquivalence {
     
     assert(sy_w == sa, "When signed: select sa")
     assert(sy_t == sa, "Ternary signed: select sa")
-    assert(sy_w == sy_t, "s16 equivalence (T)")
+    assert(sy_w == sy_t, "val_s16 equivalence (T)")
 
     // PHASE 3: Nested Equivalence
     wire c1: bool = false

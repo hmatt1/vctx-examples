@@ -52,14 +52,14 @@ sim TestConcatExtractRoundtrip {
     wire s8_hi: s8 = -1  // 0xFF
     wire s8_lo: s8 = 127 // 0x7F
 
-    wire cs16 := concat(s8_hi, s8_lo)
+    wire cs16: u16 = concat(s8_hi, s8_lo)
     assert(cs16 == 0xFF7F as u16, "Signed concat is treated as raw bits")
 
-    wire ex_s8_hi := cs16[15..8] as s8
-    wire ex_s8_lo := cs16[7..0] as s8
+    wire ex_s8_hi: s8 = cs16[15..8] as s8
+    wire ex_s8_lo: s8 = cs16[7..0] as s8
 
-    assert(ex_s8_hi == s8_hi, "Recovered s8 MSB")
-    assert(ex_s8_lo == s8_lo, "Recovered s8 LSB")
+    assert(ex_s8_hi == s8_hi, "Recovered val_s8 MSB")
+    assert(ex_s8_lo == s8_lo, "Recovered val_s8 LSB")
 
     // --- 5. Single Bit and Multi-Argument Concat (1 + 2 + 5 -> 8) ---
     wire b1: u1 = 1
@@ -67,7 +67,7 @@ sim TestConcatExtractRoundtrip {
     wire b5: u5 = 21 // 10101
     
     // Concat 3 items. Expected: 1_10_10101 = 1101_0101 = 0xD5 = 213
-    wire c8_multi := concat(b1, b2, b5)
+    wire c8_multi: u8 = concat(b1, b2, b5) as u8
     assert(c8_multi == 213, "Multi-arg concat 1_10_10101")
     assert(width(c8_multi) == 8, "Width is 8")
 

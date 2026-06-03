@@ -40,7 +40,7 @@ component WhenConditionSources(
 
     // --- 4. Complex Computed Condition ---
     wire w_comp: u8 = 0
-    wire is_special := (a > 100) and (b < 50)
+    wire is_special: bool = (a > 100) and (b < 50)
     when is_special {
         w_comp := 0xFF
     } otherwise {

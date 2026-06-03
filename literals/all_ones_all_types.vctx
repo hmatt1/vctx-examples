@@ -20,10 +20,10 @@ sim TestAllOnesAllTypes {
     // --- 2. Signed Types (-1) ---
     // The all-ones pattern in two's complement is always -1.
     wire s8_ones: s8 = 0xFF as s8
-    assert(s8_ones == -1, "s8 all-ones is -1")
+    assert(s8_ones == -1, "val_s8 all-ones is -1")
 
     wire s16_ones: s16 = 0xFFFF as s16
-    assert(s16_ones == -1, "s16 all-ones is -1")
+    assert(s16_ones == -1, "val_s16 all-ones is -1")
 
     wire s64_ones: s64 = 0xFFFF_FFFF_FFFF_FFFF as s64
     assert(s64_ones == -1, "s64 all-ones is -1")
@@ -31,15 +31,15 @@ sim TestAllOnesAllTypes {
     // --- 3. The `~0` Idiom ---
     // Rule: `~` preserves the width of the LHS. 
     // To get an all-ones pattern for a specific width, apply `~` to `0` of that width.
-    wire u8_inv0 := ~(0 as u8)
+    wire u8_inv0: u8 = ~(0 as u8)
     assert(u8_inv0 == 0xFF, "~(u8(0)) is 0xFF")
     assert(width(u8_inv0) == 8, "width is 8")
 
-    wire s16_inv0 := ~(0 as s16)
-    assert(s16_inv0 == -1, "~(s16(0)) is -1")
+    wire s16_inv0: s16 = ~(0 as s16)
+    assert(s16_inv0 == -1, "~(val_s16(0)) is -1")
     assert(width(s16_inv0) == 16, "width is 16")
 
-    wire u64_inv0 := ~(0 as u64)
+    wire u64_inv0: u64 = ~(0 as u64)
     assert(u64_inv0 == 0xFFFF_FFFF_FFFF_FFFF, "~(u64(0)) is all-ones")
 
     // --- 4. Boolean (u1) ---
@@ -64,7 +64,7 @@ sim TestAllOnesAllTypes {
     assert(((u16_ones + 1) as u16) == 0, "u16 max + 1 wraps to 0 (when cast to u16)")
 
     // Signed -1 + 1 is 0
-    assert(s8_ones + 1 == 0, "s8 -1 + 1 is 0")
+    assert(s8_ones + 1 == 0, "val_s8 -1 + 1 is 0")
 
     // --- 7. Comparison of All-Ones Bit Patterns ---
     // While the bit patterns are identical, their semantic values differ.

@@ -24,7 +24,7 @@ sim TestModuloSign {
     assert(0 % p_b == 0, "0 % 3 = 0")
     assert(0 % n_b == 0, "0 % -3 = 0")
 
-    // 6. Large Values (s16, s64)
+    // 6. Large Values (val_s16, s64)
     wire s16_a: s16 = 1000
     wire s16_b: s16 = -333
     // 1000 = (-333 * -3) + 1. Sign follows 1000.
@@ -57,7 +57,7 @@ sim TestModuloSign {
     // u8 % u4 -> u8
     wire u8_v: u8 = 255
     wire u4_v: u4 = 10
-    wire u8_mod := u8_v % u4_v
+    wire u8_mod: u8 = u8_v % u4_v
     assert(width(u8_mod) == 8, "u8 % u4 result width is 8")
     assert(u8_mod == 5, "255 % 10 = 5")
 }

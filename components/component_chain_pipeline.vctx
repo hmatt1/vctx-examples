@@ -13,8 +13,8 @@ component PipeStage(in d: u8, out q: u8) {
 component PipelineChain3(
     in d: u8,
     out q: u8,
-    out s1: u8,
-    out s2: u8
+    out val_s1: u8,
+    out val_s2: u8
 ) {
     wire w1: u8
     wire w2: u8
@@ -25,40 +25,40 @@ component PipelineChain3(
     st3: PipeStage(w2, q)
 
     // Expose intermediate wires for verification
-    s1 := w1
-    s2 := w2
+    val_s1 := w1
+    val_s2 := w2
 }
 
 sim TestComponentChainPipeline {
     wire d: u8 = 0
     wire q: u8
-    wire s1: u8
-    wire s2: u8
+    wire val_s1: u8
+    wire val_s2: u8
 
-    PipelineChain3(d, q, s1, s2)
+    PipelineChain3(d, q, val_s1, val_s2)
 
     // PHASE 1: Reset State
     // All registers in all stages should be 0
-    assert(s1 == 0 and s2 == 0 and q == 0, "Pipeline starts at 0")
+    assert(val_s1 == 0 and val_s2 == 0 and q == 0, "Pipeline starts at 0")
 
     // PHASE 2: Feed Value 100
     poke(d, 100)
     cycle()
     
     // After 1 cycle: Stage 1 has (100+1)
-    assert(s1 == 101, "Stage 1: 100+1 = 101")
-    assert(s2 == 0,   "Stage 2: Still empty")
+    assert(val_s1 == 101, "Stage 1: 100+1 = 101")
+    assert(val_s2 == 0,   "Stage 2: Still empty")
     assert(q  == 0,   "Stage 3: Still empty")
 
     // After 2 cycles: Stage 2 has (101+1)
     cycle()
-    assert(s1 == 1,   "Stage 1: (Input 0+1) = 1")
-    assert(s2 == 102, "Stage 2: 101+1 = 102")
+    assert(val_s1 == 1,   "Stage 1: (Input 0+1) = 1")
+    assert(val_s2 == 102, "Stage 2: 101+1 = 102")
     assert(q  == 0,   "Stage 3: Still empty")
 
     // After 3 cycles: Stage 3 (Output) has (102+1)
     cycle()
-    assert(s2 == 2,   "Stage 2: (1+1) = 2")
+    assert(val_s2 == 2,   "Stage 2: (1+1) = 2")
     assert(q  == 103, "Stage 3: 102+1 = 103 reached output")
 
     // PHASE 3: Streaming Data (Continuous Pipeline)
@@ -74,13 +74,13 @@ sim TestComponentChainPipeline {
     // Stage 1 should have 30+1 = 31
     // Stage 2 should have 20+1+1 = 22
     // Stage 3 should have 10+1+1+1 = 13
-    assert(s1 == 31, "Streaming: Stage 1 has 31")
-    assert(s2 == 22, "Streaming: Stage 2 has 22")
+    assert(val_s1 == 31, "Streaming: Stage 1 has 31")
+    assert(val_s2 == 22, "Streaming: Stage 2 has 22")
     assert(q  == 13, "Streaming: Stage 3 has 13")
 
     // PHASE 4: Reset Verification
     reset()
-    assert(s1 == 0 and s2 == 0 and q == 0, "Chain reset to 0")
+    assert(val_s1 == 0 and val_s2 == 0 and q == 0, "Chain reset to 0")
 
     // PHASE 5: Signed Component Chain
     // Using simple regs for brevity here to verify signed interop in chains

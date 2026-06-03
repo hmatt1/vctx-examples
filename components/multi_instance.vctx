@@ -227,8 +227,8 @@ sim TestMultiInstanceConstantInputs {
     wire y1: u16
     wire y2: u16
     
-    MultiplierWithConstant(10, 5, y1)
-    MultiplierWithConstant(20, 3, y2)
+    MultiplierWithConstant(10 as u8, 5 as u8, y1)
+    MultiplierWithConstant(20 as u8, 3 as u8, y2)
     
     assert(y1 == 50, "10 * 5 = 50")
     assert(y2 == 60, "20 * 3 = 60")

@@ -5,20 +5,20 @@
 
 component ZeroIdentities(
     in x8: u8, out y8_add: u8, out y8_sub: u8, out y8_mul0: u8, out y8_mul1: u8, out y8_div1: u8,
-    in s16: s16, out sy16_add: s16, out sy16_sub: s16, out sy16_mul0: s16, out sy16_mul1: s16, out sy16_div1: s16
+    in val_s16: s16, out sy16_add: s16, out sy16_sub: s16, out sy16_mul0: s16, out sy16_mul1: s16, out sy16_div1: s16
 ) {
     // Structural verification of identity logic
-    y8_add := x8 + 0
-    y8_sub := x8 - 0
-    y8_mul0 := x8 * 0
-    y8_mul1 := x8 * 1
-    y8_div1 := x8 / 1
+    y8_add := (x8 + 0) as u8
+    y8_sub := (x8 - 0) as u8
+    y8_mul0 := (x8 * 0) as u8
+    y8_mul1 := (x8 * 1) as u8
+    y8_div1 := (x8 / 1) as u8
 
-    sy16_add := s16 + 0
-    sy16_sub := s16 - 0
-    sy16_mul0 := s16 * 0
-    sy16_mul1 := s16 * 1
-    sy16_div1 := s16 / 1
+    sy16_add := (val_s16 + 0) as s16
+    sy16_sub := (val_s16 - 0) as s16
+    sy16_mul0 := (val_s16 * 0) as s16
+    sy16_mul1 := (val_s16 * 1) as s16
+    sy16_div1 := (val_s16 / 1) as s16
 }
 
 sim TestZeroIdentities {
@@ -40,16 +40,16 @@ sim TestZeroIdentities {
     assert(u64_val * 0 == 0, "u64: identity * 0")
     assert(u64_val / 1 == 0xDEAD_BEEF_CAFE_BABE, "u64: identity / 1")
 
-    // 2. Signed Identities (s8 to s64)
+    // 2. Signed Identities (val_s8 to s64)
     wire s8_pos: s8 = 10
     wire s8_neg: s8 = -10
-    assert(s8_pos + 0 == 10, "s8: 10 + 0 = 10")
-    assert(s8_neg + 0 == -10, "s8: -10 + 0 = -10")
-    assert(s8_pos - 0 == 10, "s8: 10 - 0 = 10")
-    assert(s8_neg - 0 == -10, "s8: -10 - 0 = -10")
-    assert(s8_neg * 0 == 0, "s8: -10 * 0 = 0")
-    assert(s8_neg * 1 == -10, "s8: -10 * 1 = -10")
-    assert(s8_neg / 1 == -10, "s8: -10 / 1 = -10")
+    assert(s8_pos + 0 == 10, "val_s8: 10 + 0 = 10")
+    assert(s8_neg + 0 == -10, "val_s8: -10 + 0 = -10")
+    assert(s8_pos - 0 == 10, "val_s8: 10 - 0 = 10")
+    assert(s8_neg - 0 == -10, "val_s8: -10 - 0 = -10")
+    assert(s8_neg * 0 == 0, "val_s8: -10 * 0 = 0")
+    assert(s8_neg * 1 == -10, "val_s8: -10 * 1 = -10")
+    assert(s8_neg / 1 == -10, "val_s8: -10 / 1 = -10")
 
     wire s64_min: s64 = -9223372036854775808
     assert(s64_min + 0 == s64_min, "s64: min + 0")
@@ -65,11 +65,11 @@ sim TestZeroIdentities {
     // 4. Identity at width boundaries
     // u8 + 0 should have width 9 according to spec + rule (max(L,R)+1)
     // However, if R is a literal 0, we verify the specialized result.
-    wire u8_sum := u8_val + 0
+    wire u8_sum: u[9] = u8_val + 0
     assert(width(u8_sum) == 9, "u8 + 0 (literal) result width is 9 per spec")
     assert(u8_sum == 42 as u9, "u8 + 0 = u9(42)")
 
-    wire u8_mul := u8_val * 0
+    wire u8_mul: u[9] = u8_val * 0
     assert(width(u8_mul) == 9, "u8 * 0 (literal 0 is u1) -> width 9") 
     // Wait, literal 0 is usually inferred as smallest width. u8 * u1 -> u9.
     

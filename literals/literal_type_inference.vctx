@@ -9,19 +9,19 @@ sim TestLiteralTypeInference {
     // Rule: Literal should occupy the minimum bits required for its magnitude.
     
     // 0 and 1 should infer as 1-bit unsigned
-    wire inf_0 := 0
-    wire inf_1 := 1
+    wire inf_0: u1 = 0
+    wire inf_1: u1 = 1
     assert(width(inf_0) == 1, "0 defaults to u1")
     assert(width(inf_1) == 1, "1 defaults to u1")
     assert(is_signed(inf_1) == false, "Small positive defaults to unsigned")
 
     // 255 should infer as 8-bit unsigned
-    wire inf_255 := 255
+    wire inf_255: u8 = 255
     assert(width(inf_255) == 8, "255 defaults to u8")
 
     // 256 should infer as 9-bit unsigned (or u16 depending on implementation padding, 
     // but vctx spec suggests exact fit for scalars)
-    wire inf_256 := 256
+    wire inf_256: u[9] = 256
     assert(width(inf_256) == 9, "256 requires 9 bits (1_0000_0000)")
 
     // --- 2. Inference from Assignment (LHS Context) ---
@@ -36,14 +36,14 @@ sim TestLiteralTypeInference {
     // --- 3. Inference from Binary Operators ---
     // Rule: In 'x + 1', '1' should promote to match x's width or result width.
     wire u8_val: u8 = 100
-    wire u8_sum := u8_val + 1 
+    wire u8_sum: u[9] = u8_val + 1
     // u8 + u1 -> u9 (per max(L,R)+1 rule)
     assert(width(u8_sum) == 9, "u8 + untyped(1) -> u9")
     
     wire s16_val: s16 = 1000
-    wire s16_sub := s16_val - 500
-    // s16 + untyped(500) -> s17
-    assert(width(s16_sub) == 17, "s16 - untyped(500) -> s17")
+    wire s16_sub: s[17] = s16_val - 500
+    // val_s16 + untyped(500) -> s17
+    assert(width(s16_sub) == 17, "val_s16 - untyped(500) -> s17")
 
     // --- 4. Inference from Comparisons ---
     // Rule: In 'x == 255', '255' should be interpreted in x's domain.
@@ -55,16 +55,16 @@ sim TestLiteralTypeInference {
     // Rule: Negative literals infer as the smallest signed type that fits.
     
     // -1 fits in s1 (value 1)
-    wire inf_neg1 := -1
-    assert(width(inf_neg1) == 1, "-1 defaults to s1")
+    wire inf_neg1: s1 = -1 as s1
+    assert(width(inf_neg1) == 1, "-1 defaults to val_s1")
     assert(is_signed(inf_neg1) == true, "Negative literal is signed")
 
     // -128 fits in s8
-    wire inf_neg128 := -128
-    assert(width(inf_neg128) == 8, "-128 defaults to s8")
+    wire inf_neg128: s8 = -128
+    assert(width(inf_neg128) == 8, "-128 defaults to val_s8")
 
     // -129 requires s9
-    wire inf_neg129 := -129
+    wire inf_neg129: s[9] = -129
     assert(width(inf_neg129) == 9, "-129 defaults to s9")
 
     // --- 6. Literal Width in Intrinsics ---
@@ -74,7 +74,7 @@ sim TestLiteralTypeInference {
     assert(width(0xFFFF_FFFF) == 32, "width(32-bit hex) is 32")
 
     // --- 7. Large Number Inference ---
-    wire inf_large := 0x1_0000_0000_0000 // 33 bits
+    wire inf_large: u[49] = 0x1_0000_0000_0000
     assert(width(inf_large) == 49, "Large hex literal width") 
     // 0x1_... is 1 followed by 12 zeros. 12 * 4 + 1 = 49 bits.
     
@@ -82,7 +82,7 @@ sim TestLiteralTypeInference {
     // Rule: Literal arms should match the other arm's type.
     wire ctrl: bool = true
     wire u8_a: u8 = 10
-    wire tern_res := ctrl ? u8_a : 20 
+    wire tern_res: u8 = ctrl ? u8_a : 20
     // '20' should be inferred as u8 to match u8_a
     assert(width(tern_res) == 8, "Ternary arm inference")
 

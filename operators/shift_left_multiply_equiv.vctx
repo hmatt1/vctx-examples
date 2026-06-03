@@ -18,16 +18,16 @@ sim TestShiftLeftMultiplyEquiv {
     // 5 * 2^3 == 5 << 3 (40)
     assert((u8_val << 3) as u11 == u8_val * 8, "u8: x << 3 == x * 8")
 
-    // --- 2. Basic Signed Equivalence (s8) ---
+    // --- 2. Basic Signed Equivalence (val_s8) ---
     wire s8_val: s8 = -3
     
     // -3 * 2^1 == -3 << 1 (-6)
-    assert((s8_val << 1) == -6, "s8: -3 << 1 = -6")
-    // s8 * untyped(2) -> s9. s8 << 1 -> s8.
-    assert((s8_val << 1) as s9 == s8_val * 2, "s8: x << 1 == x * 2")
+    assert((s8_val << 1) == -6, "val_s8: -3 << 1 = -6")
+    // val_s8 * untyped(2) -> s9. val_s8 << 1 -> val_s8.
+    assert((s8_val << 1) as s9 == s8_val * 2, "val_s8: x << 1 == x * 2")
 
     // -3 * 2^4 == -3 << 4 (-48)
-    assert((s8_val << 4) as s12 == s8_val * 16, "s8: x << 4 == x * 16")
+    assert((s8_val << 4) as s12 == s8_val * 16, "val_s8: x << 4 == x * 16")
 
     // --- 3. Dynamic Shift Amounts ---
     wire amt1: u3 = 1
@@ -43,20 +43,20 @@ sim TestShiftLeftMultiplyEquiv {
     // Shift `100 << 2` remains `u8`, so it overflows to `144` (400 % 256).
     wire u8_large: u8 = 100
     
-    wire mul_res := u8_large * 4 // u8 * u3 -> u11 (value 400)
+    wire mul_res: u[11] = u8_large * 4
     assert(width(mul_res) == 11, "Multiplication widens")
     assert(mul_res == 400, "Multiplication preserves value via widening")
     
-    wire shf_res := u8_large << 2 // Remains u8
+    wire shf_res: u8 = u8_large << 2
     assert(width(shf_res) == 8, "Shift preserves LHS width")
     
     // To make them equal, we must truncate the multiplication result
     assert(shf_res == (mul_res as u8), "Shift equals truncated multiplication")
     assert(shf_res == 144, "Shift overflows (400 % 256 = 144)")
 
-    // --- 5. Large Types (s16, u64) ---
+    // --- 5. Large Types (val_s16, u64) ---
     wire s16_val: s16 = -1000
-    assert((s16_val << 5) as s22 == s16_val * 32, "s16: x << 5 == x * 32")
+    assert((s16_val << 5) as s22 == s16_val * 32, "val_s16: x << 5 == x * 32")
 
     // u64 large shift
     wire u64_val: u64 = 0x0000_0000_1234_5678
@@ -64,7 +64,7 @@ sim TestShiftLeftMultiplyEquiv {
     assert((u64_val << 32) == 0x1234_5678_0000_0000, "u64: x << 32")
     
     // Multiply by 2^32 (0x1_0000_0000)
-    wire mul64_res := u64_val * 0x1_0000_0000
+    wire mul64_res: u[97] = u64_val * 0x1_0000_0000
     // Result width is 64 + 33 = 97
     assert((u64_val << 32) as u97 == mul64_res, "u64: x << 32 == x * 2^32")
 
@@ -75,7 +75,7 @@ sim TestShiftLeftMultiplyEquiv {
     // --- 7. Signed Overflow (Truncation) ---
     wire s8_large: s8 = 64
     // 64 * 2 = 128 (requires s9).
-    // 64 << 1 in s8 = 128. In s8, 128 is 0x80, which is -128.
+    // 64 << 1 in s8 = 128. In val_s8, 128 is 0x80, which is -128.
     assert((s8_large << 1) == -128, "Signed shift overflow wraps to negative")
     assert((s8_large * 2) == 128 as s9, "Signed multiply avoids overflow via widening")
     assert((s8_large << 1) == ((s8_large * 2) as s8), "Equivalence under truncation")

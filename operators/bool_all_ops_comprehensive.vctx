@@ -51,20 +51,20 @@ sim TestBoolAllOpsComprehensive {
 
     // --- 8. Complex Composition ---
     // not (A and B) == ~ (A & B) == (not A or not B)
-    wire comp_logic := not (T and F)
-    wire comp_bit   := ~(T & F)
+    wire comp_logic: u8 = not (T and F)
+    wire comp_bit: u8 = ~(T & F)
     assert((comp_logic as u1) == comp_bit, "Logical and Bitwise equivalence")
 
     // Precedence: > has higher priority than 'and'
     assert(T and (T > F) == true, "Precedence check")
 
     // --- 9. Type Metadata Verification ---
-    wire res_and := T and F
-    wire res_or  := T or F
-    wire res_not := not T
-    wire res_eq  := T == F
-    wire res_lt  := T < F
-    wire res_tern := T ? T : F
+    wire res_and: u1 = T and F
+    wire res_or: u1 = T or F
+    wire res_not: u1 = not T
+    wire res_eq: u1 = T == F
+    wire res_lt: u1 = T < F
+    wire res_tern: u1 = T ? T : F
 
     // All these should yield a width of 1 and be unsigned
     assert(width(res_and) == 1, "Result width of AND is 1")

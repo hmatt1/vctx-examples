@@ -49,15 +49,15 @@ sim TestSliceAtAllPositions {
 
     // --- 4. Signed Bit Extraction (MSB is Sign Bit) ---
     wire s8_neg: s8 = -128 // 1000_0000
-    assert(s8_neg[7..7] == 1, "s8: MSB of -128 is 1")
-    assert(s8_neg[0..0] == 0, "s8: LSB of -128 is 0")
+    assert(s8_neg[7..7] == 1, "val_s8: MSB of -128 is 1")
+    assert(s8_neg[0..0] == 0, "val_s8: LSB of -128 is 0")
 
     wire s8_neg1: s8 = -1 // 1111_1111
-    assert(s8_neg1[7..7] == 1, "s8: MSB of -1 is 1")
-    assert(s8_neg1[0..0] == 1, "s8: LSB of -1 is 1")
+    assert(s8_neg1[7..7] == 1, "val_s8: MSB of -1 is 1")
+    assert(s8_neg1[0..0] == 1, "val_s8: LSB of -1 is 1")
 
     // --- 5. Result Metadata Verification ---
-    wire bit_res := u16_val[15..15]
+    wire bit_res: u1 = u16_val[15..15]
     assert(width(bit_res) == 1, "Single bit slice width is 1")
     assert(is_signed(bit_res) == false, "Single bit slice is unsigned")
 
@@ -69,7 +69,7 @@ sim TestSliceAtAllPositions {
 
     // --- 7. Concatenated Extraction ---
     // Extracting bits from the result of a concat
-    wire c_res := concat(u8_val, u8_val) // 16 bits
+    wire c_res: u16 = concat(u8_val, u8_val)
     assert(c_res[15..15] == u8_val[7..7], "Extract from concat result (MSB)")
     assert(c_res[7..7] == u8_val[7..7],   "Extract from concat result (Mid)")
     assert(c_res[0..0] == u8_val[0..0],   "Extract from concat result (LSB)")

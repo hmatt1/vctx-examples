@@ -8,42 +8,42 @@ sim TestConcatStandardPairs {
     // (u1, u1) -> u2
     wire u1_a: u1 = 1
     wire u1_b: u1 = 0
-    wire r2 := concat(u1_a, u1_b)
+    wire r2: u2 = concat(u1_a, u1_b)
     assert(width(r2) == 2, "(1,1) -> 2")
     assert(r2 == 0b10, "1 concat 0 = 2")
 
     // (u4, u4) -> u8
     wire u4_a: u4 = 0xA
     wire u4_b: u4 = 0x5
-    wire r8 := concat(u4_a, u4_b)
+    wire r8: u8 = concat(u4_a, u4_b)
     assert(width(r8) == 8, "(4,4) -> 8")
     assert(r8 == 0xA5, "0xA concat 0x5 = 0xA5")
 
     // (u8, u8) -> u16
     wire u8_a: u8 = 0xDE
     wire u8_b: u8 = 0xAD
-    wire r16 := concat(u8_a, u8_b)
+    wire r16: u16 = concat(u8_a, u8_b)
     assert(width(r16) == 16, "(8,8) -> 16")
     assert(r16 == 0xDEAD, "0xDE concat 0xAD = 0xDEAD")
 
     // (u16, u16) -> u32
     wire u16_a: u16 = 0xBEEF
     wire u16_b: u16 = 0xCAFE
-    wire r32 := concat(u16_a, u16_b)
+    wire r32: u32 = concat(u16_a, u16_b)
     assert(width(r32) == 32, "(16,16) -> 32")
     assert(r32 == 0xBEEF_CAFE, "0xBEEF concat 0xCAFE = 0xBEEFCAFE")
 
     // (u32, u32) -> u64
     wire u32_a: u32 = 0x1234_5678
     wire u32_b: u32 = 0x9ABC_DEF0
-    wire r64 := concat(u32_a, u32_b)
+    wire r64: u64 = concat(u32_a, u32_b)
     assert(width(r64) == 64, "(32,32) -> 64")
     assert(r64 == 0x1234_5678_9ABC_DEF0, "u32 concat u32 = u64")
 
-    // (u64, u64) -> u128
+    // (u64, u64) -> val_u128
     wire u64_a: u64 = 0xFFFF_FFFF_FFFF_FFFF
     wire u64_b: u64 = 0x0000_0000_0000_0000
-    wire r128 := concat(u64_a, u64_b)
+    wire r128: u128 = concat(u64_a, u64_b)
     assert(width(r128) == 128, "(64,64) -> 128")
 
     // --- 2. Mixed Standard Widths (Asymmetric) ---
@@ -60,7 +60,7 @@ sim TestConcatStandardPairs {
     // (u3, u5) -> u8
     wire u3_val: u [ 3 ] = 7
     wire u5_val: u [ 5 ] = 31
-    wire r8_odd := concat(u3_val, u5_val)
+    wire r8_odd: u8 = concat(u3_val, u5_val)
     assert(width(r8_odd) == 8, "(3,5) -> 8")
     assert(r8_odd == 0xFF, "0b111 concat 0b11111 = 0xFF")
 
@@ -72,18 +72,18 @@ sim TestConcatStandardPairs {
     // --- 4. Result Signedness Verification ---
     // Rule: Concat result is always unsigned.
     wire s8_val: s8 = -1 // 0xFF
-    wire r_sign := concat(s8_val as u8, u8_b)
+    wire r_sign: u16 = concat(s8_val as u8, u8_b)
     assert(is_signed(r_sign) == false, "Result of concat is always unsigned")
 
     // --- 5. Variadic Concat (N-way) ---
     // (u4, u4, u4, u4) -> u16
-    wire r16_quad := concat(u4_a, u4_b, u4_a, u4_b)
+    wire r16_quad: u16 = concat(u4_a, u4_b, u4_a, u4_b)
     assert(width(r16_quad) == 16, "Variadic: (4,4,4,4) -> 16")
     assert(r16_quad == 0xA5A5, "0xA concat 0x5 concat 0xA concat 0x5 = 0xA5A5")
 
     // --- 6. Concat of Expressions ---
     // width(concat(a+b, c*d))
-    wire res_expr := concat(u4_a + 1, u8_a - 1)
+    wire res_expr: u[14] = concat(u4_a + 1, u8_a - 1)
     // u4+u1 -> u5. u8+u1 -> u9. Result u14.
     assert(width(res_expr) == 14, "Expression concat width")
 }

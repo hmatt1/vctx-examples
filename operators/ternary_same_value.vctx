@@ -17,10 +17,10 @@ sim TestTernarySameValue {
     wire cond_f: bool = false
     assert((cond_f ? x8 : x8) == 42, "u8: wire false selects 42")
 
-    // --- 2. Signed s16 Identity ---
+    // --- 2. Signed val_s16 Identity ---
     wire sx16: s16 = -12345
-    assert((cond   ? sx16 : sx16) == -12345, "s16: identity check")
-    assert((cond_f ? sx16 : sx16) == -12345, "s16: identity check (false)")
+    assert((cond   ? sx16 : sx16) == -12345, "val_s16: identity check")
+    assert((cond_f ? sx16 : sx16) == -12345, "val_s16: identity check (false)")
 
     // --- 3. Large Width u64 Identity ---
     wire x64: u64 = 0xDEAD_BEEF_CAFE_BABE
@@ -41,13 +41,13 @@ sim TestTernarySameValue {
 
     // --- 6. Type Metadata Verification ---
     // The result type must match the arms' type.
-    wire res_u8 := cond ? x8 : x8
+    wire res_u8: u8 = cond ? x8 : x8
     assert(width(res_u8) == 8, "Result width matches arms")
     assert(is_signed(res_u8) == false, "Result signedness matches arms")
 
-    wire res_s16 := cond ? sx16 : sx16
-    assert(width(res_s16) == 16, "Result width matches arms (s16)")
-    assert(is_signed(res_s16) == true, "Result signedness matches arms (s16)")
+    wire res_s16: s16 = cond ? sx16 : sx16
+    assert(width(res_s16) == 16, "Result width matches arms (val_s16)")
+    assert(is_signed(res_s16) == true, "Result signedness matches arms (val_s16)")
 
     // --- 7. Nested Identities ---
     // cond1 ? (cond2 ? x : x) : x == x
@@ -57,8 +57,8 @@ sim TestTernarySameValue {
     // --- 8. Boundary Values ---
     wire s8_min: s8 = -128
     wire s8_max: s8 = 127
-    assert((cond ? s8_min : s8_min) == -128, "s8 min identity")
-    assert((cond ? s8_max : s8_max) == 127,  "s8 max identity")
+    assert((cond ? s8_min : s8_min) == -128, "val_s8 min identity")
+    assert((cond ? s8_max : s8_max) == 127,  "val_s8 max identity")
 
     // --- 9. Comptime Literal Identity ---
     // (Literal condition with literal values)

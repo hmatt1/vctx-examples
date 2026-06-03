@@ -48,13 +48,13 @@ sim TestHexLiteralsAllSizes {
 
     // --- 6. Untyped Inference ---
     // A raw hex literal adapts to the smallest width it fits into.
-    wire inf_8 := 0xFF
+    wire inf_8: u8 = 0xFF
     assert(width(inf_8) == 8, "0xFF infers as 8-bit")
     
-    wire inf_16 := 0xFFFF
+    wire inf_16: u16 = 0xFFFF
     assert(width(inf_16) == 16, "0xFFFF infers as 16-bit")
     
-    wire inf_33 := 0x1_0000_0000 // Requires 33 bits (bit 32 is 1)
+    wire inf_33: u[33] = 0x1_0000_0000
     assert(width(inf_33) == 33, "0x1_0000_0000 infers as 33-bit")
 
     // --- 7. Mixed Case ---
@@ -68,7 +68,7 @@ sim TestHexLiteralsAllSizes {
     assert(0x00FF == 0xFF, "Leading zeros ignored for value")
     
     // Check width of zero-padded literal
-    wire padded := 0x00FF
+    wire padded: u8 = 0x00FF
     // The magnitude is 255, which fits in 8 bits.
     assert(width(padded) == 8, "Zero-padded 0x00FF infers as 8-bit based on magnitude, not string length")
 }

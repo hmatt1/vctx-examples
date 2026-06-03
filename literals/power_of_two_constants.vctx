@@ -31,8 +31,8 @@ sim TestPowerOfTwoConstants {
     // Verifying width promotion in the identity
     // u8 * untyped(2) -> u9. u8 << 1 -> u8.
     // To compare them, we must normalize the widths.
-    wire m_res := x * 2
-    wire s_res := x << 1
+    wire m_res: u8 = (x * 2) as u8
+    wire s_res: u8 = (x << 1) as u8
     assert(m_res == s_res as u9, "Multiplication/Shift width match check")
 
     // --- 4. Division vs Shift Equivalence (Unsigned) ---
@@ -63,7 +63,7 @@ sim TestPowerOfTwoConstants {
     assert(clog2(7) == 3, "clog2(7) = 3 (Upper bound of 2^3)")
 
     // --- 7. Signed Power of Two ---
-    // s8 range: -128 (2^7 negative) to 127
+    // val_s8 range: -128 (2^7 negative) to 127
     wire s8_val: s8 = -128
     assert(s8_val == ((-1) as s8 << 7), "-128 is -1 shifted left by 7")
     

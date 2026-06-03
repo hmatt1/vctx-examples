@@ -11,7 +11,7 @@ sim TestArraySliceAllPositions {
 
     // --- 1. Slice at Start (Lowest Indices) ---
     // Extract bottom 3 elements: indices 2, 1, 0
-    wire slice_start := base_arr[2..0]
+    wire slice_start: s8 = base_arr[2..0]
     assert(len(slice_start) == 3, "Start slice length is 3")
     assert(slice_start[0] == 0,  "Start slice [0] == base[0]")
     assert(slice_start[1] == 10, "Start slice [1] == base[1]")
@@ -19,14 +19,14 @@ sim TestArraySliceAllPositions {
 
     // --- 2. Slice in Middle ---
     // Extract middle 2 elements: indices 3, 2
-    wire slice_mid := base_arr[3..2]
+    wire slice_mid: s8 = base_arr[3..2]
     assert(len(slice_mid) == 2, "Middle slice length is 2")
     assert(slice_mid[0] == 20, "Middle slice [0] == base[2]")
     assert(slice_mid[1] == 30, "Middle slice [1] == base[3]")
 
     // --- 3. Slice at End (Highest Indices) ---
     // Extract top 3 elements: indices 5, 4, 3
-    wire slice_end := base_arr[5..3]
+    wire slice_end: s8 = base_arr[5..3]
     assert(len(slice_end) == 3, "End slice length is 3")
     assert(slice_end[0] == 30, "End slice [0] == base[3]")
     assert(slice_end[1] == 40, "End slice [1] == base[4]")
@@ -34,7 +34,7 @@ sim TestArraySliceAllPositions {
 
     // --- 4. Single Element Range Slice ---
     // Rule: arr[3..3] returns an array of length 1, whereas arr[3] returns a scalar element.
-    wire slice_single := base_arr[3..3]
+    wire slice_single: s8 = base_arr[3..3]
     assert(len(slice_single) == 1, "Single range slice length is 1")
     assert(slice_single[0] == 30, "Single range slice element is 30")
     
@@ -44,7 +44,7 @@ sim TestArraySliceAllPositions {
 
     // --- 5. Full Array Slice ---
     // Extracting the entire array
-    wire slice_full := base_arr[5..0]
+    wire slice_full: s8 = base_arr[5..0]
     assert(len(slice_full) == 6, "Full slice length matches base")
     assert(slice_full[0] == 0, "Full slice [0] == 0")
     assert(slice_full[5] == 50, "Full slice [5] == 50")
@@ -52,14 +52,14 @@ sim TestArraySliceAllPositions {
     // --- 6. Boolean Array Slicing ---
     wire b_arr: bool[4] = [true, false, true, false]
     // Indices: 3(T), 2(F), 1(T), 0(F)
-    wire b_slice := b_arr[2..1]
+    wire b_slice: bool = b_arr[2..1]
     assert(len(b_slice) == 2, "Bool slice length")
     assert(b_slice[0] == true, "Bool slice [0] == base[1]")
     assert(b_slice[1] == false, "Bool slice [1] == base[2]")
 
     // --- 7. Slicing a Literal Array ---
     // Validating that slicing can be applied directly to a literal expression
-    wire lit_slice := [99 as u8, 88 as u8, 77 as u8][2..1]
+    wire lit_slice: u8 = [99 as u8, 88 as u8, 77 as u8][2..1]
     // Array literals are defined MSB first? No, standard is index 0 first usually,
     // let's verify. [expr, expr, expr]. If standard, 0=99, 1=88, 2=77.
     // Spec §8.6 says "[expr, expr, ...] is literal array init".

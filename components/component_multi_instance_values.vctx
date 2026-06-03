@@ -37,10 +37,10 @@ sim TestComponentMultiInstanceValues {
     StatefulMultiplier(dyn_a, dyn_b, en_all, out_dyn)
 
     // Instance 2: Constants (10 * 5)
-    StatefulMultiplier(10, 5, en_all, out_const)
+    StatefulMultiplier(10 as u8, 5 as u8, en_all, out_const)
 
     // Instance 3: Mixed (dyn_a * 100)
-    StatefulMultiplier(dyn_a, 100, en_all, out_mixed)
+    StatefulMultiplier(dyn_a, 100 as u8, en_all, out_mixed)
 
     // --- PHASE 1: Initial state ---
     assert(out_dyn == 0,   "Init dyn = 0")

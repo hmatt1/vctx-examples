@@ -38,7 +38,7 @@ sim TestArrayOfBool {
 
     // --- 4. Slicing bool arrays ---
     // Rule: Result of a slice is a new array.
-    wire subset := flags[2..1] // [F, T]
+    wire subset: s8 = flags[2..1]
     assert(len(subset) == 2, "Slice length is 2")
     assert(subset[0] == true, "subset[0] == flags[1]")
     assert(subset[1] == false, "subset[1] == flags[2]")
@@ -72,7 +72,7 @@ sim TestArrayOfBool {
     assert(any_flag == false, "Logical OR of elements")
 
     // --- 7. Slicing a subset then indexing ---
-    wire bit_from_slice := (flags[3..2])[0] // flags[2]
+    wire bit_from_slice: u8 = (flags[3..2])[0]
     assert(bit_from_slice == false, "Index into slice result")
 
     // --- 8. Concat with bool arrays ---
@@ -82,6 +82,6 @@ sim TestArrayOfBool {
     wire upper2: bool[2] = [false, false]
     
     // We can't concat arrays directly, but we can cast them if widths match
-    wire joined_u4 := concat(upper2 as u2, lower2 as u2)
+    wire joined_u4: u8 = concat(upper2 as u2, lower2 as u2)
     assert(joined_u4 == 0b0011, "Concat of bool array bit-patterns")
 }
