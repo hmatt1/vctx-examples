@@ -32,7 +32,7 @@ sim TestShiftBoundaries {
     assert(s8_min >> 7 == -1, "val_s8: -128 >> 7 = -1 (Arithmetic right shift fills with 1s)")
     
     wire s8_pos: s8 = 64 // 0100_0000
-    assert(s8_pos >> 6 == 0, "val_s8: 64 >> 6 = 1 (No, 64 is 2^6, 64>>6 is 1)")
+    assert(s8_pos >> 6 == 1, "val_s8: 64 >> 6 = 1")
     assert(64 as s8 >> 6 == 1, "val_s8: 64 >> 6 = 1")
     assert(64 as s8 >> 7 == 0, "val_s8: 64 >> 7 = 0 (Logical zero-fill for positive signed)")
 

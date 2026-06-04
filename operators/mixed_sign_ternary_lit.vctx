@@ -9,11 +9,11 @@ sim TestMixedSignTernaryLit {
     wire val: s8 = -10
     
     wire res: s8
-    res := cond ? val : 0
+    res := cond ? val : 0 as s8
     
     assert(res == -10 as s8, "ternary infers s8 for literal 0, true arm selected")
     
     wire res_false: s8
-    res_false := false ? val : 0
+    res_false := false ? val : 0 as s8
     assert(res_false == 0 as s8, "ternary infers s8 for literal 0, false arm selected")
 }

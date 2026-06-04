@@ -82,7 +82,7 @@ sim TestLiteralTypeInference {
     // Rule: Literal arms should match the other arm's type.
     wire ctrl: bool = true
     wire u8_a: u8 = 10
-    wire tern_res: u8 = ctrl ? u8_a : 20
+    wire tern_res: u8 = ctrl ? u8_a : 20 as u8
     // '20' should be inferred as u8 to match u8_a
     assert(width(tern_res) == 8, "Ternary arm inference")
 

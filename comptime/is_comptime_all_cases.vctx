@@ -10,9 +10,10 @@ sim TestIsComptimeAllCases {
     assert(is_comptime(true), "Boolean literal is comptime")
     assert(is_comptime("Hi"), "String literal is comptime")
 
-    // --- 2. Wires from Literals (Comptime through Propagation) ---
+    // --- 2. Wires from Literals (NOT Comptime in sim blocks) ---
+    // Rule: In sim blocks, wires are procedural ports. They are NOT comptime.
     wire w_lit: u8 = 10
-    assert(is_comptime(w_lit), "Wire driven by a literal is comptime")
+    assert(not is_comptime(w_lit), "Wire in sim block is NOT comptime")
 
     // --- 3. Registers (Never Comptime) ---
     // Rule: Registers are hardware state and evolve over time; their value is NOT known at comptime.
@@ -21,14 +22,14 @@ sim TestIsComptimeAllCases {
 
     // --- 4. Input Ports (Never Comptime) ---
     // Note: Inside a component, input ports are dynamic. 
-    // In a sim block, wires can be poked, so they are dynamic if not driven by a literal initializer.
+    // In a sim block, wires can be poked, so they are dynamic.
     wire dyn_input: u8
     poke(dyn_input, 5)
     assert(not is_comptime(dyn_input), "Poked/Dynamic wire is NOT comptime")
 
     // --- 5. Arithmetic of Comptime Values (Always Comptime) ---
     assert(is_comptime(10 + 20), "Arithmetic of literals is comptime")
-    assert(is_comptime(w_lit * 2), "Arithmetic of comptime wire is comptime")
+    assert(not is_comptime(w_lit * 2), "Arithmetic with sim-block wire is NOT comptime")
 
     // --- 6. Arithmetic with Dynamic Values (Never Comptime) ---
     assert(not is_comptime(dyn_input + 1), "Math with dynamic wire is NOT comptime")

@@ -18,30 +18,36 @@ sim TestArrayOfBool {
     assert(width(flags) == 4, "bool[4] total width is 4 bits")
 
     // --- 2. Constant Indexing (Reading) ---
-    assert(flags[0] == false, "flags[0] is false (Last element in literal?)")
-    // Wait, literal [T, F, T, F] -> 3=T, 2=F, 1=T, 0=F (standard bitvector order)
-    assert(flags[0] == false, "Index 0 is last element of literal")
-    assert(flags[3] == true,  "Index 3 is first element of literal")
+    // Mapping: Left-to-Right = LSB-to-MSB
+    // [true, false, true, false] -> bit3=0, bit2=1, bit1=0, bit0=1 -> 0b0101 (5)
+    assert(flags[0] == true, "flags[0] is true (First element in literal)")
+    assert(flags[1] == false, "flags[1] is false")
+    assert(flags[3] == false, "flags[3] is false")
 
     // --- 3. Dynamic Indexing ---
     wire sel: u2 = 0
     wire out_bool: bool
     BoolArrayMux(sel, flags, out_bool)
 
-    assert(out_bool == false, "Select 0 -> flags[0] (false)")
+    assert(out_bool == true, "Select 0 -> flags[0] (true)")
     
     poke(sel, 1)
-    assert(out_bool == true,  "Select 1 -> flags[1] (true)")
+    assert(out_bool == false, "Select 1 -> flags[1] (false)")
+
+    poke(sel, 2)
+    assert(out_bool == true,  "Select 2 -> flags[2] (true)")
 
     poke(sel, 3)
-    assert(out_bool == true,  "Select 3 -> flags[3] (true)")
+    assert(out_bool == false, "Select 3 -> flags[3] (false)")
 
     // --- 4. Slicing bool arrays ---
     // Rule: Result of a slice is a new array.
-    wire subset: s8 = flags[2..1]
+    wire subset: bool[2] = flags[2..1]
     assert(len(subset) == 2, "Slice length is 2")
-    assert(subset[0] == true, "subset[0] == flags[1]")
-    assert(subset[1] == false, "subset[1] == flags[2]")
+    assert(subset[0] == flags[1], "subset[0] == flags[1] (false)")
+    assert(subset[1] == flags[2], "subset[1] == flags[2] (true)")
+    assert(subset[0] == false, "subset[0] is false")
+    assert(subset[1] == true, "subset[1] is true")
 
     // --- 5. Mutation of bool arrays (Registers) ---
     reg r_flags: bool[4] = [false, false, false, false]
@@ -65,15 +71,15 @@ sim TestArrayOfBool {
     assert(r_flags[1] == true, "reg dynamic index write")
 
     // --- 6. Boolean Logic on Array Elements ---
-    wire all_flags: bool = flags[3] and flags[1] // T and T
+    wire all_flags: bool = flags[0] and flags[2] // T and T
     assert(all_flags == true, "Logical AND of elements")
     
-    wire any_flag: bool = flags[2] or flags[0]  // F or F
+    wire any_flag: bool = flags[1] or flags[3]  // F or F
     assert(any_flag == false, "Logical OR of elements")
 
     // --- 7. Slicing a subset then indexing ---
-    wire bit_from_slice: u8 = (flags[3..2])[0]
-    assert(bit_from_slice == false, "Index into slice result")
+    wire bit_from_slice: bool = (flags[3..2])[0] // flags[2] -> true
+    assert(bit_from_slice == true, "Index into slice result")
 
     // --- 8. Concat with bool arrays ---
     // Rule: concat works on bitvectors/scalars. Arrays must usually be indexed or sliced.

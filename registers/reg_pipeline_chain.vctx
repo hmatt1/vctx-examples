@@ -111,13 +111,14 @@ sim TestRegPipelineChain {
     // --- 4. Parallel Data Flow (Shift Register Pattern) ---
     // Verifying that multiple stages can be updated in a single cycle 
     // without "leaking" through (Registers use previous cycle values).
-    wire val: u8 = 0xFF
+    wire val: u8 = 0
     reg rA: u8 = 0
     reg rB: u8 = 0
     
     rA <= val
     rB <= rA // rB gets the *previous* value of rA
     
+    val := 0xFF
     cycle()
     assert(rA == 0xFF, "rA updated")
     assert(rB == 0,    "rB holds OLD value of rA (0) for one cycle")
