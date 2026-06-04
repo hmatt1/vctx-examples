@@ -47,9 +47,9 @@ sim TestRegHoldAcrossCycles {
     assert(os8 == 0, "rs8 init 0")
 
     // 2. Load Values (Cycle 1)
-    load := true
-    v8 := 42
-    v16 := 0xBEEF
+    poke(load, true)
+    poke(v8, 42)
+    poke(v16, 0xBEEF)
     vs8 := -50
     cycle()
 
@@ -59,12 +59,12 @@ sim TestRegHoldAcrossCycles {
     assert(os8 == -50, "rs8 loaded -50")
 
     // 3. Hold Values (Cycles 2-6)
-    load := false
+    poke(load, false)
     
     // Change input wires to ensure they aren't leaking through
-    v8 := 99
-    v16 := 0x1234
-    vs8 := 100
+    poke(v8, 99)
+    poke(v16, 0x1234)
+    poke(vs8, 100)
     
     cycle(5) // Advance 5 idle cycles
 
@@ -74,7 +74,7 @@ sim TestRegHoldAcrossCycles {
     assert(os8 == -50, "rs8 held -50 across 5 cycles")
 
     // 4. Second Load (Cycle 7)
-    load := true
+    poke(load, true)
     cycle()
     
     assert(o8 == 99, "r8 loaded 99")
@@ -82,10 +82,10 @@ sim TestRegHoldAcrossCycles {
     assert(os8 == 100, "rs8 loaded 100")
 
     // 5. Long Hold (Cycles 8-17)
-    load := false
-    v8 := 0
-    v16 := 0
-    vs8 := 0
+    poke(load, false)
+    poke(v8, 0)
+    poke(v16, 0)
+    poke(vs8, 0)
     
     cycle(10) // Advance 10 idle cycles
     

@@ -42,20 +42,20 @@ sim TestRegPipelineChain {
     assert(val_s1 == 0 and val_s2 == 0 and val_s3 == 0 and q == 0, "Initial pipeline is empty")
 
     // Cycle 1: Pulse 0xAA into the pipeline
-    d := 0xAA
+    poke(d, 0xAA)
     cycle()
     assert(val_s1 == 0xAA, "0xAA at stage 1")
     assert(val_s2 == 0,    "0xAA not yet at stage 2")
 
     // Cycle 2: Pulse 0xBB into pipeline, 0xAA moves to stage 2
-    d := 0xBB
+    poke(d, 0xBB)
     cycle()
     assert(val_s1 == 0xBB, "0xBB at stage 1")
     assert(val_s2 == 0xAA, "0xAA at stage 2")
     assert(val_s3 == 0,    "0xAA not yet at stage 3")
 
     // Cycle 3: Pulse 0xCC, move others
-    d := 0xCC
+    poke(d, 0xCC)
     cycle()
     assert(val_s1 == 0xCC, "0xCC at stage 1")
     assert(val_s2 == 0xBB, "0xBB at stage 2")
@@ -63,7 +63,7 @@ sim TestRegPipelineChain {
     assert(q  == 0,    "0xAA not yet at output")
 
     // Cycle 4: Pulse 0xDD, 0xAA reaches output
-    d := 0xDD
+    poke(d, 0xDD)
     cycle()
     assert(val_s1 == 0xDD, "0xDD at stage 1")
     assert(val_s2 == 0xCC, "0xCC at stage 2")
@@ -71,7 +71,7 @@ sim TestRegPipelineChain {
     assert(q  == 0xAA, "0xAA reached output (q) after exactly 4 cycles")
 
     // Cycle 5: Stop input, pipeline starts to clear
-    d := 0
+    poke(d, 0)
     cycle()
     assert(q == 0xBB, "0xBB reaches output")
     
@@ -118,7 +118,7 @@ sim TestRegPipelineChain {
     rA <= val
     rB <= rA // rB gets the *previous* value of rA
     
-    val := 0xFF
+    poke(val, 0xFF)
     cycle()
     assert(rA == 0xFF, "rA updated")
     assert(rB == 0,    "rB holds OLD value of rA (0) for one cycle")

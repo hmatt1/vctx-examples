@@ -93,9 +93,9 @@ sim TestRegResetAllTypes {
     assert(r_s3_odd == -4, "val_s3 odd init")
 
     // PHASE 2: Mutate State
-    mutate := true
+    poke(mutate, true)
     cycle() // Advance clock to latch new values
-    mutate := false // Deassert mutation
+    poke(mutate, false)// Deassert mutation
 
     assert(r_bool_t == false, "bool mutated")
     assert(r_u8_zero == 100, "u8 zero mutated")

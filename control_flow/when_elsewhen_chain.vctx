@@ -93,7 +93,7 @@ sim TestWhenElsewhenChain {
     } elsewhen p_cond2 {
         // partial is NOT assigned here
     } otherwise {
-        partial := 200
+        poke(partial, 200)
     }
     
     // (F, T) -> Second arm matches, but no assignment -> keeps default 7
@@ -107,7 +107,7 @@ sim TestWhenElsewhenChain {
     } elsewhen s_cond {
         s_out := -500
     } otherwise {
-        s_out := 1000
+        poke(s_out, 1000)
     }
     assert(s_out == -500, "Signed chain selection")
 
