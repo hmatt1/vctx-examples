@@ -50,7 +50,7 @@ sim TestRegHoldAcrossCycles {
     poke(load, true)
     poke(v8, 42)
     poke(v16, 0xBEEF)
-    vs8 := -50
+    poke(vs8, -50)
     cycle()
 
     // Values should now be visible on outputs
