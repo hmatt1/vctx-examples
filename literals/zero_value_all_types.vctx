@@ -62,6 +62,8 @@ sim TestZeroValueAllTypes {
     // --- 5. Register Zero Initialization ---
     reg r8: u8 = 0
     reg rs16: s16 = 0
+    r8 <= 100
+    
     assert(r8 == 0, "u8 reg init 0")
     assert(rs16 == 0, "val_s16 reg init 0")
     
