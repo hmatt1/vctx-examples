@@ -27,8 +27,9 @@ sim IntrinsicsComptimeHarness {
     iz := is_comptime(42)
 
     cycle()
-    assert(ic == 1 as u1, "wire driven from literal — is_comptime")
-    assert(iz == 1 as u1, "bare literal is comptime")
+    // In sim, wires are runtime signals (even with constant drivers) to allow pokes.
+    assert(ic == 0 as u1, "In sim, wire driven from literal is NOT comptime-known")
+    assert(iz == 1 as u1, "Bare literal is always comptime-known")
 }
 
 sim IntrinsicsRegNotComptime {
