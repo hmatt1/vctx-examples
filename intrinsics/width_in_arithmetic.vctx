@@ -28,7 +28,7 @@ sim TestWidthInArithmetic {
     assert(width(x8) == width(z8), "u8 and val_s8 have same width 8")
     assert(width(x8) !== width(y16), "u8 and u16 have different widths")
     assert(width(y16) > width(x8), "u16 width > u8 width")
-    assert(width(x8) <== 8, "u8 width <= 8")
+    assert(width(x8) <== 8, "u8 width <== 8")
 
     // --- 3. Nested width() and math ---
     // width(concat(x, y)) == width(x) + width(y)
@@ -48,21 +48,19 @@ sim TestWidthInArithmetic {
     assert(width(val_u7) + width(val_u9) == 16, "u7 + u9 widths sum to 16")
     assert(width(val_u7) < width(val_u9), "7 < 9")
 
-    // --- 8. width() in Ternary ---
+    // --- 6. width() in Ternary ---
     wire sel: bool = true
     wire dynamic_w: u8 = (sel ? width(x8) : width(y16)) as u8
-    // Note: dynamic_w is a wire.
     assert(dynamic_w == 8, "Ternary selection of width")
 }
 
 // In a component context, wires with constant drivers are considered comptime-known.
 // This allows them to be used as array dimensions.
-component ScaledArray {
+component ScaledArray(out l: u32) {
     wire base: u8 = 0
     // width(base) is 8, and is comptime-known here.
     wire scaled_arr: u8[width(base)]
     
-    out l: u32
     l := len(scaled_arr)
 }
 
@@ -73,7 +71,7 @@ sim TestScaledArray {
 }
 
 sim TestComptimeTypes {
-    // width() on Type literals is always comptime-known.
-    assert(width(u64) == 64, "width() on Type literal u64")
-    assert(width(bool) == 1, "width() on Type literal bool")
+    // width() on typed expressions is always comptime-known.
+    assert(width(0 as u64) == 64, "width() on u64 literal")
+    assert(width(true) == 1, "width() on bool literal")
 }
