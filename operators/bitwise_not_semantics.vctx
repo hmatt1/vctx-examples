@@ -1,0 +1,48 @@
+// spec: §7.4 (Unary operators), §7.5 (Width inference)
+// description: Comprehensive verification of Bitwise-NOT (~) semantics and Shift Bit-Gain.
+// vision: An untyped ~0 always yields 1 (minimal width inversion).
+// vision: Untyped literal shifts grow, but variable shifts truncate.
+
+sim TestBitwiseNotSemantics {
+    // --- 1. Default Literal Behavior (Context-free) ---
+    // 0 defaults to u1. ~ (1-bit 0) -> 1
+    assert(width(~0) == 1, "Untyped ~0 is 1 bit wide")
+    assert(~0 == 1,        "Untyped ~0 is 1")
+
+    // --- 2. Explicit Masking (Requires cast) ---
+    // If you want an 8-bit mask, you must cast the operand.
+    assert(~(0 as u8) == 255, "~(0 as u8) is 0xFF (255)")
+    
+    // --- 3. Contextual Zero-Extension ---
+    // Assigning ~0 (value 1) to a u8 wire zero-extends it to 0x01.
+    wire u8_not: u8 = ~0
+    assert(u8_not == 1, "Context-free ~0 defaults to 1 bit then zero-extends")
+
+    // --- 4. Flex-Literal Shift Growth ---
+    // Untyped literals grow to accommodate the shift.
+    // 1 << 4 -> 16 (fits in u5)
+    assert(width(1 << 4) >== 5, "Literal shift grows width")
+    assert(1 << 4 == 16,        "1 << 4 is 16")
+    assert(1 << 4 > 10,         "Literal shift comparison works (16 > 10)")
+
+    // --- 5. Variable-Based Truncation (Hardware Rule) ---
+    // Typed variables follow strict hardware bitwidths.
+    wire x_u1: u1 = 1
+    wire x_u1_shifted: u1 = x_u1 << 4 
+    assert(x_u1_shifted == 0, "Variable shift truncates (Hardware logic)")
+    
+    wire x_u8: u8 = 0xFF
+    wire result: u8 = x_u8 << 4
+    assert(result == 0xF0, "u8 shift (0xFF << 4) truncates to 0xF0")
+
+    // --- 6. Ternary Context Propagation ---
+    // Arms should propagate context if available.
+    wire sel: bool = true
+    // ~0 (1-bit) assigned to u16 -> 0x0001
+    wire res_ternary: u16 = sel ? ~0 : 0
+    assert(res_ternary == 1, "Ternary arm ~0 is 1-bit then zero-extended")
+    
+    // Explicit mask in ternary
+    wire mask_ternary: u16 = sel ? ~(0 as u16) : 0 as u16
+    assert(mask_ternary == 0xFFFF, "Explicit mask in ternary arm works")
+}

@@ -51,24 +51,31 @@ sim TestArrayOfBool {
 
     // --- 5. Mutation of bool arrays (Registers) ---
     reg r_flags: bool[4] = [false, false, false, false]
-    
-    when true {
+
+    wire en_init: bool = true
+    when en_init {
         r_flags[0] <= true
         r_flags[3] <= true
     }
+
     cycle()
-    
-    assert(r_flags[0] == true,  "reg element 0 updated")
+    assert(r_flags[0] == true, "reg element 0 updated")
     assert(r_flags[1] == false, "reg element 1 held")
-    assert(r_flags[3] == true,  "reg element 3 updated")
+    assert(r_flags[3] == true, "reg element 3 updated")
 
     // Dynamic mutation
+    poke(en_init, false)
     wire write_idx: u2 = 1
-    when true {
+    wire en_dyn: bool = false
+    when en_dyn {
         r_flags[write_idx] <= true
     }
+
+    poke(en_dyn, true)
     cycle()
     assert(r_flags[1] == true, "reg dynamic index write")
+    assert(r_flags[0] == true, "reg element 0 still true")
+
 
     // --- 6. Boolean Logic on Array Elements ---
     wire all_flags: bool = flags[0] and flags[2] // T and T

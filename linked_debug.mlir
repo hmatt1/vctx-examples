@@ -15,9 +15,11 @@ module {
     %3 = comb.extract %2 from 0 : (i9) -> i8
     hw.output %3 : i8
   }
-  hw.module @SimNestedGenericDouble_Harness(in %clk : !seq.clock, in %rst : i1, in %x : i8, out x : i8, out y : i8) {
-    %RootNested_inst_17_1.y = hw.instance "RootNested_inst_17_1" sym @RootNested_inst_17_1 @regression_brackets_nested_generic_double_call_RootNested(clk: %clk: !seq.clock, rst: %rst: i1, x: %x: i8) -> (y: i8)
-    hw.output %x, %RootNested_inst_17_1.y : i8, i8
+  hw.module @SimNestedGenericDouble_Harness(in %clk : !seq.clock, in %rst : i1, in %x_poke_val : i8, in %x_poke_en : i1, out x : i8, out y : i8) {
+    %c7_i8 = hw.constant 7 : i8
+    %0 = comb.mux %x_poke_en, %x_poke_val, %c7_i8 : i8
+    %RootNested_inst_17_1.y = hw.instance "RootNested_inst_17_1" sym @RootNested_inst_17_1 @regression_brackets_nested_generic_double_call_RootNested(clk: %clk: !seq.clock, rst: %rst: i1, x: %0: i8) -> (y: i8)
+    hw.output %0, %RootNested_inst_17_1.y : i8, i8
   }
   func.func @entry() {
     %c-2_i4 = hw.constant -2 : i4
@@ -27,21 +29,26 @@ module {
     %0 = seq.const_clock high
     %1 = seq.const_clock low
     arc.sim.instantiate @SimNestedGenericDouble_Harness as %arg0 {
+      arc.sim.set_input %arg0, "x_poke_en" = %false : i1, !arc.sim.instance<@SimNestedGenericDouble_Harness>
+      arc.sim.set_input %arg0, "x_poke_val" = %c7_i8 : i8, !arc.sim.instance<@SimNestedGenericDouble_Harness>
+      arc.sim.set_input %arg0, "x_poke_en" = %true : i1, !arc.sim.instance<@SimNestedGenericDouble_Harness>
       arc.sim.set_input %arg0, "rst" = %true : i1, !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.set_input %arg0, "x" = %c7_i8 : i8, !arc.sim.instance<@SimNestedGenericDouble_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@SimNestedGenericDouble_Harness>
       arc.sim.set_input %arg0, "clk" = %1 : !seq.clock, !arc.sim.instance<@SimNestedGenericDouble_Harness>
       arc.sim.step %arg0 : !arc.sim.instance<@SimNestedGenericDouble_Harness>
       arc.sim.set_input %arg0, "clk" = %0 : !seq.clock, !arc.sim.instance<@SimNestedGenericDouble_Harness>
       arc.sim.step %arg0 : !arc.sim.instance<@SimNestedGenericDouble_Harness>
       arc.sim.set_input %arg0, "rst" = %false : i1, !arc.sim.instance<@SimNestedGenericDouble_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@SimNestedGenericDouble_Harness>
+      arc.sim.step %arg0 : !arc.sim.instance<@SimNestedGenericDouble_Harness>
       arc.sim.set_input %arg0, "clk" = %1 : !seq.clock, !arc.sim.instance<@SimNestedGenericDouble_Harness>
       arc.sim.step %arg0 : !arc.sim.instance<@SimNestedGenericDouble_Harness>
       arc.sim.set_input %arg0, "clk" = %0 : !seq.clock, !arc.sim.instance<@SimNestedGenericDouble_Harness>
       arc.sim.step %arg0 : !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      %2 = arc.sim.get_port %arg0, "x" : i8, !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.emit "x", %2 : i8
-      %3 = arc.sim.get_port %arg0, "y" : i8, !arc.sim.instance<@SimNestedGenericDouble_Harness>
-      arc.sim.emit "y", %3 : i8
+      %2 = arc.sim.get_port %arg0, "y" : i8, !arc.sim.instance<@SimNestedGenericDouble_Harness>
+      arc.sim.emit "y", %2 : i8
+      %3 = arc.sim.get_port %arg0, "x" : i8, !arc.sim.instance<@SimNestedGenericDouble_Harness>
+      arc.sim.emit "x", %3 : i8
       %4 = arc.sim.get_port %arg0, "y" : i8, !arc.sim.instance<@SimNestedGenericDouble_Harness>
       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22y\22}", %4 : i8
       %c0_i4 = hw.constant 0 : i4

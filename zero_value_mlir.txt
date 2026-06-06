@@ -1,0 +1,1361 @@
+Emitting MLIR (sim block 'TestZeroValueAllTypes') for literals.zero_value_all_types...
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\bare_leaf.vctx
+Registering package bare_leaf
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\arrays_slicing\array_index_boundary.vctx
+Registering package arrays_slicing.array_index_boundary
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\arrays_slicing\array_of_bool.vctx
+Registering package arrays_slicing.array_of_bool
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\arrays_slicing\array_slice_all_positions.vctx
+Registering package arrays_slicing.array_slice_all_positions
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\arrays_slicing\dynamic_index_extract.vctx
+Registering package arrays_slicing.dynamic_index_extract
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\bit.vctx
+Registering package components.bit
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\combinational_path_across_instances.vctx
+Registering package components.combinational_path_across_instances
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\component_all_scalar_port_types.vctx
+Registering package components.component_all_scalar_port_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\component_chain_pipeline.vctx
+Registering package components.component_chain_pipeline
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\component_fanout.vctx
+Registering package components.component_fanout
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\component_multi_instance_values.vctx
+Registering package components.component_multi_instance_values
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\foo.vctx
+Registering package components.foo
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\multi_instance.vctx
+Registering package components.multi_instance
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\or_2bit.vctx
+Registering package components.or_2bit
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\out_hold_when_instance_inactive.vctx
+Registering package components.out_hold_when_instance_inactive
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\angle_carrier_width.vctx
+Registering package comptime.angle_carrier_width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\array_type_dimension.vctx
+Registering package comptime.array_type_dimension
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\attributes_and_metadata.vctx
+Registering package comptime.attributes_and_metadata
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_clog2_fold.vctx
+Registering package comptime.comptime_clog2_fold
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_eval_coverage.vctx
+Registering package comptime.comptime_eval_coverage
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_fact_iter.vctx
+Registering package comptime.comptime_fact_iter
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_fn_clog2.vctx
+Registering package comptime.comptime_fn_clog2
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_len_array.vctx
+Registering package comptime.comptime_len_array
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_loop_control.vctx
+Registering package comptime.comptime_loop_control
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_nested_call.vctx
+Registering package comptime.comptime_nested_call
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_values_containers.vctx
+Registering package comptime.comptime_values_containers
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_value_containers.vctx
+Registering package comptime.comptime_value_containers
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\expressions_in_dimensions.vctx
+Registering package comptime.expressions_in_dimensions
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\forbidden_runtime_positions.vctx
+Registering package comptime.forbidden_runtime_positions
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics_type_parameters.vctx
+Registering package comptime.generics_type_parameters
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics_type_type_param.vctx
+Registering package comptime.generics_type_type_param
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generic_param_kinds_smoke.vctx
+Registering package comptime.generic_param_kinds_smoke
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generic_width_standard_sizes.vctx
+Registering package comptime.generic_width_standard_sizes
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\intrinsics_comptime.vctx
+Registering package comptime.intrinsics_comptime
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\is_comptime_all_cases.vctx
+Registering package comptime.is_comptime_all_cases
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\slice_known_width.vctx
+Registering package comptime.slice_known_width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\ternary_casts_in_dimensions.vctx
+Registering package comptime.ternary_casts_in_dimensions
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\otherwise.vctx
+Registering package control_flow.otherwise
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\otherwise2.vctx
+Registering package control_flow.otherwise2
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\reg_read_when_split.vctx
+Registering package control_flow.reg_read_when_split
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\when.vctx
+Registering package control_flow.when
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\when_compound_conditions.vctx
+Registering package control_flow.when_compound_conditions
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\when_elsewhen_chain.vctx
+Registering package control_flow.when_elsewhen_chain
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\when_mux_equivalence.vctx
+Registering package control_flow.when_mux_equivalence
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\when_nested.vctx
+Registering package control_flow.when_nested
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\when_true_false_wire.vctx
+Registering package control_flow.when_true_false_wire
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\when_wire_mux.vctx
+Registering package control_flow.when_wire_mux
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\functions\basic.vctx
+Registering package functions.basic
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\functions\chained_calls.vctx
+Registering package functions.chained_calls
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\functions\mlir_generic_function_component_param.vctx
+Registering package functions.mlir_generic_function_component_param
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\functions\mlir_generic_function_type_param.vctx
+Registering package functions.mlir_generic_function_type_param
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\functions\parity.vctx
+Registering package functions.parity
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\functions\reg_when_instance.vctx
+Registering package functions.reg_when_instance
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\gameboy\alu16.vctx
+Registering package gameboy.alu16
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\gameboy\alu8.vctx
+Registering package gameboy.alu8
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\gameboy\my_reg.vctx
+Registering package gameboy.my_reg
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\gameboy\sm83_datapath.vctx
+Registering package gameboy.sm83_datapath
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\gameboy\sm83_mem_bus.vctx
+Registering package gameboy.sm83_mem_bus
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\gameboy\sm83_register_file.vctx
+Registering package gameboy.sm83_register_file
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\gameboy\sm83_sequencer.vctx
+Registering package gameboy.sm83_sequencer
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\foo.vctx
+Registering package imports.foo
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\import_alias_twice.vctx
+Registering package imports.import_alias_twice
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\import_bare_longname_only.vctx
+Registering package imports.import_bare_longname_only
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\import_bare_plus_alias.vctx
+Registering package imports.import_bare_plus_alias
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\import_fqn_only.vctx
+Registering package imports.import_fqn_only
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\import_scenarios.vctx
+Registering package imports.import_scenarios
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\import_single_segment_bare.vctx
+Registering package imports.import_single_segment_bare
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\is_comptime.vctx
+Registering package intrinsics.is_comptime
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\is_comptime_should_be_true.vctx
+Registering package intrinsics.is_comptime_should_be_true
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\is_signed.vctx
+Registering package intrinsics.is_signed
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\is_signed_clog2.vctx
+Registering package intrinsics.is_signed_clog2
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\poke.vctx
+Registering package intrinsics.poke
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\width.vctx
+Registering package intrinsics.width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\width_all_types.vctx
+Registering package intrinsics.width_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\width_coverage.vctx
+Registering package intrinsics.width_coverage
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\width_drives_generic_param.vctx
+Registering package intrinsics.width_drives_generic_param
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\width_in_arithmetic.vctx
+Registering package intrinsics.width_in_arithmetic
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\lessons\memory_without_arrays.vctx
+Registering package lessons.memory_without_arrays
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\all_ones_all_types.vctx
+Registering package literals.all_ones_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\alternating_bits_patterns.vctx
+Registering package literals.alternating_bits_patterns
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\array_literal_all_types.vctx
+Registering package literals.array_literal_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\binary_literals_patterns.vctx
+Registering package literals.binary_literals_patterns
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\boolean.vctx
+Registering package literals.boolean
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\hex_literals_all_sizes.vctx
+Registering package literals.hex_literals_all_sizes
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\literal_type_inference.vctx
+Registering package literals.literal_type_inference
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\negative_literal_all_types.vctx
+Registering package literals.negative_literal_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\power_of_two_constants.vctx
+Registering package literals.power_of_two_constants
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\signed_negative.vctx
+Registering package literals.signed_negative
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\signed_negative_binary.vctx
+Registering package literals.signed_negative_binary
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\signed_positive.vctx
+Registering package literals.signed_positive
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\underscores_formatting.vctx
+Registering package literals.underscores_formatting
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\underscore_formatting_values.vctx
+Registering package literals.underscore_formatting_values
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\unsigned.vctx
+Registering package literals.unsigned
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\zero_value_all_types.vctx
+Registering package literals.zero_value_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\combinational_cycle_illegal.vctx
+Registering package on_purpose_failures_check.combinational_cycle_illegal
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\comptime_forbidden_runtime_position.vctx
+Registering package on_purpose_failures_check.comptime_forbidden_runtime_position
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\comptime_generic_param.vctx
+Registering package on_purpose_failures_check.comptime_generic_param
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\comptime_negative_array_dim.vctx
+Registering package on_purpose_failures_check.comptime_negative_array_dim
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\comptime_negative_carrier_width.vctx
+Registering package on_purpose_failures_check.comptime_negative_carrier_width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\comptime_non_foldable_array_dim.vctx
+Registering package on_purpose_failures_check.comptime_non_foldable_array_dim
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\comptime_non_foldable_carrier_width.vctx
+Registering package on_purpose_failures_check.comptime_non_foldable_carrier_width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\comptime_non_foldable_generic_arg.vctx
+Registering package on_purpose_failures_check.comptime_non_foldable_generic_arg
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\deferred_assignment_width_mismatch.vctx
+Registering package on_purpose_failures_check.deferred_assignment_width_mismatch
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\function_generic_param.vctx
+Registering package on_purpose_failures_check.function_generic_param
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\generic_callable_wrong_kind.vctx
+Registering package on_purpose_failures_check.generic_callable_wrong_kind
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\generic_inst_elaboration_zero_carrier.vctx
+Registering package on_purpose_failures_check.generic_inst_elaboration_zero_carrier
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\generic_inst_out_port_width_mismatch.vctx
+Registering package on_purpose_failures_check.generic_inst_out_port_width_mismatch
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\import_alias_collision.vctx
+Registering package on_purpose_failures_check.import_alias_collision
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\import_missing_package.vctx
+Registering package on_purpose_failures_check.import_missing_package
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\import_symbol_not_found.vctx
+Registering package on_purpose_failures_check.import_symbol_not_found
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\inline_fn_param_width_mismatch.vctx
+Registering package on_purpose_failures_check.inline_fn_param_width_mismatch
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\inout_port_generic_width_mismatch.vctx
+Registering package on_purpose_failures_check.inout_port_generic_width_mismatch
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\inout_port_seq_assign_rejected.vctx
+Registering package on_purpose_failures_check.inout_port_seq_assign_rejected
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\mlir_comb_cycle_minimal_2.vctx
+Registering package on_purpose_failures_check.mlir_comb_cycle_minimal_2
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\mlir_comb_cycle_when_variant.vctx
+Registering package on_purpose_failures_check.mlir_comb_cycle_when_variant
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\name_collision_component_sim.vctx
+Registering package on_purpose_failures_check.name_collision_component_sim
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\nominal_type_struct_mismatch.vctx
+Registering package on_purpose_failures_check.nominal_type_struct_mismatch
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\on_purpose_failure2.vctx
+Registering package on_purpose_failures_check.on_purpose_failure2
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parity_emit_mlir_field_access_unlowered.vctx
+Registering package on_purpose_failures_check.parity_emit_mlir_field_access_unlowered
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parity_emit_mlir_instance_input_missing.vctx
+Registering package on_purpose_failures_check.parity_emit_mlir_instance_input_missing
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parity_emit_mlir_output_undriven.vctx
+Registering package on_purpose_failures_check.parity_emit_mlir_output_undriven
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parity_reject_dynamic_slice_non_affine.vctx
+Registering package on_purpose_failures_check.parity_reject_dynamic_slice_non_affine
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parity_reject_when_mux_arm_gap.vctx
+Registering package on_purpose_failures_check.parity_reject_when_mux_arm_gap
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parse_elsewhen_without_when.vctx
+Registering package on_purpose_failures_check.parse_elsewhen_without_when
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parse_malformed_generic_angles.vctx
+Registering package on_purpose_failures_check.parse_malformed_generic_angles
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parse_malformed_slice_syntax.vctx
+Registering package on_purpose_failures_check.parse_malformed_slice_syntax
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parse_unary_bang_not_supported.vctx
+Registering package on_purpose_failures_check.parse_unary_bang_not_supported
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parse_when_missing_body.vctx
+Registering package on_purpose_failures_check.parse_when_missing_body
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\resolve_unknown_identifier.vctx
+Registering package on_purpose_failures_check.resolve_unknown_identifier
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\runtime_if_in_component.vctx
+Registering package on_purpose_failures_check.runtime_if_in_component
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\spec_gap_lexical_whitespace_generics.vctx
+Registering package on_purpose_failures_check.spec_gap_lexical_whitespace_generics
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\type_bad_port_connection_width.vctx
+Registering package on_purpose_failures_check.type_bad_port_connection_width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\type_parametric_signedness_mismatch.vctx
+Registering package on_purpose_failures_check.type_parametric_signedness_mismatch
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\type_reg_assigned_with_comb_op_in_root.vctx
+Registering package on_purpose_failures_check.type_reg_assigned_with_comb_op_in_root
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\type_signedness_mismatch_assignment.vctx
+Registering package on_purpose_failures_check.type_signedness_mismatch_assignment
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\type_ternary_arm_type_mismatch.vctx
+Registering package on_purpose_failures_check.type_ternary_arm_type_mismatch
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\type_width_mismatch_assignment.vctx
+Registering package on_purpose_failures_check.type_width_mismatch_assignment
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\type_wire_assigned_with_seq_op.vctx
+Registering package on_purpose_failures_check.type_wire_assigned_with_seq_op
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\when_arm_contains_assert.vctx
+Registering package on_purpose_failures_check.when_arm_contains_assert
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\when_arm_contains_cycle_or_poke.vctx
+Registering package on_purpose_failures_check.when_arm_contains_cycle_or_poke
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\when_arm_contains_poke.vctx
+Registering package on_purpose_failures_check.when_arm_contains_poke
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_mlir\mlir_field_access_unlowered.vctx
+Registering package on_purpose_failures_mlir.mlir_field_access_unlowered
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_mlir\mlir_instance_input_missing.vctx
+Registering package on_purpose_failures_mlir.mlir_instance_input_missing
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_mlir\mlir_output_undriven.vctx
+Registering package on_purpose_failures_mlir.mlir_output_undriven
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\on_purpose_failure.vctx
+Registering package on_purpose_failures_sim.on_purpose_failure
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_ascending_slice_compile_should_fail.vctx
+Registering package on_purpose_failures_sim.sim_ascending_slice_compile_should_fail
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_fail_after_multiple_cycles.vctx
+Registering package on_purpose_failures_sim.sim_fail_after_multiple_cycles
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_fail_after_poke.vctx
+Registering package on_purpose_failures_sim.sim_fail_after_poke
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_fail_bool_not.vctx
+Registering package on_purpose_failures_sim.sim_fail_bool_not
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_one_fail_among_passes_2.vctx
+Registering package on_purpose_failures_sim.sim_one_fail_among_passes_2
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_poke_driven_wire_should_fail.vctx
+Registering package on_purpose_failures_sim.sim_poke_driven_wire_should_fail
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_poke_output_should_fail.vctx
+Registering package on_purpose_failures_sim.sim_poke_output_should_fail
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_poke_unknown_name_should_fail.vctx
+Registering package on_purpose_failures_sim.sim_poke_unknown_name_should_fail
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_two_failures_counting.vctx
+Registering package on_purpose_failures_sim.sim_two_failures_counting
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\addition.vctx
+Registering package operators.addition
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\arithmetic_boundary_values.vctx
+Registering package operators.arithmetic_boundary_values
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\arithmetic_multiply_widths.vctx
+Registering package operators.arithmetic_multiply_widths
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\arithmetic_zero_identities.vctx
+Registering package operators.arithmetic_zero_identities
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\arrays_and_slicing.vctx
+Registering package operators.arrays_and_slicing
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\array_literal_init.vctx
+Registering package operators.array_literal_init
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\barrel_shifter_dynamic.vctx
+Registering package operators.barrel_shifter_dynamic
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bitwise_commutativity.vctx
+Registering package operators.bitwise_commutativity
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bitwise_identity_laws.vctx
+Registering package operators.bitwise_identity_laws
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bitwise_masks_patterns.vctx
+Registering package operators.bitwise_masks_patterns
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bitwise_not.vctx
+Registering package operators.bitwise_not
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bitwise_not_all_types.vctx
+Registering package operators.bitwise_not_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bitwise_not_semantics.vctx
+Registering package operators.bitwise_not_semantics
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bitwise_not_working.vctx
+Registering package operators.bitwise_not_working
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bitwise_set_clear_toggle.vctx
+Registering package operators.bitwise_set_clear_toggle
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bool_all_ops_comprehensive.vctx
+Registering package operators.bool_all_ops_comprehensive
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bool_de_morgan.vctx
+Registering package operators.bool_de_morgan
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bool_short_circuit_values.vctx
+Registering package operators.bool_short_circuit_values
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bool_truth_table.vctx
+Registering package operators.bool_truth_table
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\casting.vctx
+Registering package operators.casting
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\casting1.vctx
+Registering package operators.casting1
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\cast_bool_to_numeric.vctx
+Registering package operators.cast_bool_to_numeric
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\cast_non_power2_widths.vctx
+Registering package operators.cast_non_power2_widths
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\cast_numeric_to_bool.vctx
+Registering package operators.cast_numeric_to_bool
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\cast_same_width_sign_flip.vctx
+Registering package operators.cast_same_width_sign_flip
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\cast_widening_narrowing.vctx
+Registering package operators.cast_widening_narrowing
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\comparators.vctx
+Registering package operators.comparators
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\comparison_all_operators_all_types.vctx
+Registering package operators.comparison_all_operators_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\comparison_reflexive_laws.vctx
+Registering package operators.comparison_reflexive_laws
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\comparison_signed_unsigned_boundary.vctx
+Registering package operators.comparison_signed_unsigned_boundary
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\comparison_zero_and_extremes.vctx
+Registering package operators.comparison_zero_and_extremes
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\concat_basic.vctx
+Registering package operators.concat_basic
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\concat_extract_roundtrip.vctx
+Registering package operators.concat_extract_roundtrip
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\concat_signed.vctx
+Registering package operators.concat_signed
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\concat_standard_pairs.vctx
+Registering package operators.concat_standard_pairs
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\concat_variadic.vctx
+Registering package operators.concat_variadic
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\division.vctx
+Registering package operators.division
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\division_truncation_toward_zero.vctx
+Registering package operators.division_truncation_toward_zero
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\dynamic_bracket_slice.vctx
+Registering package operators.dynamic_bracket_slice
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\explicit_signedness_cast.vctx
+Registering package operators.explicit_signedness_cast
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\explicit_truncate_cast.vctx
+Registering package operators.explicit_truncate_cast
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\grammar_precedence_comprehensive.vctx
+Registering package operators.grammar_precedence_comprehensive
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\large_types.vctx
+Registering package operators.large_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\logical.vctx
+Registering package operators.logical
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\logical_not.vctx
+Registering package operators.logical_not
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\mixed_sign_bitwise.vctx
+Registering package operators.mixed_sign_bitwise
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\mixed_sign_chained.vctx
+Registering package operators.mixed_sign_chained
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\mixed_sign_comparison.vctx
+Registering package operators.mixed_sign_comparison
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\mixed_sign_concat.vctx
+Registering package operators.mixed_sign_concat
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\mixed_sign_div_mod.vctx
+Registering package operators.mixed_sign_div_mod
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\mixed_sign_multiply.vctx
+Registering package operators.mixed_sign_multiply
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\mixed_sign_overflow.vctx
+Registering package operators.mixed_sign_overflow
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\mixed_sign_ternary_lit.vctx
+Registering package operators.mixed_sign_ternary_lit
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\modulo_sign_follows_dividend.vctx
+Registering package operators.modulo_sign_follows_dividend
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\multiplication.vctx
+Registering package operators.multiplication
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\operator_precedence.vctx
+Registering package operators.operator_precedence
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\port_boundary_adapters.vctx
+Registering package operators.port_boundary_adapters
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\relational_operators.vctx
+Registering package operators.relational_operators
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\shifting.vctx
+Registering package operators.shifting
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\shift_arithmetic_vs_logical.vctx
+Registering package operators.shift_arithmetic_vs_logical
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\shift_by_width_minus_one.vctx
+Registering package operators.shift_by_width_minus_one
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\shift_by_zero.vctx
+Registering package operators.shift_by_zero
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\shift_left_multiply_equiv.vctx
+Registering package operators.shift_left_multiply_equiv
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\shift_right_divide_equiv.vctx
+Registering package operators.shift_right_divide_equiv
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\signed_arithmetic.vctx
+Registering package operators.signed_arithmetic
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\signed_bitwise_comprehensive.vctx
+Registering package operators.signed_bitwise_comprehensive
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\signed_comparisons.vctx
+Registering package operators.signed_comparisons
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\sign_extension_edge.vctx
+Registering package operators.sign_extension_edge
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\slice_at_all_positions.vctx
+Registering package operators.slice_at_all_positions
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\slice_at_boundaries.vctx
+Registering package operators.slice_at_boundaries
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\slice_concat_byteswap.vctx
+Registering package operators.slice_concat_byteswap
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\subtraction.vctx
+Registering package operators.subtraction
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\ternary_all_types.vctx
+Registering package operators.ternary_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\ternary_nested.vctx
+Registering package operators.ternary_nested
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\ternary_operator.vctx
+Registering package operators.ternary_operator
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\ternary_runtime_normalized_signedness.vctx
+Registering package operators.ternary_runtime_normalized_signedness
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\ternary_runtime_normalized_width.vctx
+Registering package operators.ternary_runtime_normalized_width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\ternary_same_value.vctx
+Registering package operators.ternary_same_value
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\unary_shift_precedence.vctx
+Registering package operators.unary_shift_precedence
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\wire_array_element_assign.vctx
+Registering package operators.wire_array_element_assign
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\wire_comb_assignment.vctx
+Registering package operators.wire_comb_assignment
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\xor.vctx
+Registering package operators.xor
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\partial_array_updates_comprehensive.vctx
+Registering package registers.partial_array_updates_comprehensive
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\reg_all_scalar_types.vctx
+Registering package registers.reg_all_scalar_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\reg_array_index.vctx
+Registering package registers.reg_array_index
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\reg_hold_across_cycles.vctx
+Registering package registers.reg_hold_across_cycles
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\reg_hold_no_otherwise.vctx
+Registering package registers.reg_hold_no_otherwise
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\reg_pipeline_chain.vctx
+Registering package registers.reg_pipeline_chain
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\reg_reset_value_all_types.vctx
+Registering package registers.reg_reset_value_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\reg_seq_assignment.vctx
+Registering package registers.reg_seq_assignment
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\sequential.vctx
+Registering package registers.sequential
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\regression_brackets\commutative_width_expr_equiv.vctx
+Registering package regression_brackets.commutative_width_expr_equiv
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\regression_brackets\complex_carrier_math.vctx
+Registering package regression_brackets.complex_carrier_math
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\regression_brackets\mul_on_u_width.vctx
+Registering package regression_brackets.mul_on_u_width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\regression_brackets\nested_generic_double_call.vctx
+Registering package regression_brackets.nested_generic_double_call
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\sim\sim_assert_all_cycles.vctx
+Registering package sim.sim_assert_all_cycles
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\sim\sim_multi_cycle_accumulator.vctx
+Registering package sim.sim_multi_cycle_accumulator
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\sim\sim_poke_all_types.vctx
+Registering package sim.sim_poke_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\sim\sim_reset_then_run.vctx
+Registering package sim.sim_reset_then_run
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\spec\bundle_decl_parse.vctx
+Registering package spec.bundle_decl_parse
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\spec\generic_inst_elaboration_smoke.vctx
+Registering package spec.generic_inst_elaboration_smoke
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\spec\generic_type_actual_array_pass.vctx
+Registering package spec.generic_type_actual_array_pass
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\spec\generic_type_actual_bool_array_pass.vctx
+Registering package spec.generic_type_actual_bool_array_pass
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\spec\inout_port_read_through.vctx
+Registering package spec.inout_port_read_through
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\spec\instance_out_only_in_when.vctx
+Registering package spec.instance_out_only_in_when
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\spec\lt_no_space.vctx
+Registering package spec.lt_no_space
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\std\comptime_math.vctx
+Registering package std.comptime_math
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\deps\lane_pair.vctx
+Registering package imports.deps.lane_pair
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\deps\mux_lib.vctx
+Registering package imports.deps.mux_lib
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\utils\constant.vctx
+Registering package imports.utils.constant
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\deps\nested\extend.vctx
+Registering package imports.deps.nested.extend
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\binop_component_parameter.vctx
+Registering package comptime.generics.binop_component_parameter
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\conditional_generate.vctx
+Registering package comptime.generics.conditional_generate
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\fold_vs_specialize.vctx
+Registering package comptime.generics.fold_vs_specialize
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\function_vs_component_width.vctx
+Registering package comptime.generics.function_vs_component_width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_array_carrier.vctx
+Registering package comptime.generics.parametric_array_carrier
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_carrier_component.vctx
+Registering package comptime.generics.parametric_carrier_component
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_carrier_expr.vctx
+Registering package comptime.generics.parametric_carrier_expr
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_carrier_function.vctx
+Registering package comptime.generics.parametric_carrier_function
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_carrier_nested_expr.vctx
+Registering package comptime.generics.parametric_carrier_nested_expr
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_carrier_pipeline.vctx
+Registering package comptime.generics.parametric_carrier_pipeline
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_concat.vctx
+Registering package comptime.generics.parametric_concat
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_mixed_arith.vctx
+Registering package comptime.generics.parametric_mixed_arith
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_signed_carrier.vctx
+Registering package comptime.generics.parametric_signed_carrier
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_signed_cast.vctx
+Registering package comptime.generics.parametric_signed_cast
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_slice.vctx
+Registering package comptime.generics.parametric_slice
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_two_width_params.vctx
+Registering package comptime.generics.parametric_two_width_params
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_width_intrinsic.vctx
+Registering package comptime.generics.parametric_width_intrinsic
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\signed_width_carrier.vctx
+Registering package comptime.generics.signed_width_carrier
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\type_generic_array_and_bool_actual.vctx
+Registering package comptime.generics.type_generic_array_and_bool_actual
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\type_kind_generic_T.vctx
+Registering package comptime.generics.type_kind_generic_T
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\uses_width_call_by_name.vctx
+Registering package comptime.generics.uses_width_call_by_name
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\wrap_inner_component.vctx
+Registering package comptime.generics.wrap_inner_component
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\zero_extend_generic.vctx
+Registering package comptime.generics.zero_extend_generic
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\utils\math.vctx
+Registering package components.utils.math
+Analyzing literals.zero_value_all_types...
+Elaborating literals.zero_value_all_types...
+┌─────────────────────────────────────────────────────────────────────── Generated MLIR ───────────────────────────────────────────────────────────────────────┐
+│ module {                                                                                                                                                     │
+│   hw.module @TestZeroValueAllTypes_Harness(in %clk : !seq.clock, in %rst : i1, in %z1 : i1, in %z16 : i16, in %z32 : i32, in %z64 : i64, in %z8 : i8, in %zb │
+│ : i1, in %zs16 : i16, in %zs32 : i32, in %zs5 : i5, in %zs64 : i64, in %zs8 : i8, in %zu3 : i3, out r8 : i8, out rs16 : i16, out z1 : i1, out z16 : i16, out │
+│ z32 : i32, out z64 : i64, out z8 : i8, out zb : i1, out zs16 : i16, out zs32 : i32, out zs5 : i5, out zs64 : i64, out zs8 : i8, out zu3 : i3) {              │
+│     %false = hw.constant false                                                                                                                               │
+│     %false_0 = hw.constant false                                                                                                                             │
+│     %c0_i8 = hw.constant 0 : i8                                                                                                                              │
+│     %c0_i8_1 = hw.constant 0 : i8                                                                                                                            │
+│     %c0_i16 = hw.constant 0 : i16                                                                                                                            │
+│     %c0_i16_2 = hw.constant 0 : i16                                                                                                                          │
+│     %c0_i32 = hw.constant 0 : i32                                                                                                                            │
+│     %c0_i32_3 = hw.constant 0 : i32                                                                                                                          │
+│     %c0_i64 = hw.constant 0 : i64                                                                                                                            │
+│     %c0_i64_4 = hw.constant 0 : i64                                                                                                                          │
+│     %c0_i8_5 = hw.constant 0 : i8                                                                                                                            │
+│     %0 = hwarith.cast %c0_i8_5 : (i8) -> ui1                                                                                                                 │
+│     %1 = hwarith.cast %0 : (ui1) -> si8                                                                                                                      │
+│     %2 = hwarith.cast %1 : (si8) -> i8                                                                                                                       │
+│     %c0_i8_6 = hw.constant 0 : i8                                                                                                                            │
+│     %c0_i16_7 = hw.constant 0 : i16                                                                                                                          │
+│     %3 = hwarith.cast %c0_i16_7 : (i16) -> ui1                                                                                                               │
+│     %4 = hwarith.cast %3 : (ui1) -> si16                                                                                                                     │
+│     %5 = hwarith.cast %4 : (si16) -> i16                                                                                                                     │
+│     %c0_i16_8 = hw.constant 0 : i16                                                                                                                          │
+│     %c0_i32_9 = hw.constant 0 : i32                                                                                                                          │
+│     %6 = hwarith.cast %c0_i32_9 : (i32) -> ui1                                                                                                               │
+│     %7 = hwarith.cast %6 : (ui1) -> si32                                                                                                                     │
+│     %8 = hwarith.cast %7 : (si32) -> i32                                                                                                                     │
+│     %c0_i32_10 = hw.constant 0 : i32                                                                                                                         │
+│     %c0_i64_11 = hw.constant 0 : i64                                                                                                                         │
+│     %9 = hwarith.cast %c0_i64_11 : (i64) -> ui1                                                                                                              │
+│     %10 = hwarith.cast %9 : (ui1) -> si64                                                                                                                    │
+│     %11 = hwarith.cast %10 : (si64) -> i64                                                                                                                   │
+│     %c0_i64_12 = hw.constant 0 : i64                                                                                                                         │
+│     %false_13 = hw.constant false                                                                                                                            │
+│     %false_14 = hw.constant false                                                                                                                            │
+│     %c0_i3 = hw.constant 0 : i3                                                                                                                              │
+│     %c0_i3_15 = hw.constant 0 : i3                                                                                                                           │
+│     %c0_i5 = hw.constant 0 : i5                                                                                                                              │
+│     %12 = hwarith.cast %c0_i5 : (i5) -> ui1                                                                                                                  │
+│     %13 = hwarith.cast %12 : (ui1) -> si5                                                                                                                    │
+│     %14 = hwarith.cast %13 : (si5) -> i5                                                                                                                     │
+│     %c0_i5_16 = hw.constant 0 : i5                                                                                                                           │
+│     %c0_i8_17 = hw.constant 0 : i8                                                                                                                           │
+│     %c0_i8_18 = hw.constant 0 : i8                                                                                                                           │
+│     %r8 = seq.compreg %c100_i8, %clk reset %rst, %c0_i8_17 : i8                                                                                              │
+│     %c0_i16_19 = hw.constant 0 : i16                                                                                                                         │
+│     %15 = hwarith.cast %c0_i16_19 : (i16) -> ui1                                                                                                             │
+│     %16 = hwarith.cast %15 : (ui1) -> si16                                                                                                                   │
+│     %17 = hwarith.cast %16 : (si16) -> i16                                                                                                                   │
+│     %c0_i16_20 = hw.constant 0 : i16                                                                                                                         │
+│     %rs16 = seq.compreg %rs16, %clk reset %rst, %17 : i16                                                                                                    │
+│     %c100_i8 = hw.constant 100 : i8                                                                                                                          │
+│     hw.output %r8, %rs16, %z1, %z16, %z32, %z64, %z8, %zb, %zs16, %zs32, %zs5, %zs64, %zs8, %zu3 : i8, i16, i1, i16, i32, i64, i8, i1, i16, i32, i5, i64,    │
+│ i8, i3                                                                                                                                                       │
+│   }                                                                                                                                                          │
+│   func.func @entry() {                                                                                                                                       │
+│     %true = hw.constant true                                                                                                                                 │
+│     %false = hw.constant false                                                                                                                               │
+│     %0 = seq.to_clock %true                                                                                                                                  │
+│     %1 = seq.to_clock %false                                                                                                                                 │
+│     arc.sim.instantiate @TestZeroValueAllTypes_Harness as %arg0 {                                                                                            │
+│       arc.sim.set_input %arg0, "rst" = %true : i1, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       %false_0 = hw.constant false                                                                                                                           │
+│       arc.sim.set_input %arg0, "z1" = %false_0 : i1, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                       │
+│       %c0_i8 = hw.constant 0 : i8                                                                                                                            │
+│       arc.sim.set_input %arg0, "z8" = %c0_i8 : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       %c0_i16 = hw.constant 0 : i16                                                                                                                          │
+│       arc.sim.set_input %arg0, "z16" = %c0_i16 : i16, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                      │
+│       %c0_i32 = hw.constant 0 : i32                                                                                                                          │
+│       arc.sim.set_input %arg0, "z32" = %c0_i32 : i32, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                      │
+│       %c0_i64 = hw.constant 0 : i64                                                                                                                          │
+│       arc.sim.set_input %arg0, "z64" = %c0_i64 : i64, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                      │
+│       %c0_i8_1 = hw.constant 0 : i8                                                                                                                          │
+│       %2 = hwarith.cast %c0_i8_1 : (i8) -> ui1                                                                                                               │
+│       %3 = hwarith.cast %2 : (ui1) -> si8                                                                                                                    │
+│       %4 = hwarith.cast %3 : (si8) -> i8                                                                                                                     │
+│       arc.sim.set_input %arg0, "zs8" = %4 : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                            │
+│       %c0_i16_2 = hw.constant 0 : i16                                                                                                                        │
+│       %5 = hwarith.cast %c0_i16_2 : (i16) -> ui1                                                                                                             │
+│       %6 = hwarith.cast %5 : (ui1) -> si16                                                                                                                   │
+│       %7 = hwarith.cast %6 : (si16) -> i16                                                                                                                   │
+│       arc.sim.set_input %arg0, "zs16" = %7 : i16, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                          │
+│       %c0_i32_3 = hw.constant 0 : i32                                                                                                                        │
+│       %8 = hwarith.cast %c0_i32_3 : (i32) -> ui1                                                                                                             │
+│       %9 = hwarith.cast %8 : (ui1) -> si32                                                                                                                   │
+│       %10 = hwarith.cast %9 : (si32) -> i32                                                                                                                  │
+│       arc.sim.set_input %arg0, "zs32" = %10 : i32, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       %c0_i64_4 = hw.constant 0 : i64                                                                                                                        │
+│       %11 = hwarith.cast %c0_i64_4 : (i64) -> ui1                                                                                                            │
+│       %12 = hwarith.cast %11 : (ui1) -> si64                                                                                                                 │
+│       %13 = hwarith.cast %12 : (si64) -> i64                                                                                                                 │
+│       arc.sim.set_input %arg0, "zs64" = %13 : i64, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       %false_5 = hw.constant false                                                                                                                           │
+│       arc.sim.set_input %arg0, "zb" = %false_5 : i1, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                       │
+│       %c0_i3 = hw.constant 0 : i3                                                                                                                            │
+│       arc.sim.set_input %arg0, "zu3" = %c0_i3 : i3, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                        │
+│       %c0_i5 = hw.constant 0 : i5                                                                                                                            │
+│       %14 = hwarith.cast %c0_i5 : (i5) -> ui1                                                                                                                │
+│       %15 = hwarith.cast %14 : (ui1) -> si5                                                                                                                  │
+│       %16 = hwarith.cast %15 : (si5) -> i5                                                                                                                   │
+│       arc.sim.set_input %arg0, "zs5" = %16 : i5, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.set_input %arg0, "clk" = %1 : !seq.clock, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                    │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                                                 │
+│       arc.sim.set_input %arg0, "clk" = %0 : !seq.clock, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                    │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                                                 │
+│       arc.sim.set_input %arg0, "rst" = %false : i1, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                        │
+│       %17 = arc.sim.get_port %arg0, "z1" : i1, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                             │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22z1\22}", %17 : i1                                                                               │
+│       %false_6 = hw.constant false                                                                                                                           │
+│       %18 = hwarith.cast %17 : (i1) -> ui1                                                                                                                   │
+│       %19 = hwarith.cast %18 : (ui1) -> si2                                                                                                                  │
+│       %20 = hwarith.cast %19 : (si2) -> i2                                                                                                                   │
+│       %21 = hwarith.cast %false_6 : (i1) -> ui1                                                                                                              │
+│       %22 = hwarith.cast %21 : (ui1) -> si2                                                                                                                  │
+│       %23 = hwarith.cast %22 : (si2) -> i2                                                                                                                   │
+│       %24 = hwarith.cast %20 : (i2) -> si2                                                                                                                   │
+│       %25 = hwarith.cast %23 : (i2) -> si2                                                                                                                   │
+│       %26 = hwarith.icmp eq %24, %25 : si2, si2                                                                                                              │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u1 is 0\22, \22line\22: 9, \22column\22: 12, \22condition\22: \22z1 == 0\22, \22scope\22:   │
+│ \22TestZeroValueAllTypes\22}", %26 : i1                                                                                                                      │
+│       %27 = arc.sim.get_port %arg0, "z1" : i1, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                             │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22z1\22}", %27 : i1                                                                               │
+│       %c1_i32 = hw.constant 1 : i32                                                                                                                          │
+│       %true_7 = hw.constant true                                                                                                                             │
+│       %28 = hwarith.cast %c1_i32 : (i32) -> ui32                                                                                                             │
+│       %29 = hwarith.cast %28 : (ui32) -> si33                                                                                                                │
+│       %30 = hwarith.cast %29 : (si33) -> i33                                                                                                                 │
+│       %31 = hwarith.cast %true_7 : (i1) -> ui1                                                                                                               │
+│       %32 = hwarith.cast %31 : (ui1) -> si33                                                                                                                 │
+│       %33 = hwarith.cast %32 : (si33) -> i33                                                                                                                 │
+│       %34 = hwarith.cast %30 : (i33) -> si33                                                                                                                 │
+│       %35 = hwarith.cast %33 : (i33) -> si33                                                                                                                 │
+│       %36 = hwarith.icmp eq %34, %35 : si33, si33                                                                                                            │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u1 width\22, \22line\22: 10, \22column\22: 12, \22condition\22: \22width z1 == 1\22,        │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %36 : i1                                                                                                         │
+│       %37 = arc.sim.get_port %arg0, "z1" : i1, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                             │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22z1\22}", %37 : i1                                                                               │
+│       %false_8 = hw.constant false                                                                                                                           │
+│       %false_9 = hw.constant false                                                                                                                           │
+│       %38 = hwarith.cast %false_8 : (i1) -> ui1                                                                                                              │
+│       %39 = hwarith.cast %38 : (ui1) -> si2                                                                                                                  │
+│       %40 = hwarith.cast %39 : (si2) -> i2                                                                                                                   │
+│       %41 = hwarith.cast %false_9 : (i1) -> ui1                                                                                                              │
+│       %42 = hwarith.cast %41 : (ui1) -> si2                                                                                                                  │
+│       %43 = hwarith.cast %42 : (si2) -> i2                                                                                                                   │
+│       %44 = hwarith.cast %40 : (i2) -> si2                                                                                                                   │
+│       %45 = hwarith.cast %43 : (i2) -> si2                                                                                                                   │
+│       %46 = hwarith.icmp eq %44, %45 : si2, si2                                                                                                              │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u1 is unsigned\22, \22line\22: 11, \22column\22: 12, \22condition\22: \22is_signed z1 ==    │
+│ false\22, \22scope\22: \22TestZeroValueAllTypes\22}", %46 : i1                                                                                               │
+│       %47 = arc.sim.get_port %arg0, "z8" : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                             │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22z8\22}", %47 : i8                                                                               │
+│       %false_10 = hw.constant false                                                                                                                          │
+│       %48 = hwarith.cast %47 : (i8) -> ui8                                                                                                                   │
+│       %49 = hwarith.cast %48 : (ui8) -> si9                                                                                                                  │
+│       %50 = hwarith.cast %49 : (si9) -> i9                                                                                                                   │
+│       %51 = hwarith.cast %false_10 : (i1) -> ui1                                                                                                             │
+│       %52 = hwarith.cast %51 : (ui1) -> si9                                                                                                                  │
+│       %53 = hwarith.cast %52 : (si9) -> i9                                                                                                                   │
+│       %54 = hwarith.cast %50 : (i9) -> si9                                                                                                                   │
+│       %55 = hwarith.cast %53 : (i9) -> si9                                                                                                                   │
+│       %56 = hwarith.icmp eq %54, %55 : si9, si9                                                                                                              │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u8 is 0\22, \22line\22: 14, \22column\22: 12, \22condition\22: \22z8 == 0\22, \22scope\22:  │
+│ \22TestZeroValueAllTypes\22}", %56 : i1                                                                                                                      │
+│       %57 = arc.sim.get_port %arg0, "z8" : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                             │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22z8\22}", %57 : i8                                                                               │
+│       %c8_i32 = hw.constant 8 : i32                                                                                                                          │
+│       %c-8_i4 = hw.constant -8 : i4                                                                                                                          │
+│       %58 = hwarith.cast %c8_i32 : (i32) -> ui32                                                                                                             │
+│       %59 = hwarith.cast %58 : (ui32) -> si33                                                                                                                │
+│       %60 = hwarith.cast %59 : (si33) -> i33                                                                                                                 │
+│       %61 = hwarith.cast %c-8_i4 : (i4) -> ui4                                                                                                               │
+│       %62 = hwarith.cast %61 : (ui4) -> si33                                                                                                                 │
+│       %63 = hwarith.cast %62 : (si33) -> i33                                                                                                                 │
+│       %64 = hwarith.cast %60 : (i33) -> si33                                                                                                                 │
+│       %65 = hwarith.cast %63 : (i33) -> si33                                                                                                                 │
+│       %66 = hwarith.icmp eq %64, %65 : si33, si33                                                                                                            │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u8 width\22, \22line\22: 15, \22column\22: 12, \22condition\22: \22width z8 == 8\22,        │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %66 : i1                                                                                                         │
+│       %67 = arc.sim.get_port %arg0, "z16" : i16, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22z16\22}", %67 : i16                                                                             │
+│       %false_11 = hw.constant false                                                                                                                          │
+│       %68 = hwarith.cast %67 : (i16) -> ui16                                                                                                                 │
+│       %69 = hwarith.cast %68 : (ui16) -> si17                                                                                                                │
+│       %70 = hwarith.cast %69 : (si17) -> i17                                                                                                                 │
+│       %71 = hwarith.cast %false_11 : (i1) -> ui1                                                                                                             │
+│       %72 = hwarith.cast %71 : (ui1) -> si17                                                                                                                 │
+│       %73 = hwarith.cast %72 : (si17) -> i17                                                                                                                 │
+│       %74 = hwarith.cast %70 : (i17) -> si17                                                                                                                 │
+│       %75 = hwarith.cast %73 : (i17) -> si17                                                                                                                 │
+│       %76 = hwarith.icmp eq %74, %75 : si17, si17                                                                                                            │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u16 is 0\22, \22line\22: 18, \22column\22: 12, \22condition\22: \22z16 == 0\22,             │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %76 : i1                                                                                                         │
+│       %77 = arc.sim.get_port %arg0, "z16" : i16, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22z16\22}", %77 : i16                                                                             │
+│       %c16_i32 = hw.constant 16 : i32                                                                                                                        │
+│       %c-16_i5 = hw.constant -16 : i5                                                                                                                        │
+│       %78 = hwarith.cast %c16_i32 : (i32) -> ui32                                                                                                            │
+│       %79 = hwarith.cast %78 : (ui32) -> si33                                                                                                                │
+│       %80 = hwarith.cast %79 : (si33) -> i33                                                                                                                 │
+│       %81 = hwarith.cast %c-16_i5 : (i5) -> ui5                                                                                                              │
+│       %82 = hwarith.cast %81 : (ui5) -> si33                                                                                                                 │
+│       %83 = hwarith.cast %82 : (si33) -> i33                                                                                                                 │
+│       %84 = hwarith.cast %80 : (i33) -> si33                                                                                                                 │
+│       %85 = hwarith.cast %83 : (i33) -> si33                                                                                                                 │
+│       %86 = hwarith.icmp eq %84, %85 : si33, si33                                                                                                            │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u16 width\22, \22line\22: 19, \22column\22: 12, \22condition\22: \22width z16 == 16\22,     │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %86 : i1                                                                                                         │
+│       %87 = arc.sim.get_port %arg0, "z32" : i32, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22z32\22}", %87 : i32                                                                             │
+│       %false_12 = hw.constant false                                                                                                                          │
+│       %88 = hwarith.cast %87 : (i32) -> ui32                                                                                                                 │
+│       %89 = hwarith.cast %88 : (ui32) -> si33                                                                                                                │
+│       %90 = hwarith.cast %89 : (si33) -> i33                                                                                                                 │
+│       %91 = hwarith.cast %false_12 : (i1) -> ui1                                                                                                             │
+│       %92 = hwarith.cast %91 : (ui1) -> si33                                                                                                                 │
+│       %93 = hwarith.cast %92 : (si33) -> i33                                                                                                                 │
+│       %94 = hwarith.cast %90 : (i33) -> si33                                                                                                                 │
+│       %95 = hwarith.cast %93 : (i33) -> si33                                                                                                                 │
+│       %96 = hwarith.icmp eq %94, %95 : si33, si33                                                                                                            │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u32 is 0\22, \22line\22: 22, \22column\22: 12, \22condition\22: \22z32 == 0\22,             │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %96 : i1                                                                                                         │
+│       %97 = arc.sim.get_port %arg0, "z32" : i32, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22z32\22}", %97 : i32                                                                             │
+│       %c32_i32 = hw.constant 32 : i32                                                                                                                        │
+│       %c-32_i6 = hw.constant -32 : i6                                                                                                                        │
+│       %98 = hwarith.cast %c32_i32 : (i32) -> ui32                                                                                                            │
+│       %99 = hwarith.cast %98 : (ui32) -> si33                                                                                                                │
+│       %100 = hwarith.cast %99 : (si33) -> i33                                                                                                                │
+│       %101 = hwarith.cast %c-32_i6 : (i6) -> ui6                                                                                                             │
+│       %102 = hwarith.cast %101 : (ui6) -> si33                                                                                                               │
+│       %103 = hwarith.cast %102 : (si33) -> i33                                                                                                               │
+│       %104 = hwarith.cast %100 : (i33) -> si33                                                                                                               │
+│       %105 = hwarith.cast %103 : (i33) -> si33                                                                                                               │
+│       %106 = hwarith.icmp eq %104, %105 : si33, si33                                                                                                         │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u32 width\22, \22line\22: 23, \22column\22: 12, \22condition\22: \22width z32 == 32\22,     │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %106 : i1                                                                                                        │
+│       %107 = arc.sim.get_port %arg0, "z64" : i64, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                          │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22z64\22}", %107 : i64                                                                            │
+│       %false_13 = hw.constant false                                                                                                                          │
+│       %108 = hwarith.cast %107 : (i64) -> ui64                                                                                                               │
+│       %109 = hwarith.cast %108 : (ui64) -> si65                                                                                                              │
+│       %110 = hwarith.cast %109 : (si65) -> i65                                                                                                               │
+│       %111 = hwarith.cast %false_13 : (i1) -> ui1                                                                                                            │
+│       %112 = hwarith.cast %111 : (ui1) -> si65                                                                                                               │
+│       %113 = hwarith.cast %112 : (si65) -> i65                                                                                                               │
+│       %114 = hwarith.cast %110 : (i65) -> si65                                                                                                               │
+│       %115 = hwarith.cast %113 : (i65) -> si65                                                                                                               │
+│       %116 = hwarith.icmp eq %114, %115 : si65, si65                                                                                                         │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u64 is 0\22, \22line\22: 26, \22column\22: 12, \22condition\22: \22z64 == 0\22,             │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %116 : i1                                                                                                        │
+│       %117 = arc.sim.get_port %arg0, "z64" : i64, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                          │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22z64\22}", %117 : i64                                                                            │
+│       %c64_i32 = hw.constant 64 : i32                                                                                                                        │
+│       %c-64_i7 = hw.constant -64 : i7                                                                                                                        │
+│       %118 = hwarith.cast %c64_i32 : (i32) -> ui32                                                                                                           │
+│       %119 = hwarith.cast %118 : (ui32) -> si33                                                                                                              │
+│       %120 = hwarith.cast %119 : (si33) -> i33                                                                                                               │
+│       %121 = hwarith.cast %c-64_i7 : (i7) -> ui7                                                                                                             │
+│       %122 = hwarith.cast %121 : (ui7) -> si33                                                                                                               │
+│       %123 = hwarith.cast %122 : (si33) -> i33                                                                                                               │
+│       %124 = hwarith.cast %120 : (i33) -> si33                                                                                                               │
+│       %125 = hwarith.cast %123 : (i33) -> si33                                                                                                               │
+│       %126 = hwarith.icmp eq %124, %125 : si33, si33                                                                                                         │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u64 width\22, \22line\22: 27, \22column\22: 12, \22condition\22: \22width z64 == 64\22,     │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %126 : i1                                                                                                        │
+│       %127 = arc.sim.get_port %arg0, "zs8" : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zs8\22}", %127 : i8                                                                             │
+│       %false_14 = hw.constant false                                                                                                                          │
+│       %128 = hwarith.cast %false_14 : (i1) -> ui1                                                                                                            │
+│       %129 = hwarith.cast %128 : (ui1) -> si8                                                                                                                │
+│       %130 = hwarith.cast %129 : (si8) -> i8                                                                                                                 │
+│       %131 = hwarith.cast %127 : (i8) -> si8                                                                                                                 │
+│       %132 = hwarith.cast %130 : (i8) -> si8                                                                                                                 │
+│       %133 = hwarith.icmp eq %131, %132 : si8, si8                                                                                                           │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22val_s8 is 0\22, \22line\22: 31, \22column\22: 12, \22condition\22: \22zs8 == 0\22,          │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %133 : i1                                                                                                        │
+│       %134 = arc.sim.get_port %arg0, "zs8" : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zs8\22}", %134 : i8                                                                             │
+│       %c8_i32_15 = hw.constant 8 : i32                                                                                                                       │
+│       %c-8_i4_16 = hw.constant -8 : i4                                                                                                                       │
+│       %135 = hwarith.cast %c8_i32_15 : (i32) -> ui32                                                                                                         │
+│       %136 = hwarith.cast %135 : (ui32) -> si33                                                                                                              │
+│       %137 = hwarith.cast %136 : (si33) -> i33                                                                                                               │
+│       %138 = hwarith.cast %c-8_i4_16 : (i4) -> ui4                                                                                                           │
+│       %139 = hwarith.cast %138 : (ui4) -> si33                                                                                                               │
+│       %140 = hwarith.cast %139 : (si33) -> i33                                                                                                               │
+│       %141 = hwarith.cast %137 : (i33) -> si33                                                                                                               │
+│       %142 = hwarith.cast %140 : (i33) -> si33                                                                                                               │
+│       %143 = hwarith.icmp eq %141, %142 : si33, si33                                                                                                         │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22val_s8 width\22, \22line\22: 32, \22column\22: 12, \22condition\22: \22width zs8 == 8\22,   │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %143 : i1                                                                                                        │
+│       %144 = arc.sim.get_port %arg0, "zs8" : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zs8\22}", %144 : i8                                                                             │
+│       %true_17 = hw.constant true                                                                                                                            │
+│       %true_18 = hw.constant true                                                                                                                            │
+│       %145 = hwarith.cast %true_17 : (i1) -> ui1                                                                                                             │
+│       %146 = hwarith.cast %145 : (ui1) -> si2                                                                                                                │
+│       %147 = hwarith.cast %146 : (si2) -> i2                                                                                                                 │
+│       %148 = hwarith.cast %true_18 : (i1) -> ui1                                                                                                             │
+│       %149 = hwarith.cast %148 : (ui1) -> si2                                                                                                                │
+│       %150 = hwarith.cast %149 : (si2) -> i2                                                                                                                 │
+│       %151 = hwarith.cast %147 : (i2) -> si2                                                                                                                 │
+│       %152 = hwarith.cast %150 : (i2) -> si2                                                                                                                 │
+│       %153 = hwarith.icmp eq %151, %152 : si2, si2                                                                                                           │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22val_s8 is signed\22, \22line\22: 33, \22column\22: 12, \22condition\22: \22is_signed zs8 == │
+│ true\22, \22scope\22: \22TestZeroValueAllTypes\22}", %153 : i1                                                                                               │
+│       %154 = arc.sim.get_port %arg0, "zs16" : i16, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zs16\22}", %154 : i16                                                                           │
+│       %false_19 = hw.constant false                                                                                                                          │
+│       %155 = hwarith.cast %false_19 : (i1) -> ui1                                                                                                            │
+│       %156 = hwarith.cast %155 : (ui1) -> si16                                                                                                               │
+│       %157 = hwarith.cast %156 : (si16) -> i16                                                                                                               │
+│       %158 = hwarith.cast %154 : (i16) -> si16                                                                                                               │
+│       %159 = hwarith.cast %157 : (i16) -> si16                                                                                                               │
+│       %160 = hwarith.icmp eq %158, %159 : si16, si16                                                                                                         │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22val_s16 is 0\22, \22line\22: 36, \22column\22: 12, \22condition\22: \22zs16 == 0\22,        │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %160 : i1                                                                                                        │
+│       %161 = arc.sim.get_port %arg0, "zs16" : i16, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zs16\22}", %161 : i16                                                                           │
+│       %c16_i32_20 = hw.constant 16 : i32                                                                                                                     │
+│       %c-16_i5_21 = hw.constant -16 : i5                                                                                                                     │
+│       %162 = hwarith.cast %c16_i32_20 : (i32) -> ui32                                                                                                        │
+│       %163 = hwarith.cast %162 : (ui32) -> si33                                                                                                              │
+│       %164 = hwarith.cast %163 : (si33) -> i33                                                                                                               │
+│       %165 = hwarith.cast %c-16_i5_21 : (i5) -> ui5                                                                                                          │
+│       %166 = hwarith.cast %165 : (ui5) -> si33                                                                                                               │
+│       %167 = hwarith.cast %166 : (si33) -> i33                                                                                                               │
+│       %168 = hwarith.cast %164 : (i33) -> si33                                                                                                               │
+│       %169 = hwarith.cast %167 : (i33) -> si33                                                                                                               │
+│       %170 = hwarith.icmp eq %168, %169 : si33, si33                                                                                                         │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22val_s16 width\22, \22line\22: 37, \22column\22: 12, \22condition\22: \22width zs16 ==       │
+│ 16\22, \22scope\22: \22TestZeroValueAllTypes\22}", %170 : i1                                                                                                 │
+│       %171 = arc.sim.get_port %arg0, "zs32" : i32, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zs32\22}", %171 : i32                                                                           │
+│       %false_22 = hw.constant false                                                                                                                          │
+│       %172 = hwarith.cast %false_22 : (i1) -> ui1                                                                                                            │
+│       %173 = hwarith.cast %172 : (ui1) -> si32                                                                                                               │
+│       %174 = hwarith.cast %173 : (si32) -> i32                                                                                                               │
+│       %175 = hwarith.cast %171 : (i32) -> si32                                                                                                               │
+│       %176 = hwarith.cast %174 : (i32) -> si32                                                                                                               │
+│       %177 = hwarith.icmp eq %175, %176 : si32, si32                                                                                                         │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22s32 is 0\22, \22line\22: 40, \22column\22: 12, \22condition\22: \22zs32 == 0\22,            │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %177 : i1                                                                                                        │
+│       %178 = arc.sim.get_port %arg0, "zs64" : i64, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zs64\22}", %178 : i64                                                                           │
+│       %false_23 = hw.constant false                                                                                                                          │
+│       %179 = hwarith.cast %false_23 : (i1) -> ui1                                                                                                            │
+│       %180 = hwarith.cast %179 : (ui1) -> si64                                                                                                               │
+│       %181 = hwarith.cast %180 : (si64) -> i64                                                                                                               │
+│       %182 = hwarith.cast %178 : (i64) -> si64                                                                                                               │
+│       %183 = hwarith.cast %181 : (i64) -> si64                                                                                                               │
+│       %184 = hwarith.icmp eq %182, %183 : si64, si64                                                                                                         │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22s64 is 0\22, \22line\22: 43, \22column\22: 12, \22condition\22: \22zs64 == 0\22,            │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %184 : i1                                                                                                        │
+│       %185 = arc.sim.get_port %arg0, "zs64" : i64, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zs64\22}", %185 : i64                                                                           │
+│       %c64_i32_24 = hw.constant 64 : i32                                                                                                                     │
+│       %c-64_i7_25 = hw.constant -64 : i7                                                                                                                     │
+│       %186 = hwarith.cast %c64_i32_24 : (i32) -> ui32                                                                                                        │
+│       %187 = hwarith.cast %186 : (ui32) -> si33                                                                                                              │
+│       %188 = hwarith.cast %187 : (si33) -> i33                                                                                                               │
+│       %189 = hwarith.cast %c-64_i7_25 : (i7) -> ui7                                                                                                          │
+│       %190 = hwarith.cast %189 : (ui7) -> si33                                                                                                               │
+│       %191 = hwarith.cast %190 : (si33) -> i33                                                                                                               │
+│       %192 = hwarith.cast %188 : (i33) -> si33                                                                                                               │
+│       %193 = hwarith.cast %191 : (i33) -> si33                                                                                                               │
+│       %194 = hwarith.icmp eq %192, %193 : si33, si33                                                                                                         │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22s64 width\22, \22line\22: 44, \22column\22: 12, \22condition\22: \22width zs64 == 64\22,    │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %194 : i1                                                                                                        │
+│       %195 = arc.sim.get_port %arg0, "zb" : i1, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                            │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zb\22}", %195 : i1                                                                              │
+│       %false_26 = hw.constant false                                                                                                                          │
+│       %196 = hwarith.cast %195 : (i1) -> ui1                                                                                                                 │
+│       %197 = hwarith.cast %196 : (ui1) -> si2                                                                                                                │
+│       %198 = hwarith.cast %197 : (si2) -> i2                                                                                                                 │
+│       %199 = hwarith.cast %false_26 : (i1) -> ui1                                                                                                            │
+│       %200 = hwarith.cast %199 : (ui1) -> si2                                                                                                                │
+│       %201 = hwarith.cast %200 : (si2) -> i2                                                                                                                 │
+│       %202 = hwarith.cast %198 : (i2) -> si2                                                                                                                 │
+│       %203 = hwarith.cast %201 : (i2) -> si2                                                                                                                 │
+│       %204 = hwarith.icmp eq %202, %203 : si2, si2                                                                                                           │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22bool false is numeric 0\22, \22line\22: 48, \22column\22: 12, \22condition\22: \22zb ==     │
+│ 0\22, \22scope\22: \22TestZeroValueAllTypes\22}", %204 : i1                                                                                                  │
+│       %205 = arc.sim.get_port %arg0, "zb" : i1, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                            │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zb\22}", %205 : i1                                                                              │
+│       %c1_i32_27 = hw.constant 1 : i32                                                                                                                       │
+│       %true_28 = hw.constant true                                                                                                                            │
+│       %206 = hwarith.cast %c1_i32_27 : (i32) -> ui32                                                                                                         │
+│       %207 = hwarith.cast %206 : (ui32) -> si33                                                                                                              │
+│       %208 = hwarith.cast %207 : (si33) -> i33                                                                                                               │
+│       %209 = hwarith.cast %true_28 : (i1) -> ui1                                                                                                             │
+│       %210 = hwarith.cast %209 : (ui1) -> si33                                                                                                               │
+│       %211 = hwarith.cast %210 : (si33) -> i33                                                                                                               │
+│       %212 = hwarith.cast %208 : (i33) -> si33                                                                                                               │
+│       %213 = hwarith.cast %211 : (i33) -> si33                                                                                                               │
+│       %214 = hwarith.icmp eq %212, %213 : si33, si33                                                                                                         │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22bool width is 1\22, \22line\22: 49, \22column\22: 12, \22condition\22: \22width zb == 1\22, │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %214 : i1                                                                                                        │
+│       %215 = arc.sim.get_port %arg0, "zb" : i1, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                            │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zb\22}", %215 : i1                                                                              │
+│       %false_29 = hw.constant false                                                                                                                          │
+│       %false_30 = hw.constant false                                                                                                                          │
+│       %216 = hwarith.cast %false_29 : (i1) -> ui1                                                                                                            │
+│       %217 = hwarith.cast %216 : (ui1) -> si2                                                                                                                │
+│       %218 = hwarith.cast %217 : (si2) -> i2                                                                                                                 │
+│       %219 = hwarith.cast %false_30 : (i1) -> ui1                                                                                                            │
+│       %220 = hwarith.cast %219 : (ui1) -> si2                                                                                                                │
+│       %221 = hwarith.cast %220 : (si2) -> i2                                                                                                                 │
+│       %222 = hwarith.cast %218 : (i2) -> si2                                                                                                                 │
+│       %223 = hwarith.cast %221 : (i2) -> si2                                                                                                                 │
+│       %224 = hwarith.icmp eq %222, %223 : si2, si2                                                                                                           │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22bool is unsigned\22, \22line\22: 50, \22column\22: 12, \22condition\22: \22is_signed zb ==  │
+│ false\22, \22scope\22: \22TestZeroValueAllTypes\22}", %224 : i1                                                                                              │
+│       %225 = arc.sim.get_port %arg0, "zu3" : i3, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zu3\22}", %225 : i3                                                                             │
+│       %false_31 = hw.constant false                                                                                                                          │
+│       %226 = hwarith.cast %225 : (i3) -> ui3                                                                                                                 │
+│       %227 = hwarith.cast %226 : (ui3) -> si4                                                                                                                │
+│       %228 = hwarith.cast %227 : (si4) -> i4                                                                                                                 │
+│       %229 = hwarith.cast %false_31 : (i1) -> ui1                                                                                                            │
+│       %230 = hwarith.cast %229 : (ui1) -> si4                                                                                                                │
+│       %231 = hwarith.cast %230 : (si4) -> i4                                                                                                                 │
+│       %232 = hwarith.cast %228 : (i4) -> si4                                                                                                                 │
+│       %233 = hwarith.cast %231 : (i4) -> si4                                                                                                                 │
+│       %234 = hwarith.icmp eq %232, %233 : si4, si4                                                                                                           │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u3 is 0\22, \22line\22: 54, \22column\22: 12, \22condition\22: \22zu3 == 0\22, \22scope\22: │
+│ \22TestZeroValueAllTypes\22}", %234 : i1                                                                                                                     │
+│       %235 = arc.sim.get_port %arg0, "zu3" : i3, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zu3\22}", %235 : i3                                                                             │
+│       %c3_i32 = hw.constant 3 : i32                                                                                                                          │
+│       %c-1_i2 = hw.constant -1 : i2                                                                                                                          │
+│       %236 = hwarith.cast %c3_i32 : (i32) -> ui32                                                                                                            │
+│       %237 = hwarith.cast %236 : (ui32) -> si33                                                                                                              │
+│       %238 = hwarith.cast %237 : (si33) -> i33                                                                                                               │
+│       %239 = hwarith.cast %c-1_i2 : (i2) -> ui2                                                                                                              │
+│       %240 = hwarith.cast %239 : (ui2) -> si33                                                                                                               │
+│       %241 = hwarith.cast %240 : (si33) -> i33                                                                                                               │
+│       %242 = hwarith.cast %238 : (i33) -> si33                                                                                                               │
+│       %243 = hwarith.cast %241 : (i33) -> si33                                                                                                               │
+│       %244 = hwarith.icmp eq %242, %243 : si33, si33                                                                                                         │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u3 width is 3\22, \22line\22: 55, \22column\22: 12, \22condition\22: \22width zu3 == 3\22,  │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %244 : i1                                                                                                        │
+│       %245 = arc.sim.get_port %arg0, "zs5" : i5, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zs5\22}", %245 : i5                                                                             │
+│       %false_32 = hw.constant false                                                                                                                          │
+│       %246 = hwarith.cast %false_32 : (i1) -> ui1                                                                                                            │
+│       %247 = hwarith.cast %246 : (ui1) -> si5                                                                                                                │
+│       %248 = hwarith.cast %247 : (si5) -> i5                                                                                                                 │
+│       %249 = hwarith.cast %245 : (i5) -> si5                                                                                                                 │
+│       %250 = hwarith.cast %248 : (i5) -> si5                                                                                                                 │
+│       %251 = hwarith.icmp eq %249, %250 : si5, si5                                                                                                           │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22s5 is 0\22, \22line\22: 58, \22column\22: 12, \22condition\22: \22zs5 == 0\22, \22scope\22: │
+│ \22TestZeroValueAllTypes\22}", %251 : i1                                                                                                                     │
+│       %252 = arc.sim.get_port %arg0, "zs5" : i5, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zs5\22}", %252 : i5                                                                             │
+│       %c5_i32 = hw.constant 5 : i32                                                                                                                          │
+│       %c-3_i3 = hw.constant -3 : i3                                                                                                                          │
+│       %253 = hwarith.cast %c5_i32 : (i32) -> ui32                                                                                                            │
+│       %254 = hwarith.cast %253 : (ui32) -> si33                                                                                                              │
+│       %255 = hwarith.cast %254 : (si33) -> i33                                                                                                               │
+│       %256 = hwarith.cast %c-3_i3 : (i3) -> ui3                                                                                                              │
+│       %257 = hwarith.cast %256 : (ui3) -> si33                                                                                                               │
+│       %258 = hwarith.cast %257 : (si33) -> i33                                                                                                               │
+│       %259 = hwarith.cast %255 : (i33) -> si33                                                                                                               │
+│       %260 = hwarith.cast %258 : (i33) -> si33                                                                                                               │
+│       %261 = hwarith.icmp eq %259, %260 : si33, si33                                                                                                         │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22s5 width is 5\22, \22line\22: 59, \22column\22: 12, \22condition\22: \22width zs5 == 5\22,  │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %261 : i1                                                                                                        │
+│       %262 = arc.sim.get_port %arg0, "zs5" : i5, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zs5\22}", %262 : i5                                                                             │
+│       %true_33 = hw.constant true                                                                                                                            │
+│       %true_34 = hw.constant true                                                                                                                            │
+│       %263 = hwarith.cast %true_33 : (i1) -> ui1                                                                                                             │
+│       %264 = hwarith.cast %263 : (ui1) -> si2                                                                                                                │
+│       %265 = hwarith.cast %264 : (si2) -> i2                                                                                                                 │
+│       %266 = hwarith.cast %true_34 : (i1) -> ui1                                                                                                             │
+│       %267 = hwarith.cast %266 : (ui1) -> si2                                                                                                                │
+│       %268 = hwarith.cast %267 : (si2) -> i2                                                                                                                 │
+│       %269 = hwarith.cast %265 : (i2) -> si2                                                                                                                 │
+│       %270 = hwarith.cast %268 : (i2) -> si2                                                                                                                 │
+│       %271 = hwarith.icmp eq %269, %270 : si2, si2                                                                                                           │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22s5 is signed\22, \22line\22: 60, \22column\22: 12, \22condition\22: \22is_signed zs5 ==     │
+│ true\22, \22scope\22: \22TestZeroValueAllTypes\22}", %271 : i1                                                                                               │
+│       %272 = arc.sim.get_port %arg0, "r8" : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                            │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22r8\22}", %272 : i8                                                                              │
+│       %false_35 = hw.constant false                                                                                                                          │
+│       %273 = hwarith.cast %272 : (i8) -> ui8                                                                                                                 │
+│       %274 = hwarith.cast %273 : (ui8) -> si9                                                                                                                │
+│       %275 = hwarith.cast %274 : (si9) -> i9                                                                                                                 │
+│       %276 = hwarith.cast %false_35 : (i1) -> ui1                                                                                                            │
+│       %277 = hwarith.cast %276 : (ui1) -> si9                                                                                                                │
+│       %278 = hwarith.cast %277 : (si9) -> i9                                                                                                                 │
+│       %279 = hwarith.cast %275 : (i9) -> si9                                                                                                                 │
+│       %280 = hwarith.cast %278 : (i9) -> si9                                                                                                                 │
+│       %281 = hwarith.icmp eq %279, %280 : si9, si9                                                                                                           │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u8 reg init 0\22, \22line\22: 65, \22column\22: 12, \22condition\22: \22r8 == 0\22,         │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %281 : i1                                                                                                        │
+│       %282 = arc.sim.get_port %arg0, "rs16" : i16, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22rs16\22}", %282 : i16                                                                           │
+│       %false_36 = hw.constant false                                                                                                                          │
+│       %283 = hwarith.cast %false_36 : (i1) -> ui1                                                                                                            │
+│       %284 = hwarith.cast %283 : (ui1) -> si16                                                                                                               │
+│       %285 = hwarith.cast %284 : (si16) -> i16                                                                                                               │
+│       %286 = hwarith.cast %282 : (i16) -> si16                                                                                                               │
+│       %287 = hwarith.cast %285 : (i16) -> si16                                                                                                               │
+│       %288 = hwarith.icmp eq %286, %287 : si16, si16                                                                                                         │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22val_s16 reg init 0\22, \22line\22: 66, \22column\22: 12, \22condition\22: \22rs16 == 0\22,  │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %288 : i1                                                                                                        │
+│       arc.sim.set_input %arg0, "clk" = %1 : !seq.clock, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                    │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                                                 │
+│       arc.sim.set_input %arg0, "clk" = %0 : !seq.clock, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                    │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                                                 │
+│       %289 = arc.sim.get_port %arg0, "zs16" : i16, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       arc.sim.emit "zs16", %289 : i16                                                                                                                        │
+│       %290 = arc.sim.get_port %arg0, "z16" : i16, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                          │
+│       arc.sim.emit "z16", %290 : i16                                                                                                                         │
+│       %291 = arc.sim.get_port %arg0, "zu3" : i3, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "zu3", %291 : i3                                                                                                                          │
+│       %292 = arc.sim.get_port %arg0, "z64" : i64, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                          │
+│       arc.sim.emit "z64", %292 : i64                                                                                                                         │
+│       %293 = arc.sim.get_port %arg0, "z1" : i1, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                            │
+│       arc.sim.emit "z1", %293 : i1                                                                                                                           │
+│       %294 = arc.sim.get_port %arg0, "zb" : i1, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                            │
+│       arc.sim.emit "zb", %294 : i1                                                                                                                           │
+│       %295 = arc.sim.get_port %arg0, "zs64" : i64, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       arc.sim.emit "zs64", %295 : i64                                                                                                                        │
+│       %296 = arc.sim.get_port %arg0, "zs32" : i32, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       arc.sim.emit "zs32", %296 : i32                                                                                                                        │
+│       %297 = arc.sim.get_port %arg0, "z8" : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                            │
+│       arc.sim.emit "z8", %297 : i8                                                                                                                           │
+│       %298 = arc.sim.get_port %arg0, "zs8" : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "zs8", %298 : i8                                                                                                                          │
+│       %299 = arc.sim.get_port %arg0, "zs5" : i5, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "zs5", %299 : i5                                                                                                                          │
+│       %300 = arc.sim.get_port %arg0, "r8" : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                            │
+│       arc.sim.emit "r8", %300 : i8                                                                                                                           │
+│       %301 = arc.sim.get_port %arg0, "z32" : i32, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                          │
+│       arc.sim.emit "z32", %301 : i32                                                                                                                         │
+│       %302 = arc.sim.get_port %arg0, "rs16" : i16, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       arc.sim.emit "rs16", %302 : i16                                                                                                                        │
+│       %303 = arc.sim.get_port %arg0, "r8" : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                            │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22r8\22}", %303 : i8                                                                              │
+│       %false_37 = hw.constant false                                                                                                                          │
+│       %304 = hwarith.cast %303 : (i8) -> ui8                                                                                                                 │
+│       %305 = hwarith.cast %304 : (ui8) -> si9                                                                                                                │
+│       %306 = hwarith.cast %305 : (si9) -> i9                                                                                                                 │
+│       %307 = hwarith.cast %false_37 : (i1) -> ui1                                                                                                            │
+│       %308 = hwarith.cast %307 : (ui1) -> si9                                                                                                                │
+│       %309 = hwarith.cast %308 : (si9) -> i9                                                                                                                 │
+│       %310 = hwarith.cast %306 : (i9) -> si9                                                                                                                 │
+│       %311 = hwarith.cast %309 : (i9) -> si9                                                                                                                 │
+│       %312 = hwarith.icmp eq %310, %311 : si9, si9                                                                                                           │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u8 reg remains 0\22, \22line\22: 70, \22column\22: 12, \22condition\22: \22r8 == 0\22,      │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %312 : i1                                                                                                        │
+│       arc.sim.set_input %arg0, "clk" = %1 : !seq.clock, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                    │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                                                 │
+│       arc.sim.set_input %arg0, "clk" = %0 : !seq.clock, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                    │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                                                 │
+│       %313 = arc.sim.get_port %arg0, "zs16" : i16, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       arc.sim.emit "zs16", %313 : i16                                                                                                                        │
+│       %314 = arc.sim.get_port %arg0, "z16" : i16, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                          │
+│       arc.sim.emit "z16", %314 : i16                                                                                                                         │
+│       %315 = arc.sim.get_port %arg0, "zu3" : i3, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "zu3", %315 : i3                                                                                                                          │
+│       %316 = arc.sim.get_port %arg0, "z64" : i64, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                          │
+│       arc.sim.emit "z64", %316 : i64                                                                                                                         │
+│       %317 = arc.sim.get_port %arg0, "z1" : i1, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                            │
+│       arc.sim.emit "z1", %317 : i1                                                                                                                           │
+│       %318 = arc.sim.get_port %arg0, "zb" : i1, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                            │
+│       arc.sim.emit "zb", %318 : i1                                                                                                                           │
+│       %319 = arc.sim.get_port %arg0, "zs64" : i64, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       arc.sim.emit "zs64", %319 : i64                                                                                                                        │
+│       %320 = arc.sim.get_port %arg0, "zs32" : i32, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       arc.sim.emit "zs32", %320 : i32                                                                                                                        │
+│       %321 = arc.sim.get_port %arg0, "z8" : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                            │
+│       arc.sim.emit "z8", %321 : i8                                                                                                                           │
+│       %322 = arc.sim.get_port %arg0, "zs8" : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "zs8", %322 : i8                                                                                                                          │
+│       %323 = arc.sim.get_port %arg0, "zs5" : i5, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "zs5", %323 : i5                                                                                                                          │
+│       %324 = arc.sim.get_port %arg0, "r8" : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                            │
+│       arc.sim.emit "r8", %324 : i8                                                                                                                           │
+│       %325 = arc.sim.get_port %arg0, "z32" : i32, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                          │
+│       arc.sim.emit "z32", %325 : i32                                                                                                                         │
+│       %326 = arc.sim.get_port %arg0, "rs16" : i16, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       arc.sim.emit "rs16", %326 : i16                                                                                                                        │
+│       %327 = arc.sim.get_port %arg0, "r8" : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                            │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22r8\22}", %327 : i8                                                                              │
+│       %c-28_i7 = hw.constant -28 : i7                                                                                                                        │
+│       %328 = hwarith.cast %327 : (i8) -> ui8                                                                                                                 │
+│       %329 = hwarith.cast %328 : (ui8) -> si9                                                                                                                │
+│       %330 = hwarith.cast %329 : (si9) -> i9                                                                                                                 │
+│       %331 = hwarith.cast %c-28_i7 : (i7) -> ui7                                                                                                             │
+│       %332 = hwarith.cast %331 : (ui7) -> si9                                                                                                                │
+│       %333 = hwarith.cast %332 : (si9) -> i9                                                                                                                 │
+│       %334 = hwarith.cast %330 : (i9) -> si9                                                                                                                 │
+│       %335 = hwarith.cast %333 : (i9) -> si9                                                                                                                 │
+│       %336 = hwarith.icmp eq %334, %335 : si9, si9                                                                                                           │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u8 reg mutated to 100\22, \22line\22: 75, \22column\22: 12, \22condition\22: \22r8 ==       │
+│ 100\22, \22scope\22: \22TestZeroValueAllTypes\22}", %336 : i1                                                                                                │
+│       arc.sim.set_input %arg0, "rst" = %true : i1, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       arc.sim.set_input %arg0, "clk" = %1 : !seq.clock, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                    │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                                                 │
+│       arc.sim.set_input %arg0, "clk" = %0 : !seq.clock, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                    │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                                                 │
+│       arc.sim.set_input %arg0, "rst" = %false : i1, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                        │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                                                 │
+│       %337 = arc.sim.get_port %arg0, "r8" : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                            │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22r8\22}", %337 : i8                                                                              │
+│       %false_38 = hw.constant false                                                                                                                          │
+│       %338 = hwarith.cast %337 : (i8) -> ui8                                                                                                                 │
+│       %339 = hwarith.cast %338 : (ui8) -> si9                                                                                                                │
+│       %340 = hwarith.cast %339 : (si9) -> i9                                                                                                                 │
+│       %341 = hwarith.cast %false_38 : (i1) -> ui1                                                                                                            │
+│       %342 = hwarith.cast %341 : (ui1) -> si9                                                                                                                │
+│       %343 = hwarith.cast %342 : (si9) -> i9                                                                                                                 │
+│       %344 = hwarith.cast %340 : (i9) -> si9                                                                                                                 │
+│       %345 = hwarith.cast %343 : (i9) -> si9                                                                                                                 │
+│       %346 = hwarith.icmp eq %344, %345 : si9, si9                                                                                                           │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u8 reg reset to 0\22, \22line\22: 77, \22column\22: 12, \22condition\22: \22r8 == 0\22,     │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %346 : i1                                                                                                        │
+│       %347 = arc.sim.get_port %arg0, "z8" : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                            │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22z8\22}", %347 : i8                                                                              │
+│       %false_39 = hw.constant false                                                                                                                          │
+│       %348 = hwarith.cast %347 : (i8) -> ui8                                                                                                                 │
+│       %349 = hwarith.cast %348 : (ui8) -> ui9                                                                                                                │
+│       %350 = hwarith.cast %349 : (ui9) -> i9                                                                                                                 │
+│       %351 = hwarith.cast %false_39 : (i1) -> ui1                                                                                                            │
+│       %352 = hwarith.cast %351 : (ui1) -> ui9                                                                                                                │
+│       %353 = hwarith.cast %352 : (ui9) -> i9                                                                                                                 │
+│       %354 = hwarith.cast %350 : (i9) -> ui9                                                                                                                 │
+│       %355 = hwarith.cast %353 : (i9) -> ui9                                                                                                                 │
+│       %356 = hwarith.add %354, %355 : (ui9, ui9) -> ui10                                                                                                     │
+│       %357 = hwarith.cast %356 : (ui10) -> i9                                                                                                                │
+│       %false_40 = hw.constant false                                                                                                                          │
+│       %358 = hwarith.cast %357 : (i9) -> ui9                                                                                                                 │
+│       %359 = hwarith.cast %358 : (ui9) -> si10                                                                                                               │
+│       %360 = hwarith.cast %359 : (si10) -> i10                                                                                                               │
+│       %361 = hwarith.cast %false_40 : (i1) -> ui1                                                                                                            │
+│       %362 = hwarith.cast %361 : (ui1) -> si10                                                                                                               │
+│       %363 = hwarith.cast %362 : (si10) -> i10                                                                                                               │
+│       %364 = hwarith.cast %360 : (i10) -> si10                                                                                                               │
+│       %365 = hwarith.cast %363 : (i10) -> si10                                                                                                               │
+│       %366 = hwarith.icmp eq %364, %365 : si10, si10                                                                                                         │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \220 + 0 = 0\22, \22line\22: 81, \22column\22: 12, \22condition\22: \22z8 + 0 == 0\22,         │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %366 : i1                                                                                                        │
+│       %367 = arc.sim.get_port %arg0, "zs8" : i8, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zs8\22}", %367 : i8                                                                             │
+│       %false_41 = hw.constant false                                                                                                                          │
+│       %368 = hwarith.cast %367 : (i8) -> si8                                                                                                                 │
+│       %369 = hwarith.cast %368 : (si8) -> si9                                                                                                                │
+│       %370 = hwarith.cast %369 : (si9) -> i9                                                                                                                 │
+│       %371 = hwarith.cast %false_41 : (i1) -> ui1                                                                                                            │
+│       %372 = hwarith.cast %371 : (ui1) -> si9                                                                                                                │
+│       %373 = hwarith.cast %372 : (si9) -> i9                                                                                                                 │
+│       %374 = hwarith.cast %370 : (i9) -> si9                                                                                                                 │
+│       %375 = hwarith.cast %373 : (i9) -> si9                                                                                                                 │
+│       %376 = hwarith.sub %374, %375 : (si9, si9) -> si10                                                                                                     │
+│       %377 = hwarith.cast %376 : (si10) -> i9                                                                                                                │
+│       %false_42 = hw.constant false                                                                                                                          │
+│       %378 = hwarith.cast %false_42 : (i1) -> ui1                                                                                                            │
+│       %379 = hwarith.cast %378 : (ui1) -> si9                                                                                                                │
+│       %380 = hwarith.cast %379 : (si9) -> i9                                                                                                                 │
+│       %381 = hwarith.cast %377 : (i9) -> si9                                                                                                                 │
+│       %382 = hwarith.cast %380 : (i9) -> si9                                                                                                                 │
+│       %383 = hwarith.icmp eq %381, %382 : si9, si9                                                                                                           │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \220 - 0 = 0\22, \22line\22: 82, \22column\22: 12, \22condition\22: \22zs8 - 0 == 0\22,        │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %383 : i1                                                                                                        │
+│       %384 = arc.sim.get_port %arg0, "z16" : i16, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                          │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22z16\22}", %384 : i16                                                                            │
+│       %false_43 = hw.constant false                                                                                                                          │
+│       %385 = hwarith.cast %384 : (i16) -> ui16                                                                                                               │
+│       %386 = hwarith.cast %385 : (ui16) -> ui17                                                                                                              │
+│       %387 = hwarith.cast %386 : (ui17) -> i17                                                                                                               │
+│       %388 = hwarith.cast %false_43 : (i1) -> ui1                                                                                                            │
+│       %389 = hwarith.cast %388 : (ui1) -> ui17                                                                                                               │
+│       %390 = hwarith.cast %389 : (ui17) -> i17                                                                                                               │
+│       %391 = hwarith.cast %387 : (i17) -> ui17                                                                                                               │
+│       %392 = hwarith.cast %390 : (i17) -> ui17                                                                                                               │
+│       %393 = hwarith.mul %391, %392 : (ui17, ui17) -> ui34                                                                                                   │
+│       %394 = hwarith.cast %393 : (ui34) -> i17                                                                                                               │
+│       %false_44 = hw.constant false                                                                                                                          │
+│       %395 = hwarith.cast %394 : (i17) -> ui17                                                                                                               │
+│       %396 = hwarith.cast %395 : (ui17) -> si18                                                                                                              │
+│       %397 = hwarith.cast %396 : (si18) -> i18                                                                                                               │
+│       %398 = hwarith.cast %false_44 : (i1) -> ui1                                                                                                            │
+│       %399 = hwarith.cast %398 : (ui1) -> si18                                                                                                               │
+│       %400 = hwarith.cast %399 : (si18) -> i18                                                                                                               │
+│       %401 = hwarith.cast %397 : (i18) -> si18                                                                                                               │
+│       %402 = hwarith.cast %400 : (i18) -> si18                                                                                                               │
+│       %403 = hwarith.icmp eq %401, %402 : si18, si18                                                                                                         │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \220 * 0 = 0\22, \22line\22: 83, \22column\22: 12, \22condition\22: \22z16 * 0 == 0\22,        │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %403 : i1                                                                                                        │
+│       %false_45 = hw.constant false                                                                                                                          │
+│       %c-6_i4 = hw.constant -6 : i4                                                                                                                          │
+│       %404 = hwarith.cast %false_45 : (i1) -> ui1                                                                                                            │
+│       %405 = hwarith.cast %404 : (ui1) -> ui4                                                                                                                │
+│       %406 = hwarith.cast %405 : (ui4) -> i4                                                                                                                 │
+│       %407 = hwarith.cast %406 : (i4) -> ui4                                                                                                                 │
+│       %408 = hwarith.cast %c-6_i4 : (i4) -> ui4                                                                                                              │
+│       %409 = hwarith.div %407, %408 : (ui4, ui4) -> ui4                                                                                                      │
+│       %410 = hwarith.cast %409 : (ui4) -> i4                                                                                                                 │
+│       %false_46 = hw.constant false                                                                                                                          │
+│       %411 = hwarith.cast %410 : (i4) -> ui4                                                                                                                 │
+│       %412 = hwarith.cast %411 : (ui4) -> si5                                                                                                                │
+│       %413 = hwarith.cast %412 : (si5) -> i5                                                                                                                 │
+│       %414 = hwarith.cast %false_46 : (i1) -> ui1                                                                                                            │
+│       %415 = hwarith.cast %414 : (ui1) -> si5                                                                                                                │
+│       %416 = hwarith.cast %415 : (si5) -> i5                                                                                                                 │
+│       %417 = hwarith.cast %413 : (i5) -> si5                                                                                                                 │
+│       %418 = hwarith.cast %416 : (i5) -> si5                                                                                                                 │
+│       %419 = hwarith.icmp eq %417, %418 : si5, si5                                                                                                           │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \220 / 10 = 0\22, \22line\22: 86, \22column\22: 12, \22condition\22: \220 / 10 == 0\22,        │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %419 : i1                                                                                                        │
+│       %false_47 = hw.constant false                                                                                                                          │
+│       %c-6_i4_48 = hw.constant -6 : i4                                                                                                                       │
+│       %420 = hwarith.cast %false_47 : (i1) -> ui1                                                                                                            │
+│       %421 = hwarith.cast %420 : (ui1) -> ui4                                                                                                                │
+│       %422 = hwarith.cast %421 : (ui4) -> i4                                                                                                                 │
+│       %423 = comb.modu %422, %c-6_i4_48 : i4                                                                                                                 │
+│       %false_49 = hw.constant false                                                                                                                          │
+│       %424 = hwarith.cast %423 : (i4) -> ui4                                                                                                                 │
+│       %425 = hwarith.cast %424 : (ui4) -> si5                                                                                                                │
+│       %426 = hwarith.cast %425 : (si5) -> i5                                                                                                                 │
+│       %427 = hwarith.cast %false_49 : (i1) -> ui1                                                                                                            │
+│       %428 = hwarith.cast %427 : (ui1) -> si5                                                                                                                │
+│       %429 = hwarith.cast %428 : (si5) -> i5                                                                                                                 │
+│       %430 = hwarith.cast %426 : (i5) -> si5                                                                                                                 │
+│       %431 = hwarith.cast %429 : (i5) -> si5                                                                                                                 │
+│       %432 = hwarith.icmp eq %430, %431 : si5, si5                                                                                                           │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \220 %% 10 = 0\22, \22line\22: 87, \22column\22: 12, \22condition\22: \220 %% 10 == 0\22,      │
+│ \22scope\22: \22TestZeroValueAllTypes\22}", %432 : i1                                                                                                        │
+│       %433 = arc.sim.get_port %arg0, "z64" : i64, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                          │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22z64\22}", %433 : i64                                                                            │
+│       %false_50 = hw.constant false                                                                                                                          │
+│       %434 = hwarith.cast %433 : (i64) -> ui64                                                                                                               │
+│       %435 = hwarith.cast %434 : (ui64) -> si65                                                                                                              │
+│       %436 = hwarith.cast %435 : (si65) -> i65                                                                                                               │
+│       %437 = hwarith.cast %false_50 : (i1) -> ui1                                                                                                            │
+│       %438 = hwarith.cast %437 : (ui1) -> si65                                                                                                               │
+│       %439 = hwarith.cast %438 : (si65) -> i65                                                                                                               │
+│       %440 = hwarith.cast %436 : (i65) -> si65                                                                                                               │
+│       %441 = hwarith.cast %439 : (i65) -> si65                                                                                                               │
+│       %442 = hwarith.icmp eq %440, %441 : si65, si65                                                                                                         │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u64 equality with literal 0\22, \22line\22: 91, \22column\22: 12, \22condition\22: \22z64   │
+│ == 0\22, \22scope\22: \22TestZeroValueAllTypes\22}", %442 : i1                                                                                               │
+│       %443 = arc.sim.get_port %arg0, "zs64" : i64, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                         │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zs64\22}", %443 : i64                                                                           │
+│       %false_51 = hw.constant false                                                                                                                          │
+│       %444 = hwarith.cast %false_51 : (i1) -> ui1                                                                                                            │
+│       %445 = hwarith.cast %444 : (ui1) -> si64                                                                                                               │
+│       %446 = hwarith.cast %445 : (si64) -> i64                                                                                                               │
+│       %447 = hwarith.cast %443 : (i64) -> si64                                                                                                               │
+│       %448 = hwarith.cast %446 : (i64) -> si64                                                                                                               │
+│       %449 = hwarith.icmp eq %447, %448 : si64, si64                                                                                                         │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22s64 equality with literal 0\22, \22line\22: 92, \22column\22: 12, \22condition\22: \22zs64  │
+│ == 0\22, \22scope\22: \22TestZeroValueAllTypes\22}", %449 : i1                                                                                               │
+│       %450 = arc.sim.get_port %arg0, "zu3" : i3, !arc.sim.instance<@TestZeroValueAllTypes_Harness>                                                           │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22zu3\22}", %450 : i3                                                                             │
+│       %false_52 = hw.constant false                                                                                                                          │
+│       %451 = hwarith.cast %450 : (i3) -> ui3                                                                                                                 │
+│       %452 = hwarith.cast %451 : (ui3) -> si4                                                                                                                │
+│       %453 = hwarith.cast %452 : (si4) -> i4                                                                                                                 │
+│       %454 = hwarith.cast %false_52 : (i1) -> ui1                                                                                                            │
+│       %455 = hwarith.cast %454 : (ui1) -> si4                                                                                                                │
+│       %456 = hwarith.cast %455 : (si4) -> i4                                                                                                                 │
+│       %457 = hwarith.cast %453 : (i4) -> si4                                                                                                                 │
+│       %458 = hwarith.cast %456 : (i4) -> si4                                                                                                                 │
+│       %459 = hwarith.icmp eq %457, %458 : si4, si4                                                                                                           │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22u3 equality with literal 0\22, \22line\22: 93, \22column\22: 12, \22condition\22: \22zu3 == │
+│ 0\22, \22scope\22: \22TestZeroValueAllTypes\22}", %459 : i1                                                                                                  │
+│     }                                                                                                                                                        │
+│     return                                                                                                                                                   │
+│   }                                                                                                                                                          │
+│ }                                                                                                                                                            │
+│                                                                                                                                                              │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘

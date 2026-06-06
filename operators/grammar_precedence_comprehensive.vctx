@@ -1,0 +1,54 @@
+// spec: §7.4 (Operator precedence)
+// description: Comprehensive TDD test for operator precedence and associativity.
+
+sim TestGrammarPrecedence {
+    // --- 1. Multiplicative vs Additive ---
+    assert(1 + 2 * 3 == 7, "1 + (2 * 3) == 7")
+    assert(10 - 4 / 2 == 8, "10 - (4 / 2) == 8")
+    
+    // --- 2. Additive vs Shift ---
+    // Standard C: Shift is below Additive. (1 + 2) << 3 = 24.
+    // vctx: shift is below sum.
+    assert(1 + 2 << 3 == 24, "(1 + 2) << 3 == 24")
+    assert(1 << 2 + 1 == 8,  "1 << (2 + 1) == 8")
+
+    // --- 3. Shift vs Comparison ---
+    // Standard C: Comparison is below Shift. (1 << 4) > 10 = T.
+    // vctx lark: comparison: shift (comparison_op shift)?
+    // So shift is tighter.
+    assert(1 << 4 > 10, "(1 << 4) > 10 is true")
+    assert(10 < 1 << 4, "10 < (1 << 4) is true")
+    
+    // --- 4. Comparison vs Equality ---
+    // Standard C: Equality is below Comparison. (5 < 10) == true is T.
+    assert(5 < 10 == true, "(5 < 10) == true is true")
+    
+    // --- 5. Equality vs Bitwise ---
+    // Standard C: Bitwise is below Equality? NO, Standard C: Equality is below Bitwise AND.
+    // Standard C precedence: &, ^, | are below ==.
+    // Let's check Lark:
+    // ?bitwise_and: equality (BITWISE_AND_OP equality)*
+    // This means Equality is TIGHTER than Bitwise AND.
+    // So 1 == 1 & 0 -> (1 == 1) & 0 -> 1 & 0 -> 0.
+    assert(1 == 1 & 0 == 0, "(1 == 1) & 0 == 0")
+
+    // --- 6. Bitwise vs Logical ---
+    // Standard C: Logical is below Bitwise.
+    // Lark: logical_and: bitwise_or ...
+    // This matches: Bitwise is tighter.
+    assert(1 | 2 and 0 == 0, "(1 | 2) and 0 is false")
+    
+    // --- 7. Logical AND vs Logical OR ---
+    assert(true or false and false == true, "true or (false and false) == true")
+    
+    // --- 8. Unary vs Multiplicative ---
+    assert(-1 * 2 == -2, "(-1) * 2 == -2")
+    assert(~(0 as u8) == 255, "~(0 as u8) is 255")
+    assert((~0) as u8 == 1, "(~0) as u8 is 1 (minimal width inversion)")
+
+    wire u8_not: u8 = ~0
+    assert(u8_not == 1, "Context-free ~0 defaults to 1 bit then zero-extends")
+
+    // --- 9. Parentheses override ---
+    assert((1 + 2) * 3 == 9, "(1 + 2) * 3 == 9")
+}

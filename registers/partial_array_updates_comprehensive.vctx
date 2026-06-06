@@ -1,0 +1,88 @@
+// spec: §8.4 (Arrays), §6.4 (when), §6.3 (Assignments)
+// description: TDD Test for Partial Array Register Updates.
+// Covers same-arm multiple updates, priority muxing between elements, and mixed full/partial updates.
+
+sim TestPartialArrayUpdates {
+    // Registers for testing
+    reg r_bools: bool[4] = [false, false, false, false]
+    reg r_u8s:   u8[4]   = [0, 0, 0, 0]
+
+    // --- Scenario 1: Multiple updates in the SAME arm ---
+    wire en1: bool
+    poke(en1, false)
+    when en1 {
+        r_bools[0] <= true
+        r_bools[2] <= true
+    }
+    
+    // --- Scenario 2: Priority muxing between different arms/elements ---
+    wire c1: bool
+    wire c2: bool
+    poke(c1, false)
+    poke(c2, false)
+    when c1 {
+        r_u8s[1] <= 10
+    } elsewhen c2 {
+        r_u8s[1] <= 20
+        r_u8s[3] <= 30
+    }
+
+    // --- Scenario 3: Mixed Full and Partial Updates ---
+    reg r_mix: u8[4] = [100, 100, 100, 100]
+    wire c3: bool
+    wire c4: bool
+    poke(c3, false)
+    poke(c4, false)
+    when c3 {
+        r_mix <= [1, 2, 3, 4]
+    } elsewhen c4 {
+        r_mix[0] <= 99
+    }
+
+    // --- EXECUTION & VERIFICATION ---
+
+    // Cycle 0: Initial states
+    assert(r_bools[0] == false, "bools[0] init F")
+    assert(r_u8s[1]   == 0,     "u8s[1] init 0")
+    assert(r_mix[0]   == 100,   "mix[0] init 100")
+
+    // Cycle 1: Same-arm multiple update
+    poke(en1, true)
+    cycle()
+    assert(r_bools[0] == true,  "Scenario 1: bools[0] updated")
+    assert(r_bools[1] == false, "Scenario 1: bools[1] held")
+    assert(r_bools[2] == true,  "Scenario 1: bools[2] updated")
+    assert(r_bools[3] == false, "Scenario 1: bools[3] held")
+    poke(en1, false) // Turn off for next tests
+
+    // Cycle 2: Priority Mux Subcase A (c1=T, c2=T) -> c1 wins
+    poke(c1, true)
+    poke(c2, true)
+    cycle()
+    assert(r_u8s[1] == 10, "Scenario 2A: c1 wins for index 1")
+    assert(r_u8s[3] == 0,  "Scenario 2A: index 3 holds (not in c1 arm)")
+    
+    // Cycle 3: Priority Mux Subcase B (c1=F, c2=T) -> c2 active
+    poke(c1, false)
+    poke(c2, true)
+    cycle()
+    assert(r_u8s[1] == 20, "Scenario 2B: c2 active for index 1")
+    assert(r_u8s[3] == 30, "Scenario 2B: c2 active for index 3")
+    poke(c2, false)
+
+    // Cycle 4: Mixed Full/Partial Subcase A (c3=T, c4=T) -> c3 wins
+    poke(c3, true)
+    poke(c4, true)
+    cycle()
+    assert(r_mix[0] == 1, "Scenario 3A: full update wins [0]")
+    assert(r_mix[3] == 4, "Scenario 3A: full update wins [3]")
+    
+    // Cycle 5: Mixed Full/Partial Subcase B (c3=F, c4=T) -> c4 active
+    poke(c3, false)
+    poke(c4, true)
+    // Current r_mix is [1, 2, 3, 4]
+    cycle()
+    assert(r_mix[0] == 99, "Scenario 3B: partial update active")
+    assert(r_mix[1] == 2,  "Scenario 3B: others hold (1)")
+    assert(r_mix[3] == 4,  "Scenario 3B: others hold (3)")
+}

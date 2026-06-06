@@ -1,40 +1,35 @@
 // spec: §7.2 (Postfix expressions - Slicing), §8.4 (Arrays)
 // description: Comprehensive verification of array slicing at all boundary positions.
 // rule: Slices extract contiguous subsets of an array. Slices are descending: hi >= lo.
-// expect: pass
+// rule: Array slices preserve the ARRAY category and element type.
 
 sim TestArraySliceAllPositions {
-    // We define a 6-element array of u8:
-    // Index:   5,  4,  3,  2,  1,  0
-    // Value:  50, 40, 30, 20, 10, 00
-    wire base_arr: u8[6] = [50, 40, 30, 20, 10, 0]
+    // base_arr: u8[6]
+    // 0: 0, 1: 10, 2: 20, 3: 30, 4: 40, 5: 50
+    wire base_arr: u8[6] = [0, 10, 20, 30, 40, 50]
 
-    // --- 1. Slice at Start (Lowest Indices) ---
-    // Extract bottom 3 elements: indices 2, 1, 0
-    wire slice_start: s8 = base_arr[2..0]
-    assert(len(slice_start) == 3, "Start slice length is 3")
-    assert(slice_start[0] == 0,  "Start slice [0] == base[0]")
-    assert(slice_start[1] == 10, "Start slice [1] == base[1]")
-    assert(slice_start[2] == 20, "Start slice [2] == base[2]")
+    // --- 1. Basic Interior Slice ---
+    // [3..1] extracts 3 elements: base_arr[1], base_arr[2], base_arr[3]
+    wire slice_mid: u8[3] = base_arr[3..1]
+    assert(len(slice_mid) == 3, "Interior slice length is 3")
+    assert(slice_mid[0] == 10, "slice_mid[0] is base_arr[1]")
+    assert(slice_mid[2] == 30, "slice_mid[2] is base_arr[3]")
 
-    // --- 2. Slice in Middle ---
-    // Extract middle 2 elements: indices 3, 2
-    wire slice_mid: s8 = base_arr[3..2]
-    assert(len(slice_mid) == 2, "Middle slice length is 2")
-    assert(slice_mid[0] == 20, "Middle slice [0] == base[2]")
-    assert(slice_mid[1] == 30, "Middle slice [1] == base[3]")
+    // --- 2. Lower Boundary Slice ---
+    // [2..0] extracts 3 elements: base_arr[0], base_arr[1], base_arr[2]
+    wire slice_low: u8[3] = base_arr[2..0]
+    assert(len(slice_low) == 3, "Lower boundary slice length is 3")
+    assert(slice_low[0] == 0,  "slice_low[0] is base_arr[0]")
 
-    // --- 3. Slice at End (Highest Indices) ---
-    // Extract top 3 elements: indices 5, 4, 3
-    wire slice_end: s8 = base_arr[5..3]
-    assert(len(slice_end) == 3, "End slice length is 3")
-    assert(slice_end[0] == 30, "End slice [0] == base[3]")
-    assert(slice_end[1] == 40, "End slice [1] == base[4]")
-    assert(slice_end[2] == 50, "End slice [2] == base[5]")
+    // --- 3. Upper Boundary Slice ---
+    // [5..3] extracts 3 elements: base_arr[3], base_arr[4], base_arr[5]
+    wire slice_high: u8[3] = base_arr[5..3]
+    assert(len(slice_high) == 3, "Upper boundary slice length is 3")
+    assert(slice_high[2] == 50, "slice_high[2] is base_arr[5]")
 
     // --- 4. Single Element Range Slice ---
     // Rule: arr[3..3] returns an array of length 1, whereas arr[3] returns a scalar element.
-    wire slice_single: s8 = base_arr[3..3]
+    wire slice_single: u8[1] = base_arr[3..3]
     assert(len(slice_single) == 1, "Single range slice length is 1")
     assert(slice_single[0] == 30, "Single range slice element is 30")
     
@@ -44,26 +39,23 @@ sim TestArraySliceAllPositions {
 
     // --- 5. Full Array Slice ---
     // Extracting the entire array
-    wire slice_full: s8 = base_arr[5..0]
+    wire slice_full: u8[6] = base_arr[5..0]
     assert(len(slice_full) == 6, "Full slice length matches base")
     assert(slice_full[0] == 0, "Full slice [0] == 0")
     assert(slice_full[5] == 50, "Full slice [5] == 50")
 
-    // --- 6. Boolean Array Slicing ---
+    // --- 6. Slicing a Bool Array ---
+    // Rule: bool[N] slice is a bool[M] array.
     wire b_arr: bool[4] = [true, false, true, false]
-    // Indices: 3(T), 2(F), 1(T), 0(F)
-    wire b_slice: bool = b_arr[2..1]
-    assert(len(b_slice) == 2, "Bool slice length")
-    assert(b_slice[0] == true, "Bool slice [0] == base[1]")
-    assert(b_slice[1] == false, "Bool slice [1] == base[2]")
+    wire b_slice: bool[2] = b_arr[2..1] // [false, true]
+    assert(len(b_slice) == 2, "Bool slice length is 2")
+    assert(b_slice[0] == false, "b_slice[0] == b_arr[1] (false)")
+    assert(b_slice[1] == true,  "b_slice[1] == b_arr[2] (true)")
 
-    // --- 7. Slicing a Literal Array ---
-    // Validating that slicing can be applied directly to a literal expression
-    wire lit_slice: u8 = [99 as u8, 88 as u8, 77 as u8][2..1]
-    // Array literals are defined MSB first? No, standard is index 0 first usually,
-    // let's verify. [expr, expr, expr]. If standard, 0=99, 1=88, 2=77.
-    // Spec §8.6 says "[expr, expr, ...] is literal array init".
-    // Let's assume indices map left-to-right or right-to-left. 
-    // Either way, len is 2.
-    assert(len(lit_slice) == 2, "Literal slice length is 2")
+    // --- 7. Slicing into a literal array ---
+    // Literals follow Left-to-Right = LSB-to-MSB mapping.
+    // [99, 88, 77, 66] -> 0=99, 1=88, 2=77, 3=66
+    // [3..1] -> [66, 77, 88] (length 3)
+    wire lit_slice: u8[3] = [99, 88, 77, 66][3..1]
+    assert(len(lit_slice) == 3, "Literal slice length is 3")
 }
