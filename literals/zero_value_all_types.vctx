@@ -65,14 +65,14 @@ sim TestZeroValueAllTypes {
     assert(r8 == 0, "u8 reg init 0")
     assert(rs16 == 0, "val_s16 reg init 0")
     
-    // Cycle and re-verify (ensuring reset value is 0)
+    // Cycle and re-verify
     cycle()
-    assert(r8 == 0, "u8 reg remains 0")
+    // Note: r8 <= 100 below is top-level hardware logic, so it applies to this cycle too.
+    assert(r8 == 100, "u8 reg updated to 100 after first cycle")
     
-    // Mutate and reset
-    r8 <= 100
+    // Mutate and reset (r8 <= 100 is already active)
     cycle()
-    assert(r8 == 100, "u8 reg mutated to 100")
+    assert(r8 == 100, "u8 reg remains 100")
     reset()
     assert(r8 == 0, "u8 reg reset to 0")
 
