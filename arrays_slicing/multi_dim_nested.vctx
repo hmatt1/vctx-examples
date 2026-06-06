@@ -1,0 +1,25 @@
+// spec: §8.4
+// description: Nested array literals and multi-dimensional access.
+// expect: pass
+
+sim MultiDimNested {
+    // 2x3 array of u8 (Little-endian bitstream: Row 0 then Row 1)
+    wire matrix: u8[3][2] = [
+        [10, 20, 30],
+        [40, 50, 60]
+    ]
+    
+    // Test multi-level indexing
+    wire m01: u8 = matrix[0][1] // 20
+    wire m12: u8 = matrix[1][2] // 60
+    
+    assert(m01 == 20, "matrix[0][1] is 20")
+    assert(m12 == 60, "matrix[1][2] is 60")
+    
+    // Slicing a nested array (Extracting a whole row)
+    // matrix[1] returns the second inner array (u8[3])
+    wire row1: u8[3] = matrix[1]
+    assert(row1[0] == 40, "row1[0] is 40")
+    assert(row1[1] == 50, "row1[1] is 50")
+    assert(row1[2] == 60, "row1[2] is 60")
+}

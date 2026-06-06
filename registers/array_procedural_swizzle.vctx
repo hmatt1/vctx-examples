@@ -1,0 +1,38 @@
+// spec: §6.3
+// description: Cycle-by-cycle procedural manipulation of array registers.
+// expect: pass
+
+component Swizzler(
+    in select: u2,
+    in val: u8,
+    out out0: u8,
+    out out1: u8
+) {
+    reg mem: u8[4] = [1, 2, 3, 4]
+    
+    // Dynamic override
+    mem[select] <= val
+    
+    // Swizzle: move element 0 to element 3 every cycle unless overridden
+    mem[3] <= mem[0]
+    
+    out0 := mem[0]
+    out1 := mem[3]
+}
+
+sim TestSwizzle {
+    wire s: u2 = 0
+    wire v: u8 = 99
+    wire o0: u8
+    wire o1: u8
+    
+    Swizzler(s, v, o0, o1)
+    
+    // Cycle 1: Reset state is [1, 2, 3, 4]
+    // Assignments pending for Cycle 2: mem[0] <= 99, mem[3] <= 1
+    cycle()
+    
+    // Cycle 2: State should be [99, 2, 3, 1]
+    assert(o0 == 99, "mem[0] updated to 99")
+    assert(o1 == 1, "mem[3] updated from mem[0]")
+}

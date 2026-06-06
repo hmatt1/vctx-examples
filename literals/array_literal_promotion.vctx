@@ -1,0 +1,19 @@
+// spec: §8.6
+// description: Verify that array literals correctly unify element widths.
+// expect: pass
+
+sim ArrayLiteralPromotion {
+    // Mixed widths: u1, u4, u12
+    // Should unify to u16 element stride.
+    wire mixed: u16[3] = [1, 0xF, 4000]
+    
+    assert(mixed[0] == 1, "Element 0 (u1 -> u16)")
+    assert(mixed[1] == 15, "Element 1 (u4 -> u16)")
+    assert(mixed[2] == 4000, "Element 2 (u12 -> u16)")
+    
+    // Signed promotion
+    // [-1 (s1), 10 (u4)] -> s8[2]
+    wire signed_mixed: s8[2] = [-1, 10]
+    assert(signed_mixed[0] == -1, "Sign-extension in literal packing")
+    assert(signed_mixed[1] == 10, "Zero-extension for positive in signed literal")
+}
