@@ -105,25 +105,28 @@ sim TestWhenNested {
 
     // --- Extra: Register Nesting ---
     reg r8: u8 = 0
-    when c1 {
-        when c2 {
+    when cond_out {
+        when cond_in {
             r8 <= 100
         }
         // no else
     }
-    
+
     // (T, T) -> updates
+    poke(cond_out, true)
+    poke(cond_in, true)
     cycle()
     assert(r8 == 100, "Nested reg updated")
-    
+
     // (T, F) -> holds
-    poke(c2, false)
+    poke(cond_in, false)
     cycle()
     assert(r8 == 100, "Nested reg holds (inner false)")
-    
+
     // (F, T) -> holds
-    poke(c1, false)
-    poke(c2, true)
+    poke(cond_out, false)
+    poke(cond_in, true)
     cycle()
     assert(r8 == 100, "Nested reg holds (outer false)")
-}
+    }
+
