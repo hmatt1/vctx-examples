@@ -33,7 +33,7 @@ sim TestHexLiteralsAllSizes {
     
     // We compare against another literal representation or rely on the parser directly
     // since typing out the base-10 value of 2^64-1 is unwieldy, we use math.
-    assert(h64_max == (0 as u64) - 1, "0xFFFF_FFFF_FFFF_FFFF is u64 max (0-1)")
+    assert(h64_max == ((0 as u64) - 1) as u64, "0xFFFF_FFFF_FFFF_FFFF is u64 max (0-1)")
     
     // Upper and lower word extraction to verify pattern integrity
     assert((h64_pat >> 32) == 0x01234567, "Upper 32 bits of 0x0123456789ABCDEF")
