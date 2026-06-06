@@ -1,30 +1,64 @@
 // spec: §12.1, §12.2
 // expect: pass
+// description: Comprehensive verification of is_comptime() intrinsic behavior.
 
-component Foo(
-    in e: u1,
-    out shouldBeSigned: u1,
-    out shouldNotBeSigned: u1
+// In hardware components, wires with constant drivers ARE considered comptime-known.
+// This allows them to be used in generic parameters or other comptime-required positions.
+component HardwareComptime(
+    out is_k_comptime: u1,
+    out is_raw_literal_comptime: u1
 ) {
-
-    wire b: s16 = -1
-    wire a: u1
-    a := is_comptime(b)
-    shouldBeSigned := a
-
-    wire d: u16
-    wire c: u1
-    c := is_comptime(d)
-    shouldNotBeSigned := c
+    wire k: u8 = 42
+    
+    // In hardware, k is essentially a 'localparam' because its driver is a literal.
+    is_k_comptime := is_comptime(k)
+    
+    // Bare literals are always comptime-known.
+    is_raw_literal_comptime := is_comptime(100)
 }
 
-sim TestFoo {
-    wire e: u1
-    wire num1: u1
-    wire num2: u1
+sim TestHardwareContext {
+    wire k_ct: u1
+    wire lit_ct: u1
+    HardwareComptime(k_ct, lit_ct)
+    
+    cycle()
+    assert(k_ct == 1, "In component, wire with constant driver is comptime-known")
+    assert(lit_ct == 1, "Literal is always comptime-known")
+}
 
-    Foo(e, num1, num2)
+// In simulation blocks, wires are NEVER considered comptime-known by default,
+// even if they have a constant initializer. This is because wires in sims
+// can be 'poked' from the testbench, changing their value proceduraly.
+sim TestSimulationContext {
+    wire k: u8 = 3
+    wire ic: u1
+    wire iz: u1
 
-    assert(num1 == 1, "should be comptime")
-    assert(num2 == 0, "should not be comptime")
+    ic := is_comptime(k)
+    iz := is_comptime(42)
+
+    cycle()
+    // NOTE: This is different from the HardwareComptime component!
+    assert(ic == 0, "In sim, wires are runtime signals (even if initialized with a constant)")
+    assert(iz == 1, "Bare literal is still comptime-known in sim")
+    
+    // Poking does not change whether the signal is 'comptime-known' (it remains runtime).
+    poke(k, 10)
+    cycle()
+    assert(k == 10, "Wire value changed via poke")
+    assert(is_comptime(k) == 0, "Wire remains a runtime signal after poke")
+}
+
+sim TestIntrinsics {
+    wire x: u16 = 0
+    
+    // Intrinsics that return properties of types or shapes are comptime-known.
+    assert(is_comptime(width(x)) == 1, "width() result is comptime-known")
+    assert(is_comptime(is_signed(x)) == 1, "is_signed() result is comptime-known")
+    
+    // Expressions combining comptime and runtime are runtime.
+    wire y: u16 = 10
+    assert(is_comptime(x + y) == 0, "Expression involving wires is runtime")
+    assert(is_comptime(10 + 20) == 1, "Expression involving only literals is comptime")
 }
