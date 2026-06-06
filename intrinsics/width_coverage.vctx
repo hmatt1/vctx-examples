@@ -117,11 +117,13 @@ sim TestIsSignedAllTypes {
     assert(ss64 == 1 as u1, "is_signed(s64) = 1")
 }
 
-// width() on a wire returns a compile-time-known value.
+// width() on a wire does not return a compile-time-known value.
 sim TestWidthIsComptime {
     wire x: u16 = 0
     wire w: u32 = width(x)
-    assert(is_comptime(w) == 1 as u1, "width() is comptime-known (type, not value)")
+    
+    assert(is_comptime(width(x)) == 1, "width(x) is considered comptime-known")
+    assert(is_comptime(w) == 0 as u1, "w is not considered comptime-known, because its a wire and the value could change")
 }
 
 // width() is independent of the runtime value — same result regardless of what's in the wire.
