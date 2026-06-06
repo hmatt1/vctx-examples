@@ -47,18 +47,22 @@ sim TestComponentChainPipeline {
     
     // After 1 cycle: Stage 1 has (100+1)
     assert(val_s1 == 101, "Stage 1: 100+1 = 101")
-    assert(val_s2 == 0,   "Stage 2: Still empty")
-    assert(q  == 0,   "Stage 3: Still empty")
+    assert(val_s2 == 1,   "Stage 2: 0+1 = 1")
+    assert(q  == 1,   "Stage 3: 0+1 = 1")
+
+    // Stop feeding 100
+    poke(d, 0)
 
     // After 2 cycles: Stage 2 has (101+1)
     cycle()
     assert(val_s1 == 1,   "Stage 1: (Input 0+1) = 1")
     assert(val_s2 == 102, "Stage 2: 101+1 = 102")
-    assert(q  == 0,   "Stage 3: Still empty")
+    assert(q  == 2,   "Stage 3: 1+1 = 2")
 
     // After 3 cycles: Stage 3 (Output) has (102+1)
     cycle()
-    assert(val_s2 == 2,   "Stage 2: (1+1) = 2")
+    assert(val_s1 == 1,   "Stage 1: 0+1 = 1")
+    assert(val_s2 == 2,   "Stage 2: 1+1 = 2")
     assert(q  == 103, "Stage 3: 102+1 = 103 reached output")
 
     // PHASE 3: Streaming Data (Continuous Pipeline)
