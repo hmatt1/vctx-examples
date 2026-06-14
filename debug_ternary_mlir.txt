@@ -1,0 +1,1864 @@
+Emitting MLIR (sim block 'TestTernaryNested') for 
+.\operators\ternary_nested.vctx...
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\bare_leaf.vctx
+Registering package bare_leaf
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\arrays_slicing\array_index_boundary.vctx
+Registering package arrays_slicing.array_index_boundary
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\arrays_slicing\array_of_bool.vctx
+Registering package arrays_slicing.array_of_bool
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\arrays_slicing\array_slice_all_positions.vctx
+Registering package arrays_slicing.array_slice_all_positions
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\arrays_slicing\dynamic_index_extract.vctx
+Registering package arrays_slicing.dynamic_index_extract
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\arrays_slicing\multi_dim_nested.vctx
+Registering package arrays_slicing.multi_dim_nested
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\bit.vctx
+Registering package components.bit
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\combinational_path_across_instances.vctx
+Registering package components.combinational_path_across_instances
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\component_all_scalar_port_types.vctx
+Registering package components.component_all_scalar_port_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\component_chain_pipeline.vctx
+Registering package components.component_chain_pipeline
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\component_fanout.vctx
+Registering package components.component_fanout
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\component_multi_instance_values.vctx
+Registering package components.component_multi_instance_values
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\foo.vctx
+Registering package components.foo
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\multi_instance.vctx
+Registering package components.multi_instance
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\or_2bit.vctx
+Registering package components.or_2bit
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\out_hold_when_instance_inactive.vctx
+Registering package components.out_hold_when_instance_inactive
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\angle_carrier_width.vctx
+Registering package comptime.angle_carrier_width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\array_type_dimension.vctx
+Registering package comptime.array_type_dimension
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\attributes_and_metadata.vctx
+Registering package comptime.attributes_and_metadata
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_clog2_fold.vctx
+Registering package comptime.comptime_clog2_fold
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_division_semantics.vctx
+Registering package comptime.comptime_division_semantics
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_eval_coverage.vctx
+Registering package comptime.comptime_eval_coverage
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_fact_iter.vctx
+Registering package comptime.comptime_fact_iter
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_fn_clog2.vctx
+Registering package comptime.comptime_fn_clog2
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_len_array.vctx
+Registering package comptime.comptime_len_array
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_loop_control.vctx
+Registering package comptime.comptime_loop_control
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_nested_call.vctx
+Registering package comptime.comptime_nested_call
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_values_containers.vctx
+Registering package comptime.comptime_values_containers
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\comptime_value_containers.vctx
+Registering package comptime.comptime_value_containers
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\expressions_in_dimensions.vctx
+Registering package comptime.expressions_in_dimensions
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\forbidden_runtime_positions.vctx
+Registering package comptime.forbidden_runtime_positions
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics_type_parameters.vctx
+Registering package comptime.generics_type_parameters
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics_type_type_param.vctx
+Registering package comptime.generics_type_type_param
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generic_param_kinds_smoke.vctx
+Registering package comptime.generic_param_kinds_smoke
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generic_width_standard_sizes.vctx
+Registering package comptime.generic_width_standard_sizes
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\intrinsics_comptime.vctx
+Registering package comptime.intrinsics_comptime
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\is_comptime_all_cases.vctx
+Registering package comptime.is_comptime_all_cases
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\slice_known_width.vctx
+Registering package comptime.slice_known_width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\ternary_casts_in_dimensions.vctx
+Registering package comptime.ternary_casts_in_dimensions
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\otherwise.vctx
+Registering package control_flow.otherwise
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\otherwise2.vctx
+Registering package control_flow.otherwise2
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\reg_read_when_split.vctx
+Registering package control_flow.reg_read_when_split
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\when.vctx
+Registering package control_flow.when
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\when_compound_conditions.vctx
+Registering package control_flow.when_compound_conditions
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\when_elsewhen_chain.vctx
+Registering package control_flow.when_elsewhen_chain
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\when_mux_equivalence.vctx
+Registering package control_flow.when_mux_equivalence
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\when_nested.vctx
+Registering package control_flow.when_nested
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\when_true_false_wire.vctx
+Registering package control_flow.when_true_false_wire
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\control_flow\when_wire_mux.vctx
+Registering package control_flow.when_wire_mux
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\functions\basic.vctx
+Registering package functions.basic
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\functions\chained_calls.vctx
+Registering package functions.chained_calls
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\functions\mlir_generic_function_component_param.vctx
+Registering package functions.mlir_generic_function_component_param
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\functions\mlir_generic_function_type_param.vctx
+Registering package functions.mlir_generic_function_type_param
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\functions\parity.vctx
+Registering package functions.parity
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\functions\reg_when_instance.vctx
+Registering package functions.reg_when_instance
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\gameboy\alu16.vctx
+Registering package gameboy.alu16
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\gameboy\alu8.vctx
+Registering package gameboy.alu8
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\gameboy\my_reg.vctx
+Registering package gameboy.my_reg
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\gameboy\sm83_datapath.vctx
+Registering package gameboy.sm83_datapath
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\gameboy\sm83_mem_bus.vctx
+Registering package gameboy.sm83_mem_bus
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\gameboy\sm83_register_file.vctx
+Registering package gameboy.sm83_register_file
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\gameboy\sm83_sequencer.vctx
+Registering package gameboy.sm83_sequencer
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\foo.vctx
+Registering package imports.foo
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\import_alias_twice.vctx
+Registering package imports.import_alias_twice
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\import_bare_longname_only.vctx
+Registering package imports.import_bare_longname_only
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\import_bare_plus_alias.vctx
+Registering package imports.import_bare_plus_alias
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\import_fqn_only.vctx
+Registering package imports.import_fqn_only
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\import_scenarios.vctx
+Registering package imports.import_scenarios
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\import_single_segment_bare.vctx
+Registering package imports.import_single_segment_bare
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\is_comptime.vctx
+Registering package intrinsics.is_comptime
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\is_signed.vctx
+Registering package intrinsics.is_signed
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\is_signed_clog2.vctx
+Registering package intrinsics.is_signed_clog2
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\poke.vctx
+Registering package intrinsics.poke
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\width.vctx
+Registering package intrinsics.width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\width_all_types.vctx
+Registering package intrinsics.width_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\width_coverage.vctx
+Registering package intrinsics.width_coverage
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\width_drives_generic_param.vctx
+Registering package intrinsics.width_drives_generic_param
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\intrinsics\width_in_arithmetic.vctx
+Registering package intrinsics.width_in_arithmetic
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\lessons\memory_without_arrays.vctx
+Registering package lessons.memory_without_arrays
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\all_ones_all_types.vctx
+Registering package literals.all_ones_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\alternating_bits_patterns.vctx
+Registering package literals.alternating_bits_patterns
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\array_literal_all_types.vctx
+Registering package literals.array_literal_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\array_literal_promotion.vctx
+Registering package literals.array_literal_promotion
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\binary_literals_patterns.vctx
+Registering package literals.binary_literals_patterns
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\boolean.vctx
+Registering package literals.boolean
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\hex_literals_all_sizes.vctx
+Registering package literals.hex_literals_all_sizes
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\literal_type_inference.vctx
+Registering package literals.literal_type_inference
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\negative_literal_all_types.vctx
+Registering package literals.negative_literal_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\power_of_two_constants.vctx
+Registering package literals.power_of_two_constants
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\signed_negative.vctx
+Registering package literals.signed_negative
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\signed_negative_binary.vctx
+Registering package literals.signed_negative_binary
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\signed_positive.vctx
+Registering package literals.signed_positive
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\underscores_formatting.vctx
+Registering package literals.underscores_formatting
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\underscore_formatting_values.vctx
+Registering package literals.underscore_formatting_values
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\unsigned.vctx
+Registering package literals.unsigned
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\literals\zero_value_all_types.vctx
+Registering package literals.zero_value_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\combinational_cycle_illegal.vctx
+Registering package on_purpose_failures_check.combinational_cycle_illegal
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\comptime_div_by_zero.vctx
+Registering package on_purpose_failures_check.comptime_div_by_zero
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\comptime_forbidden_runtime_position.vctx
+Registering package on_purpose_failures_check.comptime_forbidden_runtime_position
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\comptime_generic_param.vctx
+Registering package on_purpose_failures_check.comptime_generic_param
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\comptime_mod_by_zero.vctx
+Registering package on_purpose_failures_check.comptime_mod_by_zero
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\comptime_negative_array_dim.vctx
+Registering package on_purpose_failures_check.comptime_negative_array_dim
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\comptime_negative_carrier_width.vctx
+Registering package on_purpose_failures_check.comptime_negative_carrier_width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\comptime_non_foldable_array_dim.vctx
+Registering package on_purpose_failures_check.comptime_non_foldable_array_dim
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\comptime_non_foldable_carrier_width.vctx
+Registering package on_purpose_failures_check.comptime_non_foldable_carrier_width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\comptime_non_foldable_generic_arg.vctx
+Registering package on_purpose_failures_check.comptime_non_foldable_generic_arg
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\deferred_assignment_width_mismatch.vctx
+Registering package on_purpose_failures_check.deferred_assignment_width_mismatch
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\function_generic_param.vctx
+Registering package on_purpose_failures_check.function_generic_param
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\generic_callable_wrong_kind.vctx
+Registering package on_purpose_failures_check.generic_callable_wrong_kind
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\generic_inst_elaboration_zero_carrier.vctx
+Registering package on_purpose_failures_check.generic_inst_elaboration_zero_carrier
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\generic_inst_out_port_width_mismatch.vctx
+Registering package on_purpose_failures_check.generic_inst_out_port_width_mismatch
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\import_alias_collision.vctx
+Registering package on_purpose_failures_check.import_alias_collision
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\import_missing_package.vctx
+Registering package on_purpose_failures_check.import_missing_package
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\import_symbol_not_found.vctx
+Registering package on_purpose_failures_check.import_symbol_not_found
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\inline_fn_param_width_mismatch.vctx
+Registering package on_purpose_failures_check.inline_fn_param_width_mismatch
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\inout_port_generic_width_mismatch.vctx
+Registering package on_purpose_failures_check.inout_port_generic_width_mismatch
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\inout_port_seq_assign_rejected.vctx
+Registering package on_purpose_failures_check.inout_port_seq_assign_rejected
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\mlir_comb_cycle_minimal_2.vctx
+Registering package on_purpose_failures_check.mlir_comb_cycle_minimal_2
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\mlir_comb_cycle_when_variant.vctx
+Registering package on_purpose_failures_check.mlir_comb_cycle_when_variant
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\name_collision_component_sim.vctx
+Registering package on_purpose_failures_check.name_collision_component_sim
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\nominal_type_struct_mismatch.vctx
+Registering package on_purpose_failures_check.nominal_type_struct_mismatch
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\on_purpose_failure2.vctx
+Registering package on_purpose_failures_check.on_purpose_failure2
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parity_emit_mlir_field_access_unlowered.vctx
+Registering package on_purpose_failures_check.parity_emit_mlir_field_access_unlowered
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parity_emit_mlir_instance_input_missing.vctx
+Registering package on_purpose_failures_check.parity_emit_mlir_instance_input_missing
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parity_emit_mlir_output_undriven.vctx
+Registering package on_purpose_failures_check.parity_emit_mlir_output_undriven
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parity_reject_dynamic_slice_non_affine.vctx
+Registering package on_purpose_failures_check.parity_reject_dynamic_slice_non_affine
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parity_reject_when_mux_arm_gap.vctx
+Registering package on_purpose_failures_check.parity_reject_when_mux_arm_gap
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parse_elsewhen_without_when.vctx
+Registering package on_purpose_failures_check.parse_elsewhen_without_when
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parse_malformed_generic_angles.vctx
+Registering package on_purpose_failures_check.parse_malformed_generic_angles
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parse_malformed_slice_syntax.vctx
+Registering package on_purpose_failures_check.parse_malformed_slice_syntax
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parse_unary_bang_not_supported.vctx
+Registering package on_purpose_failures_check.parse_unary_bang_not_supported
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\parse_when_missing_body.vctx
+Registering package on_purpose_failures_check.parse_when_missing_body
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\resolve_unknown_identifier.vctx
+Registering package on_purpose_failures_check.resolve_unknown_identifier
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\runtime_if_in_component.vctx
+Registering package on_purpose_failures_check.runtime_if_in_component
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\spec_gap_lexical_whitespace_generics.vctx
+Registering package on_purpose_failures_check.spec_gap_lexical_whitespace_generics
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\type_bad_port_connection_width.vctx
+Registering package on_purpose_failures_check.type_bad_port_connection_width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\type_parametric_signedness_mismatch.vctx
+Registering package on_purpose_failures_check.type_parametric_signedness_mismatch
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\type_reg_assigned_with_comb_op_in_root.vctx
+Registering package on_purpose_failures_check.type_reg_assigned_with_comb_op_in_root
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\type_signedness_mismatch_assignment.vctx
+Registering package on_purpose_failures_check.type_signedness_mismatch_assignment
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\type_ternary_arm_type_mismatch.vctx
+Registering package on_purpose_failures_check.type_ternary_arm_type_mismatch
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\type_width_mismatch_assignment.vctx
+Registering package on_purpose_failures_check.type_width_mismatch_assignment
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\type_wire_assigned_with_seq_op.vctx
+Registering package on_purpose_failures_check.type_wire_assigned_with_seq_op
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\when_arm_contains_assert.vctx
+Registering package on_purpose_failures_check.when_arm_contains_assert
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\when_arm_contains_cycle_or_poke.vctx
+Registering package on_purpose_failures_check.when_arm_contains_cycle_or_poke
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_check\when_arm_contains_poke.vctx
+Registering package on_purpose_failures_check.when_arm_contains_poke
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_mlir\mlir_field_access_unlowered.vctx
+Registering package on_purpose_failures_mlir.mlir_field_access_unlowered
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_mlir\mlir_instance_input_missing.vctx
+Registering package on_purpose_failures_mlir.mlir_instance_input_missing
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_mlir\mlir_output_undriven.vctx
+Registering package on_purpose_failures_mlir.mlir_output_undriven
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\on_purpose_failure.vctx
+Registering package on_purpose_failures_sim.on_purpose_failure
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_ascending_slice_compile_should_fail.vctx
+Registering package on_purpose_failures_sim.sim_ascending_slice_compile_should_fail
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_div_by_zero.vctx
+Registering package on_purpose_failures_sim.sim_div_by_zero
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_fail_after_multiple_cycles.vctx
+Registering package on_purpose_failures_sim.sim_fail_after_multiple_cycles
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_fail_after_poke.vctx
+Registering package on_purpose_failures_sim.sim_fail_after_poke
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_fail_bool_not.vctx
+Registering package on_purpose_failures_sim.sim_fail_bool_not
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_mod_by_zero.vctx
+Registering package on_purpose_failures_sim.sim_mod_by_zero
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_one_fail_among_passes_2.vctx
+Registering package on_purpose_failures_sim.sim_one_fail_among_passes_2
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_poke_driven_wire_should_fail.vctx
+Registering package on_purpose_failures_sim.sim_poke_driven_wire_should_fail
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_poke_output_should_fail.vctx
+Registering package on_purpose_failures_sim.sim_poke_output_should_fail
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_poke_unknown_name_should_fail.vctx
+Registering package on_purpose_failures_sim.sim_poke_unknown_name_should_fail
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\on_purpose_failures_sim\sim_two_failures_counting.vctx
+Registering package on_purpose_failures_sim.sim_two_failures_counting
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\addition.vctx
+Registering package operators.addition
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\arithmetic_boundary_values.vctx
+Registering package operators.arithmetic_boundary_values
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\arithmetic_multiply_widths.vctx
+Registering package operators.arithmetic_multiply_widths
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\arithmetic_zero_identities.vctx
+Registering package operators.arithmetic_zero_identities
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\arrays_and_slicing.vctx
+Registering package operators.arrays_and_slicing
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\array_literal_init.vctx
+Registering package operators.array_literal_init
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\barrel_shifter_dynamic.vctx
+Registering package operators.barrel_shifter_dynamic
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bitwise_commutativity.vctx
+Registering package operators.bitwise_commutativity
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bitwise_identity_laws.vctx
+Registering package operators.bitwise_identity_laws
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bitwise_masks_patterns.vctx
+Registering package operators.bitwise_masks_patterns
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bitwise_not.vctx
+Registering package operators.bitwise_not
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bitwise_not_all_types.vctx
+Registering package operators.bitwise_not_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bitwise_not_semantics.vctx
+Registering package operators.bitwise_not_semantics
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bitwise_not_working.vctx
+Registering package operators.bitwise_not_working
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bitwise_set_clear_toggle.vctx
+Registering package operators.bitwise_set_clear_toggle
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bool_all_ops_comprehensive.vctx
+Registering package operators.bool_all_ops_comprehensive
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bool_de_morgan.vctx
+Registering package operators.bool_de_morgan
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bool_short_circuit_values.vctx
+Registering package operators.bool_short_circuit_values
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\bool_truth_table.vctx
+Registering package operators.bool_truth_table
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\casting.vctx
+Registering package operators.casting
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\casting1.vctx
+Registering package operators.casting1
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\cast_bool_to_numeric.vctx
+Registering package operators.cast_bool_to_numeric
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\cast_non_power2_widths.vctx
+Registering package operators.cast_non_power2_widths
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\cast_numeric_to_bool.vctx
+Registering package operators.cast_numeric_to_bool
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\cast_same_width_sign_flip.vctx
+Registering package operators.cast_same_width_sign_flip
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\cast_widening_narrowing.vctx
+Registering package operators.cast_widening_narrowing
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\comparators.vctx
+Registering package operators.comparators
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\comparison_all_operators_all_types.vctx
+Registering package operators.comparison_all_operators_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\comparison_reflexive_laws.vctx
+Registering package operators.comparison_reflexive_laws
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\comparison_signed_unsigned_boundary.vctx
+Registering package operators.comparison_signed_unsigned_boundary
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\comparison_zero_and_extremes.vctx
+Registering package operators.comparison_zero_and_extremes
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\concat_basic.vctx
+Registering package operators.concat_basic
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\concat_extract_roundtrip.vctx
+Registering package operators.concat_extract_roundtrip
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\concat_signed.vctx
+Registering package operators.concat_signed
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\concat_standard_pairs.vctx
+Registering package operators.concat_standard_pairs
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\concat_variadic.vctx
+Registering package operators.concat_variadic
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\division.vctx
+Registering package operators.division
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\division_result_width.vctx
+Registering package operators.division_result_width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\division_truncation_toward_zero.vctx
+Registering package operators.division_truncation_toward_zero
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\dynamic_bracket_slice.vctx
+Registering package operators.dynamic_bracket_slice
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\explicit_signedness_cast.vctx
+Registering package operators.explicit_signedness_cast
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\explicit_truncate_cast.vctx
+Registering package operators.explicit_truncate_cast
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\grammar_precedence_comprehensive.vctx
+Registering package operators.grammar_precedence_comprehensive
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\large_types.vctx
+Registering package operators.large_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\logical.vctx
+Registering package operators.logical
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\logical_not.vctx
+Registering package operators.logical_not
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\mixed_sign_bitwise.vctx
+Registering package operators.mixed_sign_bitwise
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\mixed_sign_chained.vctx
+Registering package operators.mixed_sign_chained
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\mixed_sign_comparison.vctx
+Registering package operators.mixed_sign_comparison
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\mixed_sign_concat.vctx
+Registering package operators.mixed_sign_concat
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\mixed_sign_div_mod.vctx
+Registering package operators.mixed_sign_div_mod
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\mixed_sign_multiply.vctx
+Registering package operators.mixed_sign_multiply
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\mixed_sign_overflow.vctx
+Registering package operators.mixed_sign_overflow
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\mixed_sign_ternary_lit.vctx
+Registering package operators.mixed_sign_ternary_lit
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\modulo_sign_follows_dividend.vctx
+Registering package operators.modulo_sign_follows_dividend
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\multiplication.vctx
+Registering package operators.multiplication
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\operator_precedence.vctx
+Registering package operators.operator_precedence
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\port_boundary_adapters.vctx
+Registering package operators.port_boundary_adapters
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\relational_operators.vctx
+Registering package operators.relational_operators
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\shifting.vctx
+Registering package operators.shifting
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\shift_arithmetic_vs_logical.vctx
+Registering package operators.shift_arithmetic_vs_logical
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\shift_by_width_minus_one.vctx
+Registering package operators.shift_by_width_minus_one
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\shift_by_zero.vctx
+Registering package operators.shift_by_zero
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\shift_left_multiply_equiv.vctx
+Registering package operators.shift_left_multiply_equiv
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\shift_right_divide_equiv.vctx
+Registering package operators.shift_right_divide_equiv
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\signed_arithmetic.vctx
+Registering package operators.signed_arithmetic
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\signed_bitwise_comprehensive.vctx
+Registering package operators.signed_bitwise_comprehensive
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\signed_comparisons.vctx
+Registering package operators.signed_comparisons
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\sign_extension_edge.vctx
+Registering package operators.sign_extension_edge
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\slice_at_all_positions.vctx
+Registering package operators.slice_at_all_positions
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\slice_at_boundaries.vctx
+Registering package operators.slice_at_boundaries
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\slice_concat_byteswap.vctx
+Registering package operators.slice_concat_byteswap
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\subtraction.vctx
+Registering package operators.subtraction
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\ternary_all_types.vctx
+Registering package operators.ternary_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\ternary_nested.vctx
+Registering package operators.ternary_nested
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\ternary_operator.vctx
+Registering package operators.ternary_operator
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\ternary_runtime_normalized_signedness.vctx
+Registering package operators.ternary_runtime_normalized_signedness
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\ternary_runtime_normalized_width.vctx
+Registering package operators.ternary_runtime_normalized_width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\ternary_same_value.vctx
+Registering package operators.ternary_same_value
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\unary_shift_precedence.vctx
+Registering package operators.unary_shift_precedence
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\wire_array_element_assign.vctx
+Registering package operators.wire_array_element_assign
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\wire_comb_assignment.vctx
+Registering package operators.wire_comb_assignment
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\operators\xor.vctx
+Registering package operators.xor
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\array_procedural_swizzle.vctx
+Registering package registers.array_procedural_swizzle
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\partial_array_updates_comprehensive.vctx
+Registering package registers.partial_array_updates_comprehensive
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\reg_all_scalar_types.vctx
+Registering package registers.reg_all_scalar_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\reg_array_index.vctx
+Registering package registers.reg_array_index
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\reg_hold_across_cycles.vctx
+Registering package registers.reg_hold_across_cycles
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\reg_hold_no_otherwise.vctx
+Registering package registers.reg_hold_no_otherwise
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\reg_pipeline_chain.vctx
+Registering package registers.reg_pipeline_chain
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\reg_reset_value_all_types.vctx
+Registering package registers.reg_reset_value_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\reg_seq_assignment.vctx
+Registering package registers.reg_seq_assignment
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\registers\sequential.vctx
+Registering package registers.sequential
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\regression_brackets\commutative_width_expr_equiv.vctx
+Registering package regression_brackets.commutative_width_expr_equiv
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\regression_brackets\complex_carrier_math.vctx
+Registering package regression_brackets.complex_carrier_math
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\regression_brackets\mul_on_u_width.vctx
+Registering package regression_brackets.mul_on_u_width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\regression_brackets\nested_generic_double_call.vctx
+Registering package regression_brackets.nested_generic_double_call
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\sim\sim_assert_all_cycles.vctx
+Registering package sim.sim_assert_all_cycles
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\sim\sim_multi_cycle_accumulator.vctx
+Registering package sim.sim_multi_cycle_accumulator
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\sim\sim_poke_all_types.vctx
+Registering package sim.sim_poke_all_types
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\sim\sim_reset_then_run.vctx
+Registering package sim.sim_reset_then_run
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\spec\bundle_decl_parse.vctx
+Registering package spec.bundle_decl_parse
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\spec\generic_inst_elaboration_smoke.vctx
+Registering package spec.generic_inst_elaboration_smoke
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\spec\generic_type_actual_array_pass.vctx
+Registering package spec.generic_type_actual_array_pass
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\spec\generic_type_actual_bool_array_pass.vctx
+Registering package spec.generic_type_actual_bool_array_pass
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\spec\inout_port_read_through.vctx
+Registering package spec.inout_port_read_through
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\spec\instance_out_only_in_when.vctx
+Registering package spec.instance_out_only_in_when
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\spec\lt_no_space.vctx
+Registering package spec.lt_no_space
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\std\comptime_math.vctx
+Registering package std.comptime_math
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\deps\lane_pair.vctx
+Registering package imports.deps.lane_pair
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\deps\mux_lib.vctx
+Registering package imports.deps.mux_lib
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\utils\constant.vctx
+Registering package imports.utils.constant
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\imports\deps\nested\extend.vctx
+Registering package imports.deps.nested.extend
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\binop_component_parameter.vctx
+Registering package comptime.generics.binop_component_parameter
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\conditional_generate.vctx
+Registering package comptime.generics.conditional_generate
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\fold_vs_specialize.vctx
+Registering package comptime.generics.fold_vs_specialize
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\function_vs_component_width.vctx
+Registering package comptime.generics.function_vs_component_width
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_array_carrier.vctx
+Registering package comptime.generics.parametric_array_carrier
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_carrier_component.vctx
+Registering package comptime.generics.parametric_carrier_component
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_carrier_expr.vctx
+Registering package comptime.generics.parametric_carrier_expr
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_carrier_function.vctx
+Registering package comptime.generics.parametric_carrier_function
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_carrier_nested_expr.vctx
+Registering package comptime.generics.parametric_carrier_nested_expr
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_carrier_pipeline.vctx
+Registering package comptime.generics.parametric_carrier_pipeline
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_concat.vctx
+Registering package comptime.generics.parametric_concat
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_mixed_arith.vctx
+Registering package comptime.generics.parametric_mixed_arith
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_signed_carrier.vctx
+Registering package comptime.generics.parametric_signed_carrier
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_signed_cast.vctx
+Registering package comptime.generics.parametric_signed_cast
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_slice.vctx
+Registering package comptime.generics.parametric_slice
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_two_width_params.vctx
+Registering package comptime.generics.parametric_two_width_params
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\parametric_width_intrinsic.vctx
+Registering package comptime.generics.parametric_width_intrinsic
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\signed_width_carrier.vctx
+Registering package comptime.generics.signed_width_carrier
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\type_generic_array_and_bool_actual.vctx
+Registering package comptime.generics.type_generic_array_and_bool_actual
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\type_kind_generic_T.vctx
+Registering package comptime.generics.type_kind_generic_T
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\uses_width_call_by_name.vctx
+Registering package comptime.generics.uses_width_call_by_name
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\wrap_inner_component.vctx
+Registering package comptime.generics.wrap_inner_component
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\comptime\generics\zero_extend_generic.vctx
+Registering package comptime.generics.zero_extend_generic
+Found file: C:\Users\Matt\Projects\vctx\vctx-lang\vctx-examples\components\utils\math.vctx
+Registering package components.utils.math
+Analyzing operators.ternary_nested...
+Elaborating operators.ternary_nested...
+┌────────────────────────────── Generated MLIR ───────────────────────────────┐
+│ module {                                                                    │
+│   hw.module @TestTernaryNested_Harness(in %clk : !seq.clock, in %rst : i1,  │
+│ in %a_poke_val : i8, in %a_poke_en : i1, in %b_poke_val : i8, in %b_poke_en │
+│ : i1, in %b_res_poke_val : i1, in %b_res_poke_en : i1, in %c_poke_val : i8, │
+│ in %c_poke_en : i1, in %c1_poke_val : i1, in %c1_poke_en : i1, in           │
+│ %c2_poke_val : i1, in %c2_poke_en : i1, in %deep_poke_val : i8, in          │
+│ %deep_poke_en : i1, in %ra_poke_val : i8, in %ra_poke_en : i1, in           │
+│ %rb_poke_val : i8, in %rb_poke_en : i1, in %res1_poke_val : i8, in          │
+│ %res1_poke_en : i1, in %res_type_poke_val : i8, in %res_type_poke_en : i1,  │
+│ in %s_a_poke_val : i16, in %s_a_poke_en : i1, in %s_b_poke_val : i16, in    │
+│ %s_b_poke_en : i1, in %s_c_poke_val : i16, in %s_c_poke_en : i1, in         │
+│ %s_c1_poke_val : i1, in %s_c1_poke_en : i1, in %s_c2_poke_val : i1, in      │
+│ %s_c2_poke_en : i1, in %tc1_poke_val : i1, in %tc1_poke_en : i1, in         │
+│ %tc2_poke_val : i1, in %tc2_poke_en : i1, in %tv_c_poke_val : i8, in        │
+│ %tv_c_poke_en : i1, in %tv_d_poke_val : i8, in %tv_d_poke_en : i1, in       │
+│ %tv_e_poke_val : i8, in %tv_e_poke_en : i1, in %v1_poke_val : i8, in        │
+│ %v1_poke_en : i1, in %v2_poke_val : i8, in %v2_poke_en : i1, in             │
+│ %v3_poke_val : i8, in %v3_poke_en : i1, in %v4_poke_val : i8, in            │
+│ %v4_poke_en : i1, out a : i8, out b : i8, out b_res : i1, out c : i8, out   │
+│ c1 : i1, out c2 : i1, out deep : i8, out ra : i8, out rb : i8, out res1 :   │
+│ i8, out res_type : i8, out s_a : i16, out s_b : i16, out s_c : i16, out     │
+│ s_c1 : i1, out s_c2 : i1, out tc1 : i1, out tc2 : i1, out tv_c : i8, out    │
+│ tv_d : i8, out tv_e : i8, out v1 : i8, out v2 : i8, out v3 : i8, out v4 :   │
+│ i8) {                                                                       │
+│     %false = hw.constant false                                              │
+│     %false_0 = hw.constant false                                            │
+│     %true = hw.constant true                                                │
+│     %false_1 = hw.constant false                                            │
+│     %c1_i8 = hw.constant 1 : i8                                             │
+│     %0 = comb.extract %c1_i8 from 0 : (i8) -> i1                            │
+│     %c0_i7 = hw.constant 0 : i7                                             │
+│     %1 = comb.concat %c0_i7, %0 : i7, i1                                    │
+│     %2 = hwarith.cast %1 : (i8) -> ui8                                      │
+│     %3 = hwarith.cast %2 : (ui8) -> i8                                      │
+│     %c0_i8 = hw.constant 0 : i8                                             │
+│     %c2_i8 = hw.constant 2 : i8                                             │
+│     %4 = comb.extract %c2_i8 from 0 : (i8) -> i2                            │
+│     %c0_i6 = hw.constant 0 : i6                                             │
+│     %5 = comb.concat %c0_i6, %4 : i6, i2                                    │
+│     %6 = hwarith.cast %5 : (i8) -> ui8                                      │
+│     %7 = hwarith.cast %6 : (ui8) -> i8                                      │
+│     %c0_i8_2 = hw.constant 0 : i8                                           │
+│     %c3_i8 = hw.constant 3 : i8                                             │
+│     %8 = comb.extract %c3_i8 from 0 : (i8) -> i2                            │
+│     %c0_i6_3 = hw.constant 0 : i6                                           │
+│     %9 = comb.concat %c0_i6_3, %8 : i6, i2                                  │
+│     %10 = hwarith.cast %9 : (i8) -> ui8                                     │
+│     %11 = hwarith.cast %10 : (ui8) -> i8                                    │
+│     %c0_i8_4 = hw.constant 0 : i8                                           │
+│     %12 = comb.mux %true, %7, %11 : i8                                      │
+│     %13 = comb.mux %false, %3, %12 : i8                                     │
+│     %c0_i8_5 = hw.constant 0 : i8                                           │
+│     %false_6 = hw.constant false                                            │
+│     %c10_i8 = hw.constant 10 : i8                                           │
+│     %14 = comb.extract %c10_i8 from 0 : (i8) -> i4                          │
+│     %c0_i4 = hw.constant 0 : i4                                             │
+│     %15 = comb.concat %c0_i4, %14 : i4, i4                                  │
+│     %16 = hwarith.cast %15 : (i8) -> ui8                                    │
+│     %17 = hwarith.cast %16 : (ui8) -> i8                                    │
+│     %false_7 = hw.constant false                                            │
+│     %c20_i8 = hw.constant 20 : i8                                           │
+│     %18 = comb.extract %c20_i8 from 0 : (i8) -> i5                          │
+│     %c0_i3 = hw.constant 0 : i3                                             │
+│     %19 = comb.concat %c0_i3, %18 : i3, i5                                  │
+│     %20 = hwarith.cast %19 : (i8) -> ui8                                    │
+│     %21 = hwarith.cast %20 : (ui8) -> i8                                    │
+│     %c30_i8 = hw.constant 30 : i8                                           │
+│     %22 = comb.extract %c30_i8 from 0 : (i8) -> i5                          │
+│     %c0_i3_8 = hw.constant 0 : i3                                           │
+│     %23 = comb.concat %c0_i3_8, %22 : i3, i5                                │
+│     %24 = hwarith.cast %23 : (i8) -> ui8                                    │
+│     %25 = hwarith.cast %24 : (ui8) -> i8                                    │
+│     %26 = comb.mux %false_7, %21, %25 : i8                                  │
+│     %27 = comb.mux %false_6, %17, %26 : i8                                  │
+│     %c0_i8_9 = hw.constant 0 : i8                                           │
+│     %false_10 = hw.constant false                                           │
+│     %c10_i8_11 = hw.constant 10 : i8                                        │
+│     %28 = comb.extract %c10_i8_11 from 0 : (i8) -> i4                       │
+│     %c0_i4_12 = hw.constant 0 : i4                                          │
+│     %29 = comb.concat %c0_i4_12, %28 : i4, i4                               │
+│     %30 = hwarith.cast %29 : (i8) -> ui8                                    │
+│     %31 = hwarith.cast %30 : (ui8) -> i8                                    │
+│     %false_13 = hw.constant false                                           │
+│     %c20_i8_14 = hw.constant 20 : i8                                        │
+│     %32 = comb.extract %c20_i8_14 from 0 : (i8) -> i5                       │
+│     %c0_i3_15 = hw.constant 0 : i3                                          │
+│     %33 = comb.concat %c0_i3_15, %32 : i3, i5                               │
+│     %34 = hwarith.cast %33 : (i8) -> ui8                                    │
+│     %35 = hwarith.cast %34 : (ui8) -> i8                                    │
+│     %c30_i8_16 = hw.constant 30 : i8                                        │
+│     %36 = comb.extract %c30_i8_16 from 0 : (i8) -> i5                       │
+│     %c0_i3_17 = hw.constant 0 : i3                                          │
+│     %37 = comb.concat %c0_i3_17, %36 : i3, i5                               │
+│     %38 = hwarith.cast %37 : (i8) -> ui8                                    │
+│     %39 = hwarith.cast %38 : (ui8) -> i8                                    │
+│     %40 = comb.mux %false_13, %35, %39 : i8                                 │
+│     %41 = comb.mux %false_10, %31, %40 : i8                                 │
+│     %c0_i8_18 = hw.constant 0 : i8                                          │
+│     %true_19 = hw.constant true                                             │
+│     %false_20 = hw.constant false                                           │
+│     %false_21 = hw.constant false                                           │
+│     %false_22 = hw.constant false                                           │
+│     %c100_i8 = hw.constant 100 : i8                                         │
+│     %42 = comb.extract %c100_i8 from 0 : (i8) -> i7                         │
+│     %false_23 = hw.constant false                                           │
+│     %43 = comb.concat %false_23, %42 : i1, i7                               │
+│     %44 = hwarith.cast %43 : (i8) -> ui8                                    │
+│     %45 = hwarith.cast %44 : (ui8) -> i8                                    │
+│     %c0_i8_24 = hw.constant 0 : i8                                          │
+│     %c-106_i8 = hw.constant -106 : i8                                       │
+│     %c0_i8_25 = hw.constant 0 : i8                                          │
+│     %c-56_i8 = hw.constant -56 : i8                                         │
+│     %c0_i8_26 = hw.constant 0 : i8                                          │
+│     %c10_i8_27 = hw.constant 10 : i8                                        │
+│     %46 = comb.extract %c10_i8_27 from 0 : (i8) -> i4                       │
+│     %c0_i4_28 = hw.constant 0 : i4                                          │
+│     %47 = comb.concat %c0_i4_28, %46 : i4, i4                               │
+│     %48 = hwarith.cast %47 : (i8) -> ui8                                    │
+│     %49 = hwarith.cast %48 : (ui8) -> i8                                    │
+│     %c0_i8_29 = hw.constant 0 : i8                                          │
+│     %c20_i8_30 = hw.constant 20 : i8                                        │
+│     %50 = comb.extract %c20_i8_30 from 0 : (i8) -> i5                       │
+│     %c0_i3_31 = hw.constant 0 : i3                                          │
+│     %51 = comb.concat %c0_i3_31, %50 : i3, i5                               │
+│     %52 = hwarith.cast %51 : (i8) -> ui8                                    │
+│     %53 = hwarith.cast %52 : (ui8) -> i8                                    │
+│     %c0_i8_32 = hw.constant 0 : i8                                          │
+│     %c30_i8_33 = hw.constant 30 : i8                                        │
+│     %54 = comb.extract %c30_i8_33 from 0 : (i8) -> i5                       │
+│     %c0_i3_34 = hw.constant 0 : i3                                          │
+│     %55 = comb.concat %c0_i3_34, %54 : i3, i5                               │
+│     %56 = hwarith.cast %55 : (i8) -> ui8                                    │
+│     %57 = hwarith.cast %56 : (ui8) -> i8                                    │
+│     %c0_i8_35 = hw.constant 0 : i8                                          │
+│     %c40_i8 = hw.constant 40 : i8                                           │
+│     %58 = comb.extract %c40_i8 from 0 : (i8) -> i6                          │
+│     %c0_i2 = hw.constant 0 : i2                                             │
+│     %59 = comb.concat %c0_i2, %58 : i2, i6                                  │
+│     %60 = hwarith.cast %59 : (i8) -> ui8                                    │
+│     %61 = hwarith.cast %60 : (ui8) -> i8                                    │
+│     %c0_i8_36 = hw.constant 0 : i8                                          │
+│     %false_37 = hw.constant false                                           │
+│     %false_38 = hw.constant false                                           │
+│     %true_39 = hw.constant true                                             │
+│     %62 = comb.mux %true_39, %57, %61 : i8                                  │
+│     %63 = comb.mux %false_38, %53, %62 : i8                                 │
+│     %64 = comb.mux %false_37, %49, %63 : i8                                 │
+│     %c0_i8_40 = hw.constant 0 : i8                                          │
+│     %true_41 = hw.constant true                                             │
+│     %false_42 = hw.constant false                                           │
+│     %false_43 = hw.constant false                                           │
+│     %false_44 = hw.constant false                                           │
+│     %c100_i8_45 = hw.constant 100 : i8                                      │
+│     %65 = comb.extract %c100_i8_45 from 0 : (i8) -> i7                      │
+│     %false_46 = hw.constant false                                           │
+│     %66 = comb.concat %false_46, %65 : i1, i7                               │
+│     %67 = hwarith.cast %66 : (i8) -> si8                                    │
+│     %68 = hwarith.cast %67 : (si8) -> i8                                    │
+│     %69 = hwarith.cast %68 : (i8) -> si8                                    │
+│     %70 = hwarith.constant 0 : si8                                          │
+│     %71 = hwarith.sub %70, %69 : (si8, si8) -> si9                          │
+│     %72 = hwarith.cast %71 : (si9) -> i8                                    │
+│     %73 = comb.extract %72 from 7 : (i8) -> i1                              │
+│     %74 = comb.replicate %73 : (i1) -> i8                                   │
+│     %75 = comb.concat %74, %72 : i8, i8                                     │
+│     %76 = hwarith.cast %75 : (i16) -> si16                                  │
+│     %77 = hwarith.cast %76 : (si16) -> i16                                  │
+│     %c0_i16 = hw.constant 0 : i16                                           │
+│     %c200_i9 = hw.constant 200 : i9                                         │
+│     %78 = comb.extract %c200_i9 from 0 : (i9) -> i8                         │
+│     %false_47 = hw.constant false                                           │
+│     %79 = comb.concat %false_47, %78 : i1, i8                               │
+│     %80 = hwarith.cast %79 : (i9) -> si9                                    │
+│     %81 = hwarith.cast %80 : (si9) -> i9                                    │
+│     %82 = hwarith.cast %81 : (i9) -> si9                                    │
+│     %83 = hwarith.constant 0 : si9                                          │
+│     %84 = hwarith.sub %83, %82 : (si9, si9) -> si10                         │
+│     %85 = hwarith.cast %84 : (si10) -> i9                                   │
+│     %86 = comb.extract %85 from 8 : (i9) -> i1                              │
+│     %87 = comb.replicate %86 : (i1) -> i7                                   │
+│     %88 = comb.concat %87, %85 : i7, i9                                     │
+│     %89 = hwarith.cast %88 : (i16) -> si16                                  │
+│     %90 = hwarith.cast %89 : (si16) -> i16                                  │
+│     %c0_i16_48 = hw.constant 0 : i16                                        │
+│     %c300_i10 = hw.constant 300 : i10                                       │
+│     %91 = comb.extract %c300_i10 from 0 : (i10) -> i9                       │
+│     %false_49 = hw.constant false                                           │
+│     %92 = comb.concat %false_49, %91 : i1, i9                               │
+│     %93 = hwarith.cast %92 : (i10) -> si10                                  │
+│     %94 = hwarith.cast %93 : (si10) -> i10                                  │
+│     %95 = hwarith.cast %94 : (i10) -> si10                                  │
+│     %96 = hwarith.constant 0 : si10                                         │
+│     %97 = hwarith.sub %96, %95 : (si10, si10) -> si11                       │
+│     %98 = hwarith.cast %97 : (si11) -> i10                                  │
+│     %99 = comb.extract %98 from 9 : (i10) -> i1                             │
+│     %100 = comb.replicate %99 : (i1) -> i6                                  │
+│     %101 = comb.concat %100, %98 : i6, i10                                  │
+│     %102 = hwarith.cast %101 : (i16) -> si16                                │
+│     %103 = hwarith.cast %102 : (si16) -> i16                                │
+│     %c0_i16_50 = hw.constant 0 : i16                                        │
+│     %104 = comb.mux %true, %3, %7 : i8                                      │
+│     %105 = comb.mux %false, %104, %11 : i8                                  │
+│     %c0_i8_51 = hw.constant 0 : i8                                          │
+│     %true_52 = hw.constant true                                             │
+│     %false_53 = hw.constant false                                           │
+│     %106 = comb.mux %false_21, %true_52, %false_53 : i1                     │
+│     %true_54 = hw.constant true                                             │
+│     %107 = comb.mux %true_19, %106, %true_54 : i1                           │
+│     %false_55 = hw.constant false                                           │
+│     %false_56 = hw.constant false                                           │
+│     %false_57 = hw.constant false                                           │
+│     %c1_wire = hw.wire %false_57  : i1                                      │
+│     %false_58 = hw.constant false                                           │
+│     %true_59 = hw.constant true                                             │
+│     %c2_wire = hw.wire %true_59  : i1                                       │
+│     %c0_i8_60 = hw.constant 0 : i8                                          │
+│     %c1_i8_61 = hw.constant 1 : i8                                          │
+│     %108 = comb.extract %c1_i8_61 from 0 : (i8) -> i1                       │
+│     %c0_i7_62 = hw.constant 0 : i7                                          │
+│     %109 = comb.concat %c0_i7_62, %108 : i7, i1                             │
+│     %110 = hwarith.cast %109 : (i8) -> ui8                                  │
+│     %111 = hwarith.cast %110 : (ui8) -> i8                                  │
+│     %a_wire = hw.wire %111  : i8                                            │
+│     %c0_i8_63 = hw.constant 0 : i8                                          │
+│     %c2_i8_64 = hw.constant 2 : i8                                          │
+│     %112 = comb.extract %c2_i8_64 from 0 : (i8) -> i2                       │
+│     %c0_i6_65 = hw.constant 0 : i6                                          │
+│     %113 = comb.concat %c0_i6_65, %112 : i6, i2                             │
+│     %114 = hwarith.cast %113 : (i8) -> ui8                                  │
+│     %115 = hwarith.cast %114 : (ui8) -> i8                                  │
+│     %b_wire = hw.wire %115  : i8                                            │
+│     %c0_i8_66 = hw.constant 0 : i8                                          │
+│     %c3_i8_67 = hw.constant 3 : i8                                          │
+│     %116 = comb.extract %c3_i8_67 from 0 : (i8) -> i2                       │
+│     %c0_i6_68 = hw.constant 0 : i6                                          │
+│     %117 = comb.concat %c0_i6_68, %116 : i6, i2                             │
+│     %118 = hwarith.cast %117 : (i8) -> ui8                                  │
+│     %119 = hwarith.cast %118 : (ui8) -> i8                                  │
+│     %c_wire = hw.wire %119  : i8                                            │
+│     %c0_i8_69 = hw.constant 0 : i8                                          │
+│     %120 = comb.mux %221, %217, %219 : i8                                   │
+│     %121 = comb.mux %220, %216, %120 : i8                                   │
+│     %res1_wire = hw.wire %121  : i8                                         │
+│     %c0_i8_70 = hw.constant 0 : i8                                          │
+│     %false_71 = hw.constant false                                           │
+│     %c10_i8_72 = hw.constant 10 : i8                                        │
+│     %122 = comb.extract %c10_i8_72 from 0 : (i8) -> i4                      │
+│     %c0_i4_73 = hw.constant 0 : i4                                          │
+│     %123 = comb.concat %c0_i4_73, %122 : i4, i4                             │
+│     %124 = hwarith.cast %123 : (i8) -> ui8                                  │
+│     %125 = hwarith.cast %124 : (ui8) -> i8                                  │
+│     %false_74 = hw.constant false                                           │
+│     %c20_i8_75 = hw.constant 20 : i8                                        │
+│     %126 = comb.extract %c20_i8_75 from 0 : (i8) -> i5                      │
+│     %c0_i3_76 = hw.constant 0 : i3                                          │
+│     %127 = comb.concat %c0_i3_76, %126 : i3, i5                             │
+│     %128 = hwarith.cast %127 : (i8) -> ui8                                  │
+│     %129 = hwarith.cast %128 : (ui8) -> i8                                  │
+│     %c30_i8_77 = hw.constant 30 : i8                                        │
+│     %130 = comb.extract %c30_i8_77 from 0 : (i8) -> i5                      │
+│     %c0_i3_78 = hw.constant 0 : i3                                          │
+│     %131 = comb.concat %c0_i3_78, %130 : i3, i5                             │
+│     %132 = hwarith.cast %131 : (i8) -> ui8                                  │
+│     %133 = hwarith.cast %132 : (ui8) -> i8                                  │
+│     %134 = comb.mux %false_74, %129, %133 : i8                              │
+│     %135 = comb.mux %false_71, %125, %134 : i8                              │
+│     %ra_wire = hw.wire %135  : i8                                           │
+│     %c0_i8_79 = hw.constant 0 : i8                                          │
+│     %false_80 = hw.constant false                                           │
+│     %c10_i8_81 = hw.constant 10 : i8                                        │
+│     %136 = comb.extract %c10_i8_81 from 0 : (i8) -> i4                      │
+│     %c0_i4_82 = hw.constant 0 : i4                                          │
+│     %137 = comb.concat %c0_i4_82, %136 : i4, i4                             │
+│     %138 = hwarith.cast %137 : (i8) -> ui8                                  │
+│     %139 = hwarith.cast %138 : (ui8) -> i8                                  │
+│     %false_83 = hw.constant false                                           │
+│     %c20_i8_84 = hw.constant 20 : i8                                        │
+│     %140 = comb.extract %c20_i8_84 from 0 : (i8) -> i5                      │
+│     %c0_i3_85 = hw.constant 0 : i3                                          │
+│     %141 = comb.concat %c0_i3_85, %140 : i3, i5                             │
+│     %142 = hwarith.cast %141 : (i8) -> ui8                                  │
+│     %143 = hwarith.cast %142 : (ui8) -> i8                                  │
+│     %c30_i8_86 = hw.constant 30 : i8                                        │
+│     %144 = comb.extract %c30_i8_86 from 0 : (i8) -> i5                      │
+│     %c0_i3_87 = hw.constant 0 : i3                                          │
+│     %145 = comb.concat %c0_i3_87, %144 : i3, i5                             │
+│     %146 = hwarith.cast %145 : (i8) -> ui8                                  │
+│     %147 = hwarith.cast %146 : (ui8) -> i8                                  │
+│     %148 = comb.mux %false_83, %143, %147 : i8                              │
+│     %149 = comb.mux %false_80, %139, %148 : i8                              │
+│     %rb_wire = hw.wire %149  : i8                                           │
+│     %false_88 = hw.constant false                                           │
+│     %true_89 = hw.constant true                                             │
+│     %tc1_wire = hw.wire %true_89  : i1                                      │
+│     %false_90 = hw.constant false                                           │
+│     %false_91 = hw.constant false                                           │
+│     %tc2_wire = hw.wire %false_91  : i1                                     │
+│     %c0_i8_92 = hw.constant 0 : i8                                          │
+│     %c100_i8_93 = hw.constant 100 : i8                                      │
+│     %150 = comb.extract %c100_i8_93 from 0 : (i8) -> i7                     │
+│     %false_94 = hw.constant false                                           │
+│     %151 = comb.concat %false_94, %150 : i1, i7                             │
+│     %152 = hwarith.cast %151 : (i8) -> ui8                                  │
+│     %153 = hwarith.cast %152 : (ui8) -> i8                                  │
+│     %tv_c_wire = hw.wire %153  : i8                                         │
+│     %c0_i8_95 = hw.constant 0 : i8                                          │
+│     %c-106_i8_96 = hw.constant -106 : i8                                    │
+│     %tv_d_wire = hw.wire %c-106_i8_96  : i8                                 │
+│     %c0_i8_97 = hw.constant 0 : i8                                          │
+│     %c-56_i8_98 = hw.constant -56 : i8                                      │
+│     %tv_e_wire = hw.wire %c-56_i8_98  : i8                                  │
+│     %c0_i8_99 = hw.constant 0 : i8                                          │
+│     %c10_i8_100 = hw.constant 10 : i8                                       │
+│     %154 = comb.extract %c10_i8_100 from 0 : (i8) -> i4                     │
+│     %c0_i4_101 = hw.constant 0 : i4                                         │
+│     %155 = comb.concat %c0_i4_101, %154 : i4, i4                            │
+│     %156 = hwarith.cast %155 : (i8) -> ui8                                  │
+│     %157 = hwarith.cast %156 : (ui8) -> i8                                  │
+│     %v1_wire = hw.wire %157  : i8                                           │
+│     %c0_i8_102 = hw.constant 0 : i8                                         │
+│     %c20_i8_103 = hw.constant 20 : i8                                       │
+│     %158 = comb.extract %c20_i8_103 from 0 : (i8) -> i5                     │
+│     %c0_i3_104 = hw.constant 0 : i3                                         │
+│     %159 = comb.concat %c0_i3_104, %158 : i3, i5                            │
+│     %160 = hwarith.cast %159 : (i8) -> ui8                                  │
+│     %161 = hwarith.cast %160 : (ui8) -> i8                                  │
+│     %v2_wire = hw.wire %161  : i8                                           │
+│     %c0_i8_105 = hw.constant 0 : i8                                         │
+│     %c30_i8_106 = hw.constant 30 : i8                                       │
+│     %162 = comb.extract %c30_i8_106 from 0 : (i8) -> i5                     │
+│     %c0_i3_107 = hw.constant 0 : i3                                         │
+│     %163 = comb.concat %c0_i3_107, %162 : i3, i5                            │
+│     %164 = hwarith.cast %163 : (i8) -> ui8                                  │
+│     %165 = hwarith.cast %164 : (ui8) -> i8                                  │
+│     %v3_wire = hw.wire %165  : i8                                           │
+│     %c0_i8_108 = hw.constant 0 : i8                                         │
+│     %c40_i8_109 = hw.constant 40 : i8                                       │
+│     %166 = comb.extract %c40_i8_109 from 0 : (i8) -> i6                     │
+│     %c0_i2_110 = hw.constant 0 : i2                                         │
+│     %167 = comb.concat %c0_i2_110, %166 : i2, i6                            │
+│     %168 = hwarith.cast %167 : (i8) -> ui8                                  │
+│     %169 = hwarith.cast %168 : (ui8) -> i8                                  │
+│     %v4_wire = hw.wire %169  : i8                                           │
+│     %c0_i8_111 = hw.constant 0 : i8                                         │
+│     %false_112 = hw.constant false                                          │
+│     %false_113 = hw.constant false                                          │
+│     %true_114 = hw.constant true                                            │
+│     %170 = comb.mux %true_114, %239, %240 : i8                              │
+│     %171 = comb.mux %false_113, %238, %170 : i8                             │
+│     %172 = comb.mux %false_112, %237, %171 : i8                             │
+│     %deep_wire = hw.wire %172  : i8                                         │
+│     %false_115 = hw.constant false                                          │
+│     %true_116 = hw.constant true                                            │
+│     %s_c1_wire = hw.wire %true_116  : i1                                    │
+│     %false_117 = hw.constant false                                          │
+│     %false_118 = hw.constant false                                          │
+│     %s_c2_wire = hw.wire %false_118  : i1                                   │
+│     %c0_i16_119 = hw.constant 0 : i16                                       │
+│     %c100_i8_120 = hw.constant 100 : i8                                     │
+│     %173 = comb.extract %c100_i8_120 from 0 : (i8) -> i7                    │
+│     %false_121 = hw.constant false                                          │
+│     %174 = comb.concat %false_121, %173 : i1, i7                            │
+│     %175 = hwarith.cast %174 : (i8) -> si8                                  │
+│     %176 = hwarith.cast %175 : (si8) -> i8                                  │
+│     %177 = hwarith.cast %176 : (i8) -> si8                                  │
+│     %178 = hwarith.constant 0 : si8                                         │
+│     %179 = hwarith.sub %178, %177 : (si8, si8) -> si9                       │
+│     %180 = hwarith.cast %179 : (si9) -> i8                                  │
+│     %181 = comb.extract %180 from 7 : (i8) -> i1                            │
+│     %182 = comb.replicate %181 : (i1) -> i8                                 │
+│     %183 = comb.concat %182, %180 : i8, i8                                  │
+│     %184 = hwarith.cast %183 : (i16) -> si16                                │
+│     %185 = hwarith.cast %184 : (si16) -> i16                                │
+│     %s_a_wire = hw.wire %185  : i16                                         │
+│     %c0_i16_122 = hw.constant 0 : i16                                       │
+│     %c200_i9_123 = hw.constant 200 : i9                                     │
+│     %186 = comb.extract %c200_i9_123 from 0 : (i9) -> i8                    │
+│     %false_124 = hw.constant false                                          │
+│     %187 = comb.concat %false_124, %186 : i1, i8                            │
+│     %188 = hwarith.cast %187 : (i9) -> si9                                  │
+│     %189 = hwarith.cast %188 : (si9) -> i9                                  │
+│     %190 = hwarith.cast %189 : (i9) -> si9                                  │
+│     %191 = hwarith.constant 0 : si9                                         │
+│     %192 = hwarith.sub %191, %190 : (si9, si9) -> si10                      │
+│     %193 = hwarith.cast %192 : (si10) -> i9                                 │
+│     %194 = comb.extract %193 from 8 : (i9) -> i1                            │
+│     %195 = comb.replicate %194 : (i1) -> i7                                 │
+│     %196 = comb.concat %195, %193 : i7, i9                                  │
+│     %197 = hwarith.cast %196 : (i16) -> si16                                │
+│     %198 = hwarith.cast %197 : (si16) -> i16                                │
+│     %s_b_wire = hw.wire %198  : i16                                         │
+│     %c0_i16_125 = hw.constant 0 : i16                                       │
+│     %c300_i10_126 = hw.constant 300 : i10                                   │
+│     %199 = comb.extract %c300_i10_126 from 0 : (i10) -> i9                  │
+│     %false_127 = hw.constant false                                          │
+│     %200 = comb.concat %false_127, %199 : i1, i9                            │
+│     %201 = hwarith.cast %200 : (i10) -> si10                                │
+│     %202 = hwarith.cast %201 : (si10) -> i10                                │
+│     %203 = hwarith.cast %202 : (i10) -> si10                                │
+│     %204 = hwarith.constant 0 : si10                                        │
+│     %205 = hwarith.sub %204, %203 : (si10, si10) -> si11                    │
+│     %206 = hwarith.cast %205 : (si11) -> i10                                │
+│     %207 = comb.extract %206 from 9 : (i10) -> i1                           │
+│     %208 = comb.replicate %207 : (i1) -> i6                                 │
+│     %209 = comb.concat %208, %206 : i6, i10                                 │
+│     %210 = hwarith.cast %209 : (i16) -> si16                                │
+│     %211 = hwarith.cast %210 : (si16) -> i16                                │
+│     %s_c_wire = hw.wire %211  : i16                                         │
+│     %c0_i8_128 = hw.constant 0 : i8                                         │
+│     %212 = comb.mux %221, %216, %217 : i8                                   │
+│     %213 = comb.mux %220, %212, %219 : i8                                   │
+│     %res_type_wire = hw.wire %213  : i8                                     │
+│     %false_129 = hw.constant false                                          │
+│     %true_130 = hw.constant true                                            │
+│     %false_131 = hw.constant false                                          │
+│     %214 = comb.mux %233, %true_130, %false_131 : i1                        │
+│     %true_132 = hw.constant true                                            │
+│     %215 = comb.mux %232, %214, %true_132 : i1                              │
+│     %b_res_wire = hw.wire %215  : i1                                        │
+│     %216 = comb.mux %a_poke_en, %a_poke_val, %111 : i8                      │
+│     %217 = comb.mux %b_poke_en, %b_poke_val, %115 : i8                      │
+│     %218 = comb.mux %b_res_poke_en, %b_res_poke_val, %215 : i1              │
+│     %219 = comb.mux %c_poke_en, %c_poke_val, %119 : i8                      │
+│     %220 = comb.mux %c1_poke_en, %c1_poke_val, %false_57 : i1               │
+│     %221 = comb.mux %c2_poke_en, %c2_poke_val, %true_59 : i1                │
+│     %222 = comb.mux %deep_poke_en, %deep_poke_val, %172 : i8                │
+│     %223 = comb.mux %ra_poke_en, %ra_poke_val, %135 : i8                    │
+│     %224 = comb.mux %rb_poke_en, %rb_poke_val, %149 : i8                    │
+│     %225 = comb.mux %res1_poke_en, %res1_poke_val, %121 : i8                │
+│     %226 = comb.mux %res_type_poke_en, %res_type_poke_val, %213 : i8        │
+│     %227 = comb.mux %s_a_poke_en, %s_a_poke_val, %185 : i16                 │
+│     %228 = comb.mux %s_b_poke_en, %s_b_poke_val, %198 : i16                 │
+│     %229 = comb.mux %s_c_poke_en, %s_c_poke_val, %211 : i16                 │
+│     %230 = comb.mux %s_c1_poke_en, %s_c1_poke_val, %true_116 : i1           │
+│     %231 = comb.mux %s_c2_poke_en, %s_c2_poke_val, %false_118 : i1          │
+│     %232 = comb.mux %tc1_poke_en, %tc1_poke_val, %true_89 : i1              │
+│     %233 = comb.mux %tc2_poke_en, %tc2_poke_val, %false_91 : i1             │
+│     %234 = comb.mux %tv_c_poke_en, %tv_c_poke_val, %153 : i8                │
+│     %235 = comb.mux %tv_d_poke_en, %tv_d_poke_val, %c-106_i8_96 : i8        │
+│     %236 = comb.mux %tv_e_poke_en, %tv_e_poke_val, %c-56_i8_98 : i8         │
+│     %237 = comb.mux %v1_poke_en, %v1_poke_val, %157 : i8                    │
+│     %238 = comb.mux %v2_poke_en, %v2_poke_val, %161 : i8                    │
+│     %239 = comb.mux %v3_poke_en, %v3_poke_val, %165 : i8                    │
+│     %240 = comb.mux %v4_poke_en, %v4_poke_val, %169 : i8                    │
+│     hw.output %216, %217, %218, %219, %220, %221, %222, %223, %224, %225,   │
+│ %226, %227, %228, %229, %230, %231, %232, %233, %234, %235, %236, %237,     │
+│ %238, %239, %240 : i8, i8, i1, i8, i1, i1, i8, i8, i8, i8, i8, i16, i16,    │
+│ i16, i1, i1, i1, i1, i8, i8, i8, i8, i8, i8, i8                             │
+│   }                                                                         │
+│   func.func @entry() {                                                      │
+│     %true = hw.constant true                                                │
+│     %false = hw.constant false                                              │
+│     %0 = seq.to_clock %true                                                 │
+│     %1 = seq.to_clock %false                                                │
+│     arc.sim.instantiate @TestTernaryNested_Harness as %arg0 {               │
+│       arc.sim.set_input %arg0, "a_poke_en" = %false : i1,                   │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "b_poke_en" = %false : i1,                   │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "b_res_poke_en" = %false : i1,               │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "c_poke_en" = %false : i1,                   │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "c1_poke_en" = %false : i1,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "c2_poke_en" = %false : i1,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "deep_poke_en" = %false : i1,                │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "ra_poke_en" = %false : i1,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "rb_poke_en" = %false : i1,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "res1_poke_en" = %false : i1,                │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "res_type_poke_en" = %false : i1,            │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "s_a_poke_en" = %false : i1,                 │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "s_b_poke_en" = %false : i1,                 │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "s_c_poke_en" = %false : i1,                 │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "s_c1_poke_en" = %false : i1,                │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "s_c2_poke_en" = %false : i1,                │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "tc1_poke_en" = %false : i1,                 │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "tc2_poke_en" = %false : i1,                 │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "tv_c_poke_en" = %false : i1,                │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "tv_d_poke_en" = %false : i1,                │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "tv_e_poke_en" = %false : i1,                │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "v1_poke_en" = %false : i1,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "v2_poke_en" = %false : i1,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "v3_poke_en" = %false : i1,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "v4_poke_en" = %false : i1,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %false_0 = hw.constant false                                          │
+│       arc.sim.set_input %arg0, "c1_poke_val" = %false_0 : i1,               │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "c1_poke_en" = %true : i1,                   │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %true_1 = hw.constant true                                            │
+│       arc.sim.set_input %arg0, "c2_poke_val" = %true_1 : i1,                │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "c2_poke_en" = %true : i1,                   │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %c1_i8 = hw.constant 1 : i8                                           │
+│       %2 = comb.extract %c1_i8 from 0 : (i8) -> i1                          │
+│       %c0_i7 = hw.constant 0 : i7                                           │
+│       %3 = comb.concat %c0_i7, %2 : i7, i1                                  │
+│       %4 = hwarith.cast %3 : (i8) -> ui8                                    │
+│       %5 = hwarith.cast %4 : (ui8) -> i8                                    │
+│       arc.sim.set_input %arg0, "a_poke_val" = %5 : i8,                      │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "a_poke_en" = %true : i1,                    │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %c2_i8 = hw.constant 2 : i8                                           │
+│       %6 = comb.extract %c2_i8 from 0 : (i8) -> i2                          │
+│       %c0_i6 = hw.constant 0 : i6                                           │
+│       %7 = comb.concat %c0_i6, %6 : i6, i2                                  │
+│       %8 = hwarith.cast %7 : (i8) -> ui8                                    │
+│       %9 = hwarith.cast %8 : (ui8) -> i8                                    │
+│       arc.sim.set_input %arg0, "b_poke_val" = %9 : i8,                      │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "b_poke_en" = %true : i1,                    │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %c3_i8 = hw.constant 3 : i8                                           │
+│       %10 = comb.extract %c3_i8 from 0 : (i8) -> i2                         │
+│       %c0_i6_2 = hw.constant 0 : i6                                         │
+│       %11 = comb.concat %c0_i6_2, %10 : i6, i2                              │
+│       %12 = hwarith.cast %11 : (i8) -> ui8                                  │
+│       %13 = hwarith.cast %12 : (ui8) -> i8                                  │
+│       arc.sim.set_input %arg0, "c_poke_val" = %13 : i8,                     │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "c_poke_en" = %true : i1,                    │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %14 = comb.mux %true_1, %9, %13 : i8                                  │
+│       %15 = comb.mux %false_0, %5, %14 : i8                                 │
+│       arc.sim.set_input %arg0, "res1_poke_val" = %15 : i8,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "res1_poke_en" = %true : i1,                 │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %false_3 = hw.constant false                                          │
+│       %c10_i8 = hw.constant 10 : i8                                         │
+│       %16 = comb.extract %c10_i8 from 0 : (i8) -> i4                        │
+│       %c0_i4 = hw.constant 0 : i4                                           │
+│       %17 = comb.concat %c0_i4, %16 : i4, i4                                │
+│       %18 = hwarith.cast %17 : (i8) -> ui8                                  │
+│       %19 = hwarith.cast %18 : (ui8) -> i8                                  │
+│       %false_4 = hw.constant false                                          │
+│       %c20_i8 = hw.constant 20 : i8                                         │
+│       %20 = comb.extract %c20_i8 from 0 : (i8) -> i5                        │
+│       %c0_i3 = hw.constant 0 : i3                                           │
+│       %21 = comb.concat %c0_i3, %20 : i3, i5                                │
+│       %22 = hwarith.cast %21 : (i8) -> ui8                                  │
+│       %23 = hwarith.cast %22 : (ui8) -> i8                                  │
+│       %c30_i8 = hw.constant 30 : i8                                         │
+│       %24 = comb.extract %c30_i8 from 0 : (i8) -> i5                        │
+│       %c0_i3_5 = hw.constant 0 : i3                                         │
+│       %25 = comb.concat %c0_i3_5, %24 : i3, i5                              │
+│       %26 = hwarith.cast %25 : (i8) -> ui8                                  │
+│       %27 = hwarith.cast %26 : (ui8) -> i8                                  │
+│       %28 = comb.mux %false_4, %23, %27 : i8                                │
+│       %29 = comb.mux %false_3, %19, %28 : i8                                │
+│       arc.sim.set_input %arg0, "ra_poke_val" = %29 : i8,                    │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "ra_poke_en" = %true : i1,                   │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %false_6 = hw.constant false                                          │
+│       %c10_i8_7 = hw.constant 10 : i8                                       │
+│       %30 = comb.extract %c10_i8_7 from 0 : (i8) -> i4                      │
+│       %c0_i4_8 = hw.constant 0 : i4                                         │
+│       %31 = comb.concat %c0_i4_8, %30 : i4, i4                              │
+│       %32 = hwarith.cast %31 : (i8) -> ui8                                  │
+│       %33 = hwarith.cast %32 : (ui8) -> i8                                  │
+│       %false_9 = hw.constant false                                          │
+│       %c20_i8_10 = hw.constant 20 : i8                                      │
+│       %34 = comb.extract %c20_i8_10 from 0 : (i8) -> i5                     │
+│       %c0_i3_11 = hw.constant 0 : i3                                        │
+│       %35 = comb.concat %c0_i3_11, %34 : i3, i5                             │
+│       %36 = hwarith.cast %35 : (i8) -> ui8                                  │
+│       %37 = hwarith.cast %36 : (ui8) -> i8                                  │
+│       %c30_i8_12 = hw.constant 30 : i8                                      │
+│       %38 = comb.extract %c30_i8_12 from 0 : (i8) -> i5                     │
+│       %c0_i3_13 = hw.constant 0 : i3                                        │
+│       %39 = comb.concat %c0_i3_13, %38 : i3, i5                             │
+│       %40 = hwarith.cast %39 : (i8) -> ui8                                  │
+│       %41 = hwarith.cast %40 : (ui8) -> i8                                  │
+│       %42 = comb.mux %false_9, %37, %41 : i8                                │
+│       %43 = comb.mux %false_6, %33, %42 : i8                                │
+│       arc.sim.set_input %arg0, "rb_poke_val" = %43 : i8,                    │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "rb_poke_en" = %true : i1,                   │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %true_14 = hw.constant true                                           │
+│       arc.sim.set_input %arg0, "tc1_poke_val" = %true_14 : i1,              │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "tc1_poke_en" = %true : i1,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %false_15 = hw.constant false                                         │
+│       arc.sim.set_input %arg0, "tc2_poke_val" = %false_15 : i1,             │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "tc2_poke_en" = %true : i1,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %c100_i8 = hw.constant 100 : i8                                       │
+│       %44 = comb.extract %c100_i8 from 0 : (i8) -> i7                       │
+│       %false_16 = hw.constant false                                         │
+│       %45 = comb.concat %false_16, %44 : i1, i7                             │
+│       %46 = hwarith.cast %45 : (i8) -> ui8                                  │
+│       %47 = hwarith.cast %46 : (ui8) -> i8                                  │
+│       arc.sim.set_input %arg0, "tv_c_poke_val" = %47 : i8,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "tv_c_poke_en" = %true : i1,                 │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %c-106_i8 = hw.constant -106 : i8                                     │
+│       arc.sim.set_input %arg0, "tv_d_poke_val" = %c-106_i8 : i8,            │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "tv_d_poke_en" = %true : i1,                 │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %c-56_i8 = hw.constant -56 : i8                                       │
+│       arc.sim.set_input %arg0, "tv_e_poke_val" = %c-56_i8 : i8,             │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "tv_e_poke_en" = %true : i1,                 │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %c10_i8_17 = hw.constant 10 : i8                                      │
+│       %48 = comb.extract %c10_i8_17 from 0 : (i8) -> i4                     │
+│       %c0_i4_18 = hw.constant 0 : i4                                        │
+│       %49 = comb.concat %c0_i4_18, %48 : i4, i4                             │
+│       %50 = hwarith.cast %49 : (i8) -> ui8                                  │
+│       %51 = hwarith.cast %50 : (ui8) -> i8                                  │
+│       arc.sim.set_input %arg0, "v1_poke_val" = %51 : i8,                    │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "v1_poke_en" = %true : i1,                   │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %c20_i8_19 = hw.constant 20 : i8                                      │
+│       %52 = comb.extract %c20_i8_19 from 0 : (i8) -> i5                     │
+│       %c0_i3_20 = hw.constant 0 : i3                                        │
+│       %53 = comb.concat %c0_i3_20, %52 : i3, i5                             │
+│       %54 = hwarith.cast %53 : (i8) -> ui8                                  │
+│       %55 = hwarith.cast %54 : (ui8) -> i8                                  │
+│       arc.sim.set_input %arg0, "v2_poke_val" = %55 : i8,                    │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "v2_poke_en" = %true : i1,                   │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %c30_i8_21 = hw.constant 30 : i8                                      │
+│       %56 = comb.extract %c30_i8_21 from 0 : (i8) -> i5                     │
+│       %c0_i3_22 = hw.constant 0 : i3                                        │
+│       %57 = comb.concat %c0_i3_22, %56 : i3, i5                             │
+│       %58 = hwarith.cast %57 : (i8) -> ui8                                  │
+│       %59 = hwarith.cast %58 : (ui8) -> i8                                  │
+│       arc.sim.set_input %arg0, "v3_poke_val" = %59 : i8,                    │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "v3_poke_en" = %true : i1,                   │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %c40_i8 = hw.constant 40 : i8                                         │
+│       %60 = comb.extract %c40_i8 from 0 : (i8) -> i6                        │
+│       %c0_i2 = hw.constant 0 : i2                                           │
+│       %61 = comb.concat %c0_i2, %60 : i2, i6                                │
+│       %62 = hwarith.cast %61 : (i8) -> ui8                                  │
+│       %63 = hwarith.cast %62 : (ui8) -> i8                                  │
+│       arc.sim.set_input %arg0, "v4_poke_val" = %63 : i8,                    │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "v4_poke_en" = %true : i1,                   │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %false_23 = hw.constant false                                         │
+│       %false_24 = hw.constant false                                         │
+│       %true_25 = hw.constant true                                           │
+│       %64 = comb.mux %true_25, %59, %63 : i8                                │
+│       %65 = comb.mux %false_24, %55, %64 : i8                               │
+│       %66 = comb.mux %false_23, %51, %65 : i8                               │
+│       arc.sim.set_input %arg0, "deep_poke_val" = %66 : i8,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "deep_poke_en" = %true : i1,                 │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %true_26 = hw.constant true                                           │
+│       arc.sim.set_input %arg0, "s_c1_poke_val" = %true_26 : i1,             │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "s_c1_poke_en" = %true : i1,                 │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %false_27 = hw.constant false                                         │
+│       arc.sim.set_input %arg0, "s_c2_poke_val" = %false_27 : i1,            │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "s_c2_poke_en" = %true : i1,                 │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %c100_i8_28 = hw.constant 100 : i8                                    │
+│       %67 = comb.extract %c100_i8_28 from 0 : (i8) -> i7                    │
+│       %false_29 = hw.constant false                                         │
+│       %68 = comb.concat %false_29, %67 : i1, i7                             │
+│       %69 = hwarith.cast %68 : (i8) -> si8                                  │
+│       %70 = hwarith.cast %69 : (si8) -> i8                                  │
+│       %71 = hwarith.cast %70 : (i8) -> si8                                  │
+│       %72 = hwarith.constant 0 : si8                                        │
+│       %73 = hwarith.sub %72, %71 : (si8, si8) -> si9                        │
+│       %74 = hwarith.cast %73 : (si9) -> i8                                  │
+│       %75 = comb.extract %74 from 7 : (i8) -> i1                            │
+│       %76 = comb.replicate %75 : (i1) -> i8                                 │
+│       %77 = comb.concat %76, %74 : i8, i8                                   │
+│       %78 = hwarith.cast %77 : (i16) -> si16                                │
+│       %79 = hwarith.cast %78 : (si16) -> i16                                │
+│       arc.sim.set_input %arg0, "s_a_poke_val" = %79 : i16,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "s_a_poke_en" = %true : i1,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %c200_i9 = hw.constant 200 : i9                                       │
+│       %80 = comb.extract %c200_i9 from 0 : (i9) -> i8                       │
+│       %false_30 = hw.constant false                                         │
+│       %81 = comb.concat %false_30, %80 : i1, i8                             │
+│       %82 = hwarith.cast %81 : (i9) -> si9                                  │
+│       %83 = hwarith.cast %82 : (si9) -> i9                                  │
+│       %84 = hwarith.cast %83 : (i9) -> si9                                  │
+│       %85 = hwarith.constant 0 : si9                                        │
+│       %86 = hwarith.sub %85, %84 : (si9, si9) -> si10                       │
+│       %87 = hwarith.cast %86 : (si10) -> i9                                 │
+│       %88 = comb.extract %87 from 8 : (i9) -> i1                            │
+│       %89 = comb.replicate %88 : (i1) -> i7                                 │
+│       %90 = comb.concat %89, %87 : i7, i9                                   │
+│       %91 = hwarith.cast %90 : (i16) -> si16                                │
+│       %92 = hwarith.cast %91 : (si16) -> i16                                │
+│       arc.sim.set_input %arg0, "s_b_poke_val" = %92 : i16,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "s_b_poke_en" = %true : i1,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %c300_i10 = hw.constant 300 : i10                                     │
+│       %93 = comb.extract %c300_i10 from 0 : (i10) -> i9                     │
+│       %false_31 = hw.constant false                                         │
+│       %94 = comb.concat %false_31, %93 : i1, i9                             │
+│       %95 = hwarith.cast %94 : (i10) -> si10                                │
+│       %96 = hwarith.cast %95 : (si10) -> i10                                │
+│       %97 = hwarith.cast %96 : (i10) -> si10                                │
+│       %98 = hwarith.constant 0 : si10                                       │
+│       %99 = hwarith.sub %98, %97 : (si10, si10) -> si11                     │
+│       %100 = hwarith.cast %99 : (si11) -> i10                               │
+│       %101 = comb.extract %100 from 9 : (i10) -> i1                         │
+│       %102 = comb.replicate %101 : (i1) -> i6                               │
+│       %103 = comb.concat %102, %100 : i6, i10                               │
+│       %104 = hwarith.cast %103 : (i16) -> si16                              │
+│       %105 = hwarith.cast %104 : (si16) -> i16                              │
+│       arc.sim.set_input %arg0, "s_c_poke_val" = %105 : i16,                 │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "s_c_poke_en" = %true : i1,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %106 = comb.mux %true_1, %5, %9 : i8                                  │
+│       %107 = comb.mux %false_0, %106, %13 : i8                              │
+│       arc.sim.set_input %arg0, "res_type_poke_val" = %107 : i8,             │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "res_type_poke_en" = %true : i1,             │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       %true_32 = hw.constant true                                           │
+│       %false_33 = hw.constant false                                         │
+│       %108 = comb.mux %false_15, %true_32, %false_33 : i1                   │
+│       %true_34 = hw.constant true                                           │
+│       %109 = comb.mux %true_14, %108, %true_34 : i1                         │
+│       arc.sim.set_input %arg0, "b_res_poke_val" = %109 : i1,                │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "b_res_poke_en" = %true : i1,                │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "rst" = %true : i1,                          │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestTernaryNested_Harness>    │
+│       arc.sim.set_input %arg0, "clk" = %1 : !seq.clock,                     │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestTernaryNested_Harness>    │
+│       arc.sim.set_input %arg0, "clk" = %0 : !seq.clock,                     │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestTernaryNested_Harness>    │
+│       arc.sim.set_input %arg0, "rst" = %false : i1,                         │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestTernaryNested_Harness>    │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestTernaryNested_Harness>    │
+│       %110 = arc.sim.get_port %arg0, "res1" : i8,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22res1\22}",     │
+│ %110 : i8                                                                   │
+│       %c-2_i2 = hw.constant -2 : i2                                         │
+│       %false_35 = hw.constant false                                         │
+│       %111 = comb.concat %false_35, %110 : i1, i8                           │
+│       %112 = hwarith.cast %111 : (i9) -> si9                                │
+│       %113 = hwarith.cast %112 : (si9) -> i9                                │
+│       %c0_i7_36 = hw.constant 0 : i7                                        │
+│       %114 = comb.concat %c0_i7_36, %c-2_i2 : i7, i2                        │
+│       %115 = hwarith.cast %114 : (i9) -> si9                                │
+│       %116 = hwarith.cast %115 : (si9) -> i9                                │
+│       %117 = hwarith.cast %113 : (i9) -> si9                                │
+│       %118 = hwarith.cast %116 : (i9) -> si9                                │
+│       %119 = hwarith.icmp eq %117, %118 : si9, si9                          │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22Nested     │
+│ ternary: false ? a : (true ? b : c) = b\22, \22line\22: 17, \22column\22:   │
+│ 12, \22condition\22: \22res1 == 2\22, \22scope\22:                          │
+│ \22TestTernaryNested\22}", %119 : i1                                        │
+│       %false_37 = hw.constant false                                         │
+│       arc.sim.emit "DRIVER: poke c2 START", %false_37 : i1                  │
+│       arc.sim.set_input %arg0, "c2_poke_val" = %false_37 : i1,              │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "c2_poke_en" = %true : i1,                   │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestTernaryNested_Harness>    │
+│       arc.sim.emit "DRIVER: poke c2 END", %false_37 : i1                    │
+│       %120 = arc.sim.get_port %arg0, "c1" : i1,                             │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22c1\22}", %120  │
+│ : i1                                                                        │
+│       %121 = arc.sim.get_port %arg0, "c" : i8,                              │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22c\22}", %121 : │
+│ i8                                                                          │
+│       %122 = arc.sim.get_port %arg0, "b" : i8,                              │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22b\22}", %122 : │
+│ i8                                                                          │
+│       %123 = arc.sim.get_port %arg0, "c2" : i1,                             │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22c2\22}", %123  │
+│ : i1                                                                        │
+│       %124 = arc.sim.get_port %arg0, "a" : i8,                              │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22a\22}", %124 : │
+│ i8                                                                          │
+│       %125 = comb.mux %123, %122, %121 : i8                                 │
+│       %126 = comb.mux %120, %124, %125 : i8                                 │
+│       %c-1_i2 = hw.constant -1 : i2                                         │
+│       %false_38 = hw.constant false                                         │
+│       %127 = comb.concat %false_38, %126 : i1, i8                           │
+│       %128 = hwarith.cast %127 : (i9) -> si9                                │
+│       %129 = hwarith.cast %128 : (si9) -> i9                                │
+│       %c0_i7_39 = hw.constant 0 : i7                                        │
+│       %130 = comb.concat %c0_i7_39, %c-1_i2 : i7, i2                        │
+│       %131 = hwarith.cast %130 : (i9) -> si9                                │
+│       %132 = hwarith.cast %131 : (si9) -> i9                                │
+│       %133 = hwarith.cast %129 : (i9) -> si9                                │
+│       %134 = hwarith.cast %132 : (i9) -> si9                                │
+│       %135 = hwarith.icmp eq %133, %134 : si9, si9                          │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22Nested     │
+│ ternary: false ? a : (false ? b : c) = c\22, \22line\22: 21, \22column\22:  │
+│ 12, \22condition\22: \22c1 a c2 b c == 3\22, \22scope\22:                   │
+│ \22TestTernaryNested\22}", %135 : i1                                        │
+│       %true_40 = hw.constant true                                           │
+│       arc.sim.emit "DRIVER: poke c1 START", %true_40 : i1                   │
+│       arc.sim.set_input %arg0, "c1_poke_val" = %true_40 : i1,               │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "c1_poke_en" = %true : i1,                   │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestTernaryNested_Harness>    │
+│       arc.sim.emit "DRIVER: poke c1 END", %true_40 : i1                     │
+│       %136 = arc.sim.get_port %arg0, "c1" : i1,                             │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22c1\22}", %136  │
+│ : i1                                                                        │
+│       %137 = arc.sim.get_port %arg0, "c" : i8,                              │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22c\22}", %137 : │
+│ i8                                                                          │
+│       %138 = arc.sim.get_port %arg0, "b" : i8,                              │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22b\22}", %138 : │
+│ i8                                                                          │
+│       %139 = arc.sim.get_port %arg0, "c2" : i1,                             │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22c2\22}", %139  │
+│ : i1                                                                        │
+│       %140 = arc.sim.get_port %arg0, "a" : i8,                              │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22a\22}", %140 : │
+│ i8                                                                          │
+│       %141 = comb.mux %139, %138, %137 : i8                                 │
+│       %142 = comb.mux %136, %140, %141 : i8                                 │
+│       %true_41 = hw.constant true                                           │
+│       %false_42 = hw.constant false                                         │
+│       %143 = comb.concat %false_42, %142 : i1, i8                           │
+│       %144 = hwarith.cast %143 : (i9) -> si9                                │
+│       %145 = hwarith.cast %144 : (si9) -> i9                                │
+│       %c0_i8 = hw.constant 0 : i8                                           │
+│       %146 = comb.concat %c0_i8, %true_41 : i8, i1                          │
+│       %147 = hwarith.cast %146 : (i9) -> si9                                │
+│       %148 = hwarith.cast %147 : (si9) -> i9                                │
+│       %149 = hwarith.cast %145 : (i9) -> si9                                │
+│       %150 = hwarith.cast %148 : (i9) -> si9                                │
+│       %151 = hwarith.icmp eq %149, %150 : si9, si9                          │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22Nested     │
+│ ternary: true ? a : (...) = a\22, \22line\22: 25, \22column\22: 12,         │
+│ \22condition\22: \22c1 a c2 b c == 1\22, \22scope\22:                       │
+│ \22TestTernaryNested\22}", %151 : i1                                        │
+│       %152 = arc.sim.get_port %arg0, "ra" : i8,                             │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22ra\22}", %152  │
+│ : i8                                                                        │
+│       %c-2_i5 = hw.constant -2 : i5                                         │
+│       %false_43 = hw.constant false                                         │
+│       %153 = comb.concat %false_43, %152 : i1, i8                           │
+│       %154 = hwarith.cast %153 : (i9) -> si9                                │
+│       %155 = hwarith.cast %154 : (si9) -> i9                                │
+│       %c0_i4_44 = hw.constant 0 : i4                                        │
+│       %156 = comb.concat %c0_i4_44, %c-2_i5 : i4, i5                        │
+│       %157 = hwarith.cast %156 : (i9) -> si9                                │
+│       %158 = hwarith.cast %157 : (si9) -> i9                                │
+│       %159 = hwarith.cast %155 : (i9) -> si9                                │
+│       %160 = hwarith.cast %158 : (i9) -> si9                                │
+│       %161 = hwarith.icmp eq %159, %160 : si9, si9                          │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22:               │
+│ \22Right-assoc explicit\22, \22line\22: 43, \22column\22: 12,               │
+│ \22condition\22: \22ra == 30\22, \22scope\22: \22TestTernaryNested\22}",    │
+│ %161 : i1                                                                   │
+│       %162 = arc.sim.get_port %arg0, "rb" : i8,                             │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22rb\22}", %162  │
+│ : i8                                                                        │
+│       %c-2_i5_45 = hw.constant -2 : i5                                      │
+│       %false_46 = hw.constant false                                         │
+│       %163 = comb.concat %false_46, %162 : i1, i8                           │
+│       %164 = hwarith.cast %163 : (i9) -> si9                                │
+│       %165 = hwarith.cast %164 : (si9) -> i9                                │
+│       %c0_i4_47 = hw.constant 0 : i4                                        │
+│       %166 = comb.concat %c0_i4_47, %c-2_i5_45 : i4, i5                     │
+│       %167 = hwarith.cast %166 : (i9) -> si9                                │
+│       %168 = hwarith.cast %167 : (si9) -> i9                                │
+│       %169 = hwarith.cast %165 : (i9) -> si9                                │
+│       %170 = hwarith.cast %168 : (i9) -> si9                                │
+│       %171 = hwarith.icmp eq %169, %170 : si9, si9                          │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22:               │
+│ \22Right-assoc implicit\22, \22line\22: 44, \22column\22: 12,               │
+│ \22condition\22: \22rb == 30\22, \22scope\22: \22TestTernaryNested\22}",    │
+│ %171 : i1                                                                   │
+│       %172 = arc.sim.get_port %arg0, "rb" : i8,                             │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22rb\22}", %172  │
+│ : i8                                                                        │
+│       %173 = arc.sim.get_port %arg0, "ra" : i8,                             │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22ra\22}", %173  │
+│ : i8                                                                        │
+│       %false_48 = hw.constant false                                         │
+│       %174 = comb.concat %false_48, %173 : i1, i8                           │
+│       %175 = hwarith.cast %174 : (i9) -> si9                                │
+│       %176 = hwarith.cast %175 : (si9) -> i9                                │
+│       %false_49 = hw.constant false                                         │
+│       %177 = comb.concat %false_49, %172 : i1, i8                           │
+│       %178 = hwarith.cast %177 : (i9) -> si9                                │
+│       %179 = hwarith.cast %178 : (si9) -> i9                                │
+│       %180 = hwarith.cast %176 : (i9) -> si9                                │
+│       %181 = hwarith.cast %179 : (i9) -> si9                                │
+│       %182 = hwarith.icmp eq %180, %181 : si9, si9                          │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22Implicit   │
+│ matches explicit right-associativity\22, \22line\22: 45, \22column\22: 12,  │
+│ \22condition\22: \22ra == rb\22, \22scope\22: \22TestTernaryNested\22}",    │
+│ %182 : i1                                                                   │
+│       %183 = arc.sim.get_port %arg0, "tv_d" : i8,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22tv_d\22}",     │
+│ %183 : i8                                                                   │
+│       %184 = arc.sim.get_port %arg0, "tv_e" : i8,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22tv_e\22}",     │
+│ %184 : i8                                                                   │
+│       %185 = arc.sim.get_port %arg0, "tc2" : i1,                            │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22tc2\22}", %185 │
+│ : i1                                                                        │
+│       %186 = arc.sim.get_port %arg0, "tv_c" : i8,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22tv_c\22}",     │
+│ %186 : i8                                                                   │
+│       %187 = arc.sim.get_port %arg0, "tc1" : i1,                            │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22tc1\22}", %187 │
+│ : i1                                                                        │
+│       %188 = comb.mux %185, %186, %183 : i8                                 │
+│       %189 = comb.mux %187, %188, %184 : i8                                 │
+│       %c-106_i8_50 = hw.constant -106 : i8                                  │
+│       %false_51 = hw.constant false                                         │
+│       %190 = comb.concat %false_51, %189 : i1, i8                           │
+│       %191 = hwarith.cast %190 : (i9) -> si9                                │
+│       %192 = hwarith.cast %191 : (si9) -> i9                                │
+│       %false_52 = hw.constant false                                         │
+│       %193 = comb.concat %false_52, %c-106_i8_50 : i1, i8                   │
+│       %194 = hwarith.cast %193 : (i9) -> si9                                │
+│       %195 = hwarith.cast %194 : (si9) -> i9                                │
+│       %196 = hwarith.cast %192 : (i9) -> si9                                │
+│       %197 = hwarith.cast %195 : (i9) -> si9                                │
+│       %198 = hwarith.icmp eq %196, %197 : si9, si9                          │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22True-arm   │
+│ nesting: (T, F) selects d\22, \22line\22: 56, \22column\22: 12,             │
+│ \22condition\22: \22tc1 tc2 tv_c tv_d tv_e == 150\22, \22scope\22:          │
+│ \22TestTernaryNested\22}", %198 : i1                                        │
+│       %true_53 = hw.constant true                                           │
+│       arc.sim.emit "DRIVER: poke tc2 START", %true_53 : i1                  │
+│       arc.sim.set_input %arg0, "tc2_poke_val" = %true_53 : i1,              │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "tc2_poke_en" = %true : i1,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestTernaryNested_Harness>    │
+│       arc.sim.emit "DRIVER: poke tc2 END", %true_53 : i1                    │
+│       %199 = arc.sim.get_port %arg0, "tv_d" : i8,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22tv_d\22}",     │
+│ %199 : i8                                                                   │
+│       %200 = arc.sim.get_port %arg0, "tv_e" : i8,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22tv_e\22}",     │
+│ %200 : i8                                                                   │
+│       %201 = arc.sim.get_port %arg0, "tc2" : i1,                            │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22tc2\22}", %201 │
+│ : i1                                                                        │
+│       %202 = arc.sim.get_port %arg0, "tv_c" : i8,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22tv_c\22}",     │
+│ %202 : i8                                                                   │
+│       %203 = arc.sim.get_port %arg0, "tc1" : i1,                            │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22tc1\22}", %203 │
+│ : i1                                                                        │
+│       %204 = comb.mux %201, %202, %199 : i8                                 │
+│       %205 = comb.mux %203, %204, %200 : i8                                 │
+│       %c-28_i7 = hw.constant -28 : i7                                       │
+│       %false_54 = hw.constant false                                         │
+│       %206 = comb.concat %false_54, %205 : i1, i8                           │
+│       %207 = hwarith.cast %206 : (i9) -> si9                                │
+│       %208 = hwarith.cast %207 : (si9) -> i9                                │
+│       %c0_i2_55 = hw.constant 0 : i2                                        │
+│       %209 = comb.concat %c0_i2_55, %c-28_i7 : i2, i7                       │
+│       %210 = hwarith.cast %209 : (i9) -> si9                                │
+│       %211 = hwarith.cast %210 : (si9) -> i9                                │
+│       %212 = hwarith.cast %208 : (i9) -> si9                                │
+│       %213 = hwarith.cast %211 : (i9) -> si9                                │
+│       %214 = hwarith.icmp eq %212, %213 : si9, si9                          │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22True-arm   │
+│ nesting: (T, T) selects c\22, \22line\22: 60, \22column\22: 12,             │
+│ \22condition\22: \22tc1 tc2 tv_c tv_d tv_e == 100\22, \22scope\22:          │
+│ \22TestTernaryNested\22}", %214 : i1                                        │
+│       %false_56 = hw.constant false                                         │
+│       arc.sim.emit "DRIVER: poke tc1 START", %false_56 : i1                 │
+│       arc.sim.set_input %arg0, "tc1_poke_val" = %false_56 : i1,             │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "tc1_poke_en" = %true : i1,                  │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestTernaryNested_Harness>    │
+│       arc.sim.emit "DRIVER: poke tc1 END", %false_56 : i1                   │
+│       %215 = arc.sim.get_port %arg0, "tv_d" : i8,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22tv_d\22}",     │
+│ %215 : i8                                                                   │
+│       %216 = arc.sim.get_port %arg0, "tv_e" : i8,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22tv_e\22}",     │
+│ %216 : i8                                                                   │
+│       %217 = arc.sim.get_port %arg0, "tc2" : i1,                            │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22tc2\22}", %217 │
+│ : i1                                                                        │
+│       %218 = arc.sim.get_port %arg0, "tv_c" : i8,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22tv_c\22}",     │
+│ %218 : i8                                                                   │
+│       %219 = arc.sim.get_port %arg0, "tc1" : i1,                            │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22tc1\22}", %219 │
+│ : i1                                                                        │
+│       %220 = comb.mux %217, %218, %215 : i8                                 │
+│       %221 = comb.mux %219, %220, %216 : i8                                 │
+│       %c-56_i8_57 = hw.constant -56 : i8                                    │
+│       %false_58 = hw.constant false                                         │
+│       %222 = comb.concat %false_58, %221 : i1, i8                           │
+│       %223 = hwarith.cast %222 : (i9) -> si9                                │
+│       %224 = hwarith.cast %223 : (si9) -> i9                                │
+│       %false_59 = hw.constant false                                         │
+│       %225 = comb.concat %false_59, %c-56_i8_57 : i1, i8                    │
+│       %226 = hwarith.cast %225 : (i9) -> si9                                │
+│       %227 = hwarith.cast %226 : (si9) -> i9                                │
+│       %228 = hwarith.cast %224 : (i9) -> si9                                │
+│       %229 = hwarith.cast %227 : (i9) -> si9                                │
+│       %230 = hwarith.icmp eq %228, %229 : si9, si9                          │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22True-arm   │
+│ nesting: (F, T) selects e\22, \22line\22: 64, \22column\22: 12,             │
+│ \22condition\22: \22tc1 tc2 tv_c tv_d tv_e == 200\22, \22scope\22:          │
+│ \22TestTernaryNested\22}", %230 : i1                                        │
+│       %231 = arc.sim.get_port %arg0, "deep" : i8,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22deep\22}",     │
+│ %231 : i8                                                                   │
+│       %c-2_i5_60 = hw.constant -2 : i5                                      │
+│       %false_61 = hw.constant false                                         │
+│       %232 = comb.concat %false_61, %231 : i1, i8                           │
+│       %233 = hwarith.cast %232 : (i9) -> si9                                │
+│       %234 = hwarith.cast %233 : (si9) -> i9                                │
+│       %c0_i4_62 = hw.constant 0 : i4                                        │
+│       %235 = comb.concat %c0_i4_62, %c-2_i5_60 : i4, i5                     │
+│       %236 = hwarith.cast %235 : (i9) -> si9                                │
+│       %237 = hwarith.cast %236 : (si9) -> i9                                │
+│       %238 = hwarith.cast %234 : (i9) -> si9                                │
+│       %239 = hwarith.cast %237 : (i9) -> si9                                │
+│       %240 = hwarith.icmp eq %238, %239 : si9, si9                          │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22Deep       │
+│ nesting selection\22, \22line\22: 74, \22column\22: 12, \22condition\22:    │
+│ \22deep == 30\22, \22scope\22: \22TestTernaryNested\22}", %240 : i1         │
+│       %241 = arc.sim.get_port %arg0, "s_b" : i16,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22s_b\22}", %241 │
+│ : i16                                                                       │
+│       %242 = arc.sim.get_port %arg0, "s_c1" : i1,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22s_c1\22}",     │
+│ %242 : i1                                                                   │
+│       %243 = arc.sim.get_port %arg0, "s_a" : i16,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22s_a\22}", %243 │
+│ : i16                                                                       │
+│       %244 = arc.sim.get_port %arg0, "s_c" : i16,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22s_c\22}", %244 │
+│ : i16                                                                       │
+│       %245 = arc.sim.get_port %arg0, "s_c2" : i1,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22s_c2\22}",     │
+│ %245 : i1                                                                   │
+│       %246 = comb.mux %245, %241, %244 : i16                                │
+│       %247 = comb.mux %242, %243, %246 : i16                                │
+│       %c100_i8_63 = hw.constant 100 : i8                                    │
+│       %248 = comb.extract %c100_i8_63 from 0 : (i8) -> i7                   │
+│       %false_64 = hw.constant false                                         │
+│       %249 = comb.concat %false_64, %248 : i1, i7                           │
+│       %250 = hwarith.cast %249 : (i8) -> si8                                │
+│       %251 = hwarith.cast %250 : (si8) -> i8                                │
+│       %252 = hwarith.cast %251 : (i8) -> si8                                │
+│       %253 = hwarith.constant 0 : si8                                       │
+│       %254 = hwarith.sub %253, %252 : (si8, si8) -> si9                     │
+│       %255 = hwarith.cast %254 : (si9) -> i8                                │
+│       %256 = comb.extract %255 from 7 : (i8) -> i1                          │
+│       %257 = comb.replicate %256 : (i1) -> i8                               │
+│       %258 = comb.concat %257, %255 : i8, i8                                │
+│       %259 = hwarith.cast %258 : (i16) -> si16                              │
+│       %260 = hwarith.cast %259 : (si16) -> i16                              │
+│       %261 = hwarith.cast %247 : (i16) -> si16                              │
+│       %262 = hwarith.cast %260 : (i16) -> si16                              │
+│       %263 = hwarith.icmp eq %261, %262 : si16, si16                        │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22Signed     │
+│ nested (T) selects a\22, \22line\22: 85, \22column\22: 12, \22condition\22: │
+│ \22s_c1 s_a s_c2 s_b s_c == - 100\22, \22scope\22:                          │
+│ \22TestTernaryNested\22}", %263 : i1                                        │
+│       %false_65 = hw.constant false                                         │
+│       arc.sim.emit "DRIVER: poke s_c1 START", %false_65 : i1                │
+│       arc.sim.set_input %arg0, "s_c1_poke_val" = %false_65 : i1,            │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.set_input %arg0, "s_c1_poke_en" = %true : i1,                 │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.step %arg0 : !arc.sim.instance<@TestTernaryNested_Harness>    │
+│       arc.sim.emit "DRIVER: poke s_c1 END", %false_65 : i1                  │
+│       %264 = arc.sim.get_port %arg0, "s_b" : i16,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22s_b\22}", %264 │
+│ : i16                                                                       │
+│       %265 = arc.sim.get_port %arg0, "s_c1" : i1,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22s_c1\22}",     │
+│ %265 : i1                                                                   │
+│       %266 = arc.sim.get_port %arg0, "s_a" : i16,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22s_a\22}", %266 │
+│ : i16                                                                       │
+│       %267 = arc.sim.get_port %arg0, "s_c" : i16,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22s_c\22}", %267 │
+│ : i16                                                                       │
+│       %268 = arc.sim.get_port %arg0, "s_c2" : i1,                           │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22s_c2\22}",     │
+│ %268 : i1                                                                   │
+│       %269 = comb.mux %268, %264, %267 : i16                                │
+│       %270 = comb.mux %265, %266, %269 : i16                                │
+│       %c300_i10_66 = hw.constant 300 : i10                                  │
+│       %271 = comb.extract %c300_i10_66 from 0 : (i10) -> i9                 │
+│       %false_67 = hw.constant false                                         │
+│       %272 = comb.concat %false_67, %271 : i1, i9                           │
+│       %273 = hwarith.cast %272 : (i10) -> si10                              │
+│       %274 = hwarith.cast %273 : (si10) -> i10                              │
+│       %275 = hwarith.cast %274 : (i10) -> si10                              │
+│       %276 = hwarith.constant 0 : si10                                      │
+│       %277 = hwarith.sub %276, %275 : (si10, si10) -> si11                  │
+│       %278 = hwarith.cast %277 : (si11) -> i10                              │
+│       %279 = comb.extract %278 from 9 : (i10) -> i1                         │
+│       %280 = comb.replicate %279 : (i1) -> i6                               │
+│       %281 = comb.concat %280, %278 : i6, i10                               │
+│       %282 = hwarith.cast %281 : (i16) -> si16                              │
+│       %283 = hwarith.cast %282 : (si16) -> i16                              │
+│       %284 = hwarith.cast %270 : (i16) -> si16                              │
+│       %285 = hwarith.cast %283 : (i16) -> si16                              │
+│       %286 = hwarith.icmp eq %284, %285 : si16, si16                        │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22Signed     │
+│ nested (F,F) selects c\22, \22line\22: 89, \22column\22: 12,                │
+│ \22condition\22: \22s_c1 s_a s_c2 s_b s_c == - 300\22, \22scope\22:         │
+│ \22TestTernaryNested\22}", %286 : i1                                        │
+│       %287 = arc.sim.get_port %arg0, "res_type" : i8,                       │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22res_type\22}", │
+│ %287 : i8                                                                   │
+│       %c8_i32 = hw.constant 8 : i32                                         │
+│       %c-8_i4 = hw.constant -8 : i4                                         │
+│       %false_68 = hw.constant false                                         │
+│       %288 = comb.concat %false_68, %c8_i32 : i1, i32                       │
+│       %289 = hwarith.cast %288 : (i33) -> si33                              │
+│       %290 = hwarith.cast %289 : (si33) -> i33                              │
+│       %c0_i29 = hw.constant 0 : i29                                         │
+│       %291 = comb.concat %c0_i29, %c-8_i4 : i29, i4                         │
+│       %292 = hwarith.cast %291 : (i33) -> si33                              │
+│       %293 = hwarith.cast %292 : (si33) -> i33                              │
+│       %294 = hwarith.cast %290 : (i33) -> si33                              │
+│       %295 = hwarith.cast %293 : (i33) -> si33                              │
+│       %296 = hwarith.icmp eq %294, %295 : si33, si33                        │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22Nested     │
+│ result width matches arms\22, \22line\22: 93, \22column\22: 12,             │
+│ \22condition\22: \22width res_type == 8\22, \22scope\22:                    │
+│ \22TestTernaryNested\22}", %296 : i1                                        │
+│       %297 = arc.sim.get_port %arg0, "res_type" : i8,                       │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22res_type\22}", │
+│ %297 : i8                                                                   │
+│       %false_69 = hw.constant false                                         │
+│       %false_70 = hw.constant false                                         │
+│       %false_71 = hw.constant false                                         │
+│       %298 = comb.concat %false_71, %false_69 : i1, i1                      │
+│       %299 = hwarith.cast %298 : (i2) -> si2                                │
+│       %300 = hwarith.cast %299 : (si2) -> i2                                │
+│       %false_72 = hw.constant false                                         │
+│       %301 = comb.concat %false_72, %false_70 : i1, i1                      │
+│       %302 = hwarith.cast %301 : (i2) -> si2                                │
+│       %303 = hwarith.cast %302 : (si2) -> i2                                │
+│       %304 = hwarith.cast %300 : (i2) -> si2                                │
+│       %305 = hwarith.cast %303 : (i2) -> si2                                │
+│       %306 = hwarith.icmp eq %304, %305 : si2, si2                          │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22Nested     │
+│ result signedness matches arms\22, \22line\22: 94, \22column\22: 12,        │
+│ \22condition\22: \22is_signed res_type == false\22, \22scope\22:            │
+│ \22TestTernaryNested\22}", %306 : i1                                        │
+│       %307 = arc.sim.get_port %arg0, "b_res" : i1,                          │
+│ !arc.sim.instance<@TestTernaryNested_Harness>                               │
+│       arc.sim.emit "{\22type\22: \22value\22, \22name\22: \22b_res\22}",    │
+│ %307 : i1                                                                   │
+│       %true_73 = hw.constant true                                           │
+│       %false_74 = hw.constant false                                         │
+│       %308 = comb.concat %false_74, %307 : i1, i1                           │
+│       %309 = hwarith.cast %308 : (i2) -> si2                                │
+│       %310 = hwarith.cast %309 : (si2) -> i2                                │
+│       %false_75 = hw.constant false                                         │
+│       %311 = comb.concat %false_75, %true_73 : i1, i1                       │
+│       %312 = hwarith.cast %311 : (i2) -> si2                                │
+│       %313 = hwarith.cast %312 : (si2) -> i2                                │
+│       %314 = hwarith.cast %310 : (i2) -> si2                                │
+│       %315 = hwarith.cast %313 : (i2) -> si2                                │
+│       %316 = hwarith.icmp eq %314, %315 : si2, si2                          │
+│       arc.sim.emit "{\22type\22: \22assert\22, \22message\22: \22Boolean    │
+│ nested ternary\22, \22line\22: 100, \22column\22: 12, \22condition\22:      │
+│ \22b_res == true\22, \22scope\22: \22TestTernaryNested\22}", %316 : i1      │
+│     }                                                                       │
+│     return                                                                  │
+│   }                                                                         │
+│ }                                                                           │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
