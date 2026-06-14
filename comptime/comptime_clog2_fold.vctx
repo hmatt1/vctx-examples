@@ -10,6 +10,7 @@ component Clog2Demo(out w: u32) {
     w := clog2_int(16)
 }
 
+
 sim ComptimeClog2Fold {
     wire w: u32
     Clog2Demo(w)
@@ -17,3 +18,14 @@ sim ComptimeClog2Fold {
     assert(w == 4 as u32, "clog2_int(16) == 4")
 }
 
+component Clog2Demo2<Int W>(in a: u[W], out result: u32) {
+    result := clog2_int(width(a)) as u32
+}
+
+sim ComptimeClog2Fold2 {
+    wire a: u32
+    wire r: u32
+    Clog2Demo2<32>(a, r)
+    cycle()
+    assert(r == 5, "clog2(32) == 5")
+}
