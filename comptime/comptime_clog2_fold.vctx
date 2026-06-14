@@ -24,8 +24,8 @@ component Clog2Demo2<Int W>(in a: u[W], out result: u32) {
 
 sim ComptimeClog2Fold2 {
     wire a: u32
-    wire r: u32
-    Clog2Demo2<32>(a, r)
+    wire myout: u32
+    Clog2Demo2<32>(a, myout)
     cycle()
-    assert(r == 5, "clog2(32) == 5")
+    assert(myout == 5, "clog2(32) == 5")
 }
