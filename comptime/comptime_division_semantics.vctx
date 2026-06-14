@@ -1,0 +1,240 @@
+// spec: §5.6, §7.5, §10.3, §18
+// expect: pass
+// Tests that comptime evaluation of / and % is correct.
+//
+// Coverage:
+//   - Truncation toward zero for all sign combinations, including negative non-exact
+//   - Modulo sign follows dividend for all sign combinations
+//   - Division used as a carrier width (the most common comptime-required context)
+//   - Division in a loop (repeated halving)
+//   - GCD via Euclidean algorithm (exercises mod in a loop)
+
+// --- Carrier width: comptime division must fold before hardware is emitted ---
+
+component DivWidthFive(out o: u[(20 / 4)]) {
+    o := 0
+}
+
+component DivWidthThree(out o: u[(21 / 7)]) {
+    o := 0
+}
+
+sim TestComptimeDivAsWidth {
+    wire w5: u5
+    DivWidthFive(w5)
+    assert(width(w5) == 5, "comptime 20/4 = 5 used as carrier width")
+
+    wire w3: u3
+    DivWidthThree(w3)
+    assert(width(w3) == 3, "comptime 21/7 = 3 used as carrier width")
+}
+
+// --- Comptime functions: basic arithmetic ---
+
+comptime ct_div(a: Int, b: Int) -> Int {
+    return a / b
+}
+
+comptime ct_mod(a: Int, b: Int) -> Int {
+    return a % b
+}
+
+// Positive / positive
+comptime div_pos_exact() -> u8 {
+    return (12 / 4 as u8)
+}
+
+comptime div_pos_truncate() -> u8 {
+    return (7 / 3 as u8)
+}
+
+comptime mod_pos() -> u8 {
+    return (7 % 3 as u8)
+}
+
+// Negative / negative: quotient is positive
+comptime div_neg_neg() -> u8 {
+    return ((-7) / (-3) as u8)
+}
+
+comptime mod_neg_neg() -> s8 {
+    return ((-7) % (-3) as s8)
+}
+
+// Negative / positive with remainder: truncates toward zero (not floor)
+comptime div_neg_pos() -> s8 {
+    return ((-7) / 3 as s8)
+}
+
+comptime mod_neg_pos() -> s8 {
+    return ((-7) % 3 as s8)
+}
+
+// Positive / negative with remainder: truncates toward zero (not floor)
+comptime div_pos_neg() -> s8 {
+    return (7 / (-3) as s8)
+}
+
+comptime mod_pos_neg() -> s8 {
+    return (7 % (-3) as s8)
+}
+
+// Exact divisions: remainder is zero, all sign combos agree
+comptime div_neg_pos_exact() -> s8 {
+    return ((-12) / 4 as s8)
+}
+
+comptime div_pos_neg_exact() -> s8 {
+    return (12 / (-4) as s8)
+}
+
+comptime mod_exact() -> s8 {
+    return ((-12) % 4 as s8)
+}
+
+component ComptimeDivBasic(
+    out pos_exact: u8,
+    out pos_trunc: u8,
+    out mod_p: u8,
+    out neg_neg: u8,
+    out mod_nn: s8,
+    out neg_pos: s8,
+    out mod_np: s8,
+    out pos_neg: s8,
+    out mod_pn: s8,
+    out neg_exact: s8,
+    out pos_neg_exact: s8,
+    out mod_e: s8
+) {
+    pos_exact := div_pos_exact()
+    pos_trunc := div_pos_truncate()
+    mod_p := mod_pos()
+    neg_neg := div_neg_neg()
+    mod_nn := mod_neg_neg()
+    neg_pos := div_neg_pos()
+    mod_np := mod_neg_pos()
+    pos_neg := div_pos_neg()
+    mod_pn := mod_pos_neg()
+    neg_exact := div_neg_pos_exact()
+    pos_neg_exact := div_pos_neg_exact()
+    mod_e := mod_exact()
+}
+
+sim TestComptimeDivBasic {
+    wire pos_exact: u8
+    wire pos_trunc: u8
+    wire mod_p: u8
+    wire neg_neg: u8
+    wire mod_nn: s8
+    wire neg_pos: s8
+    wire mod_np: s8
+    wire pos_neg: s8
+    wire mod_pn: s8
+    wire neg_exact: s8
+    wire pos_neg_exact: s8
+    wire mod_e: s8
+    ComptimeDivBasic(pos_exact, pos_trunc, mod_p, neg_neg, mod_nn, neg_pos, mod_np, pos_neg, mod_pn, neg_exact, pos_neg_exact, mod_e)
+    cycle()
+    assert(pos_exact == 3 as u8, "comptime 12/4 = 3")
+    assert(pos_trunc == 2 as u8, "comptime 7/3 = 2")
+    assert(mod_p == 1 as u8, "comptime 7%3 = 1")
+    assert(neg_neg == 2 as u8, "comptime (-7)/(-3) = 2")
+    assert(mod_nn == -1 as s8, "comptime (-7)%(-3) = -1 (sign follows dividend)")
+    assert(neg_pos == -2 as s8, "comptime (-7)/3 = -2 (truncate toward zero, not -3)")
+    assert(mod_np == -1 as s8, "comptime (-7)%3 = -1 (sign follows dividend -7)")
+    assert(pos_neg == -2 as s8, "comptime 7/(-3) = -2 (truncate toward zero, not -3)")
+    assert(mod_pn == 1 as s8, "comptime 7%(-3) = 1 (sign follows dividend 7)")
+    assert(neg_exact == -3 as s8, "comptime (-12)/4 = -3 (exact)")
+    assert(pos_neg_exact == -3 as s8, "comptime 12/(-4) = -3 (exact)")
+    assert(mod_e == 0 as s8, "comptime (-12)%4 = 0 (exact)")
+}
+
+// --- Comptime loop: repeated halving (positive values only) ---
+
+comptime halving_steps(n: Int) -> u8 {
+    let x: Int = n
+    let count: Int = 0
+    while (x > 0) {
+        x = x / 2
+        count = count + 1
+    }
+    return (count as u8)
+}
+
+component HalvingSteps16(out w: u8) {
+    w := halving_steps(16)
+}
+
+component HalvingSteps100(out w: u8) {
+    w := halving_steps(100)
+}
+
+sim TestComptimeHalvingSteps {
+    wire w16: u8
+    HalvingSteps16(w16)
+    cycle()
+    // 16 → 8 → 4 → 2 → 1 → 0: 5 steps
+    assert(w16 == 5 as u8, "halving_steps(16) = 5")
+
+    wire w100: u8
+    HalvingSteps100(w100)
+    cycle()
+    // 100 → 50 → 25 → 12 → 6 → 3 → 1 → 0: 7 steps
+    assert(w100 == 7 as u8, "halving_steps(100) = 7")
+}
+
+// --- Comptime GCD via Euclidean algorithm ---
+
+comptime gcd(a: Int, b: Int) -> u32 {
+    let x: Int = a
+    let y: Int = b
+    while (y !== 0) {
+        let tmp: Int = y
+        y = x % y
+        x = tmp
+    }
+    return (x as u32)
+}
+
+component GcdDemo(out g48_18: u32, out g100_75: u32, out g17_5: u32) {
+    g48_18 := gcd(48, 18)
+    g100_75 := gcd(100, 75)
+    g17_5 := gcd(17, 5)
+}
+
+sim TestComptimeGcd {
+    wire g48_18: u32
+    wire g100_75: u32
+    wire g17_5: u32
+    GcdDemo(g48_18, g100_75, g17_5)
+    cycle()
+    assert(g48_18 == 6 as u32, "gcd(48, 18) = 6")
+    assert(g100_75 == 25 as u32, "gcd(100, 75) = 25")
+    assert(g17_5 == 1 as u32, "gcd(17, 5) = 1 (coprime)")
+}
+
+// --- Modulo identity checks in comptime ---
+
+comptime mod_identities() -> u1 {
+    // x % 1 == 0 for any x
+    assert((42 % 1 == 0), "42 % 1 = 0")
+    assert((100 % 1 == 0), "100 % 1 = 0")
+    // x % x == 0
+    assert((7 % 7 == 0), "7 % 7 = 0")
+    // 0 % x == 0 for any nonzero x
+    assert((0 % 5 == 0), "0 % 5 = 0")
+    // x % (x+1) == x when x < x+1
+    assert((4 % 5 == 4), "4 % 5 = 4")
+    return (1 as u1)
+}
+
+component ModIdentities(out ok: u1) {
+    ok := mod_identities()
+}
+
+sim TestComptimeModIdentities {
+    wire ok: u1
+    ModIdentities(ok)
+    cycle()
+    assert(ok == 1 as u1, "all comptime modulo identities pass")
+}

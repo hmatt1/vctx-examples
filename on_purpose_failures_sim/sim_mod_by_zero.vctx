@@ -1,0 +1,11 @@
+// spec: §7.5
+// expect: fail sim [E_SIM_EXECUTION_ERROR]
+// Expected failure: modulo by zero at simulation time raises E_SIM_EXECUTION_ERROR.
+// Mirrors sim_div_by_zero.vctx but for the % operator.
+
+sim TestModByZeroUnsigned {
+    wire a: u8 = 42
+    wire b: u8 = 0
+    wire r: u8 = (a % b) as u8
+    assert(r == 0, "should not reach: modulo by zero")
+}

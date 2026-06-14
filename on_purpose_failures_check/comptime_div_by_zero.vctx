@@ -1,0 +1,10 @@
+// spec: §7.5
+// expect: fail check [E_COMPTIME_FOLD_FAILED]
+// Expected failure: division by zero in a comptime-required carrier width expression.
+// The literal expression (8 / 0) must be folded at check time; dividing by zero raises
+// E_COMPTIME_FOLD_FAILED instead of yielding a valid width.
+
+component DivByZeroWidth(out o: u1) {
+    wire w: u[(8 / 0)]
+    o := 0 as u1
+}

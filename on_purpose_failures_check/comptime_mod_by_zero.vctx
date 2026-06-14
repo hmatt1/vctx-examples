@@ -1,0 +1,9 @@
+// spec: §7.5
+// expect: fail check [E_COMPTIME_FOLD_FAILED]
+// Expected failure: modulo by zero in a comptime-required carrier width expression.
+// Mirrors comptime_div_by_zero.vctx but for the % operator.
+
+component ModByZeroWidth(out o: u1) {
+    wire w: u[(8 % 0)]
+    o := 0 as u1
+}

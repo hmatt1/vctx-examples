@@ -1,0 +1,12 @@
+// spec: §7.5
+// expect: fail sim [E_SIM_EXECUTION_ERROR]
+// Expected failure: division by zero at simulation time raises E_SIM_EXECUTION_ERROR.
+// The divisor is a runtime wire value of 0 — the error occurs during sim execution,
+// not at check time.
+
+sim TestDivByZeroUnsigned {
+    wire a: u8 = 42
+    wire b: u8 = 0
+    wire q: u8 = (a / b) as u8
+    assert(q == 0, "should not reach: division by zero")
+}

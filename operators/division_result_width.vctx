@@ -1,0 +1,181 @@
+// spec: §7.5 (Operator result rules)
+// description: Comprehensive verification of result width and signedness for / and %.
+// rules:
+//   Unsigned /: result width = max(L, R), unsigned.
+//   Signed /: result width = max(effective_L, effective_R) + 1, signed.
+//     Effective width of an unsigned operand in a signed context = width + 1.
+//     The +1 ensures MIN_INT / -1 is representable without overflow.
+//   %: result width = max(effective_L, effective_R), signed if any operand is signed.
+// expect: pass
+
+// --- Unsigned division: width = max(L, R) ---
+
+sim TestUnsignedDivWidth {
+    // u8 / u8 → u8 (max(8,8) = 8)
+    wire u8_a: u8 = 20
+    wire u8_b: u8 = 3
+    wire u8_div: u8 = u8_a / u8_b
+    assert(width(u8_div) == 8, "u8 / u8 result width is 8")
+    assert(u8_div == 6, "20 / 3 = 6")
+
+    // u4 / u4 → u4 (max(4,4) = 4)
+    wire u4_a: u4 = 15
+    wire u4_b: u4 = 3
+    wire u4_div: u4 = u4_a / u4_b
+    assert(width(u4_div) == 4, "u4 / u4 result width is 4")
+    assert(u4_div == 5, "15 / 3 = 5")
+
+    // u16 / u8 → u16 (max(16,8) = 16)
+    wire u16_a: u16 = 1000
+    wire u8_c: u8 = 7
+    wire u16_div: u16 = u16_a / u8_c
+    assert(width(u16_div) == 16, "u16 / u8 result width is 16")
+    assert(u16_div == 142, "1000 / 7 = 142")
+
+    // u8 / u16 → u16 (max(8,16) = 16; divisor larger than dividend in width)
+    wire u8_d: u8 = 100
+    wire u16_b: u16 = 3
+    wire u16_div2: u16 = u8_d / u16_b
+    assert(width(u16_div2) == 16, "u8 / u16 result width is 16 (max of operands)")
+    assert(u16_div2 == 33, "100 / 3 = 33")
+
+    // u1 / u1 → u1 (minimum possible)
+    wire u1_a: u1 = 1
+    wire u1_b: u1 = 1
+    wire u1_div: u1 = u1_a / u1_b
+    assert(width(u1_div) == 1, "u1 / u1 result width is 1")
+    assert(u1_div == 1, "1 / 1 = 1")
+
+    // u64 / u64 → u64 (maximum standard width)
+    wire u64_a: u64 = 1000000000000
+    wire u64_b: u64 = 1000000
+    wire u64_div: u64 = u64_a / u64_b
+    assert(width(u64_div) == 64, "u64 / u64 result width is 64")
+    assert(u64_div == 1000000, "1000000000000 / 1000000 = 1000000")
+}
+
+// --- Signed division: result width = max(effective_L, effective_R) + 1 ---
+// Both operands signed → effective width = storage width.
+// max(L, R) + 1 for same widths is L + 1.
+
+sim TestSignedDivWidth {
+    // s8 / s8 → s9 (max(8,8) + 1 = 9; handles -128 / -1 = 128 which needs s9)
+    wire s8_a: s8 = 7
+    wire s8_b: s8 = 3
+    wire s9_div: s9 = s8_a / s8_b
+    assert(width(s9_div) == 9, "s8 / s8 result width is 9")
+    assert(s9_div == 2, "7 / 3 = 2")
+
+    // s4 / s4 → s5 (max(4,4) + 1 = 5)
+    wire s4_a: s4 = 7
+    wire s4_b: s4 = 3
+    wire s5_div: s5 = s4_a / s4_b
+    assert(width(s5_div) == 5, "s4 / s4 result width is 5")
+    assert(s5_div == 2, "7 / 3 = 2")
+
+    // s16 / s16 → s17 (max(16,16) + 1 = 17)
+    wire s16_a: s16 = 1000
+    wire s16_b: s16 = 7
+    wire s17_div: s17 = s16_a / s16_b
+    assert(width(s17_div) == 17, "s16 / s16 result width is 17")
+    assert(s17_div == 142, "1000 / 7 = 142")
+
+    // s8 / s16 → s17 (max(8,16) + 1 = 17; divisor is wider)
+    wire s8_c: s8 = 100
+    wire s16_c: s16 = 7
+    wire s17_div2: s17 = s8_c / s16_c
+    assert(width(s17_div2) == 17, "s8 / s16 result width is 17 (max(8,16)+1)")
+    assert(s17_div2 == 14, "100 / 7 = 14")
+
+    // Key correctness case: s8 MIN_INT / -1 = 128, doesn't fit s8 but fits s9
+    wire s8_min: s8 = -128
+    wire s8_neg1: s8 = -1
+    wire s9_overflow: s9 = s8_min / s8_neg1
+    assert(width(s9_overflow) == 9, "s8 / s8 → s9 allows -128/-1 = 128 without loss")
+    assert(s9_overflow == 128, "-128 / -1 = 128 (fits s9, not s8)")
+
+    // s64 / s64 → s65
+    wire s64_a: s64 = -9000000000000000000
+    wire s64_b: s64 = 3000000000000000000
+    wire s65_div: s65 = s64_a / s64_b
+    assert(width(s65_div) == 65, "s64 / s64 result width is 65")
+    assert(s65_div == -3, "large s64 division: -3")
+}
+
+// --- Mixed-sign division: unsigned operand gains effective width +1 in signed context ---
+// u8 effective in signed context = 9. With both s8 and u8 at effective width 9:
+// max(9, 9) + 1 = 10 → s10 regardless of which is dividend or divisor.
+
+sim TestMixedSignDivWidth {
+    // u8 / s8 → s10 (u8 effective 9, s8 effective 8; max(9,8)+1 = 10)
+    wire u8_a: u8 = 100
+    wire s8_a: s8 = -4
+    wire s10_div: s10 = u8_a / s8_a
+    assert(width(s10_div) == 10, "u8 / s8 result width is 10")
+    assert(s10_div == -25, "100 / -4 = -25")
+
+    // s8 / u8 → s10 (s8 effective 8, u8 effective 9; max(8,9)+1 = 10)
+    wire s8_b: s8 = -50
+    wire u8_b: u8 = 5
+    wire s10_div2: s10 = s8_b / u8_b
+    assert(width(s10_div2) == 10, "s8 / u8 result width is 10")
+    assert(s10_div2 == -10, "-50 / 5 = -10")
+
+    // u4 / s8 → s9 (u4 effective 5, s8 effective 8; max(5,8)+1 = 9)
+    wire u4_a: u4 = 15
+    wire s8_c: s8 = 3
+    wire s9_div: s9 = u4_a / s8_c
+    assert(width(s9_div) == 9, "u4 / s8 result width is 9")
+    assert(s9_div == 5, "15 / 3 = 5")
+
+    // s4 / u8 → s10 (s4 effective 4, u8 effective 9; max(4,9)+1 = 10)
+    wire s4_a: s4 = -7
+    wire u8_c: u8 = 3
+    wire s10_div3: s10 = s4_a / u8_c
+    assert(width(s10_div3) == 10, "s4 / u8 result width is 10")
+    assert(s10_div3 == -2, "-7 / 3 = -2 (truncate toward zero)")
+
+    // u1 / s8 → s9 (u1 effective 2, s8 effective 8; max(2,8)+1 = 9)
+    wire u1_a: u1 = 1
+    wire s8_d: s8 = -3
+    wire s9_div2: s9 = u1_a / s8_d
+    assert(width(s9_div2) == 9, "u1 / s8 result width is 9")
+    assert(s9_div2 == 0, "1 / -3 = 0 (truncate toward zero)")
+}
+
+// --- Modulo width: max(effective_L, effective_R), same signedness rules as / ---
+
+sim TestModuloWidth {
+    // u8 % u8 → u8 (max(8,8) = 8)
+    wire u8_a: u8 = 255
+    wire u8_b: u8 = 10
+    wire u8_mod: u8 = u8_a % u8_b
+    assert(width(u8_mod) == 8, "u8 % u8 result width is 8")
+    assert(u8_mod == 5, "255 % 10 = 5")
+
+    // u8 % u4 → u8 (max(8,4) = 8)
+    wire u4_a: u4 = 10
+    wire u8_mod2: u8 = u8_a % u4_a
+    assert(width(u8_mod2) == 8, "u8 % u4 result width is 8")
+    assert(u8_mod2 == 5, "255 % 10 = 5")
+
+    // u4 % u8 → u8 (max(4,8) = 8)
+    wire u4_b: u4 = 15
+    wire u8_mod3: u8 = u4_b % u8_b
+    assert(width(u8_mod3) == 8, "u4 % u8 result width is 8")
+    assert(u8_mod3 == 5, "15 % 10 = 5")
+
+    // s8 % s8 → s8 (max(8,8) = 8, signed)
+    wire s8_a: s8 = -7
+    wire s8_b: s8 = 3
+    wire s8_mod: s8 = s8_a % s8_b
+    assert(width(s8_mod) == 8, "s8 % s8 result width is 8")
+    assert(s8_mod == -1, "-7 % 3 = -1 (sign follows dividend)")
+
+    // u8 % s8 → s9 (u8 effective 9, s8 effective 8; max(9,8) = 9, signed)
+    wire u8_c: u8 = 10
+    wire s8_c: s8 = -3
+    wire s9_mod: s9 = u8_c % s8_c
+    assert(width(s9_mod) == 9, "u8 % s8 result width is 9")
+    assert(s9_mod == 1, "10 % -3 = 1 (sign follows dividend 10)")
+}
