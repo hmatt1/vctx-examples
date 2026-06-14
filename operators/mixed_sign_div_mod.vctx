@@ -9,9 +9,8 @@ sim TestMixedSignDivMod {
     wire s_val: s8 = -2
     
     // 100 / -2 = -50
-    // The result should be s9 because u8 is promoted to s9 before operation.
-    wire q: s9 = u_val / s_val
-    assert(q == -50 as s9, "u8(100) / s8(-2) = -50")
+    wire q: s10 = u_val / s_val
+    assert(q == -50, "u8(100) / s8(-2) = -50")
     
     // Modulo
     // 10 / -3 = 1

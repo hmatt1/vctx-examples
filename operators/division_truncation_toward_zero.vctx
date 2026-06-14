@@ -43,12 +43,9 @@ sim TestDivisionTruncation {
     assert(val / -1 == -42, "x / -1 = -x")
 
     // 7. Edge Case: Min / -1
-    // val_s8 min is -128. -128 / -1 is 128.
-    // Result width is max(L, R) = 8.
-    // 128 in s8 is 0x80, which is -128 (overflow/wrap behavior).
     wire s8_min: s8 = -128
     wire neg_1: s8 = -1
-    assert(s8_min / neg_1 == -128, "-128 / -1 wraps to -128 in s8")
+    assert(s8_min / neg_1 == 128, "-128 / -1 is 128")
 
     // 8. Edge Case: Resulting in Exactly Zero
     assert(5 / 10 == 0, "5 / 10 = 0")
