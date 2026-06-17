@@ -1,0 +1,763 @@
+// spec: §6.4 (when/elsewhen/otherwise), §6.2 (declarations), §6.3 (assignments), §6.7 (regs)
+// description: Water-tank level controller. Four levels of nested when — deeper and more
+//   branchy than when_nested.vctx — covering every arm type at every depth.
+//
+//   Nesting map:
+//
+//   when sensor_ok                          ← Level 1
+//   │
+//   ├── when manual_mode                    ← Level 2 (manual)
+//   │   ├── when fill_only                  ← Level 3
+//   │   │   ├── when inlet_en  → FILL       ← Level 4 (leaf)
+//   │   │   └── otherwise      → FAULT      ← Level 4 (leaf)
+//   │   ├── elsewhen drain_only             ← Level 3
+//   │   │   ├── when outlet_en → DRAIN      ← Level 4 (leaf)
+//   │   │   └── otherwise      → FAULT      ← Level 4 (leaf)
+//   │   └── otherwise          → HOLD       ← Level 3 (leaf)
+//   │
+//   └── otherwise (auto mode)               ← Level 2 (auto)
+//       ├── when level < 50 (low)           ← Level 3
+//       │   ├── when inlet_en  → FILL       ← Level 4 (leaf)
+//       │   └── otherwise      → FAULT      ← Level 4 (leaf)
+//       ├── elsewhen level > 200 (high)     ← Level 3
+//       │   ├── when outlet_en → DRAIN      ← Level 4 (leaf)
+//       │   └── otherwise      → FAULT      ← Level 4 (leaf)
+//       └── otherwise (normal range)        ← Level 3
+//           ├── when level > 150 (upper)    ← Level 4
+//           │   ├── when outlet_en → EASE   ← Level 4 (leaf, same depth via nesting)
+//           │   └── otherwise      → IDLE   ← Level 4 (leaf)
+//           └── otherwise (lower half)      ← Level 4 (leaf)
+//
+//   otherwise (sensor fault)               ← Level 1 (leaf)
+//
+// expect: pass
+
+component TankController(
+    in  sensor_ok:    bool,
+    in  level:        u8,
+    in  inlet_en:     bool,
+    in  outlet_en:    bool,
+    in  manual_mode:  bool,
+    in  manual_fill:  bool,
+    in  manual_drain: bool,
+    out inlet_open:   bool,
+    out outlet_open:  bool,
+    out alarm:        bool,
+    out status:       u2,
+    out fault_count:  u8
+) {
+    // status codes: 0=idle, 1=filling, 2=draining, 3=fault
+    reg s_last:   u2 = 0
+    reg s_faults: u8 = 0
+
+    when sensor_ok {
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Level 1 ▶ sensors healthy
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        when manual_mode {
+            // ──────────────────────────────────────────────
+            // Level 2 ▶ manual control path
+            // ──────────────────────────────────────────────
+            when manual_fill and not manual_drain {
+                // ──────────────────────────────────────────
+                // Level 3 ▶ fill-only command active
+                // ──────────────────────────────────────────
+                when inlet_en {
+                    // Level 4 ▶ inlet permitted: open valve
+                    inlet_open := true
+                    status     := 1 as u2
+                    s_last     <= 1 as u2
+                } otherwise {
+                    // Level 4 ▶ inlet blocked: raise fault
+                    alarm    := true
+                    status   := 3 as u2
+                    s_last   <= 3 as u2
+                    s_faults <= (s_faults + 1) as u8
+                }
+
+            } elsewhen manual_drain and not manual_fill {
+                // ──────────────────────────────────────────
+                // Level 3 ▶ drain-only command active
+                // ──────────────────────────────────────────
+                when outlet_en {
+                    // Level 4 ▶ outlet permitted: open valve
+                    outlet_open := true
+                    status      := 2 as u2
+                    s_last      <= 2 as u2
+                } otherwise {
+                    // Level 4 ▶ outlet blocked: raise fault
+                    alarm    := true
+                    status   := 3 as u2
+                    s_last   <= 3 as u2
+                    s_faults <= (s_faults + 1) as u8
+                }
+
+            } otherwise {
+                // ──────────────────────────────────────────
+                // Level 3 ▶ no command (or both simultaneously):
+                //           hold last committed status, no valves
+                // ──────────────────────────────────────────
+                status := s_last
+            }
+
+        } otherwise {
+            // ──────────────────────────────────────────────
+            // Level 2 ▶ automatic mode path
+            // ──────────────────────────────────────────────
+            when (level < 50 as u8) {
+                // ──────────────────────────────────────────
+                // Level 3 ▶ critically low: must fill
+                // ──────────────────────────────────────────
+                when inlet_en {
+                    // Level 4 ▶ inlet permitted
+                    inlet_open := true
+                    status     := 1 as u2
+                    s_last     <= 1 as u2
+                } otherwise {
+                    // Level 4 ▶ inlet blocked: fault (can't recover)
+                    alarm    := true
+                    status   := 3 as u2
+                    s_last   <= 3 as u2
+                    s_faults <= (s_faults + 1) as u8
+                }
+
+            } elsewhen (level > 200 as u8) {
+                // ──────────────────────────────────────────
+                // Level 3 ▶ critically high: must drain
+                // ──────────────────────────────────────────
+                when outlet_en {
+                    // Level 4 ▶ outlet permitted
+                    outlet_open := true
+                    status      := 2 as u2
+                    s_last      <= 2 as u2
+                } otherwise {
+                    // Level 4 ▶ outlet blocked: fault
+                    alarm    := true
+                    status   := 3 as u2
+                    s_last   <= 3 as u2
+                    s_faults <= (s_faults + 1) as u8
+                }
+
+            } otherwise {
+                // ──────────────────────────────────────────
+                // Level 3 ▶ normal range (50–200)
+                //   Upper half (>150): optional preventive drain
+                //   Lower half (≤150): stable idle
+                // ──────────────────────────────────────────
+                when (level > 150 as u8) {
+                    // Level 4 ▶ upper half of normal band
+                    when outlet_en {
+                        // preventive drain to ease pressure
+                        outlet_open := true
+                        status      := 2 as u2
+                        s_last      <= 2 as u2
+                    } otherwise {
+                        // can't drain but still safe
+                        status := 0 as u2
+                        s_last <= 0 as u2
+                    }
+                } otherwise {
+                    // Level 4 ▶ lower half — fully stable
+                    status := 0 as u2
+                    s_last <= 0 as u2
+                }
+            }
+        }
+
+    } otherwise {
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Level 1 ▶ sensor fault — safe shutdown
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        alarm    := true
+        status   := 3 as u2
+        s_last   <= 3 as u2
+        s_faults <= (s_faults + 1) as u8
+    }
+
+    fault_count := s_faults
+}
+
+// ────────────────────────────────────────────────────────────────
+// Helper macros as wires: used in sims that need a shared instance
+// ────────────────────────────────────────────────────────────────
+
+// ════════════════════════════════════════════════════════════════
+// PATH 1: sensor_ok=false  →  Level-1 otherwise (sensor fault)
+// ════════════════════════════════════════════════════════════════
+
+sim TestSensorFault {
+    wire sensor_ok:    bool = false
+    wire level:        u8   = 100
+    wire inlet_en:     bool = true
+    wire outlet_en:    bool = true
+    wire manual_mode:  bool = false
+    wire manual_fill:  bool = false
+    wire manual_drain: bool = false
+    wire inlet_open:   bool
+    wire outlet_open:  bool
+    wire alarm:        bool
+    wire status:       u2
+    wire fc:           u8
+
+    TankController(sensor_ok, level, inlet_en, outlet_en,
+                   manual_mode, manual_fill, manual_drain,
+                   inlet_open, outlet_open, alarm, status, fc)
+
+    // Combinational outputs reflect fault immediately
+    assert(alarm       == true,  "sensor fault: alarm raised")
+    assert(status      == 3 as u2, "sensor fault: status=fault")
+    assert(inlet_open  == false, "no valves open on fault")
+    assert(outlet_open == false, "no outlet on fault")
+
+    // fault_count is combinational view of s_faults (still 0 pre-cycle)
+    assert(fc == 0, "fault_count not yet incremented (pre-cycle)")
+
+    cycle()
+    assert(alarm  == true,     "fault persists")
+    assert(fc     == 1,        "fault_count incremented after first cycle")
+    cycle()
+    assert(fc == 2, "fault_count increments each cycle while sensor bad")
+}
+
+// ════════════════════════════════════════════════════════════════
+// PATH 2: manual, fill-only, inlet_en=true  →  Level 4 fill leaf
+// ════════════════════════════════════════════════════════════════
+
+sim TestManualFillAllowed {
+    wire sensor_ok:    bool = true
+    wire level:        u8   = 100
+    wire inlet_en:     bool = true
+    wire outlet_en:    bool = false
+    wire manual_mode:  bool = true
+    wire manual_fill:  bool = true
+    wire manual_drain: bool = false
+    wire inlet_open:   bool
+    wire outlet_open:  bool
+    wire alarm:        bool
+    wire status:       u2
+    wire fc:           u8
+
+    TankController(sensor_ok, level, inlet_en, outlet_en,
+                   manual_mode, manual_fill, manual_drain,
+                   inlet_open, outlet_open, alarm, status, fc)
+
+    assert(inlet_open  == true,    "manual fill: inlet opens")
+    assert(outlet_open == false,   "manual fill: outlet stays closed")
+    assert(alarm       == false,   "no alarm on permitted fill")
+    assert(status      == 1 as u2, "status=filling")
+
+    cycle()
+    assert(inlet_open == true,  "still filling next cycle")
+    assert(fc == 0, "no faults")
+}
+
+// ════════════════════════════════════════════════════════════════
+// PATH 3: manual, fill-only, inlet_en=false  →  Level 4 fault leaf
+// ════════════════════════════════════════════════════════════════
+
+sim TestManualFillBlocked {
+    wire sensor_ok:    bool = true
+    wire level:        u8   = 100
+    wire inlet_en:     bool = false
+    wire outlet_en:    bool = false
+    wire manual_mode:  bool = true
+    wire manual_fill:  bool = true
+    wire manual_drain: bool = false
+    wire inlet_open:   bool
+    wire outlet_open:  bool
+    wire alarm:        bool
+    wire status:       u2
+    wire fc:           u8
+
+    TankController(sensor_ok, level, inlet_en, outlet_en,
+                   manual_mode, manual_fill, manual_drain,
+                   inlet_open, outlet_open, alarm, status, fc)
+
+    assert(alarm      == true,     "fill blocked: alarm raised")
+    assert(status     == 3 as u2,  "status=fault")
+    assert(inlet_open == false,    "inlet not opened (blocked)")
+    assert(fc         == 0,        "fault_count not yet updated (pre-cycle)")
+
+    cycle()
+    assert(fc == 1, "fault recorded after cycle")
+}
+
+// ════════════════════════════════════════════════════════════════
+// PATH 4: manual, drain-only, outlet_en=true  →  Level 4 drain leaf
+// ════════════════════════════════════════════════════════════════
+
+sim TestManualDrainAllowed {
+    wire sensor_ok:    bool = true
+    wire level:        u8   = 100
+    wire inlet_en:     bool = false
+    wire outlet_en:    bool = true
+    wire manual_mode:  bool = true
+    wire manual_fill:  bool = false
+    wire manual_drain: bool = true
+    wire inlet_open:   bool
+    wire outlet_open:  bool
+    wire alarm:        bool
+    wire status:       u2
+    wire fc:           u8
+
+    TankController(sensor_ok, level, inlet_en, outlet_en,
+                   manual_mode, manual_fill, manual_drain,
+                   inlet_open, outlet_open, alarm, status, fc)
+
+    assert(outlet_open == true,    "manual drain: outlet opens")
+    assert(inlet_open  == false,   "inlet stays closed during drain")
+    assert(alarm       == false,   "no alarm on permitted drain")
+    assert(status      == 2 as u2, "status=draining")
+
+    cycle()
+    assert(outlet_open == true, "still draining next cycle")
+    assert(fc == 0, "no faults")
+}
+
+// ════════════════════════════════════════════════════════════════
+// PATH 5: manual, drain-only, outlet_en=false  →  Level 4 fault leaf
+// ════════════════════════════════════════════════════════════════
+
+sim TestManualDrainBlocked {
+    wire sensor_ok:    bool = true
+    wire level:        u8   = 100
+    wire inlet_en:     bool = false
+    wire outlet_en:    bool = false
+    wire manual_mode:  bool = true
+    wire manual_fill:  bool = false
+    wire manual_drain: bool = true
+    wire inlet_open:   bool
+    wire outlet_open:  bool
+    wire alarm:        bool
+    wire status:       u2
+    wire fc:           u8
+
+    TankController(sensor_ok, level, inlet_en, outlet_en,
+                   manual_mode, manual_fill, manual_drain,
+                   inlet_open, outlet_open, alarm, status, fc)
+
+    assert(alarm       == true,    "drain blocked: alarm raised")
+    assert(status      == 3 as u2, "status=fault")
+    assert(outlet_open == false,   "outlet not opened (blocked)")
+
+    cycle()
+    assert(fc == 1, "fault recorded")
+}
+
+// ════════════════════════════════════════════════════════════════
+// PATH 6: manual, no command (fill=false, drain=false)  →  hold
+// ════════════════════════════════════════════════════════════════
+
+sim TestManualNoCommand {
+    wire sensor_ok:    bool = true
+    wire level:        u8   = 100
+    wire inlet_en:     bool = true
+    wire outlet_en:    bool = true
+    wire manual_mode:  bool = true
+    wire manual_fill:  bool = false
+    wire manual_drain: bool = false
+    wire inlet_open:   bool
+    wire outlet_open:  bool
+    wire alarm:        bool
+    wire status:       u2
+    wire fc:           u8
+
+    TankController(sensor_ok, level, inlet_en, outlet_en,
+                   manual_mode, manual_fill, manual_drain,
+                   inlet_open, outlet_open, alarm, status, fc)
+
+    // s_last starts at 0, so status holds 0
+    assert(inlet_open  == false,   "no valves in idle")
+    assert(outlet_open == false,   "no valves in idle")
+    assert(alarm       == false,   "no alarm in idle")
+    assert(status      == 0 as u2, "status holds s_last=0 initially")
+    assert(fc          == 0,       "no faults")
+
+    cycle(3)
+    assert(status == 0 as u2, "status holds across idle cycles")
+    assert(fc     == 0,       "no faults accumulated")
+}
+
+// ════════════════════════════════════════════════════════════════
+// PATH 7: manual, BOTH fill and drain  →  otherwise (hold)
+//   both=true fails both `fill_only` and `drain_only` conditions,
+//   so the otherwise arm fires and status := s_last
+// ════════════════════════════════════════════════════════════════
+
+sim TestManualBothCommands {
+    wire sensor_ok:    bool = true
+    wire level:        u8   = 100
+    wire inlet_en:     bool = true
+    wire outlet_en:    bool = true
+    wire manual_mode:  bool = true
+    wire manual_fill:  bool = true
+    wire manual_drain: bool = true
+    wire inlet_open:   bool
+    wire outlet_open:  bool
+    wire alarm:        bool
+    wire status:       u2
+    wire fc:           u8
+
+    TankController(sensor_ok, level, inlet_en, outlet_en,
+                   manual_mode, manual_fill, manual_drain,
+                   inlet_open, outlet_open, alarm, status, fc)
+
+    // Ambiguous command -> safe hold
+    assert(inlet_open  == false,   "both commands: neither valve opened (safe)")
+    assert(outlet_open == false,   "neither valve")
+    assert(alarm       == false,   "not a fault: safe hold")
+    assert(status      == 0 as u2, "holds s_last=0")
+
+    cycle(2)
+    assert(alarm  == false, "still no alarm across cycles")
+    assert(fc     == 0,     "no faults")
+}
+
+// ════════════════════════════════════════════════════════════════
+// PATH 8: auto, level=30 (< 50), inlet_en=true  →  auto-fill leaf
+// ════════════════════════════════════════════════════════════════
+
+sim TestAutoLowLevelFill {
+    wire sensor_ok:    bool = true
+    wire level:        u8   = 30
+    wire inlet_en:     bool = true
+    wire outlet_en:    bool = false
+    wire manual_mode:  bool = false
+    wire manual_fill:  bool = false
+    wire manual_drain: bool = false
+    wire inlet_open:   bool
+    wire outlet_open:  bool
+    wire alarm:        bool
+    wire status:       u2
+    wire fc:           u8
+
+    TankController(sensor_ok, level, inlet_en, outlet_en,
+                   manual_mode, manual_fill, manual_drain,
+                   inlet_open, outlet_open, alarm, status, fc)
+
+    assert(inlet_open  == true,    "auto: level low, inlet opens")
+    assert(outlet_open == false,   "outlet closed")
+    assert(alarm       == false,   "no alarm: inlet permitted")
+    assert(status      == 1 as u2, "status=filling")
+    assert(fc          == 0,       "no faults")
+
+    cycle()
+    assert(inlet_open == true, "still filling (level not changed in sim)")
+}
+
+// ════════════════════════════════════════════════════════════════
+// PATH 9: auto, level=30, inlet_en=false  →  auto-low fault leaf
+// ════════════════════════════════════════════════════════════════
+
+sim TestAutoLowLevelBlocked {
+    wire sensor_ok:    bool = true
+    wire level:        u8   = 30
+    wire inlet_en:     bool = false
+    wire outlet_en:    bool = false
+    wire manual_mode:  bool = false
+    wire manual_fill:  bool = false
+    wire manual_drain: bool = false
+    wire inlet_open:   bool
+    wire outlet_open:  bool
+    wire alarm:        bool
+    wire status:       u2
+    wire fc:           u8
+
+    TankController(sensor_ok, level, inlet_en, outlet_en,
+                   manual_mode, manual_fill, manual_drain,
+                   inlet_open, outlet_open, alarm, status, fc)
+
+    assert(alarm  == true,     "auto: low level, inlet blocked -> fault")
+    assert(status == 3 as u2,  "status=fault")
+    assert(fc     == 0,        "fault not yet in register")
+
+    cycle()
+    assert(fc == 1, "fault recorded")
+}
+
+// ════════════════════════════════════════════════════════════════
+// PATH 10: auto, level=220 (> 200), outlet_en=true  →  auto-drain leaf
+// ════════════════════════════════════════════════════════════════
+
+sim TestAutoHighLevelDrain {
+    wire sensor_ok:    bool = true
+    wire level:        u8   = 220
+    wire inlet_en:     bool = false
+    wire outlet_en:    bool = true
+    wire manual_mode:  bool = false
+    wire manual_fill:  bool = false
+    wire manual_drain: bool = false
+    wire inlet_open:   bool
+    wire outlet_open:  bool
+    wire alarm:        bool
+    wire status:       u2
+    wire fc:           u8
+
+    TankController(sensor_ok, level, inlet_en, outlet_en,
+                   manual_mode, manual_fill, manual_drain,
+                   inlet_open, outlet_open, alarm, status, fc)
+
+    assert(outlet_open == true,    "auto: level high, outlet opens")
+    assert(inlet_open  == false,   "inlet closed")
+    assert(alarm       == false,   "no alarm: outlet permitted")
+    assert(status      == 2 as u2, "status=draining")
+    assert(fc          == 0,       "no faults")
+
+    cycle()
+    assert(outlet_open == true, "still draining")
+}
+
+// ════════════════════════════════════════════════════════════════
+// PATH 11: auto, level=220, outlet_en=false  →  auto-high fault leaf
+// ════════════════════════════════════════════════════════════════
+
+sim TestAutoHighLevelBlocked {
+    wire sensor_ok:    bool = true
+    wire level:        u8   = 220
+    wire inlet_en:     bool = false
+    wire outlet_en:    bool = false
+    wire manual_mode:  bool = false
+    wire manual_fill:  bool = false
+    wire manual_drain: bool = false
+    wire inlet_open:   bool
+    wire outlet_open:  bool
+    wire alarm:        bool
+    wire status:       u2
+    wire fc:           u8
+
+    TankController(sensor_ok, level, inlet_en, outlet_en,
+                   manual_mode, manual_fill, manual_drain,
+                   inlet_open, outlet_open, alarm, status, fc)
+
+    assert(alarm  == true,     "auto: high level, outlet blocked -> fault")
+    assert(status == 3 as u2,  "status=fault")
+
+    cycle()
+    assert(fc == 1, "fault recorded")
+}
+
+// ════════════════════════════════════════════════════════════════
+// PATH 12: auto, level=180 (normal upper half > 150), outlet_en=true
+//          →  preventive drain leaf
+// ════════════════════════════════════════════════════════════════
+
+sim TestAutoNormalUpperHalfDrain {
+    wire sensor_ok:    bool = true
+    wire level:        u8   = 180
+    wire inlet_en:     bool = false
+    wire outlet_en:    bool = true
+    wire manual_mode:  bool = false
+    wire manual_fill:  bool = false
+    wire manual_drain: bool = false
+    wire inlet_open:   bool
+    wire outlet_open:  bool
+    wire alarm:        bool
+    wire status:       u2
+    wire fc:           u8
+
+    TankController(sensor_ok, level, inlet_en, outlet_en,
+                   manual_mode, manual_fill, manual_drain,
+                   inlet_open, outlet_open, alarm, status, fc)
+
+    assert(outlet_open == true,    "normal upper: preventive drain active")
+    assert(inlet_open  == false,   "inlet closed")
+    assert(alarm       == false,   "no alarm: within normal range")
+    assert(status      == 2 as u2, "status=draining (preventive)")
+    assert(fc          == 0,       "no faults")
+}
+
+// ════════════════════════════════════════════════════════════════
+// PATH 13: auto, level=180 (normal upper half), outlet_en=false
+//          →  safe idle leaf (can't ease but still within range)
+// ════════════════════════════════════════════════════════════════
+
+sim TestAutoNormalUpperHalfIdle {
+    wire sensor_ok:    bool = true
+    wire level:        u8   = 180
+    wire inlet_en:     bool = false
+    wire outlet_en:    bool = false
+    wire manual_mode:  bool = false
+    wire manual_fill:  bool = false
+    wire manual_drain: bool = false
+    wire inlet_open:   bool
+    wire outlet_open:  bool
+    wire alarm:        bool
+    wire status:       u2
+    wire fc:           u8
+
+    TankController(sensor_ok, level, inlet_en, outlet_en,
+                   manual_mode, manual_fill, manual_drain,
+                   inlet_open, outlet_open, alarm, status, fc)
+
+    assert(outlet_open == false,   "outlet closed: can't ease but safe")
+    assert(inlet_open  == false,   "inlet closed")
+    assert(alarm       == false,   "no alarm")
+    assert(status      == 0 as u2, "status=idle (within acceptable range)")
+    assert(fc          == 0,       "no faults")
+}
+
+// ════════════════════════════════════════════════════════════════
+// PATH 14: auto, level=80 (normal lower half ≤ 150)
+//          →  stable idle leaf
+// ════════════════════════════════════════════════════════════════
+
+sim TestAutoNormalLowerHalf {
+    wire sensor_ok:    bool = true
+    wire level:        u8   = 80
+    wire inlet_en:     bool = true
+    wire outlet_en:    bool = true
+    wire manual_mode:  bool = false
+    wire manual_fill:  bool = false
+    wire manual_drain: bool = false
+    wire inlet_open:   bool
+    wire outlet_open:  bool
+    wire alarm:        bool
+    wire status:       u2
+    wire fc:           u8
+
+    TankController(sensor_ok, level, inlet_en, outlet_en,
+                   manual_mode, manual_fill, manual_drain,
+                   inlet_open, outlet_open, alarm, status, fc)
+
+    assert(inlet_open  == false,   "stable: neither valve opens")
+    assert(outlet_open == false,   "stable: neither valve opens")
+    assert(alarm       == false,   "no alarm: fully stable range")
+    assert(status      == 0 as u2, "status=idle")
+    assert(fc          == 0,       "no faults")
+
+    cycle(5)
+    assert(status == 0 as u2, "stays idle across 5 cycles")
+    assert(fc     == 0,       "still no faults")
+}
+
+// ════════════════════════════════════════════════════════════════
+// SEQUENTIAL: fault_count accumulates across multiple fault events
+// ════════════════════════════════════════════════════════════════
+
+sim TestFaultCountAccumulates {
+    wire sensor_ok:    bool = false   // starts in fault
+    wire level:        u8   = 100
+    wire inlet_en:     bool = true
+    wire outlet_en:    bool = true
+    wire manual_mode:  bool = false
+    wire manual_fill:  bool = false
+    wire manual_drain: bool = false
+    wire inlet_open:   bool
+    wire outlet_open:  bool
+    wire alarm:        bool
+    wire status:       u2
+    wire fc:           u8
+
+    TankController(sensor_ok, level, inlet_en, outlet_en,
+                   manual_mode, manual_fill, manual_drain,
+                   inlet_open, outlet_open, alarm, status, fc)
+
+    // 3 cycles of sensor fault
+    assert(fc == 0, "0 before any cycle")
+    cycle()
+    assert(fc == 1, "1 after cycle 1")
+    cycle()
+    assert(fc == 2, "2 after cycle 2")
+    cycle()
+    assert(fc == 3, "3 after cycle 3")
+
+    // Sensor recovers: manual fill blocked adds more faults
+    poke(sensor_ok,   true)
+    poke(manual_mode, true)
+    poke(manual_fill, true)
+    poke(inlet_en,    false)   // blocked
+    cycle()
+    assert(fc == 4, "4: one more fault from blocked fill")
+
+    // Fault still blocked
+    cycle()
+    assert(fc == 5, "5: blocked fill adds fault each cycle")
+}
+
+// ════════════════════════════════════════════════════════════════
+// SEQUENTIAL: status hold between manual commands via s_last
+// ════════════════════════════════════════════════════════════════
+
+sim TestStatusHoldBetweenCommands {
+    wire sensor_ok:    bool = true
+    wire level:        u8   = 100
+    wire inlet_en:     bool = true
+    wire outlet_en:    bool = true
+    wire manual_mode:  bool = true
+    wire manual_fill:  bool = false
+    wire manual_drain: bool = false
+    wire inlet_open:   bool
+    wire outlet_open:  bool
+    wire alarm:        bool
+    wire status:       u2
+    wire fc:           u8
+
+    TankController(sensor_ok, level, inlet_en, outlet_en,
+                   manual_mode, manual_fill, manual_drain,
+                   inlet_open, outlet_open, alarm, status, fc)
+
+    // Initial: idle, s_last=0, status = s_last = 0
+    assert(status == 0 as u2, "initial status holds 0")
+
+    // Issue fill command
+    poke(manual_fill, true)
+    cycle()
+    poke(manual_fill, false)
+    // s_last is now 1 (filling)
+
+    // Return to idle: status should reflect s_last=1
+    assert(status == 1 as u2, "status holds last committed: filling")
+
+    cycle(2)
+    assert(status == 1 as u2, "holds filling status across idle cycles")
+
+    // Issue drain command
+    poke(manual_drain, true)
+    cycle()
+    poke(manual_drain, false)
+    // s_last is now 2 (draining)
+
+    assert(status == 2 as u2, "status holds last committed: draining")
+
+    cycle(3)
+    assert(status == 2 as u2, "holds draining status across idle cycles")
+}
+
+// ════════════════════════════════════════════════════════════════
+// SEQUENTIAL: reset clears s_last and s_faults to initial values
+// ════════════════════════════════════════════════════════════════
+
+sim TestReset {
+    wire sensor_ok:    bool = true
+    wire level:        u8   = 30
+    wire inlet_en:     bool = false   // blocked -> fault
+    wire outlet_en:    bool = false
+    wire manual_mode:  bool = false
+    wire manual_fill:  bool = false
+    wire manual_drain: bool = false
+    wire inlet_open:   bool
+    wire outlet_open:  bool
+    wire alarm:        bool
+    wire status:       u2
+    wire fc:           u8
+
+    TankController(sensor_ok, level, inlet_en, outlet_en,
+                   manual_mode, manual_fill, manual_drain,
+                   inlet_open, outlet_open, alarm, status, fc)
+
+    // Accumulate some faults
+    cycle()
+    cycle()
+    cycle()
+    assert(fc == 3, "3 faults accumulated")
+
+    // Reset clears both s_faults and s_last to their init values (0)
+    reset()
+    assert(fc     == 0,       "s_faults back to init 0 after reset")
+    assert(status == 3 as u2, "combinational: still fault (level=30, inlet blocked)")
+    assert(alarm  == true,    "alarm still active combinationally")
+
+    // s_faults starts climbing again after reset
+    cycle()
+    assert(fc == 1, "fault count resumes from 0 post-reset")
+}
