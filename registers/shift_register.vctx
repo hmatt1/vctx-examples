@@ -1,0 +1,171 @@
+// spec: §6.2, §6.3, §6.4, §7.5
+// description: 4-bit serial-in / serial-out shift register.
+//   New data enters at the MSB each cycle (when enabled); the LSB exits as data_out.
+//   Tests: cycle-accurate bit travel through register state, enable/disable hold.
+// expect: pass
+
+component ShiftReg4(
+    in  en:       bool,
+    in  data_in:  bool,
+    out data_out: bool,
+    out state:    u4
+) {
+    reg sr: u4 = 0
+
+    when en {
+        // Shift right: existing bits move toward LSB; new bit enters at MSB (bit 3)
+        sr <= ((sr >> 1) | ((data_in as u4) << 3)) as u4
+    }
+
+    // LSB is the serial output
+    data_out := (sr & 1 as u4) !== 0 as u4
+    state    := sr
+}
+
+sim TestShiftReg4Initial {
+    wire en:       bool = false
+    wire data_in:  bool = false
+    wire data_out: bool
+    wire state:    u4
+
+    ShiftReg4(en, data_in, data_out, state)
+
+    assert(state    == 0,     "starts empty")
+    assert(data_out == false, "output low initially")
+}
+
+sim TestShiftReg4BitTravels {
+    wire en:       bool = true
+    wire data_in:  bool = false
+    wire data_out: bool
+    wire state:    u4
+
+    ShiftReg4(en, data_in, data_out, state)
+
+    // Insert a single '1' bit at MSB
+    poke(data_in, true)
+    cycle()
+    assert(state    == 8,     "bit at MSB: 0b1000 = 8")
+    assert(data_out == false, "1 not yet at LSB")
+
+    // Shift with zeros: bit travels right
+    poke(data_in, false)
+    cycle()
+    assert(state == 4, "shifted to 0b0100 = 4")
+    assert(data_out == false, "not at LSB yet")
+
+    cycle()
+    assert(state == 2, "shifted to 0b0010 = 2")
+    assert(data_out == false, "not at LSB yet")
+
+    cycle()
+    assert(state    == 1,    "shifted to 0b0001 = 1")
+    assert(data_out == true, "1 reached LSB after 4 cycles")
+
+    cycle()
+    assert(state    == 0,     "bit shifted out")
+    assert(data_out == false, "output low: register empty")
+}
+
+sim TestShiftReg4MultipleOnes {
+    wire en:       bool = true
+    wire data_in:  bool = false
+    wire data_out: bool
+    wire state:    u4
+
+    ShiftReg4(en, data_in, data_out, state)
+
+    // Insert 1,0,1 — then check they arrive at output in order
+    poke(data_in, true)
+    cycle()
+    assert(state == 8, "first 1 at MSB")
+
+    poke(data_in, false)
+    cycle()
+    assert(state == 4, "0b0100")
+
+    poke(data_in, true)
+    cycle()
+    assert(state == 10, "0b1010: second 1 at MSB, first 1 in middle")
+
+    poke(data_in, false)
+    cycle()
+    // 0b1010 >> 1 = 0b0101 = 5
+    assert(state    == 5,    "0b0101")
+    assert(data_out == true, "first 1 exits at LSB")
+
+    cycle()
+    // 0b0101 >> 1 = 0b0010 = 2
+    assert(state    == 2,     "0b0010")
+    assert(data_out == false, "0 exits")
+
+    cycle()
+    // 0b0010 >> 1 = 0b0001 = 1
+    assert(state    == 1,    "0b0001")
+    assert(data_out == true, "second 1 exits")
+}
+
+sim TestShiftReg4EnableHolds {
+    wire en:       bool = true
+    wire data_in:  bool = false
+    wire data_out: bool
+    wire state:    u4
+
+    ShiftReg4(en, data_in, data_out, state)
+
+    // Load a bit
+    poke(data_in, true)
+    cycle()
+    assert(state == 8, "bit at MSB")
+
+    // Disable: bit freezes in place
+    poke(en, false)
+    poke(data_in, false)
+    cycle()
+    assert(state == 8, "holds when disabled")
+    cycle()
+    assert(state == 8, "still holds")
+    cycle(3)
+    assert(state == 8, "holds across 3 more idle cycles")
+
+    // Re-enable: shifting resumes
+    poke(en, true)
+    cycle()
+    assert(state == 4, "resumes: 0b0100")
+    cycle()
+    assert(state == 2, "0b0010")
+}
+
+sim TestShiftReg4AllOnes {
+    wire en:       bool = true
+    wire data_in:  bool = false
+    wire data_out: bool
+    wire state:    u4
+
+    ShiftReg4(en, data_in, data_out, state)
+
+    // Fill with all 1s
+    poke(data_in, true)
+    cycle()
+    assert(state == 8, "0b1000")
+    cycle()
+    assert(state == 12, "0b1100")
+    cycle()
+    assert(state == 14, "0b1110")
+    cycle()
+    assert(state == 15, "0b1111: full")
+    assert(data_out == true, "LSB is 1")
+
+    // Drain with zeros
+    poke(data_in, false)
+    cycle()
+    assert(state    == 7,    "0b0111")
+    assert(data_out == true, "still draining")
+    cycle()
+    assert(state == 3, "0b0011")
+    cycle()
+    assert(state == 1, "0b0001")
+    cycle()
+    assert(state    == 0,     "empty")
+    assert(data_out == false, "drained")
+}

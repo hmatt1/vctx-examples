@@ -1,0 +1,128 @@
+// spec: §6.2, §6.3
+// description: Edge detection using a one-cycle-delayed register.
+//   A 'prev' register stores last cycle's value of the input signal.
+//   rising  = sig AND NOT prev  (combinational: true between poke and the next cycle)
+//   falling = NOT sig AND prev
+//   Tests: combinational output from registered state, single-cycle edge pulse width.
+// expect: pass
+
+component EdgeDetect(in sig: bool, out rising: bool, out falling: bool) {
+    reg prev: bool = false
+    prev <= sig
+
+    rising  := sig and not prev
+    falling := not sig and prev
+}
+
+sim TestEdgeDetectInitial {
+    wire sig:     bool = false
+    wire rising:  bool
+    wire falling: bool
+
+    EdgeDetect(sig, rising, falling)
+
+    assert(rising  == false, "no rising at t=0: sig=F prev=F")
+    assert(falling == false, "no falling at t=0")
+
+    cycle()
+    assert(rising  == false, "no rising after idle cycle")
+    assert(falling == false, "no falling after idle cycle")
+}
+
+sim TestEdgeDetectRisingEdge {
+    wire sig:     bool = false
+    wire rising:  bool
+    wire falling: bool
+
+    EdgeDetect(sig, rising, falling)
+
+    // Before any cycle: sig=F, prev=F -> no edges
+    assert(rising == false, "no edge before poke")
+
+    // Poke sig high: now sig=T, prev=F (prev not yet clocked)
+    // rising = T and not F = T — detectable combinationally
+    poke(sig, true)
+    assert(rising  == true,  "rising edge: sig=T prev=F")
+    assert(falling == false, "not falling")
+
+    // After clock: prev catches up to T, edge clears
+    cycle()
+    assert(rising  == false, "edge cleared: sig=T prev=T")
+    assert(falling == false, "no falling")
+}
+
+sim TestEdgeDetectFallingEdge {
+    wire sig:     bool = false
+    wire rising:  bool
+    wire falling: bool
+
+    EdgeDetect(sig, rising, falling)
+
+    // Get sig high and stable
+    poke(sig, true)
+    cycle()
+    assert(rising == false, "stable high: no edges")
+
+    // Poke sig low: sig=F, prev=T -> falling edge
+    poke(sig, false)
+    assert(rising  == false, "not rising")
+    assert(falling == true,  "falling edge: sig=F prev=T")
+
+    cycle()
+    assert(rising  == false, "no rising after fall")
+    assert(falling == false, "falling edge cleared: sig=F prev=F")
+}
+
+sim TestEdgeDetectPulse {
+    wire sig:     bool = false
+    wire rising:  bool
+    wire falling: bool
+
+    EdgeDetect(sig, rising, falling)
+
+    // Rising edge
+    poke(sig, true)
+    assert(rising == true, "rising")
+    cycle()
+    assert(rising == false, "rising gone after cycle")
+
+    // Held high: no edges
+    cycle()
+    assert(rising  == false, "no spurious rising while high")
+    assert(falling == false, "no spurious falling while high")
+
+    // Falling edge
+    poke(sig, false)
+    assert(falling == true, "falling")
+    cycle()
+    assert(falling == false, "falling gone after cycle")
+
+    // Held low: no edges
+    cycle(3)
+    assert(rising  == false, "no spurious rising while low")
+    assert(falling == false, "no spurious falling while low")
+}
+
+sim TestEdgeDetectReset {
+    wire sig:     bool = false
+    wire rising:  bool
+    wire falling: bool
+
+    EdgeDetect(sig, rising, falling)
+
+    poke(sig, true)
+    cycle()
+    assert(rising == false, "stable high: no edges")
+
+    // reset() restores ALL state to initial values — sig returns to false (its
+    // declared initial value), prev returns to false (reg init). No edges visible.
+    reset()
+    assert(rising  == false, "reset: sig=F (initial) and prev=F (initial), no rising")
+    assert(falling == false, "no falling after reset")
+
+    // Confirm the component is in a clean state and responds normally
+    poke(sig, true)
+    assert(rising == true, "rising edge detectable again after reset")
+    cycle()
+    assert(rising == false, "edge clears after cycle")
+}

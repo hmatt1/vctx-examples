@@ -1,0 +1,203 @@
+// spec: §6.2, §6.3, §6.4
+// description: Single-entry handshake buffer (producer/consumer decoupling).
+//   Producer side: valid + data_in. Consumer side: ready.
+//   Buffer accepts when empty (not full); drains when full and ready is asserted.
+//   Tests: two cooperating state registers, valid/ready protocol, producer-ignored-when-full.
+// expect: pass
+
+component HandshakeBuffer(
+    in  valid:    bool,
+    in  data_in:  u8,
+    in  ready:    bool,
+    out data_out: u8,
+    out full:     bool,
+    out accepting: bool
+) {
+    reg buf:     u8   = 0
+    reg is_full: bool = false
+
+    wire can_accept: bool = not is_full
+
+    when can_accept and valid {
+        buf     <= data_in
+        is_full <= true
+    } elsewhen is_full and ready {
+        is_full <= false
+    }
+
+    data_out  := buf
+    full      := is_full
+    accepting := can_accept
+}
+
+sim TestHandshakeBufferInitial {
+    wire valid:     bool = false
+    wire data_in:   u8   = 0
+    wire ready:     bool = false
+    wire data_out:  u8
+    wire full:      bool
+    wire accepting: bool
+
+    HandshakeBuffer(valid, data_in, ready, data_out, full, accepting)
+
+    assert(full      == false, "starts empty")
+    assert(accepting == true,  "accepting when empty")
+}
+
+sim TestHandshakeBufferAcceptsData {
+    wire valid:     bool = false
+    wire data_in:   u8   = 0
+    wire ready:     bool = false
+    wire data_out:  u8
+    wire full:      bool
+    wire accepting: bool
+
+    HandshakeBuffer(valid, data_in, ready, data_out, full, accepting)
+
+    poke(valid,   true)
+    poke(data_in, 0xAB)
+    cycle()
+    poke(valid, false)
+
+    assert(full      == true,  "buffer full after write")
+    assert(accepting == false, "not accepting when full")
+    assert(data_out  == 0xAB, "data visible on output")
+}
+
+sim TestHandshakeBufferHoldsWhenNotReady {
+    wire valid:     bool = false
+    wire data_in:   u8   = 0
+    wire ready:     bool = false
+    wire data_out:  u8
+    wire full:      bool
+    wire accepting: bool
+
+    HandshakeBuffer(valid, data_in, ready, data_out, full, accepting)
+
+    poke(valid,   true)
+    poke(data_in, 0xCD)
+    cycle()
+    poke(valid, false)
+    assert(full == true, "full")
+
+    cycle()
+    assert(full     == true,  "holds when ready=false")
+    assert(data_out == 0xCD, "data unchanged")
+
+    cycle(5)
+    assert(full     == true,  "holds across 5 idle cycles")
+    assert(data_out == 0xCD, "data still 0xCD")
+}
+
+sim TestHandshakeBufferDrain {
+    wire valid:     bool = false
+    wire data_in:   u8   = 0
+    wire ready:     bool = false
+    wire data_out:  u8
+    wire full:      bool
+    wire accepting: bool
+
+    HandshakeBuffer(valid, data_in, ready, data_out, full, accepting)
+
+    poke(valid,   true)
+    poke(data_in, 0x42)
+    cycle()
+    poke(valid, false)
+    assert(full == true, "full")
+
+    poke(ready, true)
+    cycle()
+    poke(ready, false)
+
+    assert(full      == false, "drained after ready pulse")
+    assert(accepting == true,  "accepting again after drain")
+}
+
+sim TestHandshakeBufferProducerIgnoredWhenFull {
+    wire valid:     bool = false
+    wire data_in:   u8   = 0
+    wire ready:     bool = false
+    wire data_out:  u8
+    wire full:      bool
+    wire accepting: bool
+
+    HandshakeBuffer(valid, data_in, ready, data_out, full, accepting)
+
+    // Fill the buffer
+    poke(valid,   true)
+    poke(data_in, 0xAA)
+    cycle()
+    poke(valid, false)
+    assert(data_out == 0xAA, "0xAA in buffer")
+
+    // Producer tries to write new data while full: should be ignored
+    poke(valid,   true)
+    poke(data_in, 0xFF)
+    cycle()
+    assert(full     == true,  "still full")
+    assert(data_out == 0xAA, "original data preserved: 0xFF ignored")
+    poke(valid, false)
+
+    // Another attempt: still ignored
+    poke(valid,   true)
+    poke(data_in, 0x11)
+    cycle()
+    assert(data_out == 0xAA, "0xAA preserved: 0x11 ignored")
+    poke(valid, false)
+}
+
+sim TestHandshakeBufferWriteAfterDrain {
+    wire valid:     bool = false
+    wire data_in:   u8   = 0
+    wire ready:     bool = false
+    wire data_out:  u8
+    wire full:      bool
+    wire accepting: bool
+
+    HandshakeBuffer(valid, data_in, ready, data_out, full, accepting)
+
+    // Fill, drain, fill again
+    poke(valid,   true)
+    poke(data_in, 0x11)
+    cycle()
+    poke(valid, false)
+    assert(data_out == 0x11, "first write: 0x11")
+
+    poke(ready, true)
+    cycle()
+    poke(ready, false)
+    assert(full == false, "drained")
+
+    poke(valid,   true)
+    poke(data_in, 0x22)
+    cycle()
+    poke(valid, false)
+    assert(full     == true,  "re-filled")
+    assert(data_out == 0x22, "second write: 0x22")
+
+    poke(ready, true)
+    cycle()
+    poke(ready, false)
+    assert(full == false, "drained again")
+}
+
+sim TestHandshakeBufferReset {
+    wire valid:     bool = false
+    wire data_in:   u8   = 0
+    wire ready:     bool = false
+    wire data_out:  u8
+    wire full:      bool
+    wire accepting: bool
+
+    HandshakeBuffer(valid, data_in, ready, data_out, full, accepting)
+
+    poke(valid,   true)
+    poke(data_in, 0xBE)
+    cycle()
+    poke(valid, false)
+    assert(full == true, "full before reset")
+
+    reset()
+    assert(full      == false, "reset clears is_full")
+    assert(accepting == true,  "accepting after reset")
+}

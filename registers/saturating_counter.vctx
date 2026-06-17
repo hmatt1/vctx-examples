@@ -1,0 +1,160 @@
+// spec: §6.2, §6.3, §6.4
+// description: Saturating counter — clamps at min and max instead of wrapping.
+//   Uses a u4 (range 0..15) to keep sim cycle counts manageable.
+//   Tests: conditional register update driven by register's own current value,
+//          elsewhen priority when both inc and dec are asserted simultaneously.
+// expect: pass
+
+component SaturatingCounter(in inc: bool, in dec: bool, out val: u4) {
+    reg cnt: u4 = 0
+
+    wire can_inc: bool = inc and (cnt !== 15 as u4)
+    wire can_dec: bool = dec and (cnt !== 0 as u4)
+
+    when can_inc {
+        cnt <= (cnt + 1) as u4
+    } elsewhen can_dec {
+        cnt <= (cnt - 1) as u4
+    }
+
+    val := cnt
+}
+
+sim TestSatCounterInitial {
+    wire inc: bool = false
+    wire dec: bool = false
+    wire val: u4
+
+    SaturatingCounter(inc, dec, val)
+
+    assert(val == 0, "starts at 0")
+
+    cycle()
+    assert(val == 0, "holds 0 when idle")
+}
+
+sim TestSatCounterCountUp {
+    wire inc: bool = false
+    wire dec: bool = false
+    wire val: u4
+
+    SaturatingCounter(inc, dec, val)
+
+    poke(inc, true)
+    cycle()
+    assert(val == 1, "1")
+    cycle()
+    assert(val == 2, "2")
+    cycle()
+    assert(val == 3, "3")
+    cycle(4)
+    assert(val == 7, "7")
+    cycle(7)
+    assert(val == 14, "14")
+    cycle()
+    assert(val == 15, "15 (max for u4)")
+}
+
+sim TestSatCounterSaturatesAtMax {
+    wire inc: bool = false
+    wire dec: bool = false
+    wire val: u4
+
+    SaturatingCounter(inc, dec, val)
+
+    poke(inc, true)
+    cycle(15)
+    assert(val == 15, "reached max")
+
+    cycle()
+    assert(val == 15, "saturates: no overflow at max")
+    cycle()
+    assert(val == 15, "still 15")
+    cycle(5)
+    assert(val == 15, "holds at max across many cycles")
+}
+
+sim TestSatCounterCountDown {
+    wire inc: bool = false
+    wire dec: bool = false
+    wire val: u4
+
+    SaturatingCounter(inc, dec, val)
+
+    // Count up to 8 first
+    poke(inc, true)
+    cycle(8)
+    assert(val == 8, "at 8")
+
+    // Count down
+    poke(inc, false)
+    poke(dec, true)
+    cycle()
+    assert(val == 7, "7")
+    cycle()
+    assert(val == 6, "6")
+    cycle(6)
+    assert(val == 0, "0 (min)")
+}
+
+sim TestSatCounterSaturatesAtMin {
+    wire inc: bool = false
+    wire dec: bool = false
+    wire val: u4
+
+    SaturatingCounter(inc, dec, val)
+
+    poke(dec, true)
+    cycle()
+    assert(val == 0, "saturates: no underflow at min")
+    cycle()
+    assert(val == 0, "still 0")
+    cycle(5)
+    assert(val == 0, "holds at min across many cycles")
+}
+
+sim TestSatCounterIncWinsOverDec {
+    wire inc: bool = false
+    wire dec: bool = false
+    wire val: u4
+
+    SaturatingCounter(inc, dec, val)
+
+    // Both asserted: inc arm fires first (elsewhen priority)
+    poke(inc, true)
+    poke(dec, true)
+    cycle()
+    assert(val == 1, "inc wins over dec at 0")
+
+    cycle()
+    assert(val == 2, "inc wins at 1")
+
+    // At max: inc condition (cnt != 15) is false, dec arm fires instead
+    poke(inc, true)
+    poke(dec, false)
+    cycle(13)
+    assert(val == 15, "at max")
+
+    poke(inc, true)
+    poke(dec, true)
+    cycle()
+    // can_inc = inc and (cnt !== 15) = true and false = false: inc gate closed
+    // can_dec = dec and (cnt !== 0)  = true and true  = true: dec fires
+    assert(val == 14, "both at max: can_inc=false, can_dec=true -> dec fires: 15->14")
+}
+
+sim TestSatCounterHoldWhenIdle {
+    wire inc: bool = false
+    wire dec: bool = false
+    wire val: u4
+
+    SaturatingCounter(inc, dec, val)
+
+    poke(inc, true)
+    cycle(5)
+    assert(val == 5, "at 5")
+
+    poke(inc, false)
+    cycle(10)
+    assert(val == 5, "holds 5 while idle")
+}

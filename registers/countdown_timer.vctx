@@ -1,0 +1,162 @@
+// spec: §6.2, §6.3, §6.4, §6.7
+// description: Countdown timer — loads a value, decrements each cycle until zero,
+//   then pulses 'done' for exactly one cycle.
+//   Uses two cooperating registers: 'timer' (the count) and 'running' (active flag).
+//   Tests: load-then-auto-decrement, one-cycle done pulse, restart mid-count.
+// expect: pass
+
+component CountdownTimer(
+    in  load:      bool,
+    in  start_val: u8,
+    out done:      bool,
+    out count:     u8
+) {
+    reg timer:   u8   = 0
+    reg running: bool = false
+
+    wire decrement: bool = running and (timer !== 0 as u8)
+    wire expired:   bool = running and (timer == 0 as u8)
+
+    when load {
+        timer   <= start_val
+        running <= true
+    } elsewhen decrement {
+        timer <= (timer - 1) as u8
+    } elsewhen expired {
+        running <= false
+    }
+
+    done  := expired
+    count := timer
+}
+
+sim TestCountdownTimerInitial {
+    wire load:      bool = false
+    wire start_val: u8   = 0
+    wire done:      bool
+    wire count:     u8
+
+    CountdownTimer(load, start_val, done, count)
+
+    assert(done  == false, "not done initially")
+    assert(count == 0,     "count 0 initially")
+
+    cycle(3)
+    assert(done == false, "stays idle without load")
+}
+
+sim TestCountdownTimerCountsDown {
+    wire load:      bool = false
+    wire start_val: u8   = 0
+    wire done:      bool
+    wire count:     u8
+
+    CountdownTimer(load, start_val, done, count)
+
+    poke(load, true)
+    poke(start_val, 3)
+    cycle()
+    poke(load, false)
+    assert(count == 3,     "loaded 3")
+    assert(done  == false, "counting")
+
+    cycle()
+    assert(count == 2, "2")
+    assert(done  == false, "not done")
+
+    cycle()
+    assert(count == 1, "1")
+    assert(done  == false, "not done")
+
+    // timer was 1 -> decremented to 0, running still true this cycle
+    cycle()
+    assert(count == 0,    "reached 0")
+    assert(done  == true, "done fires on zero")
+
+    // running set false; done clears
+    cycle()
+    assert(done  == false, "done is a one-cycle pulse")
+    assert(count == 0,     "count stays at 0")
+}
+
+sim TestCountdownTimerDoneIsOneCyclePulse {
+    wire load:      bool = false
+    wire start_val: u8   = 0
+    wire done:      bool
+    wire count:     u8
+
+    CountdownTimer(load, start_val, done, count)
+
+    poke(load, true)
+    poke(start_val, 1)
+    cycle()
+    poke(load, false)
+    assert(count == 1, "loaded 1")
+
+    cycle()
+    assert(count == 0,    "reached 0")
+    assert(done  == true, "done fires")
+
+    cycle()
+    assert(done  == false, "done cleared after exactly one cycle")
+
+    cycle(5)
+    assert(done == false, "no spurious done pulses")
+}
+
+sim TestCountdownTimerRestart {
+    wire load:      bool = false
+    wire start_val: u8   = 0
+    wire done:      bool
+    wire count:     u8
+
+    CountdownTimer(load, start_val, done, count)
+
+    poke(load, true)
+    poke(start_val, 5)
+    cycle()
+    poke(load, false)
+    assert(count == 5, "loaded 5")
+
+    cycle()
+    assert(count == 4, "4")
+    cycle()
+    assert(count == 3, "3")
+
+    // Restart with a different value mid-count
+    poke(load, true)
+    poke(start_val, 2)
+    cycle()
+    poke(load, false)
+    assert(count == 2, "restarted at 2")
+    assert(done  == false, "not done")
+
+    cycle()
+    assert(count == 1, "1")
+    cycle()
+    assert(count == 0,    "0")
+    assert(done  == true, "done fires for second run")
+
+    cycle()
+    assert(done == false, "done cleared")
+}
+
+sim TestCountdownTimerLoadZero {
+    wire load:      bool = false
+    wire start_val: u8   = 0
+    wire done:      bool
+    wire count:     u8
+
+    CountdownTimer(load, start_val, done, count)
+
+    // Loading 0: done should fire immediately the next cycle
+    poke(load, true)
+    poke(start_val, 0)
+    cycle()
+    poke(load, false)
+    assert(count == 0,    "loaded 0")
+    assert(done  == true, "done fires immediately when loaded with 0")
+
+    cycle()
+    assert(done == false, "done cleared")
+}

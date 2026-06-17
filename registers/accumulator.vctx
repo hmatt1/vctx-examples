@@ -1,0 +1,189 @@
+// spec: §6.2, §6.3, §6.4
+// description: Running accumulator — adds 'data' to an internal sum register each cycle
+//   when enabled. A 'clear' input resets the sum to zero with priority over accumulate.
+//   Tests: register reading its own current value to compute next-cycle value,
+//          priority between clear and enable, signed arithmetic accumulation.
+// expect: pass
+
+component Accumulator(
+    in  en:    bool,
+    in  data:  s16,
+    in  clear: bool,
+    out acc:   s16
+) {
+    reg sum: s16 = 0
+
+    when clear {
+        sum <= 0 as s16
+    } elsewhen en {
+        sum <= (sum + data) as s16
+    }
+
+    acc := sum
+}
+
+sim TestAccumulatorInitial {
+    wire en:    bool = false
+    wire data:  s16  = 0
+    wire clear: bool = false
+    wire acc:   s16
+
+    Accumulator(en, data, clear, acc)
+
+    assert(acc == 0, "starts at 0")
+
+    cycle(3)
+    assert(acc == 0, "stays 0 while idle")
+}
+
+sim TestAccumulatorPositive {
+    wire en:    bool = false
+    wire data:  s16  = 0
+    wire clear: bool = false
+    wire acc:   s16
+
+    Accumulator(en, data, clear, acc)
+
+    poke(en, true)
+    poke(data, 10)
+    cycle()
+    assert(acc == 10, "10")
+
+    poke(data, 20)
+    cycle()
+    assert(acc == 30, "10 + 20 = 30")
+
+    poke(data, 5)
+    cycle()
+    assert(acc == 35, "30 + 5 = 35")
+
+    poke(data, 100)
+    cycle()
+    assert(acc == 135, "35 + 100 = 135")
+}
+
+sim TestAccumulatorHoldsWhenDisabled {
+    wire en:    bool = false
+    wire data:  s16  = 0
+    wire clear: bool = false
+    wire acc:   s16
+
+    Accumulator(en, data, clear, acc)
+
+    poke(en, true)
+    poke(data, 50)
+    cycle()
+    assert(acc == 50, "accumulated 50")
+
+    poke(en, false)
+    poke(data, 999)  // change data to verify it doesn't leak through
+    cycle()
+    assert(acc == 50, "holds 50 while disabled")
+    cycle(5)
+    assert(acc == 50, "holds 50 across 5 idle cycles")
+
+    poke(en, true)
+    poke(data, 10)
+    cycle()
+    assert(acc == 60, "resumes: 50 + 10 = 60")
+}
+
+sim TestAccumulatorNegative {
+    wire en:    bool = false
+    wire data:  s16  = 0
+    wire clear: bool = false
+    wire acc:   s16
+
+    Accumulator(en, data, clear, acc)
+
+    poke(en, true)
+    poke(data, 100)
+    cycle()
+    assert(acc == 100, "100")
+
+    poke(data, -40)
+    cycle()
+    assert(acc == 60, "100 + (-40) = 60")
+
+    poke(data, -60)
+    cycle()
+    assert(acc == 0, "60 + (-60) = 0")
+
+    poke(data, -1)
+    cycle()
+    assert(acc == -1, "goes negative: -1")
+
+    poke(data, -99)
+    cycle()
+    assert(acc == -100, "-1 + (-99) = -100")
+}
+
+sim TestAccumulatorClear {
+    wire en:    bool = false
+    wire data:  s16  = 0
+    wire clear: bool = false
+    wire acc:   s16
+
+    Accumulator(en, data, clear, acc)
+
+    poke(en, true)
+    poke(data, 25)
+    cycle()
+    cycle()
+    cycle()
+    assert(acc == 75, "accumulated 75")
+
+    poke(clear, true)
+    cycle()
+    assert(acc == 0, "cleared to 0")
+
+    poke(clear, false)
+    cycle()
+    assert(acc == 25, "resumes accumulating after clear")
+}
+
+sim TestAccumulatorClearPriorityOverEnable {
+    wire en:    bool = false
+    wire data:  s16  = 0
+    wire clear: bool = false
+    wire acc:   s16
+
+    Accumulator(en, data, clear, acc)
+
+    poke(en, true)
+    poke(data, 100)
+    cycle()
+    assert(acc == 100, "100")
+
+    // Both clear and en asserted: clear wins (first arm in when/elsewhen)
+    poke(clear, true)
+    poke(en, true)
+    poke(data, 500)
+    cycle()
+    assert(acc == 0, "clear wins over en: reset to 0")
+
+    // After clear goes low, en takes over
+    poke(clear, false)
+    cycle()
+    assert(acc == 500, "en active: 0 + 500 = 500")
+}
+
+sim TestAccumulatorZeroData {
+    wire en:    bool = false
+    wire data:  s16  = 0
+    wire clear: bool = false
+    wire acc:   s16
+
+    Accumulator(en, data, clear, acc)
+
+    poke(en, true)
+    poke(data, 42)
+    cycle()
+    assert(acc == 42, "42")
+
+    poke(data, 0)
+    cycle()
+    assert(acc == 42, "adding 0 keeps value")
+    cycle(5)
+    assert(acc == 42, "holds 42 while adding 0")
+}

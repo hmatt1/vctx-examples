@@ -1,0 +1,182 @@
+// spec: §6.2, §6.3, §6.4, §8.4
+// description: 8-entry x 8-bit register file with dynamic read and write addressing.
+//   Write port: wr_en, wr_addr (u3), wr_data (u8).
+//   Read port:  rd_addr (u3), rd_data (u8) — combinational (no clock needed to read).
+//   Tests: dynamic array register write indexing, read-after-write, register isolation.
+// expect: pass
+
+component RegFile8x8(
+    in  wr_en:   bool,
+    in  wr_addr: u3,
+    in  wr_data: u8,
+    in  rd_addr: u3,
+    out rd_data: u8
+) {
+    reg regs: u8[8] = 0
+
+    when wr_en {
+        regs[wr_addr] <= wr_data
+    }
+
+    rd_data := regs[rd_addr]
+}
+
+sim TestRegFileInitial {
+    wire wr_en:   bool = false
+    wire wr_addr: u3   = 0
+    wire wr_data: u8   = 0
+    wire rd_addr: u3   = 0
+    wire rd_data: u8
+
+    RegFile8x8(wr_en, wr_addr, wr_data, rd_addr, rd_data)
+
+    // All registers start at 0
+    assert(rd_data == 0, "reg[0] init 0")
+    poke(rd_addr, 4)
+    assert(rd_data == 0, "reg[4] init 0")
+    poke(rd_addr, 7)
+    assert(rd_data == 0, "reg[7] init 0")
+}
+
+sim TestRegFileWriteAndRead {
+    wire wr_en:   bool = false
+    wire wr_addr: u3   = 0
+    wire wr_data: u8   = 0
+    wire rd_addr: u3   = 0
+    wire rd_data: u8
+
+    RegFile8x8(wr_en, wr_addr, wr_data, rd_addr, rd_data)
+
+    // Write 0xAB to register 3
+    poke(wr_en,   true)
+    poke(wr_addr, 3)
+    poke(wr_data, 0xAB)
+    cycle()
+    poke(wr_en, false)
+
+    poke(rd_addr, 3)
+    assert(rd_data == 0xAB, "reg[3] == 0xAB after write")
+}
+
+sim TestRegFileWriteIsolation {
+    wire wr_en:   bool = false
+    wire wr_addr: u3   = 0
+    wire wr_data: u8   = 0
+    wire rd_addr: u3   = 0
+    wire rd_data: u8
+
+    RegFile8x8(wr_en, wr_addr, wr_data, rd_addr, rd_data)
+
+    // Write only to register 5
+    poke(wr_en,   true)
+    poke(wr_addr, 5)
+    poke(wr_data, 0x55)
+    cycle()
+    poke(wr_en, false)
+
+    // Neighbors are unaffected
+    poke(rd_addr, 4)
+    assert(rd_data == 0, "reg[4] untouched")
+    poke(rd_addr, 5)
+    assert(rd_data == 0x55, "reg[5] == 0x55")
+    poke(rd_addr, 6)
+    assert(rd_data == 0, "reg[6] untouched")
+    poke(rd_addr, 0)
+    assert(rd_data == 0, "reg[0] untouched")
+    poke(rd_addr, 7)
+    assert(rd_data == 0, "reg[7] untouched")
+}
+
+sim TestRegFileMultipleWrites {
+    wire wr_en:   bool = false
+    wire wr_addr: u3   = 0
+    wire wr_data: u8   = 0
+    wire rd_addr: u3   = 0
+    wire rd_data: u8
+
+    RegFile8x8(wr_en, wr_addr, wr_data, rd_addr, rd_data)
+
+    // Write to reg 0
+    poke(wr_en, true)
+    poke(wr_addr, 0)
+    poke(wr_data, 0x11)
+    cycle()
+
+    // Write to reg 7
+    poke(wr_addr, 7)
+    poke(wr_data, 0x77)
+    cycle()
+
+    // Write to reg 3
+    poke(wr_addr, 3)
+    poke(wr_data, 0x33)
+    cycle()
+    poke(wr_en, false)
+
+    poke(rd_addr, 0)
+    assert(rd_data == 0x11, "reg[0] == 0x11")
+    poke(rd_addr, 3)
+    assert(rd_data == 0x33, "reg[3] == 0x33")
+    poke(rd_addr, 7)
+    assert(rd_data == 0x77, "reg[7] == 0x77")
+    poke(rd_addr, 1)
+    assert(rd_data == 0,    "reg[1] still 0")
+}
+
+sim TestRegFileOverwrite {
+    wire wr_en:   bool = false
+    wire wr_addr: u3   = 0
+    wire wr_data: u8   = 0
+    wire rd_addr: u3   = 0
+    wire rd_data: u8
+
+    RegFile8x8(wr_en, wr_addr, wr_data, rd_addr, rd_data)
+
+    poke(wr_en,   true)
+    poke(wr_addr, 2)
+    poke(wr_data, 0xAA)
+    cycle()
+    poke(rd_addr, 2)
+    assert(rd_data == 0xAA, "first write: 0xAA")
+
+    poke(wr_data, 0xBB)
+    cycle()
+    assert(rd_data == 0xBB, "overwritten with 0xBB")
+
+    poke(wr_data, 0x00)
+    cycle()
+    assert(rd_data == 0x00, "overwritten with 0x00")
+    poke(wr_en, false)
+}
+
+sim TestRegFileReadAllAddresses {
+    wire wr_en:   bool = false
+    wire wr_addr: u3   = 0
+    wire wr_data: u8   = 0
+    wire rd_addr: u3   = 0
+    wire rd_data: u8
+
+    RegFile8x8(wr_en, wr_addr, wr_data, rd_addr, rd_data)
+
+    // Write a distinct value to every register
+    poke(wr_en, true)
+    poke(wr_addr, 0) poke(wr_data, 10) cycle()
+    poke(wr_addr, 1) poke(wr_data, 20) cycle()
+    poke(wr_addr, 2) poke(wr_data, 30) cycle()
+    poke(wr_addr, 3) poke(wr_data, 40) cycle()
+    poke(wr_addr, 4) poke(wr_data, 50) cycle()
+    poke(wr_addr, 5) poke(wr_data, 60) cycle()
+    poke(wr_addr, 6) poke(wr_data, 70) cycle()
+    poke(wr_addr, 7) poke(wr_data, 80) cycle()
+    poke(wr_en, false)
+
+    // Read back all and verify
+    poke(rd_addr, 0) assert(rd_data == 10, "reg[0]==10")
+    poke(rd_addr, 1) assert(rd_data == 20, "reg[1]==20")
+    poke(rd_addr, 2) assert(rd_data == 30, "reg[2]==30")
+    poke(rd_addr, 3) assert(rd_data == 40, "reg[3]==40")
+    poke(rd_addr, 4) assert(rd_data == 50, "reg[4]==50")
+    poke(rd_addr, 5) assert(rd_data == 60, "reg[5]==60")
+    poke(rd_addr, 6) assert(rd_data == 70, "reg[6]==70")
+    poke(rd_addr, 7) assert(rd_data == 80, "reg[7]==80")
+}

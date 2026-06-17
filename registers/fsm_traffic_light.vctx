@@ -1,0 +1,206 @@
+// spec: §6.2, §6.3, §6.4, §6.7
+// description: Finite state machine using a u2 register as state variable.
+//   Three-state traffic light: RED(0) -> GREEN(1) -> YELLOW(2) -> RED.
+//   Tests: state encoding, conditional transitions, output decoding from state, reset.
+// expect: pass
+
+component TrafficLight(
+    in  go:     bool,
+    in  stop:   bool,
+    out red:    bool,
+    out green:  bool,
+    out yellow: bool
+) {
+    reg state: u2 = 0   // 0=RED, 1=GREEN, 2=YELLOW
+
+    when (state == 0 as u2) {        // RED: wait for go
+        when go {
+            state <= 1 as u2
+        }
+    } elsewhen (state == 1 as u2) {  // GREEN: wait for stop
+        when stop {
+            state <= 2 as u2
+        }
+    } elsewhen (state == 2 as u2) {  // YELLOW: always return to RED
+        state <= 0 as u2
+    }
+
+    red    := state == 0 as u2
+    green  := state == 1 as u2
+    yellow := state == 2 as u2
+}
+
+sim TestFSMInitialState {
+    wire go:     bool = false
+    wire stop:   bool = false
+    wire red:    bool
+    wire green:  bool
+    wire yellow: bool
+
+    TrafficLight(go, stop, red, green, yellow)
+
+    assert(red    == true,  "starts RED")
+    assert(green  == false, "not GREEN initially")
+    assert(yellow == false, "not YELLOW initially")
+}
+
+sim TestFSMRedHoldsWithoutGo {
+    wire go:     bool = false
+    wire stop:   bool = false
+    wire red:    bool
+    wire green:  bool
+    wire yellow: bool
+
+    TrafficLight(go, stop, red, green, yellow)
+
+    cycle()
+    assert(red == true, "holds RED: go=false cycle 1")
+    cycle()
+    assert(red == true, "holds RED: go=false cycle 2")
+    cycle(5)
+    assert(red == true, "holds RED across 5 more cycles")
+}
+
+sim TestFSMRedToGreen {
+    wire go:     bool = false
+    wire stop:   bool = false
+    wire red:    bool
+    wire green:  bool
+    wire yellow: bool
+
+    TrafficLight(go, stop, red, green, yellow)
+
+    poke(go, true)
+    cycle()
+    poke(go, false)
+    assert(green  == true,  "transitions to GREEN on go")
+    assert(red    == false, "leaves RED")
+    assert(yellow == false, "not YELLOW")
+}
+
+sim TestFSMGreenHoldsWithoutStop {
+    wire go:     bool = false
+    wire stop:   bool = false
+    wire red:    bool
+    wire green:  bool
+    wire yellow: bool
+
+    TrafficLight(go, stop, red, green, yellow)
+
+    poke(go, true)
+    cycle()
+    poke(go, false)
+    assert(green == true, "in GREEN")
+
+    cycle()
+    assert(green == true, "holds GREEN: stop=false cycle 1")
+    cycle(4)
+    assert(green == true, "holds GREEN across 4 more cycles")
+}
+
+sim TestFSMGreenToYellow {
+    wire go:     bool = false
+    wire stop:   bool = false
+    wire red:    bool
+    wire green:  bool
+    wire yellow: bool
+
+    TrafficLight(go, stop, red, green, yellow)
+
+    poke(go, true)
+    cycle()
+    poke(go, false)
+
+    poke(stop, true)
+    cycle()
+    poke(stop, false)
+    assert(yellow == true,  "transitions to YELLOW on stop")
+    assert(green  == false, "leaves GREEN")
+    assert(red    == false, "not RED")
+}
+
+sim TestFSMYellowAutoReturnsToRed {
+    wire go:     bool = false
+    wire stop:   bool = false
+    wire red:    bool
+    wire green:  bool
+    wire yellow: bool
+
+    TrafficLight(go, stop, red, green, yellow)
+
+    poke(go, true)
+    cycle()
+    poke(go, false)
+    poke(stop, true)
+    cycle()
+    poke(stop, false)
+    assert(yellow == true, "in YELLOW")
+
+    cycle()
+    assert(red    == true,  "YELLOW auto-transitions to RED next cycle")
+    assert(yellow == false, "leaves YELLOW")
+    assert(green  == false, "not GREEN")
+}
+
+sim TestFSMFullCycle {
+    wire go:     bool = false
+    wire stop:   bool = false
+    wire red:    bool
+    wire green:  bool
+    wire yellow: bool
+
+    TrafficLight(go, stop, red, green, yellow)
+
+    // Lap 1
+    poke(go, true)
+    cycle()
+    poke(go, false)
+    assert(green == true, "GREEN lap 1")
+
+    poke(stop, true)
+    cycle()
+    poke(stop, false)
+    assert(yellow == true, "YELLOW lap 1")
+
+    cycle()
+    assert(red == true, "RED lap 1 complete")
+
+    // Lap 2: same sequence repeats correctly
+    poke(go, true)
+    cycle()
+    poke(go, false)
+    assert(green == true, "GREEN lap 2")
+
+    poke(stop, true)
+    cycle()
+    poke(stop, false)
+    assert(yellow == true, "YELLOW lap 2")
+
+    cycle()
+    assert(red == true, "RED lap 2 complete")
+}
+
+sim TestFSMReset {
+    wire go:     bool = false
+    wire stop:   bool = false
+    wire red:    bool
+    wire green:  bool
+    wire yellow: bool
+
+    TrafficLight(go, stop, red, green, yellow)
+
+    poke(go, true)
+    cycle()
+    poke(go, false)
+    assert(green == true, "in GREEN before reset")
+
+    reset()
+    assert(red   == true,  "reset returns to RED (state init value)")
+    assert(green == false, "not GREEN after reset")
+
+    // FSM resumes normally after reset
+    poke(go, true)
+    cycle()
+    poke(go, false)
+    assert(green == true, "GREEN again after reset")
+}
