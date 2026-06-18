@@ -33,7 +33,10 @@ component PriorityEncoder4(
 }
 
 sim TestWhenElsewhenChain {
-    wire sel0, sel1, sel2, sel3: bool = false
+    wire sel0: bool = false
+    wire sel1: bool = false
+    wire sel2: bool = false
+    wire sel3: bool = false
     wire v0: u8 = 10
     wire v1: u8 = 20
     wire v2: u8 = 30
@@ -93,9 +96,9 @@ sim TestWhenElsewhenChain {
     } elsewhen p_cond2 {
         // partial is NOT assigned here
     } otherwise {
-        poke(partial, 200)
+        // no assignment: partial keeps declaration value 7
     }
-    
+
     // (F, T) -> Second arm matches, but no assignment -> keeps default 7
     assert(partial == 7, "Chain arm with no assignment keeps declaration value")
 
@@ -107,7 +110,7 @@ sim TestWhenElsewhenChain {
     } elsewhen s_cond {
         s_out := -500
     } otherwise {
-        poke(s_out, 1000)
+        // no assignment: s_out keeps declaration value 0
     }
     assert(s_out == -500, "Signed chain selection")
 

@@ -1,0 +1,14 @@
+// spec: §6.4
+// expect: fail check [E_INSTANCE_IN_WHEN]
+// Blanket ban: any instance inside any when arm is rejected.
+// Correct pattern: instantiate unconditionally and use when to assign from the instance's outputs.
+
+component Sub(in a: bool, out b: bool) {
+    b := a
+}
+
+component WithInstInWhen(in sel: bool, in x: bool, out o: bool) {
+    when sel {
+        u: Sub(a -- x, b -- o)
+    }
+}

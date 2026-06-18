@@ -1,0 +1,18 @@
+// spec: §6.4, §6.8, §12.2
+// expect: fail check [E_ILLEGAL_STATEMENT_IN_WHEN]
+// poke() is illegal inside when arms regardless of context (component or sim).
+
+component Passthru(in x: bool, out y: bool) {
+    y := x
+}
+
+sim TestPokeInSimWhenArm {
+    wire cond: bool = true
+    wire x: bool = false
+    wire y: bool
+    Passthru(x, y)
+
+    when cond {
+        poke(x, true)
+    }
+}

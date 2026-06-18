@@ -1,14 +1,17 @@
 // spec: §6.4, §13.2, §16
 // expect: pass
-// Regression: module out driven only by instance inside when — driver completion prepends hold value.
+// Correct pattern: Child instantiated unconditionally; when muxes the output.
+// When the arm is not taken, o gets the type-zero hold (0 as u1).
 
 component Child(out q: u1) {
   q := 1 as u1
 }
 
 component Parent(out o: u1, in sel: u1) {
+  wire child_q: u1
+  Child(q -- child_q)
   when sel == 1 {
-    Child(q -- o)
+    o := child_q
   }
 }
 
@@ -17,5 +20,8 @@ sim SimInstOutWhen {
   wire o: u1
   Parent(o, sel)
   cycle()
-  assert(o == 0 as u1, "hold 0 when arm inactive")
+  assert(o == 0 as u1, "hold 0 when arm not taken")
+  poke(sel, 1 as u1)
+  cycle()
+  assert(o == 1 as u1, "child output forwarded when arm taken")
 }

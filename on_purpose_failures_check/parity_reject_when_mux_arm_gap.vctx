@@ -1,6 +1,6 @@
 // spec: §6.4
-// expect: fail check [E_WHEN_MUX_IMPLICIT_ZERO]
-// Parity: instance only in one when arm — check: E_WHEN_MUX_IMPLICIT_ZERO; emit also fails (no zero-fill)
+// expect: fail check [E_INSTANCE_IN_WHEN]
+// Instance inside a when arm is unconditionally rejected regardless of how many arms it appears in.
 component Sub(in a: u1, out b: u1) {
     b := a
 }
