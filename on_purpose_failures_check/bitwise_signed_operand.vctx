@@ -1,0 +1,8 @@
+// spec: §7.5
+// expect: fail check [E_BITWISE_SIGNED_OPERAND]
+// Bitwise operators require unsigned operands. Signed operands are rejected at the operand level.
+// Correct pattern: cast to unsigned first — e.g., (s8_val as u8) & mask.
+
+component IllegalBitwise(in x: s8, in y: u8, out z: u8) {
+    z := x & y
+}
