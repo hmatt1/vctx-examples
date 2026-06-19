@@ -1,0 +1,139 @@
+// spec: §5.5, §5.6, §7, §7.5, §10.3, §18
+// description: Complex Validation Core — exercises mixed hardware and comptime logic.
+// expect: pass
+
+// Hardware function: combine two bytes using bitwise XOR, NOT, AND, and OR.
+// §7.5: all operands are u8 (unsigned); ~a on a u8 operand is valid.
+function combine_signals(a: u8, b: u8) -> u8 {
+    wire xored:  u8 = a ^ b
+    wire not_a:  u8 = ~a
+    wire masked: u8 = not_a & b
+    wire mixed:  u8 = xored | masked
+    return (mixed << 1) as u8
+}
+
+// Comptime function: accumulate a threshold plus base then add selected weights.
+// Skips index 1 via continue; breaks early if accumulator exceeds 150.
+comptime evaluate_params(base: Int) -> Int {
+    let weights = [10, 20, 30]
+    let accum = 100 + base
+    let idx = 0
+
+    while idx < 3 {
+        if idx == 1 {
+            idx = idx + 1
+            continue
+        }
+        accum = accum + weights[idx]
+        if accum > 150 {
+            break
+        }
+        idx = idx + 1
+    }
+    return accum
+}
+
+// Parametric datapath component, parameterised on bus width W.
+component Datapath<Int W>(
+    in  reset_in: bool,
+    in  data_in:  u[W],
+    out io_pin:   s8,
+    out data_out: u[W],
+    out status:   bool
+) {
+    reg state:   u8   = 0
+    reg counter: u[W] = 0 as u[W]
+
+    // Lookup table driven by a dynamic index derived from state bits.
+    wire arr_val: u8[4] = [10, 20, 30, 40]
+
+    wire is_active: bool = state !== 0
+
+    // Arithmetic — only +/- work correctly for parametric u[W] wires.
+    // Shift (>>), bitwise OR, and ternary mux on u[W] produce 1-bit IR in the
+    // current compiler and should be avoided for parametric intermediate values.
+    wire sum_val: u[W] = (data_in + counter) as u[W]
+    wire sub_val: u[W] = (data_in - counter) as u[W]
+    wire mul_val: u[W] = ((data_in * 2) / 3)  as u[W]
+
+    // Pack data_in and state into a wider word (structural concat demo).
+    wire joined: u[(W + 8)] = concat(data_in, state) as u[(W + 8)]
+
+    // Extract top 2 bits of state as a 2-bit index into the lookup table.
+    wire slice_val: u2 = state[7..6]
+    wire idx_val:   u8 = arr_val[slice_val]
+
+    // Sequential/combinational control via when/elsewhen/otherwise.
+    when reset_in {
+        state   <= 0
+        counter <= 0 as u[W]
+        io_pin  := 0 as s8
+    } elsewhen data_in >== 100 and not (counter <== 5) {
+        state   <= 0xFF
+        counter <= (counter + (1 as u[W])) as u[W]
+        io_pin  := 1 as s8
+    } otherwise {
+        state   <= combine_signals(state, 0b1010 as u8)
+        counter <= sub_val
+        io_pin  := -1 as s8
+    }
+
+    // data_out is always the combinational sum (avoids parametric shift/OR issues).
+    data_out := sum_val
+
+    // Intrinsic metadata checks — all comptime in a hardware context.
+    wire width_check: u32  = width(data_in)
+    wire sign_check:  bool = is_signed(io_pin)
+    wire comp_check:  bool = is_comptime(W)
+
+    // status combines the signed-pin flag, comptime-width flag, and activity indicator.
+    status := (sign_check and comp_check) or (slice_val !== 0)
+}
+
+sim TestDatapath {
+    wire reset_in: bool = true
+    wire data_in:  u16  = 120
+    wire io_pin:   s8
+    wire data_out: u16
+    wire status:   bool
+
+    // evaluate_params(5):
+    //   accum = 100 + 5 = 105
+    //   idx=0: accum += weights[0]=10  => 115; idx=1
+    //   idx=1: skip (continue);            idx=2
+    //   idx=2: accum += weights[2]=30  => 145; idx=3
+    //   145 <= 150, loop exits normally => returns 145
+    let param_res = evaluate_params(5)
+    wire param_out: u32 = param_res as u32
+
+    Datapath<16>(reset_in, data_in, io_pin, data_out, status)
+
+    reset()
+    cycle()
+
+    // --- First active cycle: data_in = 0x0F = 15, pre: state=0, counter=0 ---
+    // otherwise fires: state <= 20;  counter <= sub_val=(15-0)=15;  io_pin := -1
+    poke(reset_in, false)
+    poke(data_in, 0x0F)
+    cycle()
+
+    // Post-cycle: state=20, counter=15, data_in=15.
+    //   sum_val = (15+15) = 30 => data_out = 30
+    //   io_pin = -1 (otherwise fires: 15 < 100)
+    assert(data_out == 30 as u16, "data_out post-cycle: sum_val = 15+15 = 30")
+    assert(io_pin == -1 as s8, "io_pin = -1 in otherwise branch (data_in=15 < 100)")
+    assert(param_out == 145 as u32, "evaluate_params(5) = 100+5+10+30 = 145")
+
+    // --- Second active cycle: data_in = 200, pre: state=20, counter=15 ---
+    // elsewhen fires: 200 >= 100 and not (15 <= 5) => true
+    //   state <= 0xFF;  counter <= 16;  io_pin := 1 as s8
+    // Post-cycle: state=255, counter=16.
+    //   sum_val = (200+16) = 216 => data_out = 216
+    //   slice_val = 255[7..6] = 3 => status = true
+    poke(data_in, 200)
+    cycle()
+
+    assert(data_out == 216 as u16, "data_out post-cycle: sum_val = 200+16 = 216")
+    assert(io_pin == 1 as s8, "io_pin = 1 in elsewhen branch (data_in >= 100, counter > 5)")
+    assert(status == true, "status: slice_val=3 (state=255 bits 7..6) is non-zero => true")
+}
