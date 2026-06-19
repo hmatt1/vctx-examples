@@ -7,9 +7,9 @@ sim TestGrammarPrecedence {
     assert(10 - 4 / 2 == 8, "10 - (4 / 2) == 8")
     
     // --- 2. Additive vs Shift ---
-    // Standard C: Shift is below Additive. (1 + 2) << 3 = 24.
-    // vctx: shift is below sum.
-    assert(1 + 2 << 3 == 24, "(1 + 2) << 3 == 24")
+    // Shift is below additive: + binds tighter than <<.
+    // Note: untyped `1 + 2` yields u3(3); u3 << 3 overflows. Cast to u8 to hold the result.
+    assert((1 as u8) + 2 << 3 == 24, "(1 as u8 + 2) << 3 == 24")
     assert(1 << 2 + 1 == 8,  "1 << (2 + 1) == 8")
 
     // --- 3. Shift vs Comparison ---
