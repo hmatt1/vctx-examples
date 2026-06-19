@@ -13,4 +13,3 @@ comptime clog2(n: Int) -> u32 {
     }
     return (r as u32)
 }
-

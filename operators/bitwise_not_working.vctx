@@ -13,7 +13,7 @@ sim TestBitwiseNotUnsigned {
 
 sim TestBitwiseNotSigned {
     wire z: s8 = 0
-    
-    // ~0 in two's complement is -1
-    assert(~z == -1, "Bitwise NOT of 0s8 is -1")
+
+    // ~ requires unsigned operand; cast to unsigned, apply ~, cast back for signed interpretation
+    assert(~(z as u8) as s8 == -1, "Bitwise NOT of 0s8 is -1")
 }

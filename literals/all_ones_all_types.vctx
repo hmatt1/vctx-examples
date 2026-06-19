@@ -35,7 +35,7 @@ sim TestAllOnesAllTypes {
     assert(u8_inv0 == 0xFF, "~(u8(0)) is 0xFF")
     assert(width(u8_inv0) == 8, "width is 8")
 
-    wire s16_inv0: s16 = ~(0 as s16)
+    wire s16_inv0: s16 = (~(0 as u16)) as s16
     assert(s16_inv0 == -1, "~(val_s16(0)) is -1")
     assert(width(s16_inv0) == 16, "width is 16")
 
@@ -55,7 +55,8 @@ sim TestAllOnesAllTypes {
 
     wire s5_ones: s [ 5 ] = -1 // 0b11111
     assert(s5_ones == -1, "s5 all-ones is -1")
-    assert(~(0 as s [ 5 ]) == -1, "~s5(0) is -1")
+    wire s5_inv0: s [ 5 ] = (~(0 as u [ 5 ])) as s [ 5 ]
+    assert(s5_inv0 == -1, "~u5(0) as s5 is -1")
 
     // --- 6. Arithmetic with All-Ones ---
     // Unsigned max + 1 wraps to 0 (though Vctx promotes width for +, so it becomes 256 in u9)

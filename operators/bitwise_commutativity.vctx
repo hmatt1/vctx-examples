@@ -14,17 +14,17 @@ sim TestBitwiseCommutativity {
     assert((a8 | b8) == (b8 | a8), "u8: a | b == b | a")
     assert((a8 ^ b8) == (b8 ^ a8), "u8: a ^ b == b ^ a")
 
-    // --- 2. Commutativity with Mixed Signedness (u8 vs val_s8) ---
-    // Rule: Promote to signed (Width+1) if any operand is signed.
+    // --- 2. Commutativity with Mixed Signedness (u8 vs s8) ---
+    // Rule: Cast signed to unsigned first; result is always unsigned.
     wire u8_val: u8 = 0x80 // 128
-    wire s8_val: s8 = -1   // 0xFF
-    
-    // (u8 & val_s8) vs (val_s8 & u8)
-    wire res_us: s8 = (u8_val & s8_val) as s8
-    wire res_su: s8 = (s8_val & u8_val) as s8
-    assert(res_us == res_su, "Mixed: u8 & val_s8 == val_s8 & u8")
+    wire s8_val: s8 = -1   // 0xFF as u8
+
+    // u8 & (s8 as u8) vs (s8 as u8) & u8 — commutativity holds
+    wire res_us: u8 = u8_val & (s8_val as u8)
+    wire res_su: u8 = (s8_val as u8) & u8_val
+    assert(res_us == res_su, "Mixed: u8 & (s8 as u8) == (s8 as u8) & u8")
     assert(width(res_us) == 8, "Mixed width check (max of 8, 8)")
-    assert(is_signed(res_us) == true, "Mixed sign check (signed wins)")
+    assert(is_signed(res_us) == false, "Bitwise result is always unsigned")
 
     // --- 3. Commutativity with Mixed Widths (u8 vs u16) ---
     // Rule: Result width is max(L, R).
@@ -50,12 +50,14 @@ sim TestBitwiseCommutativity {
     
     assert(((x64 ^ y64) ^ z64) == (x64 ^ (y64 ^ z64)), "u64: associativity ^")
 
-    // --- 6. Non-power-of-2 Width Commutativity (u3, s5) ---
+    // --- 6. Non-power-of-2 Width Commutativity (u3, u5) ---
+    // Cast s5 to u5 before bitwise ops.
     wire u3_a: u [ 3 ] = 7
     wire s5_b: s [ 5 ] = -1
-    
-    assert((u3_a & s5_b) == (s5_b & u3_a), "Odd: u3 & s5 == s5 & u3")
-    assert(width(u3_a | s5_b) == 5, "Odd width result is 5")
+    wire u5_b: u [ 5 ] = s5_b as u [ 5 ]
+
+    assert((u3_a & u5_b) == (u5_b & u3_a), "Odd: u3 & u5 == u5 & u3")
+    assert(width(u3_a | u5_b) == 5, "Odd width result is 5")
 
     // --- 7. Distributive Laws (Bonus integrity check) ---
     // a & (b | c) == (a & b) | (a & c)
@@ -65,9 +67,9 @@ sim TestBitwiseCommutativity {
     assert((a8 | (b8 & 0x0F)) == ((a8 | b8) & (a8 | 0x0F)), "Distributive: | over &")
 
     // --- 8. Order-Independent Type Resolution ---
-    // Confirming that the specialized type doesn't care about order
-    wire check1: u8 = u8_val ^ s8_val
-    wire check2: u8 = s8_val ^ u8_val
+    // Bitwise result is always unsigned; operand order does not affect type.
+    wire check1: u8 = u8_val ^ (s8_val as u8)
+    wire check2: u8 = (s8_val as u8) ^ u8_val
     assert(is_signed(check1) == is_signed(check2), "Symmetric signedness")
     assert(width(check1) == width(check2), "Symmetric width")
 }

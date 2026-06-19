@@ -2,9 +2,11 @@
 // expect: pass
 
 sim TestBitwiseNotSigned2 {
+    // ~ requires unsigned operand; result is unsigned same width.
+    // To apply ~ to a signed value, cast to unsigned first.
     wire x: s8 = 1
 
-    wire z: s8 = ~x
+    wire z: u8 = ~(x as u8)
 
-    assert(z == -2, "Bitwise NOT of 1 is -2")
+    assert(z as s8 == -2, "Bitwise NOT of 1 is -2")
 }

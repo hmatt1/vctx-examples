@@ -17,14 +17,14 @@ sim TestBitwiseNotAllTypes {
     assert(~(0 as u64) == 0xFFFF_FFFF_FFFF_FFFF, "u64: ~0 = all ones")
 
     // --- 2. Signed Power-of-2 (val_s8 to s64) ---
-    // Rule: ~x in two's complement is -(x+1)
-    assert(~(0 as s8) == -1,   "val_s8: ~0 = -1")
-    assert(~(-1 as s8) == 0,   "val_s8: ~(-1) = 0")
-    assert(~(127 as s8) == -128, "val_s8: ~127 = -128 (MSB was 0, becomes 1)")
-    assert(~(-128 as s8) == 127, "val_s8: ~(-128) = 127")
+    // Rule: ~x in two's complement is -(x+1). Cast to unsigned first; cast result back to signed.
+    assert(~(0 as u8) as s8 == -1,    "val_s8: ~0 = -1")
+    assert(~(0xFF as u8) as s8 == 0,  "val_s8: ~(-1) = 0")
+    assert(~(127 as u8) as s8 == -128, "val_s8: ~127 = -128 (MSB was 0, becomes 1)")
+    assert(~(128 as u8) as s8 == 127,  "val_s8: ~(-128) = 127")
 
-    assert(~(0 as s16) == -1, "val_s16: ~0 = -1")
-    assert(~(0 as s64) == -1, "s64: ~0 = -1")
+    assert(~(0 as u16) as s16 == -1, "val_s16: ~0 = -1")
+    assert(~(0 as u64) as s64 == -1, "s64: ~0 = -1")
 
     // --- 3. Boolean (bool) ---
     // bool behaves as u1 for bitwise ops.
@@ -37,24 +37,26 @@ sim TestBitwiseNotAllTypes {
     assert(width(~u3_val) == 3, "u3 width preserved")
 
     wire s5_val: s [ 5 ] = 0b01111 // 15
-    // ~01111 = 10000 = -16
-    assert(~s5_val == -16, "s5: ~15 = -16")
-    assert(width(~s5_val) == 5, "s5 width preserved")
+    wire s5_val_u: u [ 5 ] = s5_val as u [ 5 ]
+    // ~01111 = 10000 = -16 (reinterpret u5(16) as s5)
+    assert(~s5_val_u as s [ 5 ] == -16, "s5: ~15 = -16")
+    assert(width(~s5_val_u) == 5, "s5 width preserved")
 
     // --- 5. Double Negation Law ---
     wire x8: u8 = 0x12
     assert(~~x8 == x8, "u8: ~~x = x")
-    
+
     wire sx16: s16 = -1234
-    assert(~~sx16 == sx16, "val_s16: ~~x = x")
+    wire sx16_u: u16 = sx16 as u16
+    assert((~~sx16_u) as s16 == sx16, "s16: ~~x = x (via u16)")
 
     // --- 6. Interaction with Arithmetic ---
-    // ~x + 1 == -x (Two's complement identity)
+    // ~x + 1 == -x (Two's complement identity, observed modulo N bits)
     wire val: s8 = 42
-    assert((~val + 1) == -val, "~x + 1 = -x")
-    
+    assert(((~(val as u8)) + 1) as u8 == (-val) as u8, "~x + 1 = -x (mod u8)")
+
     // Result width check
-    wire res_not: s8 = ~val
+    wire res_not: u8 = ~(val as u8)
     assert(width(res_not) == 8, "Bitwise NOT result width matches operand")
-    assert(is_signed(res_not) == true, "Bitwise NOT result signedness matches operand")
+    assert(is_signed(res_not) == false, "Bitwise NOT result is unsigned")
 }

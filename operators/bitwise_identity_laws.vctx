@@ -31,18 +31,22 @@ sim TestBitwiseIdentityLaws {
     // Double Negation
     assert((~(~x8)) == x8, "u8: ~(~x) = x")
 
-    // --- 2. 16-bit Signed Identities (val_s16) ---
-    // Rule: Bitwise ops on signed treat them as bit patterns.
+    // --- 2. 16-bit Signed Identities (via u16 cast) ---
+    // Rule: Bitwise ops require unsigned operands. Cast signed to unsigned first.
     wire sx16: s16 = -42
     wire szero16: s16 = 0
-    wire sones16: s16 = -1 // 0xFFFF
+    wire sones16: s16 = -1  // 0xFFFF as u16
 
-    assert((sx16 & sx16) == sx16, "val_s16: idempotence AND")
-    assert((sx16 | szero16) == sx16, "val_s16: identity OR")
-    assert((sx16 ^ sx16) == 0, "val_s16: self-inverse XOR")
-    assert((sx16 | sones16) == -1, "val_s16: absorbing OR (-1)")
-    assert((sx16 & sones16) == sx16, "val_s16: identity AND (-1)")
-    assert((~(~sx16)) == sx16, "val_s16: double negation")
+    wire sx16_u: u16 = sx16 as u16
+    wire szero16_u: u16 = szero16 as u16
+    wire sones16_u: u16 = sones16 as u16
+
+    assert((sx16_u & sx16_u) as s16 == sx16, "s16 idempotence AND (via u16)")
+    assert((sx16_u | szero16_u) as s16 == sx16, "s16 identity OR (via u16)")
+    assert((sx16_u ^ sx16_u) == 0, "s16 self-inverse XOR (via u16)")
+    assert((sx16_u | sones16_u) as s16 == -1, "s16 absorbing OR -1 (via u16)")
+    assert((sx16_u & sones16_u) as s16 == sx16, "s16 identity AND (via u16)")
+    assert((~(~sx16_u)) == sx16_u, "s16 double negation (as u16)")
 
     // --- 3. 64-bit Extremes (u64) ---
     wire x64: u64 = 0xDEAD_BEEF_CAFE_BABE
