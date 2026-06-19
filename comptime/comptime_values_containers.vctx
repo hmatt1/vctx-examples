@@ -26,9 +26,9 @@ sim SimComptimeValueContainers {
     wire b: u32
     ComptimeValueContainers(a, b)
     cycle()
-    // NOTE: Known failing in current toolchain; tracked as an expected-fail sim:
-    //   on_purpose_failures_sim/sim_comptime_value_containers_should_work.vctx
-    assert(a == a, "smoke: keep sim block discoverable while feature is tracked as xfail")
-    assert(b == b, "smoke: keep sim block discoverable while feature is tracked as xfail")
+    // arr_demo(): a[1] = 20
+    assert(a == 20 as u32, "arr_demo() returns a[1] = 20")
+    // map_demo(): m["y"] = 9
+    assert(b == 9 as u32, "map_demo() returns 9 for key y")
 }
 
