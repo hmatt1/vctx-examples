@@ -1,0 +1,450 @@
+// spec: §5.5, §7.3, §8.7
+// description: Ternary expressions where both the true and false arms are inlined
+//   function calls. Tests that the type-unification pass correctly resolves two
+//   independent inline expansions into a single mux, covering:
+//   (1) different functions same return type, (2) same function different args,
+//   (3) bool-returning functions, (4) function call as the condition,
+//   (5) expression arguments in the arm calls, (6) multiple independent such
+//   ternaries in one component, (7) nested ternary with function arm at every
+//   branch, (8) ternary result fed immediately into another function call,
+//   (9) ternary-with-fn-arms as the RHS of a register update.
+// expect: pass
+
+// ─── Functions ────────────────────────────────────────────────────────────────
+
+function double_u8(x: u8) -> u8 {
+    return (x + x) as u8
+}
+
+function halve_u8(x: u8) -> u8 {
+    return (x >> 1 as u8) as u8
+}
+
+function add_u8(a: u8, b: u8) -> u8 {
+    return (a + b) as u8
+}
+
+function sub_u8(a: u8, b: u8) -> u8 {
+    return (a - b) as u8
+}
+
+function is_even(x: u8) -> bool {
+    return (x & 1 as u8) == 0
+}
+
+function is_nonzero(x: u8) -> bool {
+    return x !== 0
+}
+
+function is_large(x: u8) -> bool {
+    return x >== 100 as u8
+}
+
+// Complex body (local wires) — also used in fn_call_when_guard; redefined here for
+// standalone completeness.
+function parity_u8(data: u8) -> bool {
+    wire p0: bool
+    wire p1: bool
+    wire p2: bool
+    wire p3: bool
+    p0 := data[0] ^ data[1]
+    p1 := data[2] ^ data[3]
+    p2 := data[4] ^ data[5]
+    p3 := data[6] ^ data[7]
+    return (p0 ^ p1) ^ (p2 ^ p3)
+}
+
+// Internal when block, non-bool return — used in nested ternary.
+function swap_nibbles(x: u8) -> u8 {
+    wire hi: u4 = x[7..4]
+    wire lo: u4 = x[3..0]
+    return concat(lo, hi) as u8     // lo into high bits, hi into low bits
+}
+
+// ─── 1. Different functions in each arm, same return type ─────────────────────
+
+component BasicBothFnArms(in cond: bool, in x: u8, out result: u8) {
+    result := cond ? double_u8(x) : halve_u8(x)
+}
+
+sim TestBasicBothFnArms {
+    wire cond: bool = false
+    wire x:    u8   = 0
+    wire result: u8
+    BasicBothFnArms(cond, x, result)
+
+    poke(cond, true)
+    poke(x, 20)
+    cycle()
+    assert(result == 40 as u8,  "T: double(20)=40")
+
+    poke(cond, false)
+    cycle()
+    assert(result == 10 as u8,  "F: halve(20)=10")
+
+    poke(cond, true)
+    poke(x, 255)
+    cycle()
+    assert(result == 254 as u8, "T: double(255)=510%256=254")
+
+    poke(cond, false)
+    cycle()
+    assert(result == 127 as u8, "F: halve(255)=127")
+}
+
+// ─── 2. Same function in both arms, different arguments ───────────────────────
+//   The compiler must generate two independent inlinings of double_u8,
+//   one selecting a and the other b.
+
+component SameFnBothArms(in cond: bool, in a: u8, in b: u8, out result: u8) {
+    result := cond ? double_u8(a) : double_u8(b)
+}
+
+sim TestSameFnBothArms {
+    wire cond: bool = false
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire result: u8
+    SameFnBothArms(cond, a, b, result)
+
+    poke(a, 20)
+    poke(b, 10)
+    poke(cond, true)
+    cycle()
+    assert(result == 40 as u8,  "T: double(a=20)=40")
+
+    poke(cond, false)
+    cycle()
+    assert(result == 20 as u8,  "F: double(b=10)=20")
+
+    poke(a, 100)
+    poke(b, 50)
+    poke(cond, true)
+    cycle()
+    assert(result == 200 as u8, "T: double(a=100)=200")
+
+    poke(cond, false)
+    cycle()
+    assert(result == 100 as u8, "F: double(b=50)=100")
+}
+
+// ─── 3. Bool-returning functions in both arms ─────────────────────────────────
+//   Type unification must produce a single bool wire from two independent
+//   bool-returning inline expansions.
+
+component BoolFnArms(in cond: bool, in a: u8, in b: u8, out flag: bool) {
+    flag := cond ? is_even(a) : parity_u8(b)
+}
+
+sim TestBoolFnArms {
+    wire cond: bool = false
+    wire a:    u8   = 0
+    wire b:    u8   = 0
+    wire flag: bool
+    BoolFnArms(cond, a, b, flag)
+
+    // condition selects is_even path
+    poke(cond, true)
+    poke(a, 4)
+    cycle()
+    assert(flag == true,  "T: is_even(4)=true")
+
+    poke(a, 5)
+    cycle()
+    assert(flag == false, "T: is_even(5)=false")
+
+    // condition selects parity_u8 path
+    poke(cond, false)
+    poke(b, 7)     // 0b00000111: 3 set bits → odd parity → true
+    cycle()
+    assert(flag == true,  "F: parity(7)=true (3 bits)")
+
+    poke(b, 5)     // 0b00000101: 2 set bits → even parity → false
+    cycle()
+    assert(flag == false, "F: parity(5)=false (2 bits)")
+
+    poke(b, 255)   // 0b11111111: 8 set bits → even parity → false
+    cycle()
+    assert(flag == false, "F: parity(255)=false (8 bits)")
+
+    poke(b, 1)     // 0b00000001: 1 set bit → odd parity → true
+    cycle()
+    assert(flag == true,  "F: parity(1)=true (1 bit)")
+}
+
+// ─── 4. Function call in all three ternary positions ─────────────────────────
+//   Condition AND both arms are function calls; exercises three simultaneous
+//   inline expansions feeding a single mux.
+
+component AllThreeFnPositions(in x: u8, in y: u8, out result: u8) {
+    result := is_nonzero(x) ? double_u8(x) : halve_u8(y)
+}
+
+sim TestAllThreeFnPositions {
+    wire x: u8 = 0
+    wire y: u8 = 0
+    wire result: u8
+    AllThreeFnPositions(x, y, result)
+
+    // x=0: condition false → halve(y)
+    poke(x, 0)
+    poke(y, 100)
+    cycle()
+    assert(result == 50 as u8,  "x=0 → false → halve(y=100)=50")
+
+    poke(y, 255)
+    cycle()
+    assert(result == 127 as u8, "x=0 → false → halve(y=255)=127")
+
+    // x≠0: condition true → double(x)
+    poke(x, 10)
+    poke(y, 100)
+    cycle()
+    assert(result == 20 as u8,  "x=10 → true → double(x=10)=20")
+
+    poke(x, 200)
+    cycle()
+    assert(result == 144 as u8, "x=200 → true → double(200)=400%256=144")
+}
+
+// ─── 5. Both arm calls receive non-trivial expression arguments ───────────────
+//   Combines scenario 2 (function-as-when-guard file: expression args) with this
+//   file's scenario: the expressions are evaluated and substituted into two
+//   independently inlined functions selected by the ternary.
+
+component BothArmsExprArgs(in cond: bool, in a: u8, in b: u8, out result: u8) {
+    result := cond ? add_u8(a ^ b, a) : sub_u8(a, a ^ b)
+}
+
+sim TestBothArmsExprArgs {
+    wire cond: bool = false
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire result: u8
+    BothArmsExprArgs(cond, a, b, result)
+
+    // a=60, b=45 → a^b=17
+    poke(a, 60)
+    poke(b, 45)
+    poke(cond, true)
+    cycle()
+    assert(result == 77 as u8,  "T: add(60^45=17, 60)=77")
+
+    poke(cond, false)
+    cycle()
+    assert(result == 43 as u8,  "F: sub(60, 60^45=17)=43")
+
+    // a=b=10 → a^b=0; both arms coincidentally equal
+    poke(a, 10)
+    poke(b, 10)
+    poke(cond, true)
+    cycle()
+    assert(result == 10 as u8,  "T: add(0, 10)=10")
+
+    poke(cond, false)
+    cycle()
+    assert(result == 10 as u8,  "F: sub(10, 0)=10 (same via different path)")
+
+    // a=255, b=1 → a^b=254
+    poke(a, 255)
+    poke(b, 1)
+    poke(cond, true)
+    cycle()
+    assert(result == 253 as u8, "T: add(254, 255)=509%256=253")
+
+    poke(cond, false)
+    cycle()
+    assert(result == 1 as u8,   "F: sub(255, 254)=1")
+}
+
+// ─── 6. Multiple independent ternaries with fn arms in the same component ─────
+//   Six independent inline expansions (two per ternary × three ternaries) must
+//   not interfere with each other's signal routing.
+
+component MultiTernaryScope(
+    in c1: bool, in c2: bool, in c3: bool,
+    in a: u8, in b: u8,
+    out r1: u8, out r2: u8, out r3: bool
+) {
+    r1 := c1 ? double_u8(a) : halve_u8(b)
+    r2 := c2 ? add_u8(a, b) : sub_u8(a, b)
+    r3 := c3 ? is_even(a)   : parity_u8(b)
+}
+
+sim TestMultiTernaryScope {
+    wire c1: bool = false
+    wire c2: bool = false
+    wire c3: bool = false
+    wire a:  u8   = 0
+    wire b:  u8   = 0
+    wire r1: u8
+    wire r2: u8
+    wire r3: bool
+    MultiTernaryScope(c1, c2, c3, a, b, r1, r2, r3)
+
+    // all true: a=20, b=10 → double(20)=40; add(20,10)=30; is_even(20)=T
+    poke(c1, true)
+    poke(c2, true)
+    poke(c3, true)
+    poke(a, 20)
+    poke(b, 10)
+    cycle()
+    assert(r1 == 40 as u8, "c1=T: double(a=20)=40")
+    assert(r2 == 30 as u8, "c2=T: add(20,10)=30")
+    assert(r3 == true,     "c3=T: is_even(20)=true")
+
+    // all false: halve(b=10)=5; sub(20,10)=10; parity(10)=false (2 set bits)
+    poke(c1, false)
+    poke(c2, false)
+    poke(c3, false)
+    cycle()
+    assert(r1 == 5 as u8,  "c1=F: halve(b=10)=5")
+    assert(r2 == 10 as u8, "c2=F: sub(20,10)=10")
+    assert(r3 == false,    "c3=F: parity(10)=false")
+
+    // mixed: c1=T,c2=F,c3=T, a=60, b=45
+    poke(c1, true)
+    poke(c2, false)
+    poke(c3, true)
+    poke(a, 60)
+    poke(b, 45)
+    cycle()
+    assert(r1 == 120 as u8, "c1=T: double(60)=120")
+    assert(r2 == 15 as u8,  "c2=F: sub(60,45)=15")
+    assert(r3 == true,      "c3=T: is_even(60)=true")
+
+    // mixed: c1=F,c2=T,c3=F, a=7, b=3
+    poke(c1, false)
+    poke(c2, true)
+    poke(c3, false)
+    poke(a, 7)
+    poke(b, 3)
+    cycle()
+    assert(r1 == 1 as u8,  "c1=F: halve(b=3)=1")
+    assert(r2 == 10 as u8, "c2=T: add(7,3)=10")
+    assert(r3 == false,    "c3=F: parity(3)=false (2 bits)")
+}
+
+// ─── 7. Nested ternary with a function call at every branch ───────────────────
+//   Three branches, each arm a distinct function call. The inner ternary's two
+//   arms are also functions, so all type unification is between function results.
+
+component NestedTernaryAllFn(in x: u8, out result: u8) {
+    result := is_large(x)
+        ? double_u8(x)
+        : (is_even(x) ? swap_nibbles(x) : halve_u8(x))
+}
+
+sim TestNestedTernaryAllFn {
+    wire x: u8 = 0
+    wire result: u8
+    NestedTernaryAllFn(x, result)
+
+    // large path (x >= 100): double
+    poke(x, 200)
+    cycle()
+    assert(result == 144 as u8, "x=200 large: double(200)=400%256=144")
+
+    poke(x, 100)
+    cycle()
+    assert(result == 200 as u8, "x=100 boundary: double(100)=200")
+
+    // small even path: swap nibbles
+    poke(x, 60)     // 0x3C → swap → 0xC3
+    cycle()
+    assert(result == 195 as u8, "x=0x3C not-large even: swap → 0xC3=195")
+
+    poke(x, 2)      // 0x02 → swap → 0x20
+    cycle()
+    assert(result == 32 as u8,  "x=0x02 not-large even: swap → 0x20=32")
+
+    // small odd path: halve
+    poke(x, 61)
+    cycle()
+    assert(result == 30 as u8,  "x=61 not-large odd: halve(61)=30")
+
+    poke(x, 3)
+    cycle()
+    assert(result == 1 as u8,   "x=3 not-large odd: halve(3)=1")
+}
+
+// ─── 8. Ternary result (from fn arms) immediately fed to another function ──────
+//   Tests that the output type of the two-arm ternary is correctly threaded
+//   into a subsequent function's argument-binding step.
+
+component TernaryResultToFn(in cond: bool, in a: u8, in b: u8, out result: u8) {
+    wire inner: u8 = cond ? double_u8(a) : halve_u8(b)
+    result := swap_nibbles(inner)
+}
+
+sim TestTernaryResultToFn {
+    wire cond: bool = false
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire result: u8
+    TernaryResultToFn(cond, a, b, result)
+
+    // cond=T: inner=double(0x12=18)=36=0x24; swap(0x24)=0x42=66
+    poke(cond, true)
+    poke(a, 0x12)
+    cycle()
+    assert(result == 66 as u8,  "T: double(0x12)=0x24, swap→0x42=66")
+
+    // cond=F: inner=halve(0x78=120)=60=0x3C; swap(0x3C)=0xC3=195
+    poke(cond, false)
+    poke(b, 0x78)
+    cycle()
+    assert(result == 195 as u8, "F: halve(0x78)=0x3C, swap→0xC3=195")
+
+    // cond=T: inner=double(0xAB=171)=86=0x56; swap(0x56)=0x65=101
+    poke(cond, true)
+    poke(a, 0xAB)
+    cycle()
+    assert(result == 101 as u8, "T: double(0xAB)=0x56, swap→0x65=101")
+
+    // cond=F: inner=halve(0xF0=240)=120=0x78; swap(0x78)=0x87=135
+    poke(cond, false)
+    poke(b, 0xF0)
+    cycle()
+    assert(result == 135 as u8, "F: halve(0xF0)=0x78, swap→0x87=135")
+}
+
+// ─── 9. Ternary-with-fn-arms as the RHS of a register update ─────────────────
+//   Sequential context: the mux output (from two inlined functions) clocks into
+//   a register, verifying correct behaviour in a non-combinational assignment.
+
+component RegFnTernary(in cond: bool, in a: u8, in b: u8, out q: u8) {
+    reg r: u8 = 0
+    r <= cond ? double_u8(a) : halve_u8(b)
+    q := r
+}
+
+sim TestRegFnTernary {
+    wire cond: bool = false
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire q: u8
+    RegFnTernary(cond, a, b, q)
+    reset()
+    assert(q == 0, "after reset: r=0")
+
+    poke(cond, true)
+    poke(a, 20)
+    poke(b, 10)
+    cycle()
+    assert(q == 40 as u8, "cond=T: reg loads double(20)=40")
+
+    poke(cond, false)
+    cycle()
+    assert(q == 5 as u8,  "cond=F: reg loads halve(10)=5")
+
+    poke(cond, true)
+    poke(a, 100)
+    cycle()
+    assert(q == 200 as u8, "cond=T: reg loads double(100)=200")
+
+    poke(cond, false)
+    poke(b, 50)
+    cycle()
+    assert(q == 25 as u8,  "cond=F: reg loads halve(50)=25")
+}

@@ -1,0 +1,226 @@
+// spec: §7.2, §7.6, §8.4
+// description: Arithmetic on two or more dynamically-indexed array elements
+//   in a single expression — the cross-index arithmetic gap.
+//   Existing tests exercise one dynamic index at a time; these components
+//   combine two or three independent index MUXes in one expression.
+//   Scenarios:
+//     1. Two dynamic indices summed: (arr[i] + arr[j]) as u8
+//     2. Mixed static/dynamic: arr[3] - arr[sel] and arr[1] + arr[sel]
+//     3. Comparison of two dynamically-indexed elements: arr[i] > arr[j]
+//     4. Three dynamic indices summed: (arr[i] + arr[j] + arr[k]) as u8
+//     5. Two different arrays, independent indices: (a[i] + b[j]) as u8
+// expect: pass
+
+// ─── 1: Two dynamic indices summed ────────────────────────────────────────────
+//   Both i and j are runtime ports; each reads a separate MUX on the same
+//   array. The adder receives two MUX outputs, not a static value + a MUX.
+
+component TwoIndexSum(in i: u2, in j: u2, out total: u8) {
+    wire arr: u8[4] = [10, 20, 30, 40]
+    total := (arr[i] + arr[j]) as u8
+}
+
+sim TestTwoIndexSum {
+    wire i: u2 = 0
+    wire j: u2 = 0
+    wire total: u8
+    TwoIndexSum(i, j, total)
+
+    // i=0, j=1: 10+20=30
+    poke(i, 0)
+    poke(j, 1)
+    cycle()
+    assert(total == 30 as u8, "arr[0]+arr[1] = 10+20 = 30")
+
+    // i=1, j=3: 20+40=60
+    poke(i, 1)
+    poke(j, 3)
+    cycle()
+    assert(total == 60 as u8, "arr[1]+arr[3] = 20+40 = 60")
+
+    // i=2, j=2: same element twice — 30+30=60
+    poke(i, 2)
+    poke(j, 2)
+    cycle()
+    assert(total == 60 as u8, "arr[2]+arr[2] = 30+30 = 60 (same index twice)")
+
+    // i=3, j=0: 40+10=50
+    poke(i, 3)
+    poke(j, 0)
+    cycle()
+    assert(total == 50 as u8, "arr[3]+arr[0] = 40+10 = 50")
+}
+
+// ─── 2: Mixed static/dynamic indices ─────────────────────────────────────────
+//   One index is a compile-time constant; the other is a runtime port.
+//   Generates one static wire + one MUX, then an arithmetic operation.
+
+component MixedStaticDynamic(in sel: u2, out diff: u8, out sm: u8) {
+    wire arr: u8[4] = [10, 30, 50, 70]
+    diff := (arr[3] - arr[sel]) as u8   // static 3, dynamic sel
+    sm   := (arr[1] + arr[sel]) as u8   // static 1, dynamic sel
+}
+
+sim TestMixedStaticDynamic {
+    wire sel: u2 = 0
+    wire diff: u8
+    wire sm: u8
+    MixedStaticDynamic(sel, diff, sm)
+
+    // sel=0: 70-10=60, 30+10=40
+    poke(sel, 0)
+    cycle()
+    assert(diff == 60 as u8, "arr[3]-arr[0] = 70-10 = 60")
+    assert(sm   == 40 as u8, "arr[1]+arr[0] = 30+10 = 40")
+
+    // sel=1: 70-30=40, 30+30=60
+    poke(sel, 1)
+    cycle()
+    assert(diff == 40 as u8, "arr[3]-arr[1] = 70-30 = 40")
+    assert(sm   == 60 as u8, "arr[1]+arr[1] = 30+30 = 60 (same element)")
+
+    // sel=2: 70-50=20, 30+50=80
+    poke(sel, 2)
+    cycle()
+    assert(diff == 20 as u8, "arr[3]-arr[2] = 70-50 = 20")
+    assert(sm   == 80 as u8, "arr[1]+arr[2] = 30+50 = 80")
+
+    // sel=3: 70-70=0, 30+70=100 (sel==3 means arr[3]-arr[3]=0)
+    poke(sel, 3)
+    cycle()
+    assert(diff == 0 as u8,   "arr[3]-arr[3] = 70-70 = 0 (same element, diff=0)")
+    assert(sm   == 100 as u8, "arr[1]+arr[3] = 30+70 = 100")
+}
+
+// ─── 3: Comparison of two dynamically-indexed elements ────────────────────────
+//   Both the LHS and RHS of a comparison operator are array reads.
+//   arr = [5, 20, 20, 40]: note arr[1]==arr[2] to test the equal case.
+
+component TwoIndexCompare(in i: u2, in j: u2, out gt: bool, out eq: bool) {
+    wire arr: u8[4] = [5, 20, 20, 40]
+    gt := arr[i] > arr[j]
+    eq := arr[i] == arr[j]
+}
+
+sim TestTwoIndexCompare {
+    wire i: u2 = 0
+    wire j: u2 = 0
+    wire gt: bool
+    wire eq: bool
+    TwoIndexCompare(i, j, gt, eq)
+
+    // i=0,j=1: 5 > 20 = false; 5 == 20 = false
+    poke(i, 0)
+    poke(j, 1)
+    cycle()
+    assert(gt == false, "5 > 20 = false")
+    assert(eq == false, "5 == 20 = false")
+
+    // i=1,j=2: 20 > 20 = false; 20 == 20 = true (arr[1]==arr[2])
+    poke(i, 1)
+    poke(j, 2)
+    cycle()
+    assert(gt == false, "20 > 20 = false (not strictly greater)")
+    assert(eq == true,  "20 == 20 = true (arr[1] equals arr[2])")
+
+    // i=3,j=0: 40 > 5 = true; 40 == 5 = false
+    poke(i, 3)
+    poke(j, 0)
+    cycle()
+    assert(gt == true,  "40 > 5 = true")
+    assert(eq == false, "40 == 5 = false")
+
+    // i=2,j=3: 20 > 40 = false; 20 == 40 = false
+    poke(i, 2)
+    poke(j, 3)
+    cycle()
+    assert(gt == false, "20 > 40 = false")
+    assert(eq == false, "20 == 40 = false")
+}
+
+// ─── 4: Three dynamic indices in one expression ────────────────────────────────
+//   Three independent MUXes on the same array feed a two-stage adder tree.
+//   Width: u8+u8=u9, u9+u8=u9 → outer as u8 truncates.
+
+component ThreeIndexArith(in i: u2, in j: u2, in k: u2, out total: u8) {
+    wire arr: u8[4] = [5, 10, 15, 20]
+    total := (arr[i] + arr[j] + arr[k]) as u8
+}
+
+sim TestThreeIndexArith {
+    wire i: u2 = 0
+    wire j: u2 = 0
+    wire k: u2 = 0
+    wire total: u8
+    ThreeIndexArith(i, j, k, total)
+
+    // i=0,j=1,k=2: 5+10+15=30
+    poke(i, 0)
+    poke(j, 1)
+    poke(k, 2)
+    cycle()
+    assert(total == 30 as u8, "arr[0]+arr[1]+arr[2] = 5+10+15 = 30")
+
+    // i=1,j=2,k=3: 10+15+20=45
+    poke(i, 1)
+    poke(j, 2)
+    poke(k, 3)
+    cycle()
+    assert(total == 45 as u8, "arr[1]+arr[2]+arr[3] = 10+15+20 = 45")
+
+    // i=0,j=0,k=0: same element three times — 5+5+5=15
+    poke(i, 0)
+    poke(j, 0)
+    poke(k, 0)
+    cycle()
+    assert(total == 15 as u8, "arr[0]+arr[0]+arr[0] = 5+5+5 = 15 (same element thrice)")
+
+    // i=3,j=1,k=0: 20+10+5=35
+    poke(i, 3)
+    poke(j, 1)
+    poke(k, 0)
+    cycle()
+    assert(total == 35 as u8, "arr[3]+arr[1]+arr[0] = 20+10+5 = 35")
+}
+
+// ─── 5: Two different arrays, independent indices ──────────────────────────────
+//   Each index drives a MUX into its own array; the results feed one adder.
+//   Tests that two structurally separate read-ports can both appear in one
+//   arithmetic expression without interfering with each other.
+
+component TwoDifferentArrays(in i: u2, in j: u2, out result: u8) {
+    wire a: u8[4] = [1, 3, 5, 7]
+    wire b: u8[4] = [100, 110, 120, 130]
+    result := (a[i] + b[j]) as u8
+}
+
+sim TestTwoDifferentArrays {
+    wire i: u2 = 0
+    wire j: u2 = 0
+    wire result: u8
+    TwoDifferentArrays(i, j, result)
+
+    // i=0,j=0: a[0]+b[0] = 1+100 = 101
+    poke(i, 0)
+    poke(j, 0)
+    cycle()
+    assert(result == 101 as u8, "a[0]+b[0] = 1+100 = 101")
+
+    // i=1,j=2: a[1]+b[2] = 3+120 = 123
+    poke(i, 1)
+    poke(j, 2)
+    cycle()
+    assert(result == 123 as u8, "a[1]+b[2] = 3+120 = 123")
+
+    // i=3,j=1: a[3]+b[1] = 7+110 = 117
+    poke(i, 3)
+    poke(j, 1)
+    cycle()
+    assert(result == 117 as u8, "a[3]+b[1] = 7+110 = 117")
+
+    // i=2,j=3: a[2]+b[3] = 5+130 = 135
+    poke(i, 2)
+    poke(j, 3)
+    cycle()
+    assert(result == 135 as u8, "a[2]+b[3] = 5+130 = 135")
+}

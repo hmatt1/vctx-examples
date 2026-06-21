@@ -1,0 +1,589 @@
+// spec: §5.5, §7.3, §6.4
+// description: Hardware functions used directly as when/elsewhen guard conditions.
+//   Exercises the function inlining pipeline at condition-expression sites
+//   (distinct from the assignment-site inlining path tested elsewhere).
+//   Scenarios: simple guard on reg, combinational output, expression argument,
+//   negated guard, two functions combined with `and`, four-arm elsewhen chain,
+//   same function in consecutive guards, function with complex internal body,
+//   nested function call, wire-derived argument, dual independent reg guards,
+//   and a register value used as function argument at a guard site.
+// expect: pass
+
+// ─── Predicate functions ──────────────────────────────────────────────────────
+
+function is_nonzero(x: u8) -> bool {
+    return x !== 0
+}
+
+function is_even(x: u8) -> bool {
+    return (x & 1 as u8) == 0
+}
+
+function has_high_bit(x: u8) -> bool {
+    return x >== 128 as u8
+}
+
+function in_range(x: u8, lo: u8, hi: u8) -> bool {
+    return (x >== lo) and (x <== hi)
+}
+
+// Internal local-wire body — tests that a function with non-trivial internals
+// is correctly inlined when its call appears at a guard site (not an assignment).
+function parity_u8(data: u8) -> bool {
+    wire p0: bool
+    wire p1: bool
+    wire p2: bool
+    wire p3: bool
+    p0 := data[0] ^ data[1]
+    p1 := data[2] ^ data[3]
+    p2 := data[4] ^ data[5]
+    p3 := data[6] ^ data[7]
+    return (p0 ^ p1) ^ (p2 ^ p3)
+}
+
+// Non-bool return used as nested argument — outer call sits at the guard site.
+function clamp_u8(x: u8, limit: u8) -> u8 {
+    wire r: u8
+    when x >== limit {
+        r := limit
+    } otherwise {
+        r := x
+    }
+    return r
+}
+
+// ─── A. Simple bool function as when guard for a register ─────────────────────
+
+component GatedReg(in en: u8, in d: u8, out q: u8) {
+    reg r: u8 = 0
+    when is_nonzero(en) {
+        r <= d
+    }
+    q := r
+}
+
+sim TestGatedReg {
+    wire en: u8 = 0
+    wire d:  u8 = 0
+    wire q:  u8
+    GatedReg(en, d, q)
+    reset()
+
+    // en=0: is_nonzero(0)=false → reg holds 0
+    poke(d, 42)
+    cycle()
+    assert(q == 0 as u8,  "en=0 → guard false, reg holds 0")
+
+    // en=7: is_nonzero(7)=true → reg loads d=42
+    poke(en, 7)
+    cycle()
+    assert(q == 42 as u8, "en=7 → guard true, reg loads 42")
+
+    // en=255: still nonzero, load new d
+    poke(d, 99)
+    poke(en, 255)
+    cycle()
+    assert(q == 99 as u8, "en=255 → guard true, reg loads 99")
+
+    // en=0: hold 99
+    poke(en, 0)
+    poke(d, 0)
+    cycle()
+    assert(q == 99 as u8, "en=0 → guard false, reg holds 99")
+}
+
+// ─── B. Function as when guard for a combinational (wire) output ──────────────
+
+// Negate x when its high bit is set (two's-complement reflection in u8 arithmetic).
+component NegateIfHigh(in x: u8, out y: u8) {
+    when has_high_bit(x) {
+        y := (0 as u8 - x) as u8
+    } otherwise {
+        y := x
+    }
+}
+
+sim TestCombinationalGuard {
+    wire x: u8 = 0
+    wire y: u8
+    NegateIfHigh(x, y)
+
+    cycle()
+    assert(y == 0 as u8,   "x=0: no high bit → y=0")
+
+    poke(x, 10)
+    cycle()
+    assert(y == 10 as u8,  "x=10: no high bit → y=10")
+
+    // 200 >= 128: high bit set; 0-200 as u8 = 256-200 = 56
+    poke(x, 200)
+    cycle()
+    assert(y == 56 as u8,  "x=200: high bit → y=256-200=56")
+
+    // 128 >= 128: high bit set; 0-128 as u8 = 128
+    poke(x, 128)
+    cycle()
+    assert(y == 128 as u8, "x=128: high bit → y=256-128=128")
+
+    // 255 >= 128: high bit set; 0-255 as u8 = 1
+    poke(x, 255)
+    cycle()
+    assert(y == 1 as u8,   "x=255: high bit → y=256-255=1")
+}
+
+// ─── C. Function called with an *expression* as its argument ─────────────────
+
+component EvenSumGate(in a: u8, in b: u8, out ok: bool) {
+    when is_even((a + b) as u8) {
+        ok := true
+    } otherwise {
+        ok := false
+    }
+}
+
+sim TestExpressionArgGuard {
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire ok: bool
+    EvenSumGate(a, b, ok)
+
+    // 3+5=8, even
+    poke(a, 3)
+    poke(b, 5)
+    cycle()
+    assert(ok == true,  "3+5=8 (even) → guard true")
+
+    // 3+4=7, odd
+    poke(b, 4)
+    cycle()
+    assert(ok == false, "3+4=7 (odd) → guard false")
+
+    // 127+127=254, even
+    poke(a, 127)
+    poke(b, 127)
+    cycle()
+    assert(ok == true,  "127+127=254 (even) → guard true")
+
+    // 255+1=256 → as u8=0, even
+    poke(a, 255)
+    poke(b, 1)
+    cycle()
+    assert(ok == true,  "255+1=0 as u8 (even) → guard true")
+
+    // 255+2=257 → as u8=1, odd
+    poke(b, 2)
+    cycle()
+    assert(ok == false, "255+2=1 as u8 (odd) → guard false")
+}
+
+// ─── D. Negated function call as guard ───────────────────────────────────────
+
+component NegatedGuardReg(in x: u8, in d: u8, out q: u8) {
+    reg r: u8 = 255
+    when not is_nonzero(x) {
+        r <= d
+    }
+    q := r
+}
+
+sim TestNegatedFunctionGuard {
+    wire x: u8 = 1
+    wire d: u8 = 0
+    wire q: u8
+    NegatedGuardReg(x, d, q)
+    reset()
+
+    // x=5: not is_nonzero(5) = not true = false → holds 255
+    poke(x, 5)
+    poke(d, 42)
+    cycle()
+    assert(q == 255 as u8, "x=5 → negated guard false, holds 255")
+
+    // x=0: not is_nonzero(0) = not false = true → loads 42
+    poke(x, 0)
+    cycle()
+    assert(q == 42 as u8,  "x=0 → negated guard true, loads 42")
+
+    // x=1: back to false → holds 42
+    poke(x, 1)
+    poke(d, 77)
+    cycle()
+    assert(q == 42 as u8,  "x=1 → negated guard false, holds 42")
+
+    // x=0 again: loads 77
+    poke(x, 0)
+    cycle()
+    assert(q == 77 as u8,  "x=0 again → negated guard true, loads 77")
+}
+
+// ─── E. Two function calls joined with `and` ──────────────────────────────────
+
+component InBandDetect(in x: u8, out flag: bool) {
+    when is_even(x) and in_range(x, 10 as u8, 50 as u8) {
+        flag := true
+    } otherwise {
+        flag := false
+    }
+}
+
+sim TestFunctionAndCondition {
+    wire x: u8 = 0
+    wire flag: bool
+    InBandDetect(x, flag)
+
+    poke(x, 20)
+    cycle()
+    assert(flag == true,  "x=20: even and in [10,50] → true")
+
+    poke(x, 21)
+    cycle()
+    assert(flag == false, "x=21: odd → false")
+
+    poke(x, 52)
+    cycle()
+    assert(flag == false, "x=52: even but > 50 → false")
+
+    poke(x, 10)
+    cycle()
+    assert(flag == true,  "x=10: even, at lo boundary → true")
+
+    poke(x, 50)
+    cycle()
+    assert(flag == true,  "x=50: even, at hi boundary → true")
+
+    poke(x, 8)
+    cycle()
+    assert(flag == false, "x=8: even but < 10 → false")
+}
+
+// ─── F. Four-arm elsewhen chain with function guards in each arm ──────────────
+
+component Classifier(in x: u8, out cat: u2) {
+    when is_even(x) and not has_high_bit(x) {
+        cat := 0 as u2          // small even  [0..127], even
+    } elsewhen is_even(x) {
+        cat := 1 as u2          // large even  [128..255], even
+    } elsewhen not has_high_bit(x) {
+        cat := 2 as u2          // small odd   [0..127], odd
+    } otherwise {
+        cat := 3 as u2          // large odd   [128..255], odd
+    }
+}
+
+sim TestClassifier {
+    wire x: u8 = 0
+    wire cat: u2
+    Classifier(x, cat)
+
+    poke(x, 10)
+    cycle()
+    assert(cat == 0 as u2, "x=10: small even → cat=0")
+
+    // 138=0x8A: bit0=0 (even), bit7=1 (high)
+    poke(x, 138)
+    cycle()
+    assert(cat == 1 as u2, "x=138: large even → cat=1")
+
+    poke(x, 11)
+    cycle()
+    assert(cat == 2 as u2, "x=11: small odd → cat=2")
+
+    // 139=0x8B: bit0=1 (odd), bit7=1 (high)
+    poke(x, 139)
+    cycle()
+    assert(cat == 3 as u2, "x=139: large odd → cat=3")
+
+    // Boundary cases
+    poke(x, 0)
+    cycle()
+    assert(cat == 0 as u2, "x=0: small even → cat=0")
+
+    poke(x, 128)
+    cycle()
+    assert(cat == 1 as u2, "x=128: large even → cat=1")
+
+    poke(x, 127)
+    cycle()
+    assert(cat == 2 as u2, "x=127: small odd → cat=2")
+
+    poke(x, 255)
+    cycle()
+    assert(cat == 3 as u2, "x=255: large odd → cat=3")
+}
+
+// ─── G. Same function in three consecutive elsewhen guards ────────────────────
+
+component FirstEvenOf3(in a: u8, in b: u8, in c: u8, out first: u8) {
+    when is_even(a) {
+        first := a
+    } elsewhen is_even(b) {
+        first := b
+    } elsewhen is_even(c) {
+        first := c
+    } otherwise {
+        first := 0
+    }
+}
+
+sim TestSameFunctionInChain {
+    wire a: u8 = 1
+    wire b: u8 = 3
+    wire c: u8 = 7
+    wire first: u8
+    FirstEvenOf3(a, b, c, first)
+
+    // all odd → otherwise
+    cycle()
+    assert(first == 0 as u8, "1,3,7 all odd → first=0 (otherwise)")
+
+    // a wins
+    poke(a, 4)
+    cycle()
+    assert(first == 4 as u8, "a=4 even → first=4 (a wins)")
+
+    // b wins (a odd)
+    poke(a, 3)
+    poke(b, 6)
+    cycle()
+    assert(first == 6 as u8, "a=3 odd, b=6 even → first=6")
+
+    // c wins (a and b odd)
+    poke(b, 5)
+    poke(c, 8)
+    cycle()
+    assert(first == 8 as u8, "a,b odd, c=8 even → first=8")
+
+    // a has priority even when all are even
+    poke(a, 2)
+    poke(b, 4)
+    poke(c, 6)
+    cycle()
+    assert(first == 2 as u8, "all even → first=2 (a has priority)")
+}
+
+// ─── H. Function with complex internal body used as guard ─────────────────────
+
+component ParityGatedReg(in data: u8, in d: u8, out q: u8) {
+    reg r: u8 = 0
+    when parity_u8(data) {
+        r <= d
+    }
+    q := r
+}
+
+sim TestParityAsGuard {
+    wire data: u8 = 0
+    wire d:    u8 = 0
+    wire q:    u8
+    ParityGatedReg(data, d, q)
+    reset()
+
+    // parity(0x01)=1 (one set bit) → guard fires
+    poke(data, 0x01)
+    poke(d, 10)
+    cycle()
+    assert(q == 10 as u8, "parity(0x01)=1 → fires, loads 10")
+
+    // parity(0x03)=0 (two set bits) → guard does not fire
+    poke(data, 0x03)
+    poke(d, 99)
+    cycle()
+    assert(q == 10 as u8, "parity(0x03)=0 → no fire, holds 10")
+
+    // parity(0xFF)=0 (eight set bits) → no fire
+    poke(data, 0xFF)
+    cycle()
+    assert(q == 10 as u8, "parity(0xFF)=0 → no fire, holds 10")
+
+    // parity(0x80)=1 (one set bit, MSB) → fires
+    poke(data, 0x80)
+    poke(d, 55)
+    cycle()
+    assert(q == 55 as u8, "parity(0x80)=1 → fires, loads 55")
+
+    // parity(0x81)=0 (bits 0 and 7 set, two bits) → no fire
+    poke(data, 0x81)
+    poke(d, 77)
+    cycle()
+    assert(q == 55 as u8, "parity(0x81)=0 → no fire, holds 55")
+}
+
+// ─── I. Nested function calls: guard is fn(fn(x)) ────────────────────────────
+
+// clamp_u8 truncates x to limit; is_even tests whether the clamped value is even.
+// x values above the limit all collapse to the same clamped value.
+component ClampEvenGate(in x: u8, in limit: u8, out ok: bool) {
+    when is_even(clamp_u8(x, limit)) {
+        ok := true
+    } otherwise {
+        ok := false
+    }
+}
+
+sim TestNestedFunctionGuard {
+    wire x:     u8 = 0
+    wire limit: u8 = 100
+    wire ok:    bool
+    ClampEvenGate(x, limit, ok)
+
+    // x=50 < 100: clamp=50 (even)
+    poke(x, 50)
+    cycle()
+    assert(ok == true,  "x=50 < limit: clamp=50 (even) → true")
+
+    // x=51 < 100: clamp=51 (odd)
+    poke(x, 51)
+    cycle()
+    assert(ok == false, "x=51 < limit: clamp=51 (odd) → false")
+
+    // x=200 > 100: clamps to 100 (even)
+    poke(x, 200)
+    cycle()
+    assert(ok == true,  "x=200 > limit: clamps to 100 (even) → true")
+
+    // x=201 > 100: also clamps to 100 — demonstrates ceiling effect
+    poke(x, 201)
+    cycle()
+    assert(ok == true,  "x=201 > limit: also clamps to 100 (even) → true")
+
+    // Change limit to 99 (odd): x=200 → clamp=99 (odd) → no fire
+    poke(limit, 99)
+    poke(x, 200)
+    cycle()
+    assert(ok == false, "x=200, limit=99: clamps to 99 (odd) → false")
+}
+
+// ─── J. Wire-derived value as function argument in guard ──────────────────────
+
+// masked is computed inside the component from ports; it feeds the guard function,
+// testing that the inliner handles wire expressions (not raw ports) as arguments.
+component WireArgGuard(in x: u8, in mask: u8, out q: u8) {
+    reg r: u8 = 0
+    wire masked: u8 = (x & mask) as u8
+    when is_nonzero(masked) {
+        r <= x
+    }
+    q := r
+}
+
+sim TestWireDerivedArg {
+    wire x:    u8 = 0
+    wire mask: u8 = 0
+    wire q:    u8
+    WireArgGuard(x, mask, q)
+    reset()
+
+    // x=0xFF, mask=0x0F: masked=0x0F (nonzero) → loads x
+    poke(x, 0xFF)
+    poke(mask, 0x0F)
+    cycle()
+    assert(q == 0xFF as u8, "masked=0x0F nonzero → loads 0xFF")
+
+    // x=0xF0, mask=0x0F: masked=0x00 (zero) → holds 0xFF
+    poke(x, 0xF0)
+    cycle()
+    assert(q == 0xFF as u8, "masked=0x00 zero → holds 0xFF")
+
+    // x=0xAB, mask=0xFF: masked=0xAB (nonzero) → loads 0xAB
+    poke(x, 0xAB)
+    poke(mask, 0xFF)
+    cycle()
+    assert(q == 0xAB as u8, "masked=0xAB nonzero → loads 0xAB")
+
+    // x=0x00, mask=0xFF: masked=0x00 → holds 0xAB
+    poke(x, 0x00)
+    cycle()
+    assert(q == 0xAB as u8, "masked=0x00 → holds 0xAB")
+}
+
+// ─── K. Two independent registers with separate function guards ───────────────
+
+// Verifies that when guard A fires and guard B does not, reg_B holds its value.
+component DualGuardRegs(in x: u8, out even_acc: u8, out high_acc: u8) {
+    reg ea: u8 = 0
+    reg ha: u8 = 0
+    when is_even(x) {
+        ea <= (ea + x) as u8
+    }
+    when has_high_bit(x) {
+        ha <= (ha + x) as u8
+    }
+    even_acc := ea
+    high_acc := ha
+}
+
+sim TestDualGuardRegs {
+    wire x:        u8 = 0
+    wire even_acc: u8
+    wire high_acc: u8
+    DualGuardRegs(x, even_acc, high_acc)
+    reset()
+
+    // x=10: even (guard A fires), not high (guard B false) → ea+=10, ha holds 0
+    poke(x, 10)
+    cycle()
+    assert(even_acc == 10 as u8, "x=10 even: ea=10")
+    assert(high_acc == 0 as u8,  "x=10 not high: ha holds 0")
+
+    // x=20: even, not high → ea+=20=30, ha still 0
+    poke(x, 20)
+    cycle()
+    assert(even_acc == 30 as u8, "x=20 even: ea=30")
+    assert(high_acc == 0 as u8,  "x=20 not high: ha holds 0")
+
+    // x=130 (0x82: even, >=128): both guards fire → ea+=130=160, ha+=130=130
+    poke(x, 130)
+    cycle()
+    assert(even_acc == 160 as u8, "x=130 even+high: ea=160")
+    assert(high_acc == 130 as u8, "x=130 even+high: ha=130")
+
+    // x=131 (odd, >=128): only guard B fires → ea holds 160, ha+=131=261=5 as u8
+    poke(x, 131)
+    cycle()
+    assert(even_acc == 160 as u8, "x=131 odd: ea holds 160")
+    assert(high_acc == 5 as u8,   "x=131 high: ha=130+131=261=5 as u8")
+}
+
+// ─── L. Register value as function argument in guard ─────────────────────────
+
+// counter is a register; the guard function receives the pre-clock counter value,
+// verifying that the inliner correctly reads sequential (not updated) state.
+component ActiveCycleCounter(in step: u8, out active_cycles: u8) {
+    reg counter: u8 = 0
+    reg active:  u8 = 0
+    counter <= (counter + step) as u8
+    when is_nonzero(counter) {
+        active <= (active + 1) as u8
+    }
+    active_cycles := active
+}
+
+sim TestRegArgGuard {
+    wire step:   u8 = 1
+    wire active: u8
+    ActiveCycleCounter(step, active)
+    reset()
+
+    // Cycle 1: guard sees counter=0 (pre-clock) → false; counter advances to 1
+    cycle()
+    assert(active == 0 as u8, "cycle 1: counter was 0, guard false, active=0")
+
+    // Cycle 2: guard sees counter=1 → true; active advances to 1
+    cycle()
+    assert(active == 1 as u8, "cycle 2: counter was 1, guard true, active=1")
+
+    cycle()
+    assert(active == 2 as u8, "cycle 3: counter was 2, guard true, active=2")
+
+    // Run 3 more cycles (3→6)
+    cycle(3)
+    assert(active == 5 as u8, "cycle 6: active incremented 3 more times → 5")
+
+    // After reset: counters back to 0; next cycle sees counter=0 again
+    reset()
+    assert(active == 0 as u8, "after reset: active=0")
+    cycle()
+    assert(active == 0 as u8, "post-reset cycle 1: counter was 0, guard false")
+    cycle()
+    assert(active == 1 as u8, "post-reset cycle 2: counter was 1, guard true, active=1")
+}

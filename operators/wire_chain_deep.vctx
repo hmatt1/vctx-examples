@@ -1,0 +1,292 @@
+// spec: §7, §7.4, §6.2
+// description: Wire dependency chains 5–7 deep, each link using a distinct operator.
+//   Tests that combinational evaluation correctly propagates through long chains
+//   where each wire depends only on the previous wire (no repeating operator types).
+//   Chains: XOR→NOT→AND→OR→LSHIFT (5), ADD→MUL→SUB→DIV→MOD (5),
+//   CMP→NOT→OR→NOT→TERNARY→ADD (6, with bool middle),
+//   ADD→XOR→NOT→AND→RSHIFT→MUL→CMP (7, strictly linear),
+//   diamond DAG (two independent paths from one source merging at AND→OR).
+// expect: pass
+
+// ─── Chain 1: Five operators — bitwise XOR → NOT → AND → OR → left-shift ──────
+//   Each step has a distinct operator class from the previous.
+
+component MixedOpChain5(
+    in a: u8, in b: u8, in sel: u8, in fb: u8,
+    out mid: u8,    // w3 — after AND; verifies the NOT→AND segment
+    out result: u8  // w5 — final value
+) {
+    wire w1: u8 = a ^ b                     // XOR
+    wire w2: u8 = (~w1) as u8              // bitwise NOT
+    wire w3: u8 = w2 & sel                  // AND
+    wire w4: u8 = w3 | fb                   // OR
+    wire w5: u8 = (w4 << 1 as u8) as u8   // left shift
+
+    mid    := w3
+    result := w5
+}
+
+sim TestMixedOpChain5 {
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire sel: u8 = 0
+    wire fb: u8 = 0
+    wire mid: u8
+    wire result: u8
+    MixedOpChain5(a, b, sel, fb, mid, result)
+
+    // Case 1: a=202 (0b11001010), b=181 (0b10110101)
+    //   w1=127, w2=128, w3=128&240=128, w4=128|15=143, w5=286%256=30
+    poke(a, 202)
+    poke(b, 181)
+    poke(sel, 240)
+    poke(fb, 15)
+    cycle()
+    assert(mid    == 128 as u8, "Case1: NOT(127) & 240 = 128")
+    assert(result == 30 as u8,  "Case1: 143<<1 = 286%256 = 30")
+
+    // Case 2: a=255, b=0 → w1=255, w2=0 → w3=0 → w4=85 → w5=170
+    //   Tests chain collapse: NOT(255)=0 makes w3,w4 dominated by fb
+    poke(a, 255)
+    poke(b, 0)
+    poke(sel, 170)
+    poke(fb, 85)
+    cycle()
+    assert(mid    == 0 as u8,   "Case2: NOT(255)=0, 0&170=0")
+    assert(result == 170 as u8, "Case2: 0|85=85, 85<<1=170")
+
+    // Case 3: a=51 (0b00110011), b=15 (0b00001111)
+    //   w1=60, w2=195, w3=192, w4=243, w5=230
+    poke(a, 51)
+    poke(b, 15)
+    poke(sel, 204)
+    poke(fb, 51)
+    cycle()
+    assert(mid    == 192 as u8, "Case3: NOT(60)=195, 195&204=192")
+    assert(result == 230 as u8, "Case3: 192|51=243, 243<<1=486%256=230")
+}
+
+// ─── Chain 2: Five operators — ADD → MUL → SUB → DIV → MOD ──────────────────
+//   All arithmetic; tests that intermediate widths and truncations propagate.
+
+component ArithOpChain5(
+    in a: u8, in b: u8,
+    out mid: u8,    // a3 — after SUB
+    out result: u8  // a5 — after MOD
+) {
+    wire a1: u8 = (a + b) as u8                    // ADD
+    wire a2: u8 = (a1 * 2 as u8) as u8            // MUL by 2
+    wire a3: u8 = (a2 - 3 as u8) as u8            // SUB constant
+    wire a4: u8 = (a3 / 4 as u8) as u8            // DIV constant
+    wire a5: u8 = (a4 % 5 as u8) as u8            // MOD constant
+
+    mid    := a3
+    result := a5
+}
+
+sim TestArithOpChain5 {
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire mid: u8
+    wire result: u8
+    ArithOpChain5(a, b, mid, result)
+
+    // a=10, b=5: a1=15, a2=30, a3=27, a4=6, a5=1
+    poke(a, 10)
+    poke(b, 5)
+    cycle()
+    assert(mid    == 27 as u8, "10+5=15, *2=30, -3=27")
+    assert(result == 1 as u8,  "27/4=6, 6%5=1")
+
+    // a=5, b=3: a1=8, a2=16, a3=13, a4=3, a5=3
+    poke(a, 5)
+    poke(b, 3)
+    cycle()
+    assert(mid    == 13 as u8, "5+3=8, *2=16, -3=13")
+    assert(result == 3 as u8,  "13/4=3, 3%5=3")
+
+    // a=20, b=10: a1=30, a2=60, a3=57, a4=14, a5=4
+    poke(a, 20)
+    poke(b, 10)
+    cycle()
+    assert(mid    == 57 as u8, "20+10=30, *2=60, -3=57")
+    assert(result == 4 as u8,  "57/4=14, 14%5=4")
+}
+
+// ─── Chain 3: Six operators — CMP→NOT→OR→NOT→TERNARY→ADD, bool in middle ─────
+//   The chain passes through two bool wires before returning to numeric.
+//   Tests that bool intermediates feed later numeric nodes without truncation.
+
+component BoolMixChain6(
+    in a: u8, in b: u8,
+    out bool_mid: bool,  // c4 — final bool before ternary
+    out result: u8       // c6 — after ADD
+) {
+    wire c1: bool = a >== 100 as u8          // CMP: is a large?
+    wire c2: bool = not c1                   // NOT
+    wire c3: bool = c2 or (b <== 50 as u8)  // OR: either a is small or b is small
+    wire c4: bool = not c3                   // NOT: neither small
+    wire c5: u8   = c4 ? a : (a & b)        // TERNARY: select or intersect
+    wire c6: u8   = (c5 + 1 as u8) as u8   // ADD
+
+    bool_mid := c4
+    result   := c6
+}
+
+sim TestBoolMixChain6 {
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire bool_mid: bool
+    wire result: u8
+    BoolMixChain6(a, b, bool_mid, result)
+
+    // a=200 (>=100), b=100 (>50): c1=T,c2=F,c3=F,c4=T → passes a=200 → c6=201
+    poke(a, 200)
+    poke(b, 100)
+    cycle()
+    assert(bool_mid == true,   "a=200>=100, b=100>50: neither small → c4=true")
+    assert(result   == 201 as u8, "c4=T: passes a=200, +1=201")
+
+    // a=200 (>=100), b=30 (<=50): c1=T,c2=F,c3=T,c4=F → intersect → 200&30=8 → c6=9
+    poke(b, 30)
+    cycle()
+    assert(bool_mid == false,  "a=200>=100 but b=30<=50: c3 fires → c4=false")
+    assert(result   == 9 as u8,  "c4=F: a&b=200&30=8, +1=9")
+
+    // a=50 (<100), b=100 (>50): c1=F,c2=T,c3=T,c4=F → intersect → 50&100=32 → c6=33
+    poke(a, 50)
+    poke(b, 100)
+    cycle()
+    assert(bool_mid == false,  "a=50<100: c2=T fires c3 → c4=false")
+    assert(result   == 33 as u8, "c4=F: a&b=50&100=32, +1=33")
+
+    // a=50 (<100), b=30 (<=50): c4=F → 50&30=18 → c6=19
+    poke(b, 30)
+    cycle()
+    assert(bool_mid == false,  "a=50<100 and b=30<=50: both conditions fire c3 → c4=false")
+    assert(result   == 19 as u8, "c4=F: a&b=50&30=18, +1=19")
+}
+
+// ─── Chain 4: Seven operators — strictly linear, all distinct ─────────────────
+//   ADD → XOR → NOT → AND(literal) → RSHIFT → MUL → CMP
+//   The literal 0b10101010 in the AND step ensures intermediate values split
+//   into alternating bits, giving varied results at each step.
+
+component DeepLinearChain7(
+    in a: u8, in b: u8, in mask: u8,
+    out mid_u8: u8,    // x5 — after right shift
+    out result: bool   // x7 — final comparison
+) {
+    wire x1: u8  = (a + b) as u8                           // ADD
+    wire x2: u8  = x1 ^ mask                               // XOR with port mask
+    wire x3: u8  = (~x2) as u8                            // NOT
+    wire x4: u8  = x3 & 0b10101010 as u8                  // AND with alternating literal
+    wire x5: u8  = (x4 >> 1 as u8) as u8                 // RSHIFT
+    wire x6: u8  = (x5 * 3 as u8) as u8                  // MUL by 3
+    wire x7: bool = x6 >== 50 as u8                       // CMP
+
+    mid_u8 := x5
+    result := x7
+}
+
+sim TestDeepLinearChain7 {
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire mask: u8 = 0
+    wire mid_u8: u8
+    wire result: bool
+    DeepLinearChain7(a, b, mask, mid_u8, result)
+
+    // a=20, b=10, mask=15:
+    //   x1=30, x2=17, x3=238, x4=170, x5=85, x6=255, x7=true
+    poke(a, 20)
+    poke(b, 10)
+    poke(mask, 15)
+    cycle()
+    assert(mid_u8 == 85 as u8, "Case1: NOT(30^15=17)=238, &0xAA=170, >>1=85")
+    assert(result == true,     "Case1: 85*3=255 >= 50 → true")
+
+    // a=5, b=3, mask=255:
+    //   x1=8, x2=247, x3=8, x4=8, x5=4, x6=12, x7=false
+    //   Note: NOT(8^255=247)=8 — XOR with all-ones is NOT, then NOT again gives back original
+    poke(a, 5)
+    poke(b, 3)
+    poke(mask, 255)
+    cycle()
+    assert(mid_u8 == 4 as u8,  "Case2: NOT(247)=8, 8&0xAA=8, >>1=4")
+    assert(result == false,    "Case2: 4*3=12 < 50 → false")
+
+    // a=0, b=255, mask=85:
+    //   x1=255, x2=170, x3=85, x4=0, x5=0, x6=0, x7=false
+    //   Note: 85=0b01010101 is the complement of 0b10101010; x3&x4_mask collapses to 0
+    poke(a, 0)
+    poke(b, 255)
+    poke(mask, 85)
+    cycle()
+    assert(mid_u8 == 0 as u8,  "Case3: NOT(255^85=170)=85, 85&0xAA=0 → chain collapses")
+    assert(result == false,    "Case3: 0*3=0 < 50 → false")
+
+    // a=30, b=20, mask=0:
+    //   x1=50, x2=50, x3=205, x4=136, x5=68, x6=204, x7=true
+    poke(a, 30)
+    poke(b, 20)
+    poke(mask, 0)
+    cycle()
+    assert(mid_u8 == 68 as u8, "Case4: NOT(50^0=50)=205, &0xAA=136, >>1=68")
+    assert(result == true,     "Case4: 68*3=204 >= 50 → true")
+}
+
+// ─── Chain 5: Diamond merge — two independent paths from one source ────────────
+//   Left path:  x → ADD(+3) → MUL(*2)
+//   Right path: x → XOR(~) → ADD(+1)
+//   Merge:      left & right (AND), then OR with the original source x.
+//   Tests that the evaluator correctly fans out from a single source and then
+//   re-fans-in, respecting the independent computation of both paths.
+
+component DiamondMergeChain(
+    in x: u8,
+    out merge_out: u8,  // mg — just after merge (AND of two paths)
+    out final_out: u8   // fn — after OR with source
+) {
+    wire pa: u8 = (x + 3 as u8) as u8          // left path step 1: bump
+    wire pb: u8 = (pa * 2 as u8) as u8         // left path step 2: double
+    wire qa: u8 = x ^ 0xFF as u8               // right path step 1: complement
+    wire qb: u8 = (qa + 1 as u8) as u8         // right path step 2: bump (wraps 255→0)
+    wire mg: u8 = pb & qb                       // merge: AND of both paths
+    wire fn: u8 = mg | x                        // continue: OR with original source
+
+    merge_out := mg
+    final_out := fn
+}
+
+sim TestDiamondMergeChain {
+    wire x: u8 = 0
+    wire mg: u8
+    wire fn: u8
+    DiamondMergeChain(x, mg, fn)
+
+    // x=20: left=(23,46), right=(235,236), merge=46&236=44, final=44|20=60
+    poke(x, 20)
+    cycle()
+    assert(mg == 44 as u8, "x=20: (x+3)*2=46, (x^FF+1)=236, 46&236=44")
+    assert(fn == 60 as u8, "x=20: 44|20=60")
+
+    // x=50: left=(53,106), right=(205,206), merge=106&206=74, final=74|50=122
+    poke(x, 50)
+    cycle()
+    assert(mg == 74 as u8,  "x=50: (x+3)*2=106, (x^FF+1)=206, 106&206=74")
+    assert(fn == 122 as u8, "x=50: 74|50=122")
+
+    // x=0: left=(3,6), right=(255,0=wraps), merge=6&0=0, final=0|0=0
+    //   Right path wraps: 255+1=256 as u8=0. Merge collapses to 0.
+    poke(x, 0)
+    cycle()
+    assert(mg == 0 as u8, "x=0: right path wraps 255→0, merge=6&0=0")
+    assert(fn == 0 as u8, "x=0: 0|0=0")
+
+    // x=100: left=(103,206), right=(155,156), merge=206&156=140, final=140|100=236
+    poke(x, 100)
+    cycle()
+    assert(mg == 140 as u8, "x=100: (x+3)*2=206, (x^FF+1)=156, 206&156=140")
+    assert(fn == 236 as u8, "x=100: 140|100=236")
+}

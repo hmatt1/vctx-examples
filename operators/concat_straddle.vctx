@@ -1,0 +1,311 @@
+// spec: §7.2, §12.1
+// description: concat-then-slice where the slice window straddles the join boundary
+//   between two (or three) operands. Aligned slices that begin and end within a single
+//   operand are included as reference baselines; every component then exercises at least
+//   one cross-boundary window to verify that bit addressing is correct through the join.
+//
+//   Bit layout convention (verified here):
+//     concat(a, b)  → a occupies [N+M-1..M], b occupies [M-1..0]
+//     concat(a,b,c) → a in [N+M+K-1..M+K], b in [M+K-1..K], c in [K-1..0]
+//
+//   Key identity verified throughout:
+//     concat(0xAB, 0xCD)[11..4] = {0xAB[3..0], 0xCD[7..4]} = 0xBC
+// expect: pass
+
+// ─── 1. 8+8 concat — three slice regions ─────────────────────────────────────
+//   Baseline: within-b, straddle (4:4 equal split), within-a.
+//   The straddle column is the scenario this file was written to cover.
+
+component ConcatSliceRegions(
+    in a: u8, in b: u8,
+    out low: u8,       // cat[7..0]  — fully within b
+    out straddle: u8,  // cat[11..4] — 4 bits from a, 4 bits from b
+    out high: u8       // cat[15..8] — fully within a
+) {
+    wire cat: u16 = concat(a, b)
+    low      := cat[7..0]
+    straddle := cat[11..4]
+    high     := cat[15..8]
+}
+
+sim TestConcatSliceRegions {
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire low: u8
+    wire straddle: u8
+    wire high: u8
+    ConcatSliceRegions(a, b, low, straddle, high)
+
+    // canonical values from spec description
+    poke(a, 0xAB)
+    poke(b, 0xCD)
+    cycle()
+    assert(low      == 0xCD as u8, "a=0xAB,b=0xCD: low=b=0xCD")
+    assert(straddle == 0xBC as u8, "a=0xAB,b=0xCD: straddle={a[3..0],b[7..4]}=0xBC")
+    assert(high     == 0xAB as u8, "a=0xAB,b=0xCD: high=a=0xAB")
+
+    // sequential nibbles: straddle extracts middle two nibbles
+    poke(a, 0x12)
+    poke(b, 0x34)
+    cycle()
+    assert(low      == 0x34 as u8, "a=0x12,b=0x34: low=0x34")
+    assert(straddle == 0x23 as u8, "a=0x12,b=0x34: straddle={a[3..0]=2, b[7..4]=3}=0x23")
+    assert(high     == 0x12 as u8, "a=0x12,b=0x34: high=0x12")
+
+    // complementary nibbles: straddle collapses to zero
+    poke(a, 0xF0)
+    poke(b, 0x0F)
+    cycle()
+    assert(low      == 0x0F as u8, "a=0xF0,b=0x0F: low=0x0F")
+    assert(straddle == 0x00 as u8, "a=0xF0,b=0x0F: straddle={a[3..0]=0,b[7..4]=0}=0x00")
+    assert(high     == 0xF0 as u8, "a=0xF0,b=0x0F: high=0xF0")
+}
+
+// ─── 2. Three straddle split ratios ───────────────────────────────────────────
+//   Same 8+8 concat, three different cross-boundary windows:
+//     [8..1]  → 1 bit from a (a[0]),  7 bits from b (b[7..1])
+//     [11..4] → 4 bits from a, 4 bits from b  (equal, canonical)
+//     [14..7] → 7 bits from a (a[6..0]), 1 bit from b (b[7])
+//   Verifies that bit addressing near the boundary is correct from either side.
+
+component StraddleRatios(
+    in a: u8, in b: u8,
+    out s1_7: u8,   // [8..1]  1 bit from a, 7 from b
+    out s4_4: u8,   // [11..4] 4 bits each
+    out s7_1: u8    // [14..7] 7 bits from a, 1 from b
+) {
+    wire cat: u16 = concat(a, b)
+    s1_7 := cat[8..1]
+    s4_4 := cat[11..4]
+    s7_1 := cat[14..7]
+}
+
+sim TestStraddleRatios {
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire s1_7: u8
+    wire s4_4: u8
+    wire s7_1: u8
+    StraddleRatios(a, b, s1_7, s4_4, s7_1)
+
+    // a=0xAB=0b10101011, b=0xCD=0b11001101
+    poke(a, 0xAB)
+    poke(b, 0xCD)
+    cycle()
+    // [8..1]: {a[0]=1, b[7..1]=1100110} = 0b11100110 = 0xE6
+    assert(s1_7 == 0xE6 as u8, "a=0xAB,b=0xCD: [8..1]={a[0],b[7..1]}=0xE6")
+    // [11..4]: {a[3..0]=B, b[7..4]=C} = 0xBC
+    assert(s4_4 == 0xBC as u8, "a=0xAB,b=0xCD: [11..4]={a[3..0],b[7..4]}=0xBC")
+    // [14..7]: {a[6..0]=0x2B, b[7]=1} = 0b01010111 = 0x57
+    assert(s7_1 == 0x57 as u8, "a=0xAB,b=0xCD: [14..7]={a[6..0],b[7]}=0x57")
+
+    // a=0x70=0b01110000, b=0x0E=0b00001110 — boundary-heavy zeros
+    poke(a, 0x70)
+    poke(b, 0x0E)
+    cycle()
+    // [8..1]: {a[0]=0, b[7..1]=0000111} = 0b00000111 = 0x07
+    assert(s1_7 == 0x07 as u8, "a=0x70,b=0x0E: [8..1]=0x07")
+    // [11..4]: {a[3..0]=0, b[7..4]=0} = 0x00
+    assert(s4_4 == 0x00 as u8, "a=0x70,b=0x0E: [11..4]=0x00")
+    // [14..7]: {a[6..0]=0x70, b[7]=0} = 0b11100000 = 0xE0
+    assert(s7_1 == 0xE0 as u8, "a=0x70,b=0x0E: [14..7]=0xE0")
+}
+
+// ─── 3. Narrow concat: u4+u4 = u8, straddle at bit-4 boundary ─────────────────
+//   Smallest concat where a cross-boundary slice is possible; the boundary is
+//   at bit 4. [5..2] spans it: 2 bits from a (a[1..0]), 2 bits from b (b[3..2]).
+
+component NarrowConcatStraddle(
+    in a: u4, in b: u4,
+    out within_b: u4,  // [3..0]
+    out straddle: u4,  // [5..2]  — 2 from a, 2 from b
+    out within_a: u4   // [7..4]
+) {
+    wire cat: u8 = concat(a, b)
+    within_b := cat[3..0]
+    straddle := cat[5..2]
+    within_a := cat[7..4]
+}
+
+sim TestNarrowConcatStraddle {
+    wire a: u4 = 0
+    wire b: u4 = 0
+    wire within_b: u4
+    wire straddle: u4
+    wire within_a: u4
+    NarrowConcatStraddle(a, b, within_b, straddle, within_a)
+
+    // a=0xA=0b1010, b=0xC=0b1100
+    poke(a, 0xA)
+    poke(b, 0xC)
+    cycle()
+    assert(within_b == 0xC as u4, "a=A,b=C: within_b=C")
+    // [5..2]: {a[1..0]=10, b[3..2]=11} = 0b1011 = 0xB
+    assert(straddle == 0xB as u4, "a=A,b=C: straddle={a[1..0]=2,b[3..2]=3}=0xB")
+    assert(within_a == 0xA as u4, "a=A,b=C: within_a=A")
+
+    // a=0x5=0b0101, b=0x9=0b1001
+    poke(a, 0x5)
+    poke(b, 0x9)
+    cycle()
+    assert(within_b == 0x9 as u4, "a=5,b=9: within_b=9")
+    // [5..2]: {a[1..0]=01, b[3..2]=10} = 0b0110 = 6
+    assert(straddle == 6 as u4, "a=5,b=9: straddle={a[1..0]=1,b[3..2]=2}=6")
+    assert(within_a == 0x5 as u4, "a=5,b=9: within_a=5")
+}
+
+// ─── 4. Asymmetric concat: u4+u8 = u12, boundary at bit 8 ────────────────────
+//   a (4 bits) occupies [11..8]; b (8 bits) occupies [7..0].
+//   Two cross-boundary windows: [9..6] (2:2 split) and [10..5] (2:4 split).
+
+component AsymmetricConcatStraddle(
+    in a: u4, in b: u8,
+    out within_b: u8,     // [7..0]
+    out within_a: u4,     // [11..8]
+    out straddle_2_2: u4, // [9..6]  — 2 from a, 2 from b
+    out straddle_2_4: u6  // [10..5] — 2 from a, 4 from b
+) {
+    wire cat: u12 = concat(a, b)
+    within_b     := cat[7..0]
+    within_a     := cat[11..8]
+    straddle_2_2 := cat[9..6]
+    straddle_2_4 := cat[10..5]
+}
+
+sim TestAsymmetricConcatStraddle {
+    wire a: u4 = 0
+    wire b: u8 = 0
+    wire within_b: u8
+    wire within_a: u4
+    wire straddle_2_2: u4
+    wire straddle_2_4: u6
+    AsymmetricConcatStraddle(a, b, within_b, within_a, straddle_2_2, straddle_2_4)
+
+    // a=0xA=0b1010, b=0xCD=0b11001101
+    poke(a, 0xA)
+    poke(b, 0xCD)
+    cycle()
+    assert(within_b     == 0xCD as u8, "a=A,b=CD: within_b=0xCD")
+    assert(within_a     == 0xA  as u4, "a=A,b=CD: within_a=0xA")
+    // [9..6]: {a[1..0]=10, b[7..6]=11} = 0b1011 = 0xB
+    assert(straddle_2_2 == 0xB  as u4, "a=A,b=CD: [9..6]={a[1..0]=2,b[7..6]=3}=0xB")
+    // [10..5]: {a[2..0]=010, b[7..5]=110} = 0b010110 = 22 = 0x16
+    assert(straddle_2_4 == 22   as u6, "a=A,b=CD: [10..5]={a[2..0]=2,b[7..5]=6}=22")
+
+    // a=0xB=0b1011, b=0x7F=0b01111111
+    poke(a, 0xB)
+    poke(b, 0x7F)
+    cycle()
+    assert(within_b     == 0x7F as u8, "a=B,b=7F: within_b=0x7F")
+    assert(within_a     == 0xB  as u4, "a=B,b=7F: within_a=0xB")
+    // [9..6]: {a[1..0]=11, b[7..6]=01} = 0b1101 = 0xD
+    assert(straddle_2_2 == 0xD  as u4, "a=B,b=7F: [9..6]={a[1..0]=3,b[7..6]=1}=0xD")
+}
+
+// ─── 5. Three-operand concat: straddles at both pair boundaries ───────────────
+//   concat(a, b, c) — a in [23..16], b in [15..8], c in [7..0].
+//   [19..12] straddles a-b boundary: {a[3..0], b[7..4]}
+//   [11..4]  straddles b-c boundary: {b[3..0], c[7..4]}
+//   Both produce the "interior nibble pair" of adjacent operands.
+
+component ThreeConcatBothBoundaries(
+    in a: u8, in b: u8, in c: u8,
+    out ab_straddle: u8,  // [19..12]: {a[3..0], b[7..4]}
+    out bc_straddle: u8   // [11..4]:  {b[3..0], c[7..4]}
+) {
+    wire cat: u24 = concat(a, b, c)
+    ab_straddle := cat[19..12]
+    bc_straddle := cat[11..4]
+}
+
+sim TestThreeConcatBothBoundaries {
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire c: u8 = 0
+    wire ab_straddle: u8
+    wire bc_straddle: u8
+    ThreeConcatBothBoundaries(a, b, c, ab_straddle, bc_straddle)
+
+    // a=0xAB, b=0xCD, c=0xEF → ab=0xBC, bc=0xDE
+    poke(a, 0xAB)
+    poke(b, 0xCD)
+    poke(c, 0xEF)
+    cycle()
+    assert(ab_straddle == 0xBC as u8, "0xABCDEF: [19..12]={B,C}=0xBC")
+    assert(bc_straddle == 0xDE as u8, "0xABCDEF: [11..4]={D,E}=0xDE")
+
+    // sequential nibbles: 0x123456 → [19..12]=0x23, [11..4]=0x45
+    poke(a, 0x12)
+    poke(b, 0x34)
+    poke(c, 0x56)
+    cycle()
+    assert(ab_straddle == 0x23 as u8, "0x123456: [19..12]=0x23")
+    assert(bc_straddle == 0x45 as u8, "0x123456: [11..4]=0x45")
+
+    // uniform bytes: all 0xFF → straddles also 0xFF
+    poke(a, 0xFF)
+    poke(b, 0xFF)
+    poke(c, 0xFF)
+    cycle()
+    assert(ab_straddle == 0xFF as u8, "0xFFFFFF: [19..12]=0xFF")
+    assert(bc_straddle == 0xFF as u8, "0xFFFFFF: [11..4]=0xFF")
+
+    // zero bytes: straddles are zero
+    poke(a, 0x00)
+    poke(b, 0x00)
+    poke(c, 0x00)
+    cycle()
+    assert(ab_straddle == 0x00 as u8, "0x000000: [19..12]=0x00")
+    assert(bc_straddle == 0x00 as u8, "0x000000: [11..4]=0x00")
+}
+
+// ─── 6. Three-operand slice spanning all three operands ───────────────────────
+//   concat(a, b, c)[19..4] is a 16-bit window that crosses BOTH boundaries:
+//     result[15..12] = a[3..0]   (4 bits from a)
+//     result[11..4]  = b         (all 8 bits of b)
+//     result[3..0]   = c[7..4]   (4 bits from c)
+//   For 0xABCDEF the result is 0xBCDE — the four "interior nibbles."
+
+component SpanAllOperands(
+    in a: u8, in b: u8, in c: u8,
+    out span: u16  // cat[19..4]
+) {
+    wire cat: u24 = concat(a, b, c)
+    span := cat[19..4]
+}
+
+sim TestSpanAllOperands {
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire c: u8 = 0
+    wire span: u16
+    SpanAllOperands(a, b, c, span)
+
+    // 0xABCDEF → {B, CD, E} = 0xBCDE
+    poke(a, 0xAB)
+    poke(b, 0xCD)
+    poke(c, 0xEF)
+    cycle()
+    assert(span == 0xBCDE as u16, "0xABCDEF[19..4]={B,CD,E}=0xBCDE")
+
+    // 0x123456 → {2, 34, 5} = 0x2345
+    poke(a, 0x12)
+    poke(b, 0x34)
+    poke(c, 0x56)
+    cycle()
+    assert(span == 0x2345 as u16, "0x123456[19..4]={2,34,5}=0x2345")
+
+    // 0xFF00FF → {F, 00, F} = 0xF00F
+    poke(a, 0xFF)
+    poke(b, 0x00)
+    poke(c, 0xFF)
+    cycle()
+    assert(span == 0xF00F as u16, "0xFF00FF[19..4]={F,00,F}=0xF00F")
+
+    // 0x000000 → 0x0000
+    poke(a, 0x00)
+    poke(b, 0x00)
+    poke(c, 0x00)
+    cycle()
+    assert(span == 0x0000 as u16, "0x000000[19..4]=0x0000")
+}

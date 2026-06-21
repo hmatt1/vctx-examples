@@ -1,0 +1,436 @@
+// spec: §5.4, §4.2
+// description: Bool popcount and bit-sum via cast. The natural HDL pattern:
+//   wire count: u4 = ((b0 as u4) + (b1 as u4) + (b2 as u4) + (b3 as u4)) as u4
+//   NOTE: vctx addition widens by one bit when operands have equal width
+//   (uN + uN = u(N+1)), so an explicit outer cast is required to assign back
+//   to the declared width — the cast is safe because the actual value is bounded
+//   by the number of bools (at most N for N inputs), which fits in the target.
+//   Tests that (a) bool as uN produces the correct 0/1 integer for each N,
+//   (b) the cast-from-bool width is preserved and does not collapse to bool/u1
+//   through chained additions, and (c) the pattern works for bool sources of
+//   every kind: ports, comparison results, bit-slice extractions, and function calls.
+//   Also covers the threshold/majority pattern: count >= k as uN.
+// expect: pass
+
+function is_even(x: u8) -> bool {
+    return (x & 1 as u8) == 0
+}
+
+// ─── 1. 2-bool popcount into u2 ───────────────────────────────────────────────
+//   Minimum viable target: max sum = 2 fits in u2 (0-3). u2+u2 would give u3
+//   without the outer cast; the cast is safe (2 < 4 = 2^2).
+
+component Popcount2(in b0: bool, in b1: bool, out count: u2) {
+    count := ((b0 as u2) + (b1 as u2)) as u2
+}
+
+sim TestPopcount2 {
+    wire b0: bool = false
+    wire b1: bool = false
+    wire count: u2
+    Popcount2(b0, b1, count)
+
+    cycle()
+    assert(count == 0 as u2, "F,F → 0")
+
+    poke(b0, true)
+    cycle()
+    assert(count == 1 as u2, "T,F → 1")
+
+    poke(b0, false)
+    poke(b1, true)
+    cycle()
+    assert(count == 1 as u2, "F,T → 1")
+
+    poke(b0, true)
+    cycle()
+    assert(count == 2 as u2, "T,T → 2 (max for 2 bools, fits in u2)")
+}
+
+// ─── 2. 4-bool popcount into u4 ───────────────────────────────────────────────
+//   Canonical example from the description. The sum chain evaluates to u5;
+//   the outer cast truncates it to u4, safe since max = 4 < 16 = 2^4.
+
+component Popcount4(
+    in b0: bool, in b1: bool, in b2: bool, in b3: bool,
+    out count: u4
+) {
+    count := ((b0 as u4) + (b1 as u4) + (b2 as u4) + (b3 as u4)) as u4
+}
+
+sim TestPopcount4 {
+    wire b0: bool = false
+    wire b1: bool = false
+    wire b2: bool = false
+    wire b3: bool = false
+    wire count: u4
+    Popcount4(b0, b1, b2, b3, count)
+
+    // all zeros
+    cycle()
+    assert(count == 0 as u4, "0 of 4 → 0")
+
+    // one set
+    poke(b0, true)
+    cycle()
+    assert(count == 1 as u4, "1 of 4 → 1")
+
+    // two set (adjacent)
+    poke(b1, true)
+    cycle()
+    assert(count == 2 as u4, "2 of 4 adjacent → 2")
+
+    // three set
+    poke(b2, true)
+    cycle()
+    assert(count == 3 as u4, "3 of 4 → 3")
+
+    // all set
+    poke(b3, true)
+    cycle()
+    assert(count == 4 as u4, "4 of 4 → 4")
+
+    // two set (non-adjacent: b1=T, b3=T)
+    poke(b0, false)
+    poke(b2, false)
+    cycle()
+    assert(count == 2 as u4, "b1=T,b3=T non-adjacent → 2")
+
+    // alternating: T,F,T,F
+    poke(b0, true)
+    poke(b1, false)
+    poke(b2, true)
+    poke(b3, false)
+    cycle()
+    assert(count == 2 as u4, "T,F,T,F alternating → 2")
+}
+
+// ─── 3. Same 4-bool popcount cast to u8 ───────────────────────────────────────
+//   Wider target type: verifies that bool as u8 stays at u8 width and that
+//   the u8 arithmetic chain (→ u9 intermediate) is correctly cast back to u8.
+
+component Popcount4Wide(
+    in b0: bool, in b1: bool, in b2: bool, in b3: bool,
+    out count: u8
+) {
+    count := ((b0 as u8) + (b1 as u8) + (b2 as u8) + (b3 as u8)) as u8
+}
+
+sim TestPopcount4Wide {
+    wire b0: bool = false
+    wire b1: bool = false
+    wire b2: bool = false
+    wire b3: bool = false
+    wire count: u8
+    Popcount4Wide(b0, b1, b2, b3, count)
+
+    cycle()
+    assert(count == 0 as u8, "0 of 4 as u8 → 0")
+
+    poke(b0, true)
+    cycle()
+    assert(count == 1 as u8, "1 of 4 as u8 → 1")
+
+    poke(b1, true)
+    cycle()
+    assert(count == 2 as u8, "2 of 4 as u8 → 2")
+
+    poke(b2, true)
+    poke(b3, true)
+    cycle()
+    assert(count == 4 as u8, "4 of 4 as u8 → 4")
+
+    poke(b0, false)
+    poke(b2, false)
+    cycle()
+    assert(count == 2 as u8, "b1=T,b3=T as u8 → 2")
+}
+
+// ─── 4. Majority vote — threshold pattern ─────────────────────────────────────
+//   Counts 3 bool inputs and checks whether at least 2 are set. Exercises the
+//   count >= k pattern. Exposes the intermediate count for diagnostic isolation.
+
+component Majority3(
+    in b0: bool, in b1: bool, in b2: bool,
+    out count: u4,
+    out majority: bool
+) {
+    wire c: u4 = ((b0 as u4) + (b1 as u4) + (b2 as u4)) as u4
+    count    := c
+    majority := c >== 2 as u4
+}
+
+sim TestMajority3 {
+    wire b0: bool = false
+    wire b1: bool = false
+    wire b2: bool = false
+    wire count: u4
+    wire majority: bool
+    Majority3(b0, b1, b2, count, majority)
+
+    // 0 of 3
+    cycle()
+    assert(count == 0 as u4, "0 of 3 → count=0")
+    assert(majority == false, "0 of 3 → not majority")
+
+    // 1 of 3
+    poke(b0, true)
+    cycle()
+    assert(count == 1 as u4, "1 of 3 → count=1")
+    assert(majority == false, "1 of 3 → not majority")
+
+    // 2 of 3 — boundary
+    poke(b1, true)
+    cycle()
+    assert(count == 2 as u4, "2 of 3 → count=2")
+    assert(majority == true,  "2 of 3 → majority")
+
+    // 3 of 3
+    poke(b2, true)
+    cycle()
+    assert(count == 3 as u4, "3 of 3 → count=3")
+    assert(majority == true,  "3 of 3 → majority")
+
+    // different pair: b1=T, b2=T
+    poke(b0, false)
+    cycle()
+    assert(count == 2 as u4, "b1=T,b2=T → count=2")
+    assert(majority == true,  "b1=T,b2=T → majority")
+}
+
+// ─── 5. Popcount from bit slices ─────────────────────────────────────────────
+//   Extracts each bit of a u4 input as a bool via bit indexing, then sums.
+//   Tests the full pipeline: bit-slice → bool → as u4 → accumulated sum.
+
+component BitSlicePopcount(in x: u4, out count: u4) {
+    wire b0: bool = x[0]
+    wire b1: bool = x[1]
+    wire b2: bool = x[2]
+    wire b3: bool = x[3]
+    count := ((b0 as u4) + (b1 as u4) + (b2 as u4) + (b3 as u4)) as u4
+}
+
+sim TestBitSlicePopcount {
+    wire x: u4 = 0
+    wire count: u4
+    BitSlicePopcount(x, count)
+
+    poke(x, 0)   // 0b0000
+    cycle()
+    assert(count == 0 as u4, "0b0000 → 0")
+
+    poke(x, 1)   // 0b0001
+    cycle()
+    assert(count == 1 as u4, "0b0001 → 1")
+
+    poke(x, 3)   // 0b0011
+    cycle()
+    assert(count == 2 as u4, "0b0011 → 2")
+
+    poke(x, 7)   // 0b0111
+    cycle()
+    assert(count == 3 as u4, "0b0111 → 3")
+
+    poke(x, 15)  // 0b1111
+    cycle()
+    assert(count == 4 as u4, "0b1111 → 4")
+
+    poke(x, 10)  // 0b1010 — alternating
+    cycle()
+    assert(count == 2 as u4, "0b1010 → 2 (alternating bits)")
+
+    poke(x, 9)   // 0b1001 — non-contiguous
+    cycle()
+    assert(count == 2 as u4, "0b1001 → 2 (non-contiguous bits)")
+
+    poke(x, 12)  // 0b1100 — high pair
+    cycle()
+    assert(count == 2 as u4, "0b1100 → 2 (high pair)")
+}
+
+// ─── 6. Bool from comparison results ─────────────────────────────────────────
+//   Each bool is produced by a threshold comparison rather than a port. Tests
+//   that comparison output flows correctly into as-cast and then into the sum.
+
+component CompPopcount(in a: u8, in b: u8, in c: u8, in d: u8, out count: u4) {
+    wire t0: bool = a >== 100 as u8
+    wire t1: bool = b >== 100 as u8
+    wire t2: bool = c >== 100 as u8
+    wire t3: bool = d >== 100 as u8
+    count := ((t0 as u4) + (t1 as u4) + (t2 as u4) + (t3 as u4)) as u4
+}
+
+sim TestCompPopcount {
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire c: u8 = 0
+    wire d: u8 = 0
+    wire count: u4
+    CompPopcount(a, b, c, d, count)
+
+    // none >= 100
+    poke(a, 50)
+    poke(b, 50)
+    poke(c, 50)
+    poke(d, 50)
+    cycle()
+    assert(count == 0 as u4, "all < 100 → 0")
+
+    // one >= 100
+    poke(a, 200)
+    cycle()
+    assert(count == 1 as u4, "a=200 only → 1")
+
+    // two >= 100
+    poke(b, 150)
+    cycle()
+    assert(count == 2 as u4, "a=200,b=150 → 2")
+
+    // three >= 100 (c=100 is exactly at threshold)
+    poke(c, 100)
+    cycle()
+    assert(count == 3 as u4, "a=200,b=150,c=100 → 3 (boundary)")
+
+    // still three: d=99 is just below threshold
+    poke(d, 99)
+    cycle()
+    assert(count == 3 as u4, "d=99 < 100 → still 3")
+
+    // all four >= 100
+    poke(d, 200)
+    cycle()
+    assert(count == 4 as u4, "all >= 100 → 4")
+}
+
+// ─── 7. Bool from inlined function call results ───────────────────────────────
+//   Each bool comes from an inlined function call in the as-cast argument
+//   position. Four independent inline expansions must not interfere.
+
+component FnBoolPopcount(in a: u8, in b: u8, in c: u8, in d: u8, out count: u4) {
+    count := ((is_even(a) as u4) + (is_even(b) as u4)
+           + (is_even(c) as u4) + (is_even(d) as u4)) as u4
+}
+
+sim TestFnBoolPopcount {
+    wire a: u8 = 0
+    wire b: u8 = 0
+    wire c: u8 = 0
+    wire d: u8 = 0
+    wire count: u4
+    FnBoolPopcount(a, b, c, d, count)
+
+    // all even → 4
+    poke(a, 2)
+    poke(b, 4)
+    poke(c, 6)
+    poke(d, 8)
+    cycle()
+    assert(count == 4 as u4, "2,4,6,8 all even → 4")
+
+    // all odd → 0
+    poke(a, 1)
+    poke(b, 3)
+    poke(c, 5)
+    poke(d, 7)
+    cycle()
+    assert(count == 0 as u4, "1,3,5,7 all odd → 0")
+
+    // two even (a,c)
+    poke(a, 2)
+    poke(b, 3)
+    poke(c, 4)
+    poke(d, 5)
+    cycle()
+    assert(count == 2 as u4, "2,3,4,5 → a,c even → 2")
+
+    // zero counts as even
+    poke(a, 0)
+    poke(b, 1)
+    poke(c, 2)
+    poke(d, 3)
+    cycle()
+    assert(count == 2 as u4, "0,1,2,3 → a,c even → 2")
+
+    // two even (a,b)
+    poke(a, 10)
+    poke(b, 20)
+    poke(c, 15)
+    poke(d, 25)
+    cycle()
+    assert(count == 2 as u4, "10,20,15,25 → a,b even → 2")
+}
+
+// ─── 8. 8-bool popcount via two half-sums ────────────────────────────────────
+//   Longer chain: 8 bools summed through two u4 half-sum wires, then combined.
+//   Each half-sum is at most 4 (fits in u4); their sum is at most 8 (fits in u4).
+//   The lo+hi addition again widens to u5, requiring the final as u4 cast.
+
+component Popcount8(
+    in b0: bool, in b1: bool, in b2: bool, in b3: bool,
+    in b4: bool, in b5: bool, in b6: bool, in b7: bool,
+    out count: u4
+) {
+    wire lo: u4 = ((b0 as u4) + (b1 as u4) + (b2 as u4) + (b3 as u4)) as u4
+    wire hi: u4 = ((b4 as u4) + (b5 as u4) + (b6 as u4) + (b7 as u4)) as u4
+    count := (lo + hi) as u4
+}
+
+sim TestPopcount8 {
+    wire b0: bool = false
+    wire b1: bool = false
+    wire b2: bool = false
+    wire b3: bool = false
+    wire b4: bool = false
+    wire b5: bool = false
+    wire b6: bool = false
+    wire b7: bool = false
+    wire count: u4
+    Popcount8(b0, b1, b2, b3, b4, b5, b6, b7, count)
+
+    // 0 of 8
+    cycle()
+    assert(count == 0 as u4, "0 of 8 → 0")
+
+    // 1 of 8 (low half only)
+    poke(b0, true)
+    cycle()
+    assert(count == 1 as u4, "b0 only → 1")
+
+    // low half full, high half empty (lo=4, hi=0)
+    poke(b0, true)
+    poke(b1, true)
+    poke(b2, true)
+    poke(b3, true)
+    cycle()
+    assert(count == 4 as u4, "b0..b3 all set → 4")
+
+    // all 8 set — max value (lo=4, hi=4, sum=8)
+    poke(b4, true)
+    poke(b5, true)
+    poke(b6, true)
+    poke(b7, true)
+    cycle()
+    assert(count == 8 as u4, "all 8 set → 8")
+
+    // alternating: b0,b2,b4,b6 set (lo=2, hi=2, sum=4)
+    poke(b0, true)
+    poke(b1, false)
+    poke(b2, true)
+    poke(b3, false)
+    poke(b4, true)
+    poke(b5, false)
+    poke(b6, true)
+    poke(b7, false)
+    cycle()
+    assert(count == 4 as u4, "alternating T,F,T,F,T,F,T,F → 4")
+
+    // sparse: b3 and b7 only (lo=1, hi=1, sum=2)
+    poke(b0, false)
+    poke(b2, false)
+    poke(b3, true)
+    poke(b4, false)
+    poke(b6, false)
+    poke(b7, true)
+    cycle()
+    assert(count == 2 as u4, "b3=T,b7=T only → 2")
+}

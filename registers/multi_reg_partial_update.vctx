@@ -1,0 +1,393 @@
+// spec: §6.2, §6.3, §6.4, §6.7
+// description: Multiple scalar registers in the same component with partially-overlapping
+//   update conditions. Each scenario asserts that updating one register per cycle
+//   leaves all other registers unchanged — independence is the key property under test.
+//   Scenarios: command-mux routing (when/elsewhen/otherwise), independent bit-enables,
+//   threshold-based min/max, round-robin pointer writing, edge-snapshot latches.
+// expect: pass
+
+// ─── 1: Three status regs, command-mux routing ─────────────────────────────────
+//   cmd routes the write to exactly one of three regs each cycle.
+//   Asserts prove the two untouched regs hold their previous values.
+
+component ThreeStatusRegs(
+    in cmd: u2, in val: u8,
+    out qa: u8, out qb: u8, out qc: u8
+) {
+    reg ra: u8 = 0
+    reg rb: u8 = 0
+    reg rc: u8 = 0
+    when cmd == 0 as u2 { ra <= val }
+    elsewhen cmd == 1 as u2 { rb <= val }
+    otherwise { rc <= val }
+    qa := ra
+    qb := rb
+    qc := rc
+}
+
+sim TestThreeStatusRegs {
+    wire cmd: u2 = 0
+    wire val: u8 = 0
+    wire qa: u8
+    wire qb: u8
+    wire qc: u8
+    ThreeStatusRegs(cmd, val, qa, qb, qc)
+
+    assert(qa == 0 and qb == 0 and qc == 0, "all regs at init value 0")
+
+    // cmd=0: ra gets 10; rb and rc must hold at 0
+    poke(cmd, 0)
+    poke(val, 10)
+    cycle()
+    assert(qa == 10 as u8, "cmd=0: ra loaded 10")
+    assert(qb == 0 as u8,  "cmd=0: rb untouched")
+    assert(qc == 0 as u8,  "cmd=0: rc untouched")
+
+    // cmd=1: rb gets 20; ra must hold at 10; rc still 0
+    poke(cmd, 1)
+    poke(val, 20)
+    cycle()
+    assert(qa == 10 as u8, "cmd=1: ra holds 10")
+    assert(qb == 20 as u8, "cmd=1: rb loaded 20")
+    assert(qc == 0 as u8,  "cmd=1: rc untouched")
+
+    // cmd=2: otherwise arm fires; rc gets 30; ra/rb hold
+    poke(cmd, 2)
+    poke(val, 30)
+    cycle()
+    assert(qa == 10 as u8, "cmd=2: ra holds 10")
+    assert(qb == 20 as u8, "cmd=2: rb holds 20")
+    assert(qc == 30 as u8, "cmd=2: rc loaded 30")
+
+    // cmd=0 again: only ra updates; rb/rc must hold their previous values
+    poke(cmd, 0)
+    poke(val, 99)
+    cycle()
+    assert(qa == 99 as u8, "cmd=0 again: ra loaded 99")
+    assert(qb == 20 as u8, "rb still holds 20")
+    assert(qc == 30 as u8, "rc still holds 30")
+
+    // cmd=1: only rb updates; ra/rc hold
+    poke(cmd, 1)
+    poke(val, 77)
+    cycle()
+    assert(qa == 99 as u8, "ra holds 99")
+    assert(qb == 77 as u8, "cmd=1: rb loaded 77")
+    assert(qc == 30 as u8, "rc holds 30")
+}
+
+// ─── 2: Four regs, each with an independent bit-enable ─────────────────────────
+//   en[i] enables a write to r[i]. Any subset can be enabled simultaneously.
+//   Key property: changing d[i] without setting en[i] must NOT alter q[i].
+
+component FourRegPartialUpdate(
+    in en: u4,
+    in d0: u8, in d1: u8, in d2: u8, in d3: u8,
+    out q0: u8, out q1: u8, out q2: u8, out q3: u8
+) {
+    reg r0: u8 = 0
+    reg r1: u8 = 0
+    reg r2: u8 = 0
+    reg r3: u8 = 0
+    wire e0: bool = en[0]
+    wire e1: bool = en[1]
+    wire e2: bool = en[2]
+    wire e3: bool = en[3]
+    when e0 { r0 <= d0 }
+    when e1 { r1 <= d1 }
+    when e2 { r2 <= d2 }
+    when e3 { r3 <= d3 }
+    q0 := r0
+    q1 := r1
+    q2 := r2
+    q3 := r3
+}
+
+sim TestFourRegPartialUpdate {
+    wire en: u4 = 0
+    wire d0: u8 = 0
+    wire d1: u8 = 0
+    wire d2: u8 = 0
+    wire d3: u8 = 0
+    wire q0: u8
+    wire q1: u8
+    wire q2: u8
+    wire q3: u8
+    FourRegPartialUpdate(en, d0, d1, d2, d3, q0, q1, q2, q3)
+
+    // en=1 (0b0001): only r0 updates; r1–r3 hold at 0
+    poke(en, 1)
+    poke(d0, 11)
+    poke(d1, 22)
+    poke(d2, 33)
+    poke(d3, 44)
+    cycle()
+    assert(q0 == 11 as u8, "en[0]: r0 loaded 11")
+    assert(q1 == 0 as u8,  "en[0]: r1 untouched")
+    assert(q2 == 0 as u8,  "en[0]: r2 untouched")
+    assert(q3 == 0 as u8,  "en[0]: r3 untouched")
+
+    // en=6 (0b0110): r1 and r2 update; r0 holds 11; r3 holds 0
+    poke(en, 6)
+    poke(d0, 55)
+    poke(d1, 66)
+    poke(d2, 77)
+    poke(d3, 88)
+    cycle()
+    assert(q0 == 11 as u8, "en=0110: r0 holds 11")
+    assert(q1 == 66 as u8, "en=0110: r1 loaded 66")
+    assert(q2 == 77 as u8, "en=0110: r2 loaded 77")
+    assert(q3 == 0 as u8,  "en=0110: r3 untouched")
+
+    // en=8 (0b1000): only r3 updates; r0/r1/r2 hold
+    poke(en, 8)
+    poke(d0, 1)
+    poke(d1, 2)
+    poke(d2, 3)
+    poke(d3, 99)
+    cycle()
+    assert(q0 == 11 as u8, "en=1000: r0 holds 11")
+    assert(q1 == 66 as u8, "en=1000: r1 holds 66")
+    assert(q2 == 77 as u8, "en=1000: r2 holds 77")
+    assert(q3 == 99 as u8, "en=1000: r3 loaded 99")
+
+    // en=15 (0b1111): all four update simultaneously
+    poke(en, 15)
+    poke(d0, 10)
+    poke(d1, 20)
+    poke(d2, 30)
+    poke(d3, 40)
+    cycle()
+    assert(q0 == 10 as u8, "en=1111: all loaded simultaneously")
+    assert(q1 == 20 as u8, "en=1111: r1=20")
+    assert(q2 == 30 as u8, "en=1111: r2=30")
+    assert(q3 == 40 as u8, "en=1111: r3=40")
+
+    // en=0: none update; all four hold despite new d inputs
+    poke(en, 0)
+    poke(d0, 100)
+    poke(d1, 101)
+    poke(d2, 102)
+    poke(d3, 103)
+    cycle()
+    assert(q0 == 10 as u8, "en=0000: r0 holds 10")
+    assert(q1 == 20 as u8, "en=0000: r1 holds 20")
+    assert(q2 == 30 as u8, "en=0000: r2 holds 30")
+    assert(q3 == 40 as u8, "en=0000: r3 holds 40")
+}
+
+// ─── 3: Min/max tracker — each reg only updates when the incoming value beats it ─
+//   Two threshold conditions are independent: at most one fires per cycle,
+//   possibly neither. When d is between the current min and max, both hold.
+
+component MinMaxTracker(
+    in d: u8,
+    out min_out: u8, out max_out: u8
+) {
+    reg min_reg: u8 = 255
+    reg max_reg: u8 = 0
+    when (d < min_reg) { min_reg <= d }
+    when (d > max_reg) { max_reg <= d }
+    min_out := min_reg
+    max_out := max_reg
+}
+
+sim TestMinMaxTracker {
+    wire d: u8 = 0
+    wire mn: u8
+    wire mx: u8
+    MinMaxTracker(d, mn, mx)
+
+    // d=100: beats both initial bounds (255 and 0) → both update
+    poke(d, 100)
+    cycle()
+    assert(mn == 100 as u8, "d=100 < 255: new min")
+    assert(mx == 100 as u8, "d=100 > 0: new max")
+
+    // d=150: exceeds max=100 only; min holds
+    poke(d, 150)
+    cycle()
+    assert(mn == 100 as u8, "d=150 not < min=100: min holds")
+    assert(mx == 150 as u8, "d=150 > max=100: new max")
+
+    // d=80: below min=100 only; max holds
+    poke(d, 80)
+    cycle()
+    assert(mn == 80 as u8,  "d=80 < min=100: new min")
+    assert(mx == 150 as u8, "d=80 not > max=150: max holds")
+
+    // d=120: 80 < 120 < 150 — neither fires; both hold
+    poke(d, 120)
+    cycle()
+    assert(mn == 80 as u8,  "d=120 in range: min holds at 80")
+    assert(mx == 150 as u8, "d=120 in range: max holds at 150")
+
+    // d=200: only max updates
+    poke(d, 200)
+    cycle()
+    assert(mn == 80 as u8,  "d=200: min holds at 80")
+    assert(mx == 200 as u8, "d=200 > max=150: new max")
+
+    // d=50: only min updates
+    poke(d, 50)
+    cycle()
+    assert(mn == 50 as u8,  "d=50 < min=80: new min")
+    assert(mx == 200 as u8, "d=50: max holds at 200")
+
+    // d=100: 50 < 100 < 200 — neither fires again; both hold
+    poke(d, 100)
+    cycle()
+    assert(mn == 50 as u8,  "d=100 in range: min holds at 50")
+    assert(mx == 200 as u8, "d=100 in range: max holds at 200")
+}
+
+// ─── 4: Round-robin writer — pointer reg routes writes across three slot regs ────
+//   Each cycle exactly one slot reg is written; the other two hold.
+//   Pointer advances automatically: 0 → 1 → 2 → 0.
+
+component RoundRobinWriter(
+    in d: u8,
+    out ptr: u2,
+    out slot0: u8, out slot1: u8, out slot2: u8
+) {
+    reg wr_ptr: u2 = 0
+    reg r0: u8 = 0
+    reg r1: u8 = 0
+    reg r2: u8 = 0
+    when wr_ptr == 0 as u2 { r0 <= d }
+    elsewhen wr_ptr == 1 as u2 { r1 <= d }
+    otherwise { r2 <= d }
+    when wr_ptr == 2 as u2 { wr_ptr <= 0 as u2 }
+    otherwise { wr_ptr <= (wr_ptr + 1 as u2) as u2 }
+    ptr   := wr_ptr
+    slot0 := r0
+    slot1 := r1
+    slot2 := r2
+}
+
+sim TestRoundRobinWriter {
+    wire d: u8 = 0
+    wire ptr: u2
+    wire out0: u8
+    wire out1: u8
+    wire out2: u8
+    RoundRobinWriter(d, ptr, out0, out1, out2)
+
+    assert(ptr == 0 as u2, "initial ptr=0")
+    assert(out0 == 0 and out1 == 0 and out2 == 0, "all slots init 0")
+
+    // Cycle 1: ptr=0 → slot0 gets 10; slot1/slot2 hold; ptr→1
+    poke(d, 10)
+    cycle()
+    assert(ptr == 1 as u2,  "ptr advanced to 1")
+    assert(out0 == 10 as u8, "ptr=0: slot0 written 10")
+    assert(out1 == 0 as u8,  "slot1 untouched")
+    assert(out2 == 0 as u8,  "slot2 untouched")
+
+    // Cycle 2: ptr=1 → slot1 gets 20; slot0 holds 10; ptr→2
+    poke(d, 20)
+    cycle()
+    assert(ptr == 2 as u2,  "ptr advanced to 2")
+    assert(out0 == 10 as u8, "slot0 holds 10")
+    assert(out1 == 20 as u8, "ptr=1: slot1 written 20")
+    assert(out2 == 0 as u8,  "slot2 untouched")
+
+    // Cycle 3: ptr=2 → slot2 gets 30; slot0/slot1 hold; ptr wraps to 0
+    poke(d, 30)
+    cycle()
+    assert(ptr == 0 as u2,  "ptr wrapped back to 0")
+    assert(out0 == 10 as u8, "slot0 holds 10")
+    assert(out1 == 20 as u8, "slot1 holds 20")
+    assert(out2 == 30 as u8, "ptr=2: slot2 written 30")
+
+    // Cycle 4: ptr=0 → slot0 overwritten to 40; slot1/slot2 hold
+    poke(d, 40)
+    cycle()
+    assert(ptr == 1 as u2,  "ptr advanced to 1")
+    assert(out0 == 40 as u8, "slot0 overwritten to 40")
+    assert(out1 == 20 as u8, "slot1 holds 20")
+    assert(out2 == 30 as u8, "slot2 holds 30")
+
+    // Cycle 5: ptr=1 → slot1 overwritten to 50; slot0/slot2 hold
+    poke(d, 50)
+    cycle()
+    assert(ptr == 2 as u2,  "ptr advanced to 2")
+    assert(out0 == 40 as u8, "slot0 holds 40")
+    assert(out1 == 50 as u8, "slot1 overwritten to 50")
+    assert(out2 == 30 as u8, "slot2 holds 30")
+}
+
+// ─── 5: Edge-snapshot latches — two regs, each tied to an opposite edge ─────────
+//   pos_latch captures d only on a rising edge (false→true on clk_in).
+//   neg_latch captures d only on a falling edge (true→false on clk_in).
+//   During flat phases (no transition) both regs hold; each edge fires only its reg.
+
+component SnapshotOnEdge(
+    in clk_in: bool, in d: u8,
+    out pos_latch: u8, out neg_latch: u8
+) {
+    reg prev: bool = false
+    reg pos:  u8   = 0
+    reg neg:  u8   = 0
+    wire rising:  bool = (not prev) and clk_in
+    wire falling: bool = prev and (not clk_in)
+    when rising  { pos <= d }
+    when falling { neg <= d }
+    prev <= clk_in
+    pos_latch := pos
+    neg_latch := neg
+}
+
+sim TestSnapshotOnEdge {
+    wire clk_in: bool = false
+    wire d: u8 = 0
+    wire pl: u8
+    wire nl: u8
+    SnapshotOnEdge(clk_in, d, pl, nl)
+
+    // Flat low (clk=false, prev=false): no edge; both hold at init 0
+    poke(d, 10)
+    cycle()
+    assert(pl == 0 as u8, "flat low: pos_latch holds 0")
+    assert(nl == 0 as u8, "flat low: neg_latch holds 0")
+
+    // Rising edge (prev=false → clk=true): pos_latch captures d=42; neg holds
+    poke(clk_in, true)
+    poke(d, 42)
+    cycle()
+    assert(pl == 42 as u8, "rising edge: pos_latch captures 42")
+    assert(nl == 0 as u8,  "rising edge: neg_latch holds 0")
+
+    // Flat high (prev=true, clk=true): no edge; both hold
+    poke(d, 55)
+    cycle()
+    assert(pl == 42 as u8, "flat high: pos_latch holds 42")
+    assert(nl == 0 as u8,  "flat high: neg_latch holds 0")
+
+    // Falling edge (prev=true → clk=false): neg_latch captures d=99; pos holds
+    poke(clk_in, false)
+    poke(d, 99)
+    cycle()
+    assert(pl == 42 as u8, "falling edge: pos_latch holds 42")
+    assert(nl == 99 as u8, "falling edge: neg_latch captures 99")
+
+    // Flat low again: both hold despite new d
+    poke(d, 77)
+    cycle()
+    assert(pl == 42 as u8, "flat low again: pos holds 42")
+    assert(nl == 99 as u8, "flat low again: neg holds 99")
+
+    // Second rising edge: pos updates to 11; neg holds 99
+    poke(clk_in, true)
+    poke(d, 11)
+    cycle()
+    assert(pl == 11 as u8, "2nd rising: pos_latch captures 11")
+    assert(nl == 99 as u8, "2nd rising: neg_latch holds 99")
+
+    // Second falling edge: neg updates to 33; pos holds 11
+    poke(clk_in, false)
+    poke(d, 33)
+    cycle()
+    assert(pl == 11 as u8, "2nd falling: pos_latch holds 11")
+    assert(nl == 33 as u8, "2nd falling: neg_latch captures 33")
+}

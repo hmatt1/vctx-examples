@@ -1,0 +1,214 @@
+// spec: §5.6, §10.3, §18
+// description: Chains of user-defined comptime functions, 2–3 levels deep.
+//   Tests the comptime interpreter's call stack for user-defined function
+//   graphs rather than stdlib delegation.
+//   Scenarios:
+//     1. Same function applied twice via let-binding: quad(n) = dbl(dbl(n))
+//     2. Three-level chain: times8 → quad → dbl
+//     3. Two independent L1 helpers combined at L2: fivex = iadd(dbl(n), trpl(n))
+//     4. Conditional logic inside a callee chained to a caller: dbl_clamped
+//     5. Cross-chain composition: quad result re-used across dbl+trpl+iadd
+//     6. Integration: all five chains verified in one component
+// expect: pass
+
+// ─── Level-1 primitives (return Int, used as building blocks) ─────────────────
+
+comptime dbl(n: Int) -> Int {
+    return n * 2
+}
+
+comptime trpl(n: Int) -> Int {
+    return n * 3
+}
+
+comptime iadd(a: Int, b: Int) -> Int {
+    return a + b
+}
+
+// ─── Level-2: same primitive applied twice — quad(n) = dbl(dbl(n)) = 4n ────────
+//   A let binding threads the first call's result into the second call.
+//   The interpreter must maintain correct argument binding across both frames.
+
+comptime quad(n: Int) -> Int {
+    let step: Int = dbl(n)
+    return dbl(step)
+}
+
+// ─── Level-3: three-level chain ───────────────────────────────────────────────
+//   times8(n) = dbl(quad(n)) = 8n
+//   Call stack depth: times8 → quad → dbl (3 user-defined frames)
+
+comptime times8(n: Int) -> u32 {
+    let q: Int = quad(n)
+    return (dbl(q) as u32)
+}
+
+// ─── Level-2: two different L1 helpers combined ───────────────────────────────
+//   fivex(n) = dbl(n) + trpl(n) = 2n + 3n = 5n
+//   Each sub-call is bound to a let, then both are combined via iadd.
+
+comptime fivex(n: Int) -> u32 {
+    let d: Int = dbl(n)
+    let t: Int = trpl(n)
+    return (iadd(d, t) as u32)
+}
+
+// ─── Conditional callee + chained caller ─────────────────────────────────────
+//   clamp255 uses conditional control flow; dbl_clamped chains it with dbl.
+//   Tests that conditional return paths inside a called user-defined fn are
+//   correctly evaluated before the result is returned to the caller.
+
+comptime clamp255(n: Int) -> Int {
+    if (n > 255) { return 255 }
+    if (n < 0)   { return 0 }
+    return n
+}
+
+comptime dbl_clamped(n: Int) -> u32 {
+    let doubled: Int = dbl(n)
+    return (clamp255(doubled) as u32)
+}
+
+// ─── Cross-chain: quad result re-used as input to two further helpers ─────────
+//   Expresses fivex(quad(n)) using explicit let bindings so the full call
+//   graph exercises: quad_then_fivex → quad → dbl AND → dbl, trpl, iadd.
+
+comptime quad_then_fivex(n: Int) -> u32 {
+    let q: Int = quad(n)
+    let d: Int = dbl(q)
+    let t: Int = trpl(q)
+    return (iadd(d, t) as u32)
+}
+
+// ─── u32 wrapper: quad returns Int, expose for direct component use ───────────
+
+comptime quad_u32(n: Int) -> u32 {
+    return (quad(n) as u32)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Components
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Scenario 1: same function applied twice — quad(n) = dbl(dbl(n)) = 4n
+component QuadSamples(out ra: u32, out rb: u32, out rc: u32) {
+    ra := quad_u32(7)    // dbl(dbl(7)) = 28
+    rb := quad_u32(3)    // dbl(dbl(3)) = 12
+    rc := quad_u32(10)   // dbl(dbl(10)) = 40
+}
+
+sim SimQuadSamples {
+    wire ra: u32
+    wire rb: u32
+    wire rc: u32
+    QuadSamples(ra, rb, rc)
+    cycle()
+    assert(ra == 28 as u32, "quad(7): dbl(dbl(7)) = 28")
+    assert(rb == 12 as u32, "quad(3): dbl(dbl(3)) = 12")
+    assert(rc == 40 as u32, "quad(10): dbl(dbl(10)) = 40")
+}
+
+// Scenario 2: three-level chain — times8(n) = dbl(quad(n)) = 8n
+component Times8Samples(out ra: u32, out rb: u32, out rc: u32) {
+    ra := times8(5)    // dbl(quad(5)) = dbl(20) = 40
+    rb := times8(3)    // dbl(quad(3)) = dbl(12) = 24
+    rc := times8(1)    // dbl(quad(1)) = dbl(4)  = 8
+}
+
+sim SimTimes8Samples {
+    wire ra: u32
+    wire rb: u32
+    wire rc: u32
+    Times8Samples(ra, rb, rc)
+    cycle()
+    assert(ra == 40 as u32, "times8(5): dbl(quad(5)) = 40")
+    assert(rb == 24 as u32, "times8(3): dbl(quad(3)) = 24")
+    assert(rc == 8 as u32,  "times8(1): dbl(quad(1)) = 8")
+}
+
+// Scenario 3: two independent L1 helpers combined — fivex(n) = 5n
+component FivexSamples(out ra: u32, out rb: u32, out rc: u32) {
+    ra := fivex(6)    // iadd(dbl(6), trpl(6)) = iadd(12, 18) = 30
+    rb := fivex(4)    // iadd(dbl(4), trpl(4)) = iadd(8,  12) = 20
+    rc := fivex(7)    // iadd(dbl(7), trpl(7)) = iadd(14, 21) = 35
+}
+
+sim SimFivexSamples {
+    wire ra: u32
+    wire rb: u32
+    wire rc: u32
+    FivexSamples(ra, rb, rc)
+    cycle()
+    assert(ra == 30 as u32, "fivex(6): iadd(12, 18) = 30")
+    assert(rb == 20 as u32, "fivex(4): iadd(8,  12) = 20")
+    assert(rc == 35 as u32, "fivex(7): iadd(14, 21) = 35")
+}
+
+// Scenario 4: conditional in callee — dbl_clamped(n) = clamp255(dbl(n))
+//   100 → dbl=200 → no clamp fires      → 200
+//   200 → dbl=400 → upper clamp fires   → 255
+component ConditionalLink(out in_range: u32, out at_limit: u32) {
+    in_range := dbl_clamped(100)    // clamp255(200) = 200
+    at_limit := dbl_clamped(200)    // clamp255(400) = 255
+}
+
+sim SimConditionalLink {
+    wire in_range: u32
+    wire at_limit: u32
+    ConditionalLink(in_range, at_limit)
+    cycle()
+    assert(in_range == 200 as u32, "dbl_clamped(100): 200 in range → 200")
+    assert(at_limit == 255 as u32, "dbl_clamped(200): 400 > 255 → clamped to 255")
+}
+
+// Scenario 5: cross-chain composition
+//   quad_then_fivex(n) = fivex(quad(n)) expressed via let bindings
+//   quad(4)=16: dbl(16)=32, trpl(16)=48, iadd(32,48)=80
+//   quad(2)=8:  dbl(8)=16,  trpl(8)=24,  iadd(16,24)=40
+//   quad(3)=12: dbl(12)=24, trpl(12)=36, iadd(24,36)=60
+component CrossCompose(out ra: u32, out rb: u32, out rc: u32) {
+    ra := quad_then_fivex(4)    // 80
+    rb := quad_then_fivex(2)    // 40
+    rc := quad_then_fivex(3)    // 60
+}
+
+sim SimCrossCompose {
+    wire ra: u32
+    wire rb: u32
+    wire rc: u32
+    CrossCompose(ra, rb, rc)
+    cycle()
+    assert(ra == 80 as u32, "quad_then_fivex(4): fivex(quad(4))=fivex(16)=80")
+    assert(rb == 40 as u32, "quad_then_fivex(2): fivex(quad(2))=fivex(8)=40")
+    assert(rc == 60 as u32, "quad_then_fivex(3): fivex(quad(3))=fivex(12)=60")
+}
+
+// Scenario 6: integration — all five chain types in one component
+component AllChains(
+    out qdbl:  u32,
+    out t8:    u32,
+    out five:  u32,
+    out cond:  u32,
+    out cross: u32
+) {
+    qdbl  := quad_u32(7)           // double-apply:         28
+    t8    := times8(5)             // three-level:          40
+    five  := fivex(6)              // two helpers:          30
+    cond  := dbl_clamped(100)      // conditional chain:   200
+    cross := quad_then_fivex(4)    // cross-compose:        80
+}
+
+sim SimAllChains {
+    wire qdbl: u32
+    wire t8: u32
+    wire five: u32
+    wire cond: u32
+    wire cross: u32
+    AllChains(qdbl, t8, five, cond, cross)
+    cycle()
+    assert(qdbl  == 28 as u32,  "quad(7): dbl(dbl(7)) = 28")
+    assert(t8    == 40 as u32,  "times8(5): dbl(quad(5)) = 40")
+    assert(five  == 30 as u32,  "fivex(6): iadd(dbl(6),trpl(6)) = 30")
+    assert(cond  == 200 as u32, "dbl_clamped(100): clamp255(200) = 200")
+    assert(cross == 80 as u32,  "quad_then_fivex(4): fivex(16) = 80")
+}
