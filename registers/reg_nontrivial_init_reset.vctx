@@ -1,0 +1,184 @@
+// spec: §6.2, §6.7, §13
+// description: Registers with non-trivial binary/hex initial values verified
+//   across multiple independent reset() calls.
+//   Gap filled: existing reset tests use small scalars (0, 255, 0xAAAA) and
+//   call reset() exactly once. This file uses arbitrary bit patterns
+//   (0b10110101=0xB5, 0xAB, 0x5A, 0xDEAD_BEEF, 0xCAFE) and calls reset()
+//   three times per sim. Corruption always writes a value that is neither
+//   zero nor the init constant, so a "reset to zero" or "reset to last
+//   written" bug would both be detected.
+// expect: pass
+
+// ─── Component 1: three u8 registers with distinct bit patterns ───────────────
+//   0xB5 = 0b10110101 = 181  (alternating-pair pattern)
+//   0xAB = 0b10101011 = 171  (different bit distribution)
+//   0x5A = 0b01011010 =  90  (bitwise complement of 0xB5)
+//   Corruption writes 0xFF to all three, which is neither zero nor any init
+//   value, so every plausible reset-bug class is exercised.
+
+component BitPatternTriple(
+    in corrupting: bool,
+    out qa: u8, out qb: u8, out qc: u8
+) {
+    reg ra: u8 = 0b10110101
+    reg rb: u8 = 0xAB
+    reg rc: u8 = 0x5A
+    when corrupting {
+        ra <= 255 as u8
+        rb <= 255 as u8
+        rc <= 255 as u8
+    }
+    qa := ra
+    qb := rb
+    qc := rc
+}
+
+sim TestBitPatternThreeResets {
+    wire corrupting: bool = false
+    wire qa: u8
+    wire qb: u8
+    wire qc: u8
+    BitPatternTriple(corrupting, qa, qb, qc)
+
+    // Phase 1: initial values match the declared init constants
+    assert(qa == 181 as u8, "ra init = 0b10110101 = 0xB5 = 181")
+    assert(qb == 171 as u8, "rb init = 0xAB = 171")
+    assert(qc == 90 as u8,  "rc init = 0x5A = 90")
+
+    // Reset #1: corrupt → verify 0xFF → reset → verify exact init restored
+    poke(corrupting, true)
+    cycle()
+    poke(corrupting, false)
+    assert(qa == 255 as u8, "ra after corrupt #1 = 0xFF")
+    assert(qb == 255 as u8, "rb after corrupt #1 = 0xFF")
+    assert(qc == 255 as u8, "rc after corrupt #1 = 0xFF")
+    reset()
+    assert(qa == 181 as u8, "ra restored by reset #1 = 0xB5")
+    assert(qb == 171 as u8, "rb restored by reset #1 = 0xAB")
+    assert(qc == 90 as u8,  "rc restored by reset #1 = 0x5A")
+
+    // Reset #2: second independent corruption and reset
+    poke(corrupting, true)
+    cycle()
+    poke(corrupting, false)
+    assert(qa == 255 as u8, "ra after corrupt #2 = 0xFF")
+    reset()
+    assert(qa == 181 as u8, "ra restored by reset #2 = 0xB5")
+    assert(qb == 171 as u8, "rb restored by reset #2 = 0xAB")
+    assert(qc == 90 as u8,  "rc restored by reset #2 = 0x5A")
+
+    // Reset #3: third invocation proves reset is unconditionally idempotent
+    poke(corrupting, true)
+    cycle()
+    poke(corrupting, false)
+    reset()
+    assert(qa == 181 as u8, "ra restored by reset #3 = 0xB5")
+    assert(qb == 171 as u8, "rb restored by reset #3 = 0xAB")
+    assert(qc == 90 as u8,  "rc restored by reset #3 = 0x5A")
+}
+
+// ─── Component 2: wider registers with multi-nibble hex patterns ──────────────
+//   0xDEAD_BEEF = 3735928559 (u32)
+//   0xCAFE      =      51966 (u16)
+//   Corruption writes all-ones (max value for each width), a value that is
+//   not zero and not the init, covering the same two bug classes.
+
+component WidePatternRegs(
+    in corrupting: bool,
+    out qa: u32, out qb: u16
+) {
+    reg ra: u32 = 0xDEAD_BEEF
+    reg rb: u16 = 0xCAFE
+    when corrupting {
+        ra <= 0xFFFF_FFFF as u32
+        rb <= 0xFFFF as u16
+    }
+    qa := ra
+    qb := rb
+}
+
+sim TestWidePatternThreeResets {
+    wire corrupting: bool = false
+    wire qa: u32
+    wire qb: u16
+    WidePatternRegs(corrupting, qa, qb)
+
+    // Phase 1: initial values
+    assert(qa == 0xDEAD_BEEF as u32, "ra init = 0xDEAD_BEEF = 3735928559")
+    assert(qb == 0xCAFE as u16,      "rb init = 0xCAFE = 51966")
+
+    // Reset #1
+    poke(corrupting, true)
+    cycle()
+    poke(corrupting, false)
+    assert(qa == 0xFFFF_FFFF as u32, "ra corrupted #1 = 0xFFFF_FFFF")
+    assert(qb == 0xFFFF as u16,      "rb corrupted #1 = 0xFFFF")
+    reset()
+    assert(qa == 0xDEAD_BEEF as u32, "ra restored by reset #1")
+    assert(qb == 0xCAFE as u16,      "rb restored by reset #1")
+
+    // Reset #2
+    poke(corrupting, true)
+    cycle()
+    poke(corrupting, false)
+    reset()
+    assert(qa == 0xDEAD_BEEF as u32, "ra restored by reset #2")
+    assert(qb == 0xCAFE as u16,      "rb restored by reset #2")
+
+    // Reset #3
+    poke(corrupting, true)
+    cycle()
+    poke(corrupting, false)
+    reset()
+    assert(qa == 0xDEAD_BEEF as u32, "ra restored by reset #3")
+    assert(qb == 0xCAFE as u16,      "rb restored by reset #3")
+}
+
+// ─── Component 3: controllable load — reset from three distinct corrupt values ─
+//   The critical property: reset restores the DECLARED INIT, not 0x00 and not
+//   whatever was most recently written. By corrupting to 0x00, then 0xFF, then
+//   an arbitrary mid-range value (0x42), we confirm the driver reads the init
+//   constant, not a cached "last write" or a hardcoded zero.
+
+component ControlledPatternReg(in load: bool, in val: u8, out q: u8) {
+    reg r: u8 = 0xB5   // 0b10110101 = 181
+    when load { r <= val }
+    q := r
+}
+
+sim TestResetFromVariousCorruptValues {
+    wire load: bool = false
+    wire val: u8 = 0
+    wire q: u8
+    ControlledPatternReg(load, val, q)
+
+    // Initial state
+    assert(q == 181 as u8, "init = 0xB5 = 181")
+
+    // Corrupt to 0x00 (zero) — reset must restore 0xB5, not stay at 0
+    poke(load, true)
+    poke(val, 0)
+    cycle()
+    poke(load, false)
+    assert(q == 0 as u8, "after write 0x00 = 0")
+    reset()
+    assert(q == 181 as u8, "reset from 0x00 → 0xB5 (not stuck at zero)")
+
+    // Corrupt to 0xFF (all-ones) — reset must restore 0xB5, not stay at 0xFF
+    poke(load, true)
+    poke(val, 255)
+    cycle()
+    poke(load, false)
+    assert(q == 255 as u8, "after write 0xFF = 255")
+    reset()
+    assert(q == 181 as u8, "reset from 0xFF → 0xB5 (not stuck at 0xFF)")
+
+    // Corrupt to 0x42 (arbitrary mid-range) — same assertion
+    poke(load, true)
+    poke(val, 66)
+    cycle()
+    poke(load, false)
+    assert(q == 66 as u8, "after write 0x42 = 66")
+    reset()
+    assert(q == 181 as u8, "reset from 0x42 → 0xB5 (init, not 0x42)")
+}
