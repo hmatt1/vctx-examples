@@ -8,3 +8,26 @@ component MlirTypeGenericHarness(in x: u8, out y: u8) {
     y := id_ty<u8>(x)
 }
 
+// The type-generic identity function is specialized at T=u8 at compile time.
+sim TestTypeParamBasic {
+    wire x: u8 = 0xAB as u8
+    wire y: u8
+    MlirTypeGenericHarness(x, y)
+    cycle()
+    assert(y == 0xAB as u8, "id_ty<u8> passes value unchanged")
+}
+
+sim TestTypeParamPoke {
+    wire x: u8 = 0
+    wire y: u8
+    MlirTypeGenericHarness(x, y)
+    cycle()
+    assert(y == 0, "initial: identity of 0 is 0")
+    poke(x, 77 as u8)
+    cycle()
+    assert(y == 77, "poke 77: identity function yields 77")
+    poke(x, 0xFF as u8)
+    cycle()
+    assert(y == 0xFF as u8, "poke 0xFF: identity preserves max value")
+}
+

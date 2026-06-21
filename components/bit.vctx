@@ -7,15 +7,20 @@ component Gate(out y: u8, out b: u7) {
 }
 
 
-sim TestOr {
-    // 2. Output wire
+sim TestGateOutputs {
     wire a1: u8
     wire b1: u7
-
     Gate(a1, b1)
-
     cycle()
-    
-    assert(a1 == 25, "check1")
+    assert(a1 == 25, "full u8 output equals the internal wire value 25")
+    assert(b1 == 25 as u7, "u7 cast of 25 is 25 (fits in 7 bits)")
+}
+
+sim TestGateCastPreserves {
+    wire a1: u8
+    wire b1: u7
+    Gate(a1, b1)
+    cycle()
+    assert(a1 == b1 as u8, "25 fits in u7, so cast is lossless: a1 == b1 widened")
 }
 

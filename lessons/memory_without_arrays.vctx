@@ -41,12 +41,73 @@ component TwoByteRam(in addr: u16, in wen: bool, in wdata: u8, out raw: u8) {
     TwoByteRamRead(addr, b0, b1, raw)
 }
 
-sim TwoCellRamSmoke {
+// Write to 0xC001, then read it back the same cycle.
+sim TwoCellRamWriteM1 {
     wire r: u8
     wire a: u16 = 0xC001
     wire w: bool = true
     wire d: u8 = 0x77 as u8
     TwoByteRam(a, w, d, r)
     cycle()
-    assert(r == 0x77 as u8, "write 0x77 at 0xC001, read 0xC001 gives 0x77 (m1)")
+    assert(r == 0x77 as u8, "write 0x77 at 0xC001, read 0xC001 gives 0x77")
+}
+
+// Write to 0xC000 and verify m0 is addressed independently of m1.
+sim TwoCellRamWriteM0 {
+    wire r: u8
+    wire a: u16 = 0xC000
+    wire w: bool = true
+    wire d: u8 = 0x42 as u8
+    TwoByteRam(a, w, d, r)
+    cycle()
+    assert(r == 0x42 as u8, "write 0x42 at 0xC000, read 0xC000 gives 0x42")
+}
+
+// Sequentially write both cells then read each one.
+sim TwoCellRamBothCells {
+    wire r: u8
+    wire a: u16 = 0xC000
+    wire w: bool = true
+    wire d: u8 = 0xAA as u8
+    TwoByteRam(a, w, d, r)
+    cycle()
+    assert(r == 0xAA as u8, "wrote 0xAA to m0; read-back matches")
+    poke(a, 0xC001 as u16)
+    poke(d, 0xBB as u8)
+    cycle()
+    assert(r == 0xBB as u8, "wrote 0xBB to m1; read-back matches")
+    poke(a, 0xC000 as u16)
+    poke(w, false)
+    cycle()
+    assert(r == 0xAA as u8, "switch back to m0 without writing: m0 still holds 0xAA")
+    poke(a, 0xC001 as u16)
+    cycle()
+    assert(r == 0xBB as u8, "m1 still holds 0xBB")
+}
+
+// An unmapped address returns 0 from TwoByteRamRead.
+sim TwoCellRamUnmappedAddress {
+    wire r: u8
+    wire a: u16 = 0xC000
+    wire w: bool = true
+    wire d: u8 = 0xFF as u8
+    TwoByteRam(a, w, d, r)
+    cycle()
+    poke(a, 0xDEAD as u16)
+    poke(w, false)
+    cycle()
+    assert(r == 0, "unmapped address 0xDEAD returns 0 from address decoder")
+}
+
+// Write-enable=false: register holds its reset value (0).
+sim TwoCellRamWriteDisabled {
+    wire r: u8
+    wire a: u16 = 0xC000
+    wire w: bool = false
+    wire d: u8 = 0x55 as u8
+    TwoByteRam(a, w, d, r)
+    cycle()
+    assert(r == 0, "wen=0: register starts at reset value 0")
+    cycle()
+    assert(r == 0, "wen=0: register still holds 0 after second cycle")
 }

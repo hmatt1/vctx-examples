@@ -13,9 +13,35 @@ component AddOne(in x: u8, out y: u8) {
 sim TestAddOne {
     wire x: u8 = 10
     wire y: u8
-
     AddOne(x, y)
-
     cycle()
-    assert(y == 11, "add_one should increment")
+    assert(y == 11, "add_one(10) == 11")
+    poke(x, 0)
+    cycle()
+    assert(y == 1, "add_one(0) == 1")
+    poke(x, 0xFF as u8)
+    cycle()
+    assert(y == 0, "add_one(255) wraps to 0 in u8")
+    poke(x, 99 as u8)
+    cycle()
+    assert(y == 100, "add_one(99) == 100")
+}
+
+sim TestAddOneZeroBase {
+    wire x: u8 = 0
+    wire y: u8
+    AddOne(x, y)
+    cycle()
+    assert(y == 1, "zero base: add_one(0) == 1")
+}
+
+sim TestAddOneWrap {
+    wire x: u8 = 0xFE as u8
+    wire y: u8
+    AddOne(x, y)
+    cycle()
+    assert(y == 0xFF as u8, "254 -> 255")
+    poke(x, 0xFF as u8)
+    cycle()
+    assert(y == 0, "255 -> 0 (wraps)")
 }

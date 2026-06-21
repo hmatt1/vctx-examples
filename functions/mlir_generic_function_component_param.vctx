@@ -12,3 +12,26 @@ component MlirGenericFnHarness(in x: u8, out y: u8) {
     y := use_c<PassThrough>(x)
 }
 
+// The function call is inlined; the Component parameter is resolved at compile time.
+sim TestComponentParamBasic {
+    wire x: u8 = 0x42 as u8
+    wire y: u8
+    MlirGenericFnHarness(x, y)
+    cycle()
+    assert(y == 0x42 as u8, "component-param function passes input through")
+}
+
+sim TestComponentParamPoke {
+    wire x: u8 = 0
+    wire y: u8
+    MlirGenericFnHarness(x, y)
+    cycle()
+    assert(y == 0, "initial: y == 0")
+    poke(x, 0xFF as u8)
+    cycle()
+    assert(y == 0xFF as u8, "after poke: y follows x")
+    poke(x, 1 as u8)
+    cycle()
+    assert(y == 1, "second poke: y still tracks x")
+}
+
