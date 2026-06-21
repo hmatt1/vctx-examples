@@ -1,5 +1,5 @@
 // spec: §5.1
-// expect: pass check; pass mlir
+// expect: pass check; pass mlir; pass sim
 // Multiple inout ports: both ``a`` and ``b`` are bidirectional.  Their values are
 // read combinationally and accumulated into a sum output.  The MLIR emitter inserts
 // one sv.read_inout per inout block argument; arithmetic then operates on plain i8
@@ -10,4 +10,47 @@
 
 component TwoWireRead(inout a: u8, inout b: u8, out sum: u8) {
     sum := (a + b) as u8
+}
+
+// Basic sum with both pins driven.
+sim TestTwoWireBasic {
+    wire pa: u8 = 3
+    wire pb: u8 = 4
+    wire s: u8
+    TwoWireRead(pa, pb, s)
+    cycle()
+    assert(s == 7, "3 + 4 = 7")
+}
+
+// Poke individual inout pins and confirm sum updates.
+sim TestTwoWirePoke {
+    wire pa: u8 = 0
+    wire pb: u8 = 0
+    wire s: u8
+    TwoWireRead(pa, pb, s)
+    cycle()
+    assert(s == 0, "initial: sum is zero")
+    poke(pa, 10)
+    cycle()
+    assert(s == 10, "after poke pa=10, pb=0: sum=10")
+    poke(pb, 20)
+    cycle()
+    assert(s == 30, "after poke pa=10, pb=20: sum=30")
+    poke(pa, 0)
+    cycle()
+    assert(s == 20, "after poke pa=0, pb=20: sum=20")
+}
+
+// Verify wrap-around (u8 arithmetic).
+sim TestTwoWireWrap {
+    wire pa: u8 = 0xFF
+    wire pb: u8 = 1
+    wire s: u8
+    TwoWireRead(pa, pb, s)
+    cycle()
+    assert(s == 0, "0xFF + 0x01 wraps to 0 in u8")
+    poke(pa, 0x80 as u8)
+    poke(pb, 0x80 as u8)
+    cycle()
+    assert(s == 0, "0x80 + 0x80 wraps to 0 in u8")
 }

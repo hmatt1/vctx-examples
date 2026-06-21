@@ -1,7 +1,7 @@
 // spec: §5.1, §6.4
-// expect: pass check; pass mlir
-// Conditional inout read: ``pin`` is read only when ``en`` is asserted.
-// This is a common GPIO-style pattern where the pad is sampled on a strobe.
+// expect: pass check; pass mlir; pass sim
+// Conditional inout read: ``pin`` is sampled only when ``en`` is asserted.
+// This is a common GPIO-style pattern where the pad is read on a strobe.
 // The ``when``/``otherwise`` branches emit a hw.mux in MLIR; the sv.read_inout
 // for ``pin`` is shared by both paths since it is computed once at block entry.
 
@@ -11,4 +11,46 @@ component GatedGpio(inout pin: u8, in en: bool, out out_val: u8) {
     } otherwise {
         out_val := 0
     }
+}
+
+// When en=0, out_val is always 0 regardless of pin.
+sim TestGatedGpioDisabled {
+    wire pin: u8 = 0xFF
+    wire en: bool = 0
+    wire q: u8
+    GatedGpio(pin, en, q)
+    cycle()
+    assert(q == 0, "en=0: gate blocks pin; out_val is zero")
+    poke(pin, 0xAB as u8)
+    cycle()
+    assert(q == 0, "en=0: changing pin has no effect on out_val")
+}
+
+// When en=1, out_val mirrors pin.
+sim TestGatedGpioEnabled {
+    wire pin: u8 = 0x42
+    wire en: bool = 1
+    wire q: u8
+    GatedGpio(pin, en, q)
+    cycle()
+    assert(q == 0x42 as u8, "en=1: pin passes through to out_val")
+    poke(pin, 0x01 as u8)
+    cycle()
+    assert(q == 0x01 as u8, "en=1: out_val tracks pin")
+}
+
+// Verify en acts as a gate: toggling en switches between pass-through and zero.
+sim TestGatedGpioToggle {
+    wire pin: u8 = 0xBE
+    wire en: bool = 0
+    wire q: u8
+    GatedGpio(pin, en, q)
+    cycle()
+    assert(q == 0, "initially gated off")
+    poke(en, 1)
+    cycle()
+    assert(q == 0xBE as u8, "after enabling: pin passes through")
+    poke(en, 0)
+    cycle()
+    assert(q == 0, "after disabling: output returns to zero")
 }

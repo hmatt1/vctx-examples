@@ -1,12 +1,10 @@
 // spec: §5.1
-// expect: pass check; pass mlir
-// Inout chain: the parent receives ``pin`` as an inout port and forwards it to an
-// inner component via named port binding (``pin -- pin``).  The MLIR emitter threads
-// the parent's ``!hw.inout<i8>`` block argument through ``inout_raw`` so no
-// intermediate sv.wire is inserted — the same reference propagates down the hierarchy.
-//
-// This pattern models a structural hierarchy where a bidirectional pad ripples through
-// several levels without being converted to a value until the leaf reads it.
+// expect: pass check; pass mlir; pass sim
+// Inout port chaining: an outer component passes its own inout port down to an
+// inner leaf through a port-map connection.  The outer ``Chain`` module has
+// no assignment of its own — it purely threads ``pin`` to ``InnerLeaf``.
+// This tests that the inout_raw propagation correctly forwards the parent's
+// ``!hw.inout<i8>`` block argument as the child's inout input.
 
 component InnerLeaf(inout pin: u8, out q: u8) {
     q := pin
@@ -14,4 +12,44 @@ component InnerLeaf(inout pin: u8, out q: u8) {
 
 component Chain(inout pin: u8, out q: u8) {
     leaf: InnerLeaf(pin -- pin, q -- q)
+}
+
+// Basic read through the chain.
+sim TestChainBasic {
+    wire pin: u8 = 0x55
+    wire q: u8
+    Chain(pin, q)
+    cycle()
+    assert(q == 0x55 as u8, "chain passes inout pin through to output q")
+}
+
+// Poke the inout pin and verify the whole chain updates.
+sim TestChainPoke {
+    wire pin: u8 = 0
+    wire q: u8
+    Chain(pin, q)
+    cycle()
+    assert(q == 0, "initial: q is zero")
+    poke(pin, 0xAA as u8)
+    cycle()
+    assert(q == 0xAA as u8, "after poke: q follows pin through InnerLeaf")
+    poke(pin, 0x01 as u8)
+    cycle()
+    assert(q == 0x01 as u8, "poke again: chain is still responsive")
+}
+
+// Verify the chain across several distinct values.
+sim TestChainSweep {
+    wire pin: u8 = 0
+    wire q: u8
+    Chain(pin, q)
+    poke(pin, 0x10 as u8)
+    cycle()
+    assert(q == 0x10 as u8, "sweep 0x10")
+    poke(pin, 0x20 as u8)
+    cycle()
+    assert(q == 0x20 as u8, "sweep 0x20")
+    poke(pin, 0xFF as u8)
+    cycle()
+    assert(q == 0xFF as u8, "sweep 0xFF: max value propagates through chain")
 }

@@ -1,5 +1,5 @@
 // spec: §5.1, §10.2
-// expect: pass check; pass mlir
+// expect: pass check; pass mlir; pass sim
 // Generic probe: ``Probe<Type T>`` samples any bidirectional signal of type T.
 // The inout port carries a Type-generic parameter; the compiler specializes the
 // module for each concrete T at instantiation time.
@@ -13,4 +13,39 @@ component Probe<Type T>(inout sig: T, out sampled: T) {
 
 component ScopeU16(inout sig: u16, out sampled: u16) {
     p: Probe<u16>(sig -- sig, sampled -- sampled)
+}
+
+// Basic: sampled captures the initial value of the inout sig.
+sim TestProbeBasic {
+    wire sig: u16 = 0xBEEF
+    wire s: u16
+    ScopeU16(sig, s)
+    cycle()
+    assert(s == 0xBEEF as u16, "probe reads initial u16 value")
+}
+
+// Poke the inout sig and verify the generic probe follows.
+sim TestProbePoke {
+    wire sig: u16 = 0
+    wire s: u16
+    ScopeU16(sig, s)
+    cycle()
+    assert(s == 0, "initial: sampled is zero")
+    poke(sig, 0x1234 as u16)
+    cycle()
+    assert(s == 0x1234 as u16, "after poke: generic probe tracks sig")
+    poke(sig, 0xFFFF as u16)
+    cycle()
+    assert(s == 0xFFFF as u16, "max u16: generic probe tracks full-width values")
+}
+
+// Confirm probe is non-destructive: sig value does not change between cycles.
+sim TestProbeNonDestructive {
+    wire sig: u16 = 0xCAFE
+    wire s: u16
+    ScopeU16(sig, s)
+    cycle()
+    assert(s == 0xCAFE as u16, "cycle 1: sampled equals sig")
+    cycle()
+    assert(s == 0xCAFE as u16, "cycle 2: probe does not modify sig")
 }
