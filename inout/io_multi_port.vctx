@@ -1,0 +1,13 @@
+// spec: §5.1
+// expect: pass check; pass mlir
+// Multiple inout ports: both ``a`` and ``b`` are bidirectional.  Their values are
+// read combinationally and accumulated into a sum output.  The MLIR emitter inserts
+// one sv.read_inout per inout block argument; arithmetic then operates on plain i8
+// values as usual.
+//
+// A common real-world use: a test harness or bus monitor that non-destructively
+// samples multiple bidirectional lines at once.
+
+component TwoWireRead(inout a: u8, inout b: u8, out sum: u8) {
+    sum := (a + b) as u8
+}

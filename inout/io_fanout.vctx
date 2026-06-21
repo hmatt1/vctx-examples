@@ -1,0 +1,11 @@
+// spec: §5.1
+// expect: pass check; pass mlir
+// Inout fan-out: a single bidirectional pin drives two independent output wires.
+// ``inout`` behaves like ``in`` on the RHS — it may appear in multiple assignments
+// simultaneously.  Both ``copy_a`` and ``copy_b`` carry the value of ``pin`` in the
+// same clock cycle.
+
+component Fanout(inout pin: u8, out copy_a: u8, out copy_b: u8) {
+    copy_a := pin
+    copy_b := pin
+}

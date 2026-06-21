@@ -1,0 +1,16 @@
+// spec: §5.1, §10.2
+// expect: pass check; pass mlir
+// Generic probe: ``Probe<Type T>`` samples any bidirectional signal of type T.
+// The inout port carries a Type-generic parameter; the compiler specializes the
+// module for each concrete T at instantiation time.
+//
+// ``ScopeU16`` is a concrete wrapper that fixes T = u16.  The MLIR output contains
+// a specialized ``hw.module`` for ``Probe_u16`` with ``inout %sig : i16``.
+
+component Probe<Type T>(inout sig: T, out sampled: T) {
+    sampled := sig
+}
+
+component ScopeU16(inout sig: u16, out sampled: u16) {
+    p: Probe<u16>(sig -- sig, sampled -- sampled)
+}

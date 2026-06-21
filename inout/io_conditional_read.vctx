@@ -1,0 +1,14 @@
+// spec: §5.1, §6.4
+// expect: pass check; pass mlir
+// Conditional inout read: ``pin`` is read only when ``en`` is asserted.
+// This is a common GPIO-style pattern where the pad is sampled on a strobe.
+// The ``when``/``otherwise`` branches emit a hw.mux in MLIR; the sv.read_inout
+// for ``pin`` is shared by both paths since it is computed once at block entry.
+
+component GatedGpio(inout pin: u8, in en: bool, out out_val: u8) {
+    when en {
+        out_val := pin
+    } otherwise {
+        out_val := 0
+    }
+}
