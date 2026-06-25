@@ -1,0 +1,51 @@
+// spec: §5.6, §7.5, §18
+// expect: pass
+// Description: A compile-time prime number checker and counter implementing trial division.
+
+comptime is_prime(n: Int) -> Int {
+    if n <== 1 {
+        return 0
+    }
+    let d = 2
+    let prime = 1
+    while d * d <== n {
+        if n % d == 0 {
+            prime = 0
+            break
+        }
+        d = d + 1
+    }
+    return prime
+}
+
+comptime count_primes_up_to(limit: Int) -> Int {
+    let count = 0
+    let i = 2
+    while i <== limit {
+        if is_prime(i) == 1 {
+            count = count + 1
+        }
+        i = i + 1
+    }
+    return count
+}
+
+component PrimeCarrier(out y: u8, out num_primes: u8) {
+    // Dynamic width calculation based on prime properties
+    wire has_prime_17: bool = is_prime(17) == 1 // True
+    wire has_prime_15: bool = is_prime(15) == 1 // False
+
+    y := has_prime_17 ? (17 as u8) : (has_prime_15 ? (15 as u8) : (0 as u8))
+    num_primes := count_primes_up_to(20) as u8 // 8 primes up to 20: 2, 3, 5, 7, 11, 13, 17, 19
+}
+
+sim TestPrimeCheck {
+    wire y: u8
+    wire num_primes: u8
+
+    inst: PrimeCarrier(y -- y, num_primes -- num_primes)
+
+    cycle()
+    assert(y == 17, "y should be 17 since 17 is prime")
+    assert(num_primes == 8, "There are 8 primes up to 20")
+}

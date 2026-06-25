@@ -1,0 +1,142 @@
+// spec: §6.4, §6.7, §7.1, §7.5, §11
+// expect: pass
+// Description: A double-buffered ping-pong memory system utilizing multiple buffer instances.
+
+component SingleBuffer(
+    in waddr: u2,
+    in wdata: u8,
+    in we: bool,
+    in raddr: u2,
+    out rdata: u8
+) {
+    reg mem0: u8 = 0
+    reg mem1: u8 = 0
+    reg mem2: u8 = 0
+    reg mem3: u8 = 0
+
+    when we {
+        when waddr == 0 as u2 { mem0 <= wdata }
+        elsewhen waddr == 1 as u2 { mem1 <= wdata }
+        elsewhen waddr == 2 as u2 { mem2 <= wdata }
+        otherwise { mem3 <= wdata }
+    }
+
+    wire r: u8 = 0
+    when raddr == 0 as u2 { r := mem0 }
+    elsewhen raddr == 1 as u2 { r := mem1 }
+    elsewhen raddr == 2 as u2 { r := mem2 }
+    otherwise { r := mem3 }
+
+    rdata := r
+}
+
+component PingPongBuffer(
+    in waddr: u2,
+    in wdata: u8,
+    in we: bool,
+    in raddr: u2,
+    in swap: bool,
+    out rdata: u8
+) {
+    reg active_buf: bool = false
+    
+    when swap {
+        active_buf <= ~active_buf
+    }
+
+    wire rdata0: u8
+    wire rdata1: u8
+
+    // buf0 write path when active_buf is false, read path when active_buf is true
+    wire we0: bool = (active_buf == false) & we
+    buf0: SingleBuffer(
+        waddr -- waddr,
+        wdata -- wdata,
+        we -- we0,
+        raddr -- raddr,
+        rdata -- rdata0
+    )
+
+    // buf1 write path when active_buf is true, read path when active_buf is false
+    wire we1: bool = active_buf & we
+    buf1: SingleBuffer(
+        waddr -- waddr,
+        wdata -- wdata,
+        we -- we1,
+        raddr -- raddr,
+        rdata -- rdata1
+    )
+
+    rdata := active_buf ? rdata0 : rdata1
+}
+
+sim TestPingPong {
+    wire waddr: u2 = 0
+    wire wdata: u8 = 0
+    wire we: bool = false
+    wire raddr: u2 = 0
+    wire swap: bool = false
+    wire rdata: u8
+
+    inst: PingPongBuffer(
+        waddr -- waddr,
+        wdata -- wdata,
+        we -- we,
+        raddr -- raddr,
+        swap -- swap,
+        rdata -- rdata
+    )
+
+    reset()
+    assert(rdata == 0, "Buffer initially empty")
+
+    // Write 0xAA to address 0 of write buffer (buf0)
+    poke(waddr, 0)
+    poke(wdata, 0xAA as u8)
+    poke(we, true)
+    cycle()
+    poke(we, false)
+
+    // Write 0xBB to address 1 of write buffer (buf0)
+    poke(waddr, 1)
+    poke(wdata, 0xBB as u8)
+    poke(we, true)
+    cycle()
+    poke(we, false)
+
+    // Verify reading from active buffer (buf1, which is empty) returns 0
+    poke(raddr, 0)
+    cycle()
+    assert(rdata == 0, "Reading from empty bank should return 0")
+
+    // Swap buffers (active_buf becomes true, reading from buf0 and writing to buf1)
+    poke(swap, true)
+    cycle()
+    poke(swap, false)
+
+    // Verify reading address 0 returns 0xAA, address 1 returns 0xBB
+    poke(raddr, 0)
+    cycle()
+    assert(rdata == 0xAA, "Reading swapped address 0 should return 0xAA")
+
+    poke(raddr, 1)
+    cycle()
+    assert(rdata == 0xBB, "Reading swapped address 1 should return 0xBB")
+
+    // Write 0xCC to address 2 of the new write buffer (buf1)
+    poke(waddr, 2)
+    poke(wdata, 0xCC as u8)
+    poke(we, true)
+    cycle()
+    poke(we, false)
+
+    // Swap buffers again (active_buf becomes false, reading from buf1 and writing to buf0)
+    poke(swap, true)
+    cycle()
+    poke(swap, false)
+
+    // Verify reading address 2 returns 0xCC
+    poke(raddr, 2)
+    cycle()
+    assert(rdata == 0xCC, "Reading second swapped address 2 should return 0xCC")
+}

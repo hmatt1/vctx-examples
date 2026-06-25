@@ -1,0 +1,100 @@
+// spec: §6.4, §7, §7.1, §7.2, §7.5
+// expect: pass
+// Description: A Hamming(7,4) ECC encoder and decoder component correcting single-bit errors.
+
+component HammingCodec(
+    in encode_data: u4,
+    in receive_codeword: u7,
+    out encoded_codeword: u7,
+    out decoded_data: u4,
+    out error_detected: bool
+) {
+    // --- 1. Encoder ---
+    wire d0: bool = encode_data[0]
+    wire d1: bool = encode_data[1]
+    wire d2: bool = encode_data[2]
+    wire d3: bool = encode_data[3]
+
+    // Hamming parity equations
+    wire p0: bool = d0 ^ d1 ^ d3
+    wire p1: bool = d0 ^ d2 ^ d3
+    wire p2: bool = d1 ^ d2 ^ d3
+
+    // codeword structure: c[6..0] -> [d3, d2, d1, p2, d0, p1, p0]
+    encoded_codeword := concat(d3, d2, d1, p2, d0, p1, p0)
+
+    // --- 2. Decoder ---
+    wire r_p0: bool = receive_codeword[0]
+    wire r_p1: bool = receive_codeword[1]
+    wire r_d0: bool = receive_codeword[2]
+    wire r_p2: bool = receive_codeword[3]
+    wire r_d1: bool = receive_codeword[4]
+    wire r_d2: bool = receive_codeword[5]
+    wire r_d3: bool = receive_codeword[6]
+
+    // Syndrome computation
+    wire syn_bit0: bool = r_p0 ^ r_d0 ^ r_d1 ^ r_d3
+    wire syn_bit1: bool = r_p1 ^ r_d0 ^ r_d2 ^ r_d3
+    wire syn_bit2: bool = r_p2 ^ r_d1 ^ r_d2 ^ r_d3
+
+    wire syn: u3 = concat(syn_bit2, syn_bit1, syn_bit0) as u3
+
+    wire error_pos_d0: bool = syn == 3 as u3
+    wire error_pos_d1: bool = syn == 5 as u3
+    wire error_pos_d2: bool = syn == 6 as u3
+    wire error_pos_d3: bool = syn == 7 as u3
+
+    // Correct received data bits using ternary conditional operators
+    wire corr_d0: bool = error_pos_d0 ? ~r_d0 : r_d0
+    wire corr_d1: bool = error_pos_d1 ? ~r_d1 : r_d1
+    wire corr_d2: bool = error_pos_d2 ? ~r_d2 : r_d2
+    wire corr_d3: bool = error_pos_d3 ? ~r_d3 : r_d3
+
+    decoded_data := concat(corr_d3, corr_d2, corr_d1, corr_d0)
+    error_detected := (syn == 0 as u3) == false
+}
+
+sim TestHammingCodec {
+    wire encode_data: u4 = 11 // 0b1011
+    wire receive_codeword: u7 = 0
+    wire encoded_codeword: u7
+    wire decoded_data: u4
+    wire error_detected: bool
+
+    inst: HammingCodec(
+        encode_data -- encode_data,
+        receive_codeword -- receive_codeword,
+        encoded_codeword -- encoded_codeword,
+        decoded_data -- decoded_data,
+        error_detected -- error_detected
+    )
+
+    reset()
+
+    // Test encoding:
+    // data = 11 (0b1011) -> d3=1, d2=0, d1=1, d0=1
+    // p0 = 1 ^ 1 ^ 1 = 1
+    // p1 = 1 ^ 0 ^ 1 = 0
+    // p2 = 1 ^ 0 ^ 1 = 0
+    // Codeword: [d3, d2, d1, p2, d0, p1, p0] -> [1, 0, 1, 0, 1, 0, 1] -> 0b1010101 -> 0x55
+    cycle()
+    assert(encoded_codeword == 0x55, "Encoded codeword for 11 must be 0x55 (0b1010101)")
+
+    // Test decoding of correct codeword
+    poke(receive_codeword, 0x55)
+    cycle()
+    assert(error_detected == false, "No error should be detected on original codeword")
+    assert(decoded_data == 11, "Decoded data must match original input 11")
+
+    // Test decoding with error in d0 (bit 2 of codeword, 0x55 ^ 4 = 0x51)
+    poke(receive_codeword, 0x51)
+    cycle()
+    assert(error_detected == true, "Error should be detected when bit 2 is flipped")
+    assert(decoded_data == 11, "Decoder must correct the error and output 11")
+
+    // Test decoding with error in d3 (bit 6 of codeword, 0x55 ^ 64 = 0x15)
+    poke(receive_codeword, 0x15)
+    cycle()
+    assert(error_detected == true, "Error should be detected when bit 6 is flipped")
+    assert(decoded_data == 11, "Decoder must correct the error and output 11")
+}

@@ -1,0 +1,29 @@
+// spec: §5.6, §12.1
+// expect: pass
+// Description: Verifies that len() works on comptime Array and nested Map containers.
+
+comptime get_array_len() -> Int {
+    let arr = [1, 2, 3, 4, 5]
+    return len(arr)
+}
+
+comptime get_map_len() -> Int {
+    let m = { "a": 10, "b": 20, "c": 30 }
+    return len(m)
+}
+
+component TopLen(out y1: u[get_array_len()], out y2: u[get_map_len()]) {
+    y1 := 0
+    y2 := 0
+}
+
+sim TestComptimeLen {
+    wire y1: u5
+    wire y2: u3
+    
+    inst: TopLen(y1 -- y1, y2 -- y2)
+    cycle()
+    
+    assert(width(y1) == 5, "y1 width must be 5")
+    assert(width(y2) == 3, "y2 width must be 3")
+}

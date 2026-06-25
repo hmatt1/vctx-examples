@@ -1,0 +1,35 @@
+// spec: §7.2, §7.5, §12.1
+// expect: pass
+// Description: Swaps byte endianness and applies dynamic masking onto slices of a 32-bit word.
+
+component BitManipulator(in val: u32, in mask: u32, out y: u32) {
+    wire byte0: u8 = val[7..0]
+    wire byte1: u8 = val[15..8]
+    wire byte2: u8 = val[23..16]
+    wire byte3: u8 = val[31..24]
+    
+    wire byte0_m: u8 = byte0 ^ mask[7..0]
+    wire byte1_m: u8 = byte1 & mask[15..8]
+    wire byte2_m: u8 = byte2 | mask[23..16]
+    wire byte3_m: u8 = ~byte3
+    
+    // Endianness swap and recombine
+    y := concat(byte0_m, byte1_m, byte2_m, byte3_m)
+}
+
+sim TestBitManipulator {
+    wire val: u32 = 0xAABBCCDD
+    wire mask: u32 = 0x00FF00FF
+    wire y: u32
+    
+    inst: BitManipulator(val -- val, mask -- mask, y -- y)
+    
+    // Calculations:
+    // byte0 = DD. byte0_m = DD ^ FF = 22
+    // byte1 = CC. byte1_m = CC & 00 = 00
+    // byte2 = BB. byte2_m = BB | FF = FF
+    // byte3 = AA. byte3_m = ~AA = 55
+    // Result y = concat(22, 00, FF, 55) = 0x2200FF55
+    cycle()
+    assert(y == 0x2200FF55, "Should correctly slice, mask, swap and concat")
+}

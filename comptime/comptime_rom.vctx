@@ -1,0 +1,75 @@
+// spec: §5.6, §6.4, §18
+// expect: pass
+// Description: A compile-time generated ROM lookup table mapped to a priority multiplexer structure.
+
+comptime generate_rom_entry(addr: Int) -> Int {
+    return (addr * addr + 3 * addr + 7) % 256
+}
+
+component RomLookup(in addr: u4, out data: u8) {
+    wire d: u8 = 0
+    
+    when addr == 0 as u4 {
+        d := generate_rom_entry(0) as u8
+    } elsewhen addr == 1 as u4 {
+        d := generate_rom_entry(1) as u8
+    } elsewhen addr == 2 as u4 {
+        d := generate_rom_entry(2) as u8
+    } elsewhen addr == 3 as u4 {
+        d := generate_rom_entry(3) as u8
+    } elsewhen addr == 4 as u4 {
+        d := generate_rom_entry(4) as u8
+    } elsewhen addr == 5 as u4 {
+        d := generate_rom_entry(5) as u8
+    } elsewhen addr == 6 as u4 {
+        d := generate_rom_entry(6) as u8
+    } elsewhen addr == 7 as u4 {
+        d := generate_rom_entry(7) as u8
+    } elsewhen addr == 8 as u4 {
+        d := generate_rom_entry(8) as u8
+    } elsewhen addr == 9 as u4 {
+        d := generate_rom_entry(9) as u8
+    } elsewhen addr == 10 as u4 {
+        d := generate_rom_entry(10) as u8
+    } elsewhen addr == 11 as u4 {
+        d := generate_rom_entry(11) as u8
+    } elsewhen addr == 12 as u4 {
+        d := generate_rom_entry(12) as u8
+    } elsewhen addr == 13 as u4 {
+        d := generate_rom_entry(13) as u8
+    } elsewhen addr == 14 as u4 {
+        d := generate_rom_entry(14) as u8
+    } otherwise {
+        d := generate_rom_entry(15) as u8
+    }
+
+    data := d
+}
+
+sim TestRomLookup {
+    wire addr: u4 = 0
+    wire data: u8
+
+    inst: RomLookup(addr -- addr, data -- data)
+
+    reset()
+    
+    // Address 0 -> 0*0 + 3*0 + 7 = 7
+    cycle()
+    assert(data == 7, "ROM address 0 should be 7")
+
+    // Address 5 -> 5*5 + 3*5 + 7 = 25 + 15 + 7 = 47
+    poke(addr, 5)
+    cycle()
+    assert(data == 47, "ROM address 5 should be 47")
+
+    // Address 10 -> 10*10 + 3*10 + 7 = 100 + 30 + 7 = 137
+    poke(addr, 10)
+    cycle()
+    assert(data == 137, "ROM address 10 should be 137")
+
+    // Address 15 -> 15*15 + 3*15 + 7 = 225 + 45 + 7 = 277 -> 277 % 256 = 21
+    poke(addr, 15)
+    cycle()
+    assert(data == 21, "ROM address 15 should be 21")
+}

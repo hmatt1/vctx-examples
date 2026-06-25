@@ -1,0 +1,143 @@
+// spec: §6.4, §6.7, §7.2, §7.5
+// expect: pass
+// Description: A cycle-accurate UART transmitter state machine supporting configurable baud enable ticks.
+
+component UartTx(in din: u8, in start: bool, in tick: bool, out tx: bool, out busy: bool) {
+    reg state: u2 = 0
+    reg tx_data: u8 = 0
+    reg bit_cnt: u3 = 0
+    reg busy_out: bool = false
+
+    wire tx_out: bool = true
+    when state == 1 as u2 { // START
+        tx_out := false
+    } elsewhen state == 2 as u2 { // DATA
+        tx_out := tx_data[0]
+    }
+
+    when state == 0 as u2 { // IDLE
+        busy_out <= false
+        when start {
+            tx_data <= din
+            state <= 1 as u2 // START state
+            busy_out <= true
+        }
+    } elsewhen state == 1 as u2 { // START
+        busy_out <= true
+        when tick {
+            state <= 2 as u2 // DATA state
+            bit_cnt <= 0 as u3
+        }
+    } elsewhen state == 2 as u2 { // DATA
+        busy_out <= true
+        when tick {
+            tx_data <= (tx_data >> 1) as u8
+            when bit_cnt == 7 as u3 {
+                state <= 3 as u2 // STOP state
+            } otherwise {
+                bit_cnt <= (bit_cnt + 1 as u3) as u3
+            }
+        }
+    } elsewhen state == 3 as u2 { // STOP
+        busy_out <= true
+        when tick {
+            state <= 0 as u2 // IDLE state
+            busy_out <= false
+        }
+    }
+
+    tx := tx_out
+    busy := busy_out
+}
+
+sim TestUartTx {
+    wire din: u8 = 0xA5 // 0b1010_0101
+    wire start: bool = false
+    wire tick: bool = false
+    wire tx: bool
+    wire busy: bool
+
+    inst: UartTx(din -- din, start -- start, tick -- tick, tx -- tx, busy -- busy)
+
+    reset()
+    assert(tx == true, "TX should be Idle (high)")
+    assert(busy == false, "Transmitter should not be busy initially")
+
+    // Start transmission
+    poke(start, true)
+    cycle()
+    poke(start, false)
+    
+    // We are now in IDLE state on the clock edge, but we poked start, so at next clock edge we enter START state
+    assert(busy == true, "Transmitter should be busy after start")
+    
+    // We are in START state. tx should be 0 (start bit)
+    cycle()
+    assert(tx == false, "TX should be driving start bit (low)")
+    
+    // Tick baud rate generator to move to DATA state
+    poke(tick, true)
+    cycle()
+    poke(tick, false)
+    
+    // Now in DATA state. First bit of 0xA5 is 1 (LSB is 1).
+    assert(tx == true, "TX should drive bit 0 (1)")
+    
+    // Bit 1: 0
+    poke(tick, true)
+    cycle()
+    poke(tick, false)
+    assert(tx == false, "TX should drive bit 1 (0)")
+    
+    // Bit 2: 1
+    poke(tick, true)
+    cycle()
+    poke(tick, false)
+    assert(tx == true, "TX should drive bit 2 (1)")
+    
+    // Bit 3: 0
+    poke(tick, true)
+    cycle()
+    poke(tick, false)
+    assert(tx == false, "TX should drive bit 3 (0)")
+    
+    // Bit 4: 0
+    poke(tick, true)
+    cycle()
+    poke(tick, false)
+    assert(tx == false, "TX should drive bit 4 (0)")
+    
+    // Bit 5: 1
+    poke(tick, true)
+    cycle()
+    poke(tick, false)
+    assert(tx == true, "TX should drive bit 5 (1)")
+    
+    // Bit 6: 0
+    poke(tick, true)
+    cycle()
+    poke(tick, false)
+    assert(tx == false, "TX should drive bit 6 (0)")
+    
+    // Bit 7: 1
+    poke(tick, true)
+    cycle()
+    poke(tick, false)
+    assert(tx == true, "TX should drive bit 7 (1)")
+    
+    // Transition to STOP state
+    poke(tick, true)
+    cycle()
+    poke(tick, false)
+    
+    // Now in STOP state. TX should be 1 (stop bit)
+    assert(tx == true, "TX should drive stop bit (high)")
+    
+    // Transition to IDLE
+    poke(tick, true)
+    cycle()
+    poke(tick, false)
+    
+    assert(busy == false, "Transmitter should be done and not busy")
+    assert(tx == true, "TX should remain high in idle")
+}

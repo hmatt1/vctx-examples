@@ -1,0 +1,58 @@
+// spec: §6.4, §7.1, §7.2, §7.5
+// expect: pass
+// Description: An 8-bit combinational barrel shifter supporting shift amounts up to 7 bits.
+
+component BarrelShifter8(
+    in data_in: u8,
+    in shift_amt: u3,
+    in dir: bool, // true: left, false: right
+    out data_out: u8
+) {
+    // Stage 0: Shift by 4 if shift_amt[2] is 1
+    wire stage0: u8 = shift_amt[2] ? (dir ? (data_in << 4) as u8 : (data_in >> 4) as u8) : data_in
+
+    // Stage 1: Shift by 2 if shift_amt[1] is 1
+    wire stage1: u8 = shift_amt[1] ? (dir ? (stage0 << 2) as u8 : (stage0 >> 2) as u8) : stage0
+
+    // Stage 2: Shift by 1 if shift_amt[0] is 1
+    wire stage2: u8 = shift_amt[0] ? (dir ? (stage1 << 1) as u8 : (stage1 >> 1) as u8) : stage1
+
+    data_out := stage2
+}
+
+sim TestBarrelShifter8 {
+    wire data_in: u8 = 0x3C // 0b0011_1100
+    wire shift_amt: u3 = 0
+    wire dir: bool = true
+    wire data_out: u8
+
+    inst: BarrelShifter8(
+        data_in -- data_in,
+        shift_amt -- shift_amt,
+        dir -- dir,
+        data_out -- data_out
+    )
+
+    reset()
+
+    // Test 1: shift left by 0 -> 0x3C
+    cycle()
+    assert(data_out == 0x3C, "Shift left by 0 should be 0x3C")
+
+    // Test 2: shift left by 2 -> 0b1111_0000 = 0xF0
+    poke(shift_amt, 2)
+    cycle()
+    assert(data_out == 0xF0, "Shift left by 2 should be 0xF0")
+
+    // Test 3: shift right by 3 -> 0b0000_0111 = 0x07
+    poke(shift_amt, 3)
+    poke(dir, false)
+    cycle()
+    assert(data_out == 0x07, "Shift right by 3 should be 0x07")
+
+    // Test 4: shift left by 5 -> 0b1000_0000 = 0x80
+    poke(shift_amt, 5)
+    poke(dir, true)
+    cycle()
+    assert(data_out == 0x80, "Shift left by 5 should be 0x80")
+}

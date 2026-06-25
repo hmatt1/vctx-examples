@@ -1,0 +1,85 @@
+// spec: §6.4, §6.7, §7.5
+// expect: pass
+// Description: A sequential shift-and-add multiplier implementing 8-bit multiplication.
+
+component ShiftAddMultiplier(
+    in a_in: u8,
+    in b_in: u8,
+    in start: bool,
+    out p_out: u16,
+    out done: bool
+) {
+    reg a: u16 = 0
+    reg b: u8 = 0
+    reg accum: u16 = 0
+    reg count: u4 = 0
+    reg active: bool = false
+    reg done_reg: bool = false
+
+    when start {
+        a <= a_in as u16
+        b <= b_in
+        accum <= 0 as u16
+        count <= 0 as u4
+        active <= true
+        done_reg <= false
+    } elsewhen active {
+        count <= (count + 1 as u4) as u4
+        a <= (a << 1) as u16
+        b <= (b >> 1) as u8
+        
+        // If the LSB of multiplier b is 1, accumulate multiplicand a
+        when b[0] {
+            accum <= (accum + a) as u16
+        }
+
+        when count == 7 as u4 {
+            active <= false
+            done_reg <= true
+        }
+    } otherwise {
+        done_reg <= false
+    }
+
+    p_out := accum
+    done := done_reg
+}
+
+sim TestShiftAddMultiplier {
+    wire a_in: u8 = 15
+    wire b_in: u8 = 13
+    wire start: bool = false
+    wire p_out: u16
+    wire done: bool
+
+    inst: ShiftAddMultiplier(
+        a_in -- a_in,
+        b_in -- b_in,
+        start -- start,
+        p_out -- p_out,
+        done -- done
+    )
+
+    reset()
+    assert(done == false, "Initially not done")
+
+    // Test 1: 15 * 13 = 195
+    poke(start, true)
+    cycle()
+    poke(start, false)
+
+    cycle(8)
+    assert(done == true, "Finished after 8 cycles")
+    assert(p_out == 195 as u16, "15 * 13 must equal 195")
+
+    // Test 2: 250 * 50 = 12500
+    poke(a_in, 250)
+    poke(b_in, 50)
+    poke(start, true)
+    cycle()
+    poke(start, false)
+
+    cycle(8)
+    assert(done == true, "Finished second multiplication")
+    assert(p_out == 12500 as u16, "250 * 50 must equal 12500")
+}

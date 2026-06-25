@@ -1,0 +1,65 @@
+// spec: §6.4, §7.5, §9.2
+// expect: pass
+// Description: A complex ALU testing shifts, arithmetic, logical operations, and comparisons.
+
+component ComplexALU(in a: u8, in b: u8, in op: u3, out y: u8) {
+    wire res: u8 = 0
+    
+    when op == 0 {
+        res := (a + b) as u8
+    } elsewhen op == 1 {
+        res := (a as s8 - b as s8) as u8
+    } elsewhen op == 2 {
+        res := a << b[2..0]
+    } elsewhen op == 3 {
+        res := a >> b[2..0]
+    } elsewhen op == 4 {
+        res := a & b
+    } elsewhen op == 5 {
+        res := a | b
+    } elsewhen op == 6 {
+        res := (a == b) ? 1 as u8 : 0 as u8
+    } otherwise {
+        res := (a > b) ? 1 as u8 : 0 as u8
+    }
+    
+    y := res
+}
+
+sim TestComplexALU {
+    wire a: u8 = 45
+    wire b: u8 = 5
+    wire op: u3 = 0
+    wire y: u8
+    
+    inst: ComplexALU(a -- a, b -- b, op -- op, y -- y)
+    
+    // op = 0: Addition (45 + 5 = 50)
+    cycle()
+    assert(y == 50, "45 + 5 must be 50")
+    
+    // op = 1: Signed subtraction (45 - 5 = 40)
+    poke(op, 1)
+    cycle()
+    assert(y == 40, "45 - 5 must be 40")
+    
+    // op = 2: Shift Left (45 << 5 = 1440 as u8 -> 160)
+    poke(op, 2)
+    cycle()
+    assert(y == 160, "45 << 5 should be 160")
+    
+    // op = 3: Shift Right (45 >> 5 = 1)
+    poke(op, 3)
+    cycle()
+    assert(y == 1, "45 >> 5 should be 1")
+    
+    // op = 4: Bitwise AND (45 & 5 = 5)
+    poke(op, 4)
+    cycle()
+    assert(y == 5, "45 & 5 should be 5")
+    
+    // op = 6: Equality check (45 == 5 -> false/0)
+    poke(op, 6)
+    cycle()
+    assert(y == 0, "45 == 5 should be false")
+}

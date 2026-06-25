@@ -1,0 +1,56 @@
+// spec: §5.6, §7.5, §18
+// expect: pass
+// Description: A vector dot-product multiplier configured using compile-time computed coefficients.
+
+comptime generate_dot_coef(index: Int) -> Int {
+    let weights = [3, 5, 7, 11]
+    let inputs = [2, 4, 6, 8]
+    return weights[index] * inputs[index]
+}
+
+component VectorMultiplier(
+    in x0: u8,
+    in x1: u8,
+    in x2: u8,
+    in x3: u8,
+    out y: u16
+) {
+    wire c0: u8 = generate_dot_coef(0) as u8
+    wire c1: u8 = generate_dot_coef(1) as u8
+    wire c2: u8 = generate_dot_coef(2) as u8
+    wire c3: u8 = generate_dot_coef(3) as u8
+
+    // Summing products: multiplication of u8 yields u16. Summing yields u17.
+    // Casting back to u16 is required.
+    y := ((x0 * c0) + (x1 * c1) + (x2 * c2) + (x3 * c3)) as u16
+}
+
+sim TestVectorMultiplier {
+    wire x0: u8 = 1
+    wire x1: u8 = 1
+    wire x2: u8 = 1
+    wire x3: u8 = 1
+    wire y: u16
+
+    inst: VectorMultiplier(
+        x0 -- x0,
+        x1 -- x1,
+        x2 -- x2,
+        x3 -- x3,
+        y -- y
+    )
+
+    reset()
+
+    // Test 1: all ones -> 3*2*1 + 5*4*1 + 7*6*1 + 11*8*1 = 6 + 20 + 42 + 88 = 156
+    cycle()
+    assert(y == 156, "Dot product sum of ones should be 156")
+
+    // Test 2: x0=2, x1=0, x2=1, x3=0 -> 2*6 + 0 + 42 + 0 = 54
+    poke(x0, 2)
+    poke(x1, 0)
+    poke(x2, 1)
+    poke(x3, 0)
+    cycle()
+    assert(y == 54, "Dot product check failed")
+}

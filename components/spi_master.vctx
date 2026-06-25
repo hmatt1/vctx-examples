@@ -1,0 +1,123 @@
+// spec: §6.4, §6.7, §7.2, §7.5
+// expect: pass
+// Description: A cycle-accurate 8-bit SPI Master controller with serial shift registers.
+
+component SpiMaster(
+    in parallel_in: u8,
+    in start: bool,
+    in miso: bool,
+    out mosi: bool,
+    out parallel_out: u8,
+    out sclk: bool,
+    out done: bool
+) {
+    reg tdata: u8 = 0
+    reg rdata: u8 = 0
+    reg sclk_reg: bool = false
+    reg count: u4 = 0
+    reg active: bool = false
+    reg done_reg: bool = false
+
+    // Internal SPI clock tick (toggles sclk_reg when active)
+    when active {
+        sclk_reg <= ~sclk_reg
+        
+        // Rising edge of sclk (sclk_reg going high): sample miso
+        when sclk_reg == false {
+            rdata <= (rdata << 1) as u8 | (miso as u8)
+        }
+        
+        // Falling edge of sclk (sclk_reg going low): shift out next bit of tdata
+        when sclk_reg {
+            tdata <= (tdata << 1) as u8
+            count <= (count + 1 as u4) as u4
+            
+            when count == 7 as u4 {
+                active <= false
+                done_reg <= true
+            }
+        }
+    } elsewhen start {
+        tdata <= parallel_in
+        rdata <= 0 as u8
+        sclk_reg <= false
+        count <= 0 as u4
+        active <= true
+        done_reg <= false
+    } otherwise {
+        done_reg <= false
+        sclk_reg <= false
+    }
+
+    mosi := tdata[7]
+    parallel_out := rdata
+    sclk := sclk_reg
+    done := done_reg
+}
+
+sim TestSpiMaster {
+    wire parallel_in: u8 = 0xA5 // 0b1010_0101
+    wire start: bool = false
+    wire miso: bool = false
+    wire mosi: bool
+    wire parallel_out: u8
+    wire sclk: bool
+    wire done: bool
+
+    inst: SpiMaster(
+        parallel_in -- parallel_in,
+        start -- start,
+        miso -- miso,
+        mosi -- mosi,
+        parallel_out -- parallel_out,
+        sclk -- sclk,
+        done -- done
+    )
+
+    reset()
+    assert(done == false, "Initially not done")
+    assert(sclk == false, "SCLK initially low")
+
+    // Start SPI transaction: shift 0xA5 out on MOSI, shift 0x5A in from MISO
+    poke(start, true)
+    cycle()
+    poke(start, false)
+    assert(mosi == true, "First bit (MSB) of 0xA5 is 1")
+
+    // Loop through 8 bits (each bit takes 2 clock cycles to toggle sclk)
+    // Bit 0 (MSB: 1): sclk rising edge (cycle 2) -> miso sampled. sclk falling edge (cycle 3) -> shift
+    poke(miso, false) // 0
+    cycle(2)
+    
+    // Bit 1 (0):
+    poke(miso, true) // 1
+    cycle(2)
+
+    // Bit 2 (1):
+    poke(miso, true) // 1
+    cycle(2)
+
+    // Bit 3 (0):
+    poke(miso, false) // 0
+    cycle(2)
+
+    // Bit 4 (0):
+    poke(miso, true) // 1
+    cycle(2)
+
+    // Bit 5 (1):
+    poke(miso, false) // 0
+    cycle(2)
+
+    // Bit 6 (0):
+    poke(miso, true) // 1
+    cycle(2)
+
+    // Bit 7 (LSB: 1):
+    poke(miso, false) // 0
+    cycle(2)
+
+    assert(done == true, "SPI transaction should be complete")
+    // MISO sequence: 0, 1, 1, 0, 1, 0, 1, 0 -> 0b0110_1010 -> 0x6A
+    assert(parallel_out == 0x6A as u8, "Parallel out should be 0x6A")
+}

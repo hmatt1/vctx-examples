@@ -1,0 +1,42 @@
+// spec: §5.6, §6.2, §18
+// expect: pass
+// Description: A complex comptime checksum generator configuring slices of a register pipeline.
+
+comptime generate_checksum(base: Int, multiplier: Int) -> Int {
+    let val = base
+    let i = 0
+    while i < 4 {
+        val = (val * multiplier) % 256
+        i = i + 1
+    }
+    return val
+}
+
+component ChecksumPipeline(in in_val: u8, out out_val: u8) {
+    // Generate comptime values
+    wire param1: u8 = generate_checksum(15, 3) as u8 // (15 * 3 * 3 * 3 * 3) % 256 = 1215 % 256 = 191
+    wire param2: u8 = generate_checksum(24, 5) as u8 // (24 * 5 * 5 * 5 * 5) % 256 = 15000 % 256 = 152
+    
+    reg stage1: u8 = 0
+    reg stage2: u8 = 0
+    
+    stage1 <= in_val ^ param1
+    stage2 <= (stage1 + param2) as u8
+    
+    out_val := stage2
+}
+
+sim TestChecksumPipeline {
+    wire in_val: u8 = 10
+    wire out_val: u8
+    
+    inst: ChecksumPipeline(in_val -- in_val, out_val -- out_val)
+    
+    reset()
+    assert(out_val == 0, "Pipeline outputs should be 0 on reset")
+    
+    // Cycle 1: stage1 <= 10 ^ 191 = 181
+    // Cycle 2: stage2 <= 181 + 152 = 333 -> 77
+    cycle(2)
+    assert(out_val == 77 as u8, "Pipeline output should be 77 after 2 cycles")
+}

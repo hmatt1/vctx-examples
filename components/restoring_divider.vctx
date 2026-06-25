@@ -1,0 +1,93 @@
+// spec: §6.4, §6.7, §7.2, §7.5
+// expect: pass
+// Description: A cycle-accurate 8-bit restoring divider implementing sequential division.
+
+component RestoringDivider(
+    in dividend: u8,
+    in divisor: u8,
+    in start: bool,
+    out quotient: u8,
+    out remainder: u8,
+    out done: bool
+) {
+    reg q: u8 = 0
+    reg r: u8 = 0
+    reg d: u8 = 0
+    reg count: u4 = 0
+    reg active: bool = false
+    reg done_reg: bool = false
+
+    wire next_r_shifted: u8 = ((r << 1) as u8) | (q[7] as u8)
+
+    when start {
+        q <= dividend
+        r <= 0 as u8
+        d <= divisor
+        count <= 0 as u4
+        active <= true
+        done_reg <= false
+    } elsewhen active {
+        count <= (count + 1 as u4) as u4
+        when next_r_shifted >== d {
+            r <= (next_r_shifted - d) as u8
+            q <= ((q << 1) as u8) | 1 as u8
+        } otherwise {
+            r <= next_r_shifted
+            q <= (q << 1) as u8
+        }
+        when count == 7 as u4 {
+            active <= false
+            done_reg <= true
+        }
+    } otherwise {
+        done_reg <= false
+    }
+
+    quotient := q
+    remainder := r
+    done := done_reg
+}
+
+sim TestRestoringDivider {
+    wire dividend: u8 = 25
+    wire divisor: u8 = 4
+    wire start: bool = false
+    wire quotient: u8
+    wire remainder: u8
+    wire done: bool
+
+    inst: RestoringDivider(
+        dividend -- dividend,
+        divisor -- divisor,
+        start -- start,
+        quotient -- quotient,
+        remainder -- remainder,
+        done -- done
+    )
+
+    reset()
+    assert(done == false, "Not done initially")
+
+    // Start division: 25 / 4 = 6, rem 1
+    poke(start, true)
+    cycle()
+    poke(start, false)
+
+    // Run for 8 clock cycles
+    cycle(8)
+    assert(done == true, "Divider should be done after 8 cycles")
+    assert(quotient == 6 as u8, "25 / 4 = 6")
+    assert(remainder == 1 as u8, "25 % 4 = 1")
+
+    // Test second division: 143 / 11 = 13, rem 0
+    poke(dividend, 143)
+    poke(divisor, 11)
+    poke(start, true)
+    cycle()
+    poke(start, false)
+
+    cycle(8)
+    assert(done == true, "Divider should be done")
+    assert(quotient == 13 as u8, "143 / 11 = 13")
+    assert(remainder == 0 as u8, "143 % 11 = 0")
+}

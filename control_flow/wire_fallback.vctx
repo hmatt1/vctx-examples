@@ -1,0 +1,35 @@
+// spec: §6.4
+// expect: pass
+// Description: Verifies that wires fallback to declaration value (or zero-value) when all conditions in 'when' evaluate to false.
+
+component WireFallback(in cond: bool, out y1: u8, out y2: u8) {
+    wire w1: u8 = 42
+    wire w2: u8 // Defaults to type zero-value (0)
+    when cond {
+        w1 := 10
+        w2 := 10
+    }
+    y1 := w1
+    y2 := w2
+}
+
+sim TestWireFallback {
+    wire cond: bool = false
+    wire y1: u8
+    wire y2: u8
+
+    inst: WireFallback(
+        cond -- cond,
+        y1 -- y1,
+        y2 -- y2
+    )
+
+    cycle()
+    assert(y1 == 42, "w1 must fall back to declaration value 42")
+    assert(y2 == 0, "w2 must fall back to type zero-value 0")
+
+    poke(cond, true)
+    cycle()
+    assert(y1 == 10, "w1 should update when cond is true")
+    assert(y2 == 10, "w2 should update when cond is true")
+}

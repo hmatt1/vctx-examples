@@ -1,0 +1,32 @@
+// spec: §4.2, §15.2
+// expect: pass
+// Description: Imports the same package under two aliases and qualifies symbols using both pathways.
+
+import imports.deps.mux_lib as first_alias
+import imports.deps.mux_lib as second_alias
+
+component TopDiamond(in sel: bool, in a: u8, in b: u8, out y: u8) {
+    wire tmp1: u8
+    wire tmp2: u8
+    
+    first_inst: first_alias.Pick(sel -- sel, a -- a, b -- b, y -- tmp1)
+    second_inst: second_alias.Pick(sel -- sel, a -- b, b -- a, y -- tmp2)
+    
+    y := sel ? tmp1 : tmp2
+}
+
+sim TestDiamondImports {
+    wire sel: bool = true
+    wire a: u8 = 10
+    wire b: u8 = 20
+    wire y: u8
+    
+    inst: TopDiamond(sel -- sel, a -- a, b -- b, y -- y)
+    
+    cycle()
+    assert(y == 10, "sel is true, Pick should select a (10)")
+    
+    poke(sel, false)
+    cycle()
+    assert(y == 10, "sel is false, TopDiamond select logic resolves to 10")
+}

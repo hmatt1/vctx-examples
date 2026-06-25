@@ -1,0 +1,48 @@
+// spec: §7.1, §11
+// expect: pass
+// Description: A hierarchical parity calculation tree constructed using multiple structural subcomponents.
+
+component XorGate2(in a: bool, in b: bool, out y: bool) {
+    y := a ^ b
+}
+
+component ParityTree4(in data: u4, out parity: bool) {
+    wire p_low: bool
+    wire p_high: bool
+    
+    x0: XorGate2(a -- data[0], b -- data[1], y -- p_low)
+    x1: XorGate2(a -- data[2], b -- data[3], y -- p_high)
+    x2: XorGate2(a -- p_low, b -- p_high, y -- parity)
+}
+
+component ParityTree8(in data: u8, out parity: bool) {
+    wire p_low: bool
+    wire p_high: bool
+
+    t0: ParityTree4(data -- data[3..0], parity -- p_low)
+    t1: ParityTree4(data -- data[7..4], parity -- p_high)
+    x0: XorGate2(a -- p_low, b -- p_high, y -- parity)
+}
+
+sim TestParityTree {
+    wire data: u8 = 0xA5 // 0b1010_0101 (even parity -> 4 ones)
+    wire parity: bool
+
+    inst: ParityTree8(data -- data, parity -- parity)
+
+    reset()
+
+    // Test 1: Even parity of 0xA5 is false
+    cycle()
+    assert(parity == false, "0xA5 has 4 ones, parity should be false")
+
+    // Test 2: Odd parity of 0xA7 (0b1010_0111) is true
+    poke(data, 0xA7)
+    cycle()
+    assert(parity == true, "0xA7 has 5 ones, parity should be true")
+
+    // Test 3: Odd parity of 0x01 is true
+    poke(data, 1)
+    cycle()
+    assert(parity == true, "0x01 has 1 one, parity should be true")
+}

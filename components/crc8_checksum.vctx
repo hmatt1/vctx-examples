@@ -1,0 +1,90 @@
+// spec: §6.4, §6.7, §7.2, §7.5
+// expect: pass
+// Description: A cycle-accurate 8-bit CRC checksum generator using the standard polynomial 0x07.
+
+component Crc8Generator(
+    in data_in: u8,
+    in start: bool,
+    in next_byte: bool,
+    out crc_out: u8,
+    out busy: bool
+) {
+    reg crc: u8 = 0
+    reg shift_reg: u8 = 0
+    reg bit_cnt: u4 = 0
+    reg active: bool = false
+
+    wire feedback: bool = crc[7] ^ shift_reg[7]
+    wire next_crc: u8 = (crc << 1) as u8
+    wire tap_poly: u8 = 7 as u8 // standard CRC-8 polynomial 0x07
+
+    when start {
+        crc <= 0 as u8
+        shift_reg <= data_in
+        bit_cnt <= 0 as u4
+        active <= true
+    } elsewhen next_byte & (active == false) {
+        shift_reg <= data_in
+        bit_cnt <= 0 as u4
+        active <= true
+    } elsewhen active {
+        bit_cnt <= (bit_cnt + 1 as u4) as u4
+        shift_reg <= (shift_reg << 1) as u8
+        
+        when feedback {
+            crc <= next_crc ^ tap_poly
+        } otherwise {
+            crc <= next_crc
+        }
+
+        when bit_cnt == 7 as u4 {
+            active <= false
+        }
+    }
+
+    crc_out := crc
+    busy := active
+}
+
+sim TestCrc8Generator {
+    wire data_in: u8 = 0x31 // '1' in ASCII
+    wire start: bool = false
+    wire next_byte: bool = false
+    wire crc_out: u8
+    wire busy: bool
+
+    inst: Crc8Generator(
+        data_in -- data_in,
+        start -- start,
+        next_byte -- next_byte,
+        crc_out -- crc_out,
+        busy -- busy
+    )
+
+    reset()
+    assert(crc_out == 0, "CRC initially 0")
+    assert(busy == false, "Generator initially idle")
+
+    // Start with byte 0x31
+    poke(start, true)
+    cycle()
+    poke(start, false)
+    assert(busy == true, "Generator busy processing")
+
+    cycle(8)
+    assert(busy == false, "Finished after 8 cycles")
+    // CRC-8 ATM of "1" (0x31) is 0x97
+    assert(crc_out == 0x97, "CRC of 0x31 should be 0x97")
+
+    // Process next byte 0x32 ('2' in ASCII)
+    poke(data_in, 0x32)
+    poke(next_byte, true)
+    cycle()
+    poke(next_byte, false)
+    assert(busy == true, "Generator busy on second byte")
+
+    cycle(8)
+    assert(busy == false, "Finished second byte")
+    // CRC-8 ATM of "12" (0x31, 0x32) is 0x72
+    assert(crc_out == 0x72, "CRC of 0x31, 0x32 should be 0x72")
+}

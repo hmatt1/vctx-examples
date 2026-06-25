@@ -1,0 +1,46 @@
+// spec: §7, §7.1, §7.2, §7.5, §10.6
+// expect: pass
+// Description: A 32-bit bit-reversal and endianness swapping component utilizing helper functions.
+
+function rev_byte(b: u8) -> u8 {
+    return concat(b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]) as u8
+}
+
+component BitReverser32(in data_in: u32, out data_out: u32) {
+    wire b0: u8 = data_in[7..0]
+    wire b1: u8 = data_in[15..8]
+    wire b2: u8 = data_in[23..16]
+    wire b3: u8 = data_in[31..24]
+
+    wire rev0: u8 = rev_byte(b0)
+    wire rev1: u8 = rev_byte(b1)
+    wire rev2: u8 = rev_byte(b2)
+    wire rev3: u8 = rev_byte(b3)
+
+    // Concatenate reversed bytes in swapped order (endianness conversion)
+    data_out := concat(rev0, rev1, rev2, rev3)
+}
+
+sim TestBitReverser32 {
+    wire data_in: u32 = 0x12345678
+    wire data_out: u32
+
+    inst: BitReverser32(data_in -- data_in, data_out -- data_out)
+
+    cycle()
+    // 0x12 (0b00010010) -> reversed is 0b01001000 = 0x48 (becomes LSB in output)
+    // 0x34 (0b00110100) -> reversed is 0b00101100 = 0x2C
+    // 0x56 (0b01010110) -> reversed is 0b01101010 = 0x6A
+    // 0x78 (0b01111000) -> reversed is 0b00011110 = 0x1E (becomes MSB in output)
+    // Combined output: 0x1E6A2C48
+    assert(data_out == 0x1E6A2C48, "Bit reversal and endianness swap failed")
+
+    poke(data_in, 0x00FF0F3C)
+    cycle()
+    // 0x00 -> 0x00 (becomes LSB in output)
+    // 0xFF -> 0xFF
+    // 0x0F -> 0xF0
+    // 0x3C (0b00111100) -> reversed is 0b00111100 = 0x3C (becomes MSB in output)
+    // Swapped output: 0x3CF0FF00
+    assert(data_out == 0x3CF0FF00, "Second reversal check failed")
+}

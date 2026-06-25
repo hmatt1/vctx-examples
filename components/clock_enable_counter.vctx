@@ -1,0 +1,67 @@
+// spec: §6.4, §6.7, §7.5, §11
+// expect: pass
+// Description: A hierarchical clock-divided enable counter displaying structural wiring.
+
+component ClockDivider(in limit: u8, out pulse: bool) {
+    reg count: u8 = 0
+    wire hit: bool = count == limit
+    count <= hit ? 0 as u8 : ((count + 1 as u8) as u8)
+    pulse := hit
+}
+
+component ModeCounter(in clk_en: bool, in up_down: bool, out count_out: u4) {
+    reg val: u4 = 0
+    when clk_en {
+        when up_down {
+            val <= (val + 1 as u4) as u4
+        } otherwise {
+            val <= (val - 1 as u4) as u4
+        }
+    }
+    count_out := val
+}
+
+component DividedCounter(in limit: u8, in up_down: bool, out count_out: u4, out tick: bool) {
+    wire pulse: bool
+    div: ClockDivider(limit -- limit, pulse -- pulse)
+    counter: ModeCounter(clk_en -- pulse, up_down -- up_down, count_out -- count_out)
+    tick := pulse
+}
+
+sim TestDividedCounter {
+    wire limit: u8 = 3 // divide by 4 (0, 1, 2, 3 -> pulse on match)
+    wire up_down: bool = true
+    wire count_out: u4
+    wire tick: bool
+
+    inst: DividedCounter(
+        limit -- limit,
+        up_down -- up_down,
+        count_out -- count_out,
+        tick -- tick
+    )
+
+    reset()
+    assert(count_out == 0, "Counter should start at 0")
+
+    // Run 4 clock cycles:
+    // count=0 -> hit=false. edge1: count=1
+    // count=1 -> hit=false. edge2: count=2
+    // count=2 -> hit=false. edge3: count=3
+    // count=3 -> hit=true, tick=true. edge4: count=0, ModeCounter increments to 1
+    cycle()
+    assert(tick == false, "No tick on cycle 1")
+    assert(count_out == 0, "No increment on cycle 1")
+
+    cycle(3)
+    assert(count_out == 1, "Counter should increment to 1 after 4 cycles")
+
+    // Run another 4 cycles
+    cycle(4)
+    assert(count_out == 2, "Counter should increment to 2 after 8 cycles")
+
+    // Flip direction to countdown
+    poke(up_down, false)
+    cycle(4)
+    assert(count_out == 1, "Counter should decrement back to 1")
+}

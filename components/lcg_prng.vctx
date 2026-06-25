@@ -1,0 +1,56 @@
+// spec: §6.4, §6.7, §7.5
+// expect: pass
+// Description: A sequential Linear Congruential Generator (LCG) pseudo-random number generator.
+
+component LcgPrng(
+    in seed: u16,
+    in load_seed: bool,
+    in next: bool,
+    out rand_out: u16
+) {
+    reg state: u16 = 1
+
+    when load_seed {
+        state <= seed
+    } elsewhen next {
+        // X_{n+1} = (A * X_n + C) % M.
+        // A = 2053, C = 13849, M = 65536 (implied by 16-bit wrap-around)
+        state <= ((state * 2053 as u16) + 13849 as u16) as u16
+    }
+
+    rand_out := state
+}
+
+sim TestLcgPrng {
+    wire seed: u16 = 0
+    wire load_seed: bool = false
+    wire next: bool = false
+    wire rand_out: u16
+
+    inst: LcgPrng(
+        seed -- seed,
+        load_seed -- load_seed,
+        next -- next,
+        rand_out -- rand_out
+    )
+
+    reset()
+
+    // Load seed 0
+    poke(load_seed, true)
+    cycle()
+    poke(load_seed, false)
+    assert(rand_out == 0, "Seed should be loaded as 0")
+
+    // Next step -> (0 * 2053 + 13849) % 65536 = 13849
+    poke(next, true)
+    cycle()
+    poke(next, false)
+    assert(rand_out == 13849, "Next value should be 13849")
+
+    // Next step -> (13849 * 2053 + 13849) % 65536 = 3222
+    poke(next, true)
+    cycle()
+    poke(next, false)
+    assert(rand_out == 3222, "Next value should be 3222")
+}

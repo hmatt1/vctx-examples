@@ -1,0 +1,59 @@
+// spec: §4, §4.2, §15.2, §15.3
+// expect: pass
+// Description: Multi-alias imports and local namespace shadowing resolved via FQNs.
+
+import imports.deps.nested.extend
+import imports.deps.mux_lib as mx
+
+// Local component extend shadowing the imported package name
+component extend(in in_val: u8, out out_val: u8) {
+    out_val := (in_val + 5 as u8) as u8
+}
+
+component TopImportResolution(
+    in x: u8,
+    in sel: bool,
+    out y_local: u8,
+    out y_pkg: u8,
+    out y_final: u8
+) {
+    // Unqualified extend resolves to the local component
+    inst_local: extend(in_val -- x, out_val -- y_local)
+
+    // Qualified imports.deps.nested.extend.PadLoNibble resolves to the imported package's component
+    inst_pkg: imports.deps.nested.extend.PadLoNibble(hi -- x[3..0], word -- y_pkg)
+
+    // mx.Pick resolves to the imported mux_lib's component
+    inst_mux: mx.Pick(sel -- sel, a -- y_local, b -- y_pkg, y -- y_final)
+}
+
+sim TestImportResolution {
+    wire x: u8 = 0x12 // 18 decimal, LSB nibble is 2
+    wire sel: bool = true
+    wire y_local: u8
+    wire y_pkg: u8
+    wire y_final: u8
+
+    inst: TopImportResolution(
+        x -- x,
+        sel -- sel,
+        y_local -- y_local,
+        y_pkg -- y_pkg,
+        y_final -- y_final
+    )
+
+    reset()
+
+    // Test 1: sel = true -> selects y_local
+    // y_local = x + 5 = 18 + 5 = 23 (0x17)
+    cycle()
+    assert(y_local == 23, "Local shadowed component output should be 23")
+    assert(y_final == 23, "Selected output should be 23")
+
+    // Test 2: sel = false -> selects y_pkg
+    // y_pkg = PadLoNibble(hi = 2) = concat(2, 0) = 0x20 (32 decimal)
+    poke(sel, false)
+    cycle()
+    assert(y_pkg == 32, "Imported PadLoNibble output should be 32 (0x20)")
+    assert(y_final == 32, "Selected output should be 32")
+}

@@ -1,0 +1,53 @@
+// spec: §6.4
+// expect: pass
+// Description: Verifies priority mux logic generation for nested when blocks.
+
+component NestedWhen(in cond1: bool, in cond2: bool, in a: u8, in b: u8, in c: u8, out y: u8) {
+    wire val: u8 = 100
+    
+    when cond1 {
+        when cond2 {
+            val := a
+        } otherwise {
+            val := b
+        }
+    } elsewhen cond2 {
+        val := c
+    }
+    // when cond1 is false and cond2 is false, falls back to 100
+    
+    y := val
+}
+
+sim TestNestedWhen {
+    wire cond1: bool = false
+    wire cond2: bool = false
+    wire a: u8 = 10
+    wire b: u8 = 20
+    wire c: u8 = 30
+    wire y: u8
+    
+    inst: NestedWhen(
+        cond1 -- cond1,
+        cond2 -- cond2,
+        a -- a,
+        b -- b,
+        c -- c,
+        y -- y
+    )
+    
+    cycle()
+    assert(y == 100, "Should fall back to default value 100")
+    
+    poke(cond1, true)
+    cycle()
+    assert(y == 20, "cond1=true, cond2=false -> y=b (20)")
+    
+    poke(cond2, true)
+    cycle()
+    assert(y == 10, "cond1=true, cond2=true -> y=a (10)")
+    
+    poke(cond1, false)
+    cycle()
+    assert(y == 30, "cond1=false, cond2=true -> y=c (30)")
+}

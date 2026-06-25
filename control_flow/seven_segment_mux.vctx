@@ -1,0 +1,77 @@
+// spec: §6.4, §6.7, §7.1, §10.6
+// expect: pass
+// Description: A BCD-to-7-segment multiplexed display controller with dynamic segment selection.
+
+function bcd_to_7seg(digit: u4) -> u7 {
+    wire pattern: u7 = 0
+    when digit == 0 as u4 { pattern := 0x3F as u7 }
+    elsewhen digit == 1 as u4 { pattern := 0x06 as u7 }
+    elsewhen digit == 2 as u4 { pattern := 0x5B as u7 }
+    elsewhen digit == 3 as u4 { pattern := 0x4F as u7 }
+    elsewhen digit == 4 as u4 { pattern := 0x66 as u7 }
+    elsewhen digit == 5 as u4 { pattern := 0x6D as u7 }
+    elsewhen digit == 6 as u4 { pattern := 0x7D as u7 }
+    elsewhen digit == 7 as u4 { pattern := 0x07 as u7 }
+    elsewhen digit == 8 as u4 { pattern := 0x7F as u7 }
+    elsewhen digit == 9 as u4 { pattern := 0x6F as u7 }
+    otherwise { pattern := 0 as u7 }
+    return pattern
+}
+
+component SevenSegmentMux(
+    in digit0: u4,
+    in digit1: u4,
+    in tick: bool,
+    out segments: u7,
+    out digit_select: u2
+) {
+    reg active_digit_sel: bool = false
+
+    when tick {
+        active_digit_sel <= ~active_digit_sel
+    }
+
+    wire active_digit: u4 = active_digit_sel ? digit1 : digit0
+    segments := bcd_to_7seg(active_digit)
+    digit_select := active_digit_sel ? 2 as u2 : 1 as u2
+}
+
+sim TestSevenSegmentMux {
+    wire digit0: u4 = 5
+    wire digit1: u4 = 8
+    wire tick: bool = false
+    wire segments: u7
+    wire digit_select: u2
+
+    inst: SevenSegmentMux(
+        digit0 -- digit0,
+        digit1 -- digit1,
+        tick -- tick,
+        segments -- segments,
+        digit_select -- digit_select
+    )
+
+    reset()
+    
+    // Select should be 1, segment should be 0x6D (BCD 5)
+    cycle()
+    assert(digit_select == 1, "Digit select should be 1 initially")
+    assert(segments == 0x6D, "Segments should display 5 (0x6D)")
+
+    // Pulse tick to swap digit
+    poke(tick, true)
+    cycle()
+    poke(tick, false)
+
+    // Select should be 2, segment should be 0x7F (BCD 8)
+    assert(digit_select == 2, "Digit select should be 2 after tick")
+    assert(segments == 0x7F, "Segments should display 8 (0x7F)")
+
+    // Pulse tick again to swap back
+    poke(tick, true)
+    cycle()
+    poke(tick, false)
+
+    assert(digit_select == 1, "Digit select should swap back to 1")
+    assert(segments == 0x6D, "Segments should display 5 again")
+}

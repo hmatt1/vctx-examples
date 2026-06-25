@@ -1,0 +1,36 @@
+// spec: §4.2, §15.2, §15.3
+// expect: pass
+// Description: Complex shadowing of imported package symbols alongside qualified routing.
+
+import imports.deps.lane_pair as lane
+import imports.deps.mux_lib as mux
+
+// Local component shadowing imported component lane.LaneMerge
+component LaneMerge(in sel: bool, in ah: u4, in bh: u4, out out_word: u8) {
+    // Local implementation: returns inputs direct or padded differently
+    out_word := sel ? concat(ah, 0 as u4) : concat(bh, 0 as u4)
+}
+
+component ComplexResolve(in sel: bool, in ah: u4, in bh: u4, out y_local: u8, out y_pkg: u8) {
+    // Unqualified resolves to local component
+    local_inst: LaneMerge(sel -- sel, ah -- ah, bh -- bh, out_word -- y_local)
+    
+    // Qualified resolves to imports.deps.lane_pair.LaneMerge
+    pkg_inst: lane.LaneMerge(sel -- sel, ah -- ah, bh -- bh, out_word -- y_pkg)
+}
+
+sim TestComplexResolve {
+    wire sel: bool = true
+    wire ah: u4 = 10
+    wire bh: u4 = 5
+    wire y_local: u8
+    wire y_pkg: u8
+    
+    inst: ComplexResolve(sel -- sel, ah -- ah, bh -- bh, y_local -- y_local, y_pkg -- y_pkg)
+    
+    cycle()
+    // Local: sel is true -> ah padded -> 10 << 4 = 160
+    assert(y_local == 160, "Local LaneMerge should pad ah to 160")
+    // Pkg LaneMerge (LaneMerge -> PadLoNibble -> Pick): pads to 0xA0 (160)
+    assert(y_pkg == 160, "Package LaneMerge should pad ah to 160")
+}

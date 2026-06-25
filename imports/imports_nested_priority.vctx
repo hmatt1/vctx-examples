@@ -1,0 +1,61 @@
+// spec: §4, §4.2, §11, §15.2
+// expect: pass
+// Description: A registered pipeline utilizing multiple imported library components under unique paths.
+
+import imports.deps.nested.extend as ext
+import imports.deps.mux_lib as mux
+
+component NestedMuxPipeline(
+    in sel: bool,
+    in in0: u4,
+    in in1: u4,
+    out out_data: u8
+) {
+    reg r0: u8 = 0
+    reg r1: u8 = 0
+    reg r_out: u8 = 0
+
+    wire pad0: u8
+    wire pad1: u8
+
+    // Instantiate imported components
+    inst_pad0: ext.PadLoNibble(hi -- in0, word -- pad0)
+    inst_pad1: ext.PadLoNibble(hi -- in1, word -- pad1)
+
+    r0 <= pad0
+    r1 <= pad1
+
+    wire selected: u8
+    inst_mux: mux.Pick(sel -- sel, a -- r0, b -- r1, y -- selected)
+
+    r_out <= selected
+    out_data := r_out
+}
+
+sim TestNestedMuxPipeline {
+    wire sel: bool = true
+    wire in0: u4 = 5
+    wire in1: u4 = 9
+    wire out_data: u8
+
+    inst: NestedMuxPipeline(
+        sel -- sel,
+        in0 -- in0,
+        in1 -- in1,
+        out_data -- out_data
+    )
+
+    reset()
+
+    // Cycle 1: r0 gets pad0 (5 << 4 = 0x50), r1 gets pad1 (9 << 4 = 0x90). r_out gets selected (since active is true)
+    cycle()
+    
+    // Cycle 2: r_out gets r0 (0x50) because sel is true (which picks a = r0)
+    cycle()
+    assert(out_data == 0x50 as u8, "out_data should be 0x50 when sel is true")
+
+    // Swap select to false (picks b = r1 = 0x90)
+    poke(sel, false)
+    cycle() // r_out gets selected (r1 = 0x90)
+    assert(out_data == 0x90 as u8, "out_data should update to 0x90 when sel is false")
+}

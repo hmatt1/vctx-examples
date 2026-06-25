@@ -1,0 +1,35 @@
+// spec: §9.2, §8.7
+// expect: pass
+// Description: Verifies that implicit widening is allowed in assignments, while explicit casts reinterpret signs.
+
+component Widening(in a: u8, in b: s8, out y_u16: u16, out y_s16: s16, out y_cast: u8) {
+    // Implicit widening of unsigned to wider unsigned
+    y_u16 := a
+    
+    // Implicit widening of signed to wider signed
+    y_s16 := b
+    
+    // Explicit cast to reinterpret s8 to u8 (same width, different sign)
+    y_cast := b as u8
+}
+
+sim TestWidening {
+    wire a: u8 = 120
+    wire b: s8 = -5 as s8
+    wire y_u16: u16
+    wire y_s16: s16
+    wire y_cast: u8
+    
+    inst: Widening(
+        a -- a,
+        b -- b,
+        y_u16 -- y_u16,
+        y_s16 -- y_s16,
+        y_cast -- y_cast
+    )
+    
+    cycle()
+    assert(y_u16 == 120 as u16, "u8 must widen to u16")
+    assert(y_s16 == -5 as s16, "s8 must widen to s16 (sign-extended)")
+    assert(y_cast == 251 as u8, "-5 as s8 reinterpreted as u8 is 251")
+}

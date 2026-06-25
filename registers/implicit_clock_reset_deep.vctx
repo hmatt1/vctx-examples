@@ -1,0 +1,35 @@
+// spec: §6.7
+// expect: pass
+// Description: Verifies that clk and rst are implicitly propagated down 4 levels of nested components.
+
+component Leaf(out y: u8) {
+    reg r: u8 = 123
+    y := r
+}
+
+component Level3(out y: u8) {
+    wire w: u8
+    inst: Leaf(y -- w)
+    y := w
+}
+
+component Level2(out y: u8) {
+    wire w: u8
+    inst: Level3(y -- w)
+    y := w
+}
+
+component Root(out y: u8) {
+    wire w: u8
+    inst: Level2(y -- w)
+    y := w
+}
+
+sim TestImplicitClockResetDeep {
+    wire y: u8
+
+    inst: Root(y -- y)
+
+    reset()
+    assert(y == 123, "Leaf register should be initialized to 123 by implicit rst")
+}

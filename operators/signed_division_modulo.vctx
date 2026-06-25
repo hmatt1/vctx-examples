@@ -1,0 +1,30 @@
+// spec: §7, §7.5
+// expect: pass
+// Description: Verifies signed division width promotion (s8 / s8 -> s9) and signed modulo following dividend sign.
+
+component SignedMath(in a: s8, in b: s8, out div_out: s9, out mod_out: s8, out width_check: u8) {
+    div_out := a / b
+    mod_out := a % b
+    width_check := width(a / b) as u8
+}
+
+sim TestSignedMath {
+    wire a: s8 = -7 as s8
+    wire b: s8 = 3 as s8
+    wire div_out: s9
+    wire mod_out: s8
+    wire width_check: u8
+
+    inst: SignedMath(
+        a -- a,
+        b -- b,
+        div_out -- div_out,
+        mod_out -- mod_out,
+        width_check -- width_check
+    )
+
+    cycle()
+    assert(div_out == -2 as s9, "-7 / 3 should be -2 (truncating toward zero)")
+    assert(mod_out == -1 as s8, "-7 % 3 should be -1 (modulo sign follows dividend)")
+    assert(width_check == 9, "signed division result width must be dividend width + 1")
+}

@@ -1,0 +1,65 @@
+// spec: §7.1, §7.2, §7.5
+// expect: pass
+// Description: A combinational 4x4 bit matrix transposition block.
+
+component MatrixTranspose4x4(
+    in data_in: u16,
+    out data_out: u16
+) {
+    wire c: u16 = data_in
+
+    // Transpose maps indices:
+    // row 0: c[0],  c[1],  c[2],  c[3]   -> col 0: c[0], c[4], c[8],  c[12]
+    // row 1: c[4],  c[5],  c[6],  c[7]   -> col 1: c[1], c[5], c[9],  c[13]
+    // row 2: c[8],  c[9],  c[10], c[11]  -> col 2: c[2], c[6], c[10], c[14]
+    // row 3: c[12], c[13], c[14], c[15]  -> col 3: c[3], c[7], c[11], c[15]
+    // Concat order from MSB (15) to LSB (0):
+    // c[15], c[11], c[7], c[3],
+    // c[14], c[10], c[6], c[2],
+    // c[13], c[9],  c[5], c[1],
+    // c[12], c[8],  c[4], c[0]
+    data_out := concat(
+        c[15], c[11], c[7], c[3],
+        c[14], c[10], c[6], c[2],
+        c[13], c[9],  c[5], c[1],
+        c[12], c[8],  c[4], c[0]
+    )
+}
+
+sim TestMatrixTranspose {
+    wire data_in: u16 = 0b0001_0010_0100_1000 // Diagonal-ish matrix
+    wire data_out: u16
+
+    inst: MatrixTranspose4x4(data_in -- data_in, data_out -- data_out)
+
+    reset()
+
+    // 0b0001_0010_0100_1000 corresponds to:
+    // row 0: 0, 0, 0, 1 -> indices: 0=0, 1=0, 2=0, 3=1
+    // row 1: 0, 0, 1, 0 -> indices: 4=0, 5=0, 6=1, 7=0
+    // row 2: 0, 1, 0, 0 -> indices: 8=0, 9=1, 10=0, 11=0
+    // row 3: 1, 0, 0, 0 -> indices: 12=1, 13=0, 14=0, 15=0
+    // Transposed cols:
+    // col 0 (indices 0,4,8,12) -> 0, 0, 0, 1 -> row 0: 0001
+    // col 1 (indices 1,5,9,13) -> 0, 0, 1, 0 -> row 1: 0010
+    // col 2 (indices 2,6,10,14) -> 0, 1, 0, 0 -> row 2: 0100
+    // col 3 (indices 3,7,11,15) -> 1, 0, 0, 0 -> row 3: 1000
+    // Output should be: 0b0001_0010_0100_1000 (symmetric matrix transpose matches itself!)
+    cycle()
+    assert(data_out == 0b0001_0010_0100_1000, "Symmetric matrix transpose check failed")
+
+    // Test non-symmetric matrix: 0b0000_0000_1111_0000 (row 1 is all ones, others are zero)
+    // row 0: 0000
+    // row 1: 1111 -> indices: 4=1, 5=1, 6=1, 7=1
+    // row 2: 0000
+    // row 3: 0000
+    // Transposed:
+    // col 0: 0010 -> row 0: 0010 -> index 3=0, 2=0, 1=1, 0=0 -> 0b0010 = 2 decimal
+    // col 1: 0010 -> row 1: 0010 -> index 7=0, 6=0, 5=1, 4=0 -> 0b0010
+    // col 2: 0010 -> row 2: 0010 -> index 11=0, 10=0, 9=1, 8=0 -> 0b0010
+    // col 3: 0010 -> row 3: 0010 -> index 15=0, 14=0, 13=1, 12=0 -> 0b0010
+    // Combined output should be: 0b0010_0010_0010_0010 (0x2222)
+    poke(data_in, 0x00F0 as u16)
+    cycle()
+    assert(data_out == 0x2222 as u16, "Non-symmetric matrix transpose check failed")
+}

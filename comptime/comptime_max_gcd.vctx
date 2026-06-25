@@ -1,0 +1,45 @@
+// spec: §5.6, §7.5, §18
+// expect: pass
+// Description: A compile-time helper executing loops and helper functions to find the max GCD of an array.
+
+comptime gcd(a: Int, b: Int) -> Int {
+    let x = a
+    let y = b
+    while y > 0 {
+        let temp = y
+        y = x % y
+        x = temp
+    }
+    return x
+}
+
+comptime find_max_gcd() -> Int {
+    let arr = [12, 18, 24, 30]
+    let max_g = 0
+    let i = 0
+    while i < 4 {
+        let j = i + 1
+        while j < 4 {
+            let g = gcd(arr[i], arr[j])
+            if g > max_g {
+                max_g = g
+            }
+            j = j + 1
+        }
+        i = i + 1
+    }
+    return max_g
+}
+
+component MaxGcdCarrier(out y: u8) {
+    y := find_max_gcd() as u8 // Max GCD in [12, 18, 24, 30] is GCD(12, 24) = 12
+}
+
+sim TestMaxGcd {
+    wire y: u8
+
+    inst: MaxGcdCarrier(y -- y)
+
+    cycle()
+    assert(y == 12, "Max GCD should be 12")
+}

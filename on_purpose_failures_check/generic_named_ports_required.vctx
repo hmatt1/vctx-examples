@@ -1,0 +1,8 @@
+// spec: §10.5, §11
+// expect: fail check [E_GENERIC_NAMED_PORTS]
+// Description: Positional connections are invalid when instantiating component generic parameters.
+
+component Wrapper<Component Core>(in x: u8, out y: u8) {
+    // Rejects positional instantiation of component-generic parameter Core
+    inst: Core(x, y)
+}

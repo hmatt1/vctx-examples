@@ -1,0 +1,75 @@
+// spec: §6.4, §6.7, §7.5
+// expect: pass
+// Description: A sequential hardware Greatest Common Divisor (GCD) finder based on Euclid's subtraction algorithm.
+
+component GcdFinder(
+    in a_in: u8,
+    in b_in: u8,
+    in start: bool,
+    out gcd_out: u8,
+    out done: bool
+) {
+    reg a: u8 = 0
+    reg b: u8 = 0
+    reg active: bool = false
+    reg done_reg: bool = false
+
+    when start {
+        a <= a_in
+        b <= b_in
+        active <= true
+        done_reg <= false
+    } elsewhen active {
+        when a == b {
+            active <= false
+            done_reg <= true
+        } elsewhen a > b {
+            a <= (a - b) as u8
+        } otherwise {
+            b <= (b - a) as u8
+        }
+    }
+
+    gcd_out := a
+    done := done_reg
+}
+
+sim TestGcdFinder {
+    wire a_in: u8 = 48
+    wire b_in: u8 = 18
+    wire start: bool = false
+    wire gcd_out: u8
+    wire done: bool
+
+    inst: GcdFinder(
+        a_in -- a_in,
+        b_in -- b_in,
+        start -- start,
+        gcd_out -- gcd_out,
+        done -- done
+    )
+
+    reset()
+    assert(done == false, "Initially not done")
+
+    // Start calculation for GCD(48, 18) = 6
+    poke(start, true)
+    cycle()
+    poke(start, false)
+
+    // Run until done
+    cycle(10)
+    assert(done == true, "Should be finished after 10 cycles")
+    assert(gcd_out == 6 as u8, "GCD(48, 18) must be 6")
+
+    // Test GCD(35, 14) = 7
+    poke(a_in, 35)
+    poke(b_in, 14)
+    poke(start, true)
+    cycle()
+    poke(start, false)
+
+    cycle(10)
+    assert(done == true, "Should be finished")
+    assert(gcd_out == 7 as u8, "GCD(35, 14) must be 7")
+}

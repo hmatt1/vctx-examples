@@ -1,0 +1,35 @@
+// spec: §7.1, §7.5
+// expect: pass
+// Description: Verifies unary operators: bitwise ~ (unsigned only), arithmetic - (widens by 1 bit, signed), and logical not.
+
+component UnaryOps(in a: u8, in b: bool, out y_tilde: u8, out y_neg: s9, out y_not: u1) {
+    // Bitwise inversion (preserves width and unsignedness)
+    y_tilde := ~a
+    
+    // Arithmetic negation (adds 1 bit, forces signedness)
+    y_neg := -a
+    
+    // Logical negation on boolean
+    y_not := not b as u1
+}
+
+sim TestUnaryOps {
+    wire a: u8 = 0xAA
+    wire b: bool = true
+    wire y_tilde: u8
+    wire y_neg: s9
+    wire y_not: u1
+    
+    inst: UnaryOps(
+        a -- a,
+        b -- b,
+        y_tilde -- y_tilde,
+        y_neg -- y_neg,
+        y_not -- y_not
+    )
+    
+    cycle()
+    assert(y_tilde == 0x55 as u8, "~0xAA must be 0x55")
+    assert(y_neg == -170 as s9, "-0xAA (170) must be -170 as s9")
+    assert(y_not == 0 as u1, "not true should be false (0)")
+}

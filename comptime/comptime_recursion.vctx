@@ -1,0 +1,23 @@
+// spec: §5.6, §18
+// expect: pass
+// Description: Verifies comptime recursion (Fibonacci sequence) to dynamically define carrier widths.
+
+comptime fibonacci(n: Int) -> Int {
+    if n <== 1 {
+        return n
+    }
+    return ((fibonacci((n - 1) as Int) + fibonacci((n - 2) as Int)) as Int)
+}
+
+component FibCarrier(out y: u[fibonacci(7)]) {
+    y := 0
+}
+
+sim TestComptimeRecursion {
+    wire y: u13 // Fib(7) = 13
+    
+    inst: FibCarrier(y -- y)
+    
+    cycle()
+    assert(width(y) == 13, "y width must be 13 (Fibonacci(7))")
+}

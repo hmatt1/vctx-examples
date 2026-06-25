@@ -1,0 +1,30 @@
+// spec: §15.2, §15.3
+// expect: pass
+// Description: Local component shadows an imported package of the same name.
+
+import imports.deps.mux_lib
+
+component mux_lib(in x: u8, out y: u8) {
+    y := (x + 1) as u8
+}
+
+component TopShadow(in sel: bool, in a: u8, in b: u8, out y_local: u8, out y_pkg: u8) {
+    // Unqualified resolves to local component
+    inst_local: mux_lib(x -- a, y -- y_local)
+    // Qualified resolves to imported package's component
+    inst_pkg: imports.deps.mux_lib.Pick(sel -- sel, a -- a, b -- b, y -- y_pkg)
+}
+
+sim TestShadow {
+    wire sel: bool = true
+    wire a: u8 = 10
+    wire b: u8 = 20
+    wire y_local: u8
+    wire y_pkg: u8
+    
+    inst: TopShadow(sel -- sel, a -- a, b -- b, y_local -- y_local, y_pkg -- y_pkg)
+    
+    cycle()
+    assert(y_local == 11, "Local mux_lib must add 1 to input")
+    assert(y_pkg == 10, "Imported Pick must select a (10) when sel is true")
+}

@@ -1,0 +1,61 @@
+// spec: §6.4, §7.2
+// expect: pass
+// Description: A priority encoder component selecting the highest active request bit.
+
+component PriorityEncoder8(in req: u8, out grant: u3, out valid: bool) {
+    wire g: u3 = 0
+    wire v: bool = false
+    
+    when req[7] {
+        g := 7 as u3
+        v := true
+    } elsewhen req[6] {
+        g := 6 as u3
+        v := true
+    } elsewhen req[5] {
+        g := 5 as u3
+        v := true
+    } elsewhen req[4] {
+        g := 4 as u3
+        v := true
+    } elsewhen req[3] {
+        g := 3 as u3
+        v := true
+    } elsewhen req[2] {
+        g := 2 as u3
+        v := true
+    } elsewhen req[1] {
+        g := 1 as u3
+        v := true
+    } elsewhen req[0] {
+        g := 0 as u3
+        v := true
+    } otherwise {
+        g := 0 as u3
+        v := false
+    }
+    
+    grant := g
+    valid := v
+}
+
+sim TestPriorityEncoder {
+    wire req: u8 = 0
+    wire grant: u3
+    wire valid: bool
+    
+    inst: PriorityEncoder8(req -- req, grant -- grant, valid -- valid)
+    
+    cycle()
+    assert(valid == false, "No request, valid must be false")
+    
+    poke(req, 8) // bit 3 active (0x08)
+    cycle()
+    assert(valid == true, "bit 3 active, valid must be true")
+    assert(grant == 3 as u3, "grant must be 3")
+    
+    poke(req, 160) // bit 7 and 5 active (0xA0)
+    cycle()
+    assert(valid == true, "bits active, valid must be true")
+    assert(grant == 7 as u3, "grant must be 7 (highest priority wins)")
+}

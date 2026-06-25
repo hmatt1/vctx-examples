@@ -1,0 +1,51 @@
+// spec: §5.1, §11
+// expect: pass
+// Description: A structural 4-bit ripple-carry adder built from half and full adders.
+
+component HalfAdder(in a: bool, in b: bool, out sum: bool, out carry: bool) {
+    sum := a ^ b
+    carry := a & b
+}
+
+component FullAdder(in a: bool, in b: bool, in cin: bool, out sum: bool, out cout: bool) {
+    sum := a ^ b ^ cin
+    cout := (a & b) | (cin & (a ^ b))
+}
+
+component RippleCarry4(in a: u4, in b: u4, out sum: u4, out cout: bool) {
+    wire sum0: bool
+    wire sum1: bool
+    wire sum2: bool
+    wire sum3: bool
+    
+    wire carry0: bool
+    wire carry1: bool
+    wire carry2: bool
+    
+    ha: HalfAdder(a -- a[0], b -- b[0], sum -- sum0, carry -- carry0)
+    fa1: FullAdder(a -- a[1], b -- b[1], cin -- carry0, sum -- sum1, cout -- carry1)
+    fa2: FullAdder(a -- a[2], b -- b[2], cin -- carry1, sum -- sum2, cout -- carry2)
+    fa3: FullAdder(a -- a[3], b -- b[3], cin -- carry2, sum -- sum3, cout -- cout)
+    
+    sum := concat(sum3, sum2, sum1, sum0)
+}
+
+sim TestRippleCarry4 {
+    wire a: u4 = 5
+    wire b: u4 = 6
+    wire sum: u4
+    wire cout: bool
+    
+    inst: RippleCarry4(a -- a, b -- b, sum -- sum, cout -- cout)
+    
+    cycle()
+    assert(sum == 11, "5 + 6 should be 11")
+    assert(cout == false, "Carry out should be false")
+    
+    // Test overflow
+    poke(a, 12)
+    poke(b, 6) // 12 + 6 = 18 -> sum=2, cout=true
+    cycle()
+    assert(sum == 2, "12 + 6 = 18 wraps to 2")
+    assert(cout == true, "Carry out should be true")
+}

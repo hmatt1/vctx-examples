@@ -1,0 +1,80 @@
+// spec: §5.6, §10.2, §18
+// expect: pass
+// Description: LFSR components configured using a comptime lookup map to determine feedback taps.
+
+comptime get_lfsr_taps(width: Int) -> Int {
+    let taps = {
+        "w4": 9,
+        "w8": 142
+    }
+    if width == 4 {
+        return taps["w4"]
+    }
+    if width == 8 {
+        return taps["w8"]
+    }
+    return 1
+}
+
+component Lfsr4(out val: u4) {
+    reg state: u4 = 1
+
+    wire lsb: bool = state[0]
+    wire taps: u4 = get_lfsr_taps(4) as u4
+
+    when lsb {
+        state <= (state >> 1) ^ taps
+    } otherwise {
+        state <= state >> 1
+    }
+
+    val := state
+}
+
+component Lfsr8(out val: u8) {
+    reg state: u8 = 1
+
+    wire lsb: bool = state[0]
+    wire taps: u8 = get_lfsr_taps(8) as u8
+
+    when lsb {
+        state <= (state >> 1) ^ taps
+    } otherwise {
+        state <= state >> 1
+    }
+
+    val := state
+}
+
+sim TestLfsr {
+    wire val_w4: u4
+    wire val_w8: u8
+
+    inst_w4: Lfsr4(val -- val_w4)
+    inst_w8: Lfsr8(val -- val_w8)
+
+    reset()
+    assert(val_w4 == 1 as u4, "LFSR4 should start with 1")
+    assert(val_w8 == 1 as u8, "LFSR8 should start with 1")
+
+    // Step 1: LSB of 1 is 1 -> next is (1 >> 1) ^ 9 = 0 ^ 9 = 9
+    cycle()
+    assert(val_w4 == 9 as u4, "Step 1: LFSR4 should be 9")
+
+    // Step 2: LSB of 9 (0b1001) is 1 -> next is (9 >> 1) ^ 9 = 4 ^ 9 = 13
+    cycle()
+    assert(val_w4 == 13 as u4, "Step 2: LFSR4 should be 13")
+
+    // Step 3: LSB of 13 (0b1101) is 1 -> next is (13 >> 1) ^ 9 = 6 ^ 9 = 15
+    cycle()
+    assert(val_w4 == 15 as u4, "Step 3: LFSR4 should be 15")
+
+    // Step 4: LSB of 15 (0b1111) is 1 -> next is (15 >> 1) ^ 9 = 7 ^ 9 = 14
+    cycle()
+    assert(val_w4 == 14 as u4, "Step 4: LFSR4 should be 14")
+
+    // Let's run a few cycles for LFSR8 and check that it changes state and doesn't get stuck
+    cycle(10)
+    assert((val_w8 == 1 as u8) == false, "LFSR8 should have progressed")
+    assert((val_w8 == 0 as u8) == false, "LFSR8 should never reach 0")
+}

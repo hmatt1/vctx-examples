@@ -1,0 +1,7 @@
+// spec: §3.5, §8.3
+// expect: fail check [E_WIDTH_MISMATCH]
+// Description: String literal assigned to a hardware carrier is currently rejected as a width mismatch.
+
+component TopString(out y: u16) {
+    y := "Hi"
+}
