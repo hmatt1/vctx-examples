@@ -1,0 +1,4 @@
+// expect: fail check [E_COMPTIME_REQUIRED]
+component PartSelectDynamicWidth(in w: u8, in base: u3, in width: u3, out y: u8) {
+    y := w[base +: width]
+}

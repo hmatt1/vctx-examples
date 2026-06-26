@@ -6,46 +6,46 @@
 sim TestAlternatingBitsPatterns {
     // --- 1. 8-bit Alternating Patterns ---
     wire aa_8: u8 = 0xAA // 1010_1010
-    wire 55_8: u8 = 0x55 // 0101_0101
+    wire p55_8: u8 = 0x55 // 0101_0101
 
     assert(aa_8 == 170, "0xAA is 170")
-    assert(55_8 == 85,  "0x55 is 85")
+    assert(p55_8 == 85,  "0x55 is 85")
 
     // Inversion Identity
-    assert(~aa_8 == 55_8, "~0xAA = 0x55")
-    assert(~55_8 == aa_8, "~0x55 = 0xAA")
+    assert(~aa_8 == p55_8, "~0xAA = 0x55")
+    assert(~p55_8 == aa_8, "~0x55 = 0xAA")
 
     // Shift Identity
-    assert((aa_8 >> 1) == 55_8, "0xAA >> 1 = 0x55")
-    assert((55_8 << 1) == 170,  "0x55 << 1 = 0xAA") // 85 * 2 = 170
+    assert((aa_8 >> 1) == p55_8, "0xAA >> 1 = 0x55")
+    assert((p55_8 << 1) == 170,  "0x55 << 1 = 0xAA") // 85 * 2 = 170
 
     // Recombination Identity
-    assert((aa_8 | 55_8) == 0xFF, "0xAA | 0x55 = 0xFF (All ones)")
-    assert((aa_8 & 55_8) == 0x00, "0xAA & 0x55 = 0x00 (All zeros)")
-    assert((aa_8 ^ 55_8) == 0xFF, "0xAA ^ 0x55 = 0xFF")
+    assert((aa_8 | p55_8) == 0xFF, "0xAA | 0x55 = 0xFF (All ones)")
+    assert((aa_8 & p55_8) == 0x00, "0xAA & 0x55 = 0x00 (All zeros)")
+    assert((aa_8 ^ p55_8) == 0xFF, "0xAA ^ 0x55 = 0xFF")
 
     // --- 2. 16-bit Alternating Patterns ---
     wire aa_16: u16 = 0xAAAA
-    wire 55_16: u16 = 0x5555
+    wire p55_16: u16 = 0x5555
 
-    assert(~aa_16 == 55_16, "~0xAAAA = 0x5555")
-    assert((aa_16 | 55_16) == 0xFFFF, "0xAAAA | 0x5555 = 0xFFFF")
-    assert((aa_16 >> 1) == 55_16, "0xAAAA >> 1 = 0x5555")
+    assert(~aa_16 == p55_16, "~0xAAAA = 0x5555")
+    assert((aa_16 | p55_16) == 0xFFFF, "0xAAAA | 0x5555 = 0xFFFF")
+    assert((aa_16 >> 1) == p55_16, "0xAAAA >> 1 = 0x5555")
 
     // --- 3. 32-bit Alternating Patterns ---
     wire aa_32: u32 = 0xAAAA_AAAA
-    wire 55_32: u32 = 0x5555_5555
+    wire p55_32: u32 = 0x5555_5555
 
-    assert(~aa_32 == 55_32, "u32 inversion")
-    assert((aa_32 | 55_32) == 0xFFFF_FFFF, "u32 recombination")
+    assert(~aa_32 == p55_32, "u32 inversion")
+    assert((aa_32 | p55_32) == 0xFFFF_FFFF, "u32 recombination")
 
     // --- 4. 64-bit Alternating Patterns ---
     wire aa_64: u64 = 0xAAAA_AAAA_AAAA_AAAA
-    wire 55_64: u64 = 0x5555_5555_5555_5555
+    wire p55_64: u64 = 0x5555_5555_5555_5555
 
-    assert(~aa_64 == 55_64, "u64 inversion")
-    assert((aa_64 >> 1) == 55_64, "u64 shift")
-    assert((aa_64 | 55_64) == 0xFFFF_FFFF_FFFF_FFFF, "u64 recombination")
+    assert(~aa_64 == p55_64, "u64 inversion")
+    assert((aa_64 >> 1) == p55_64, "u64 shift")
+    assert((aa_64 | p55_64) == 0xFFFF_FFFF_FFFF_FFFF, "u64 recombination")
 
     // --- 5. Slice Validation ---
     // The pattern is repeating, so any 2-bit slice should be either 10 or 01
@@ -57,6 +57,6 @@ sim TestAlternatingBitsPatterns {
 
     // --- 6. Concat Validation ---
     // Concatting 0xAA and 0x55 should form 0xAA55
-    wire c_16: u16 = concat(aa_8, 55_8)
+    wire c_16: u16 = concat(aa_8, p55_8)
     assert(c_16 == 0xAA55, "Concat of alternating bytes")
 }

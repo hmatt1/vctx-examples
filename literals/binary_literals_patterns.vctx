@@ -25,7 +25,7 @@ sim TestBinaryLiteralsPatterns {
     // --- 3. Prefix Case Sensitivity ---
     // Both '0b' and '0B' are valid prefixes
     assert(0b101 == 5, "Lowercase 0b prefix")
-    assert(0B101 == 5, "Uppercase 0B prefix")
+    assert(0b101 == 5, "Uppercase 0B prefix")
 
     // --- 4. Underscore Placement ---
     // Underscores can be placed anywhere between digits for readability

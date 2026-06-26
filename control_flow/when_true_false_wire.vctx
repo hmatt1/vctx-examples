@@ -61,7 +61,11 @@ sim TestWhenTrueFalseWire {
     wire cond: bool = false
     wire a: u8 = 100
     wire b: u8 = 200
-    wire yt, yf, yw, yc, yr: u8
+    wire yt: u8
+    wire yf: u8
+    wire yw: u8
+    wire yc: u8
+    wire yr: u8
 
     WhenConditionSources(cond, a, b, yt, yf, yw, yc, yr)
 

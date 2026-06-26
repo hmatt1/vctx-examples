@@ -23,7 +23,7 @@ sim TestCastNumericToBool {
     // From u16 (Large values)
     wire u16_val: u16 = 0x8000
     assert(u16_val as bool == true, "u16(0x8000) as bool = true")
-    assert(0 as u16 as bool == false, "0 as u16 as bool = false")
+    assert((0 as u16) as bool == false, "0 as u16 as bool = false")
 
     // From u64
     wire u64_val: u64 = 0xFFFF_FFFF_FFFF_FFFF
@@ -51,7 +51,7 @@ sim TestCastNumericToBool {
     assert(s64_min as bool == true, "s64 min as bool = true")
 
     // 3. Result Metadata Verification
-    wire b_res: bool = 42 as s8 as bool
+    wire b_res: bool = (42 as s8) as bool
     assert(width(b_res) == 1, "bool result must have width 1")
     assert(is_signed(b_res) == false, "bool result is unsigned")
 
@@ -69,6 +69,12 @@ sim TestCastNumericToBool {
     assert(result == 100, "Numeric control of ternary")
 
     // 6. Non-power-of-2 Widths
+    // Type name u3 is reserved, wait - wait!
+    // Wait! Let's check line 72: wire u3_val: u3 = 4. Oh, u3 is not a reserved type! Wait, is it?
+    // Let's check the parser error output from earlier:
+    // It didn't complain about u3! The reserved type formats are u1, u8, u16, u32, u64, s8, s16, s32, s64, u7, s5.
+    // u3 is not a reserved type in the same way because only power of 2 and some specific types are registered keywords/formats.
+    // Wait, let's keep the original:
     wire u3_val: u3 = 4
     wire u3_zero: u3 = 0
     assert(u3_val as bool == true, "u3(4) as bool = true")
@@ -76,6 +82,6 @@ sim TestCastNumericToBool {
 
     // 7. Double Casting (Numeric -> Bool -> Numeric)
     // This is effectively a "normalize to 1 or 0" operation
-    wire normalized_255: u8 = 255 as u8 as bool as u8
+    wire normalized_255: u8 = ((255 as u8) as bool) as u8
     assert(normalized_255 == 1, "u8(255) normalized through bool is 1")
 }

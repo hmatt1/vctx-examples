@@ -74,7 +74,17 @@ component MultiTypeRegBank(
 sim TestRegAllScalarTypes {
     // Wires for DUT
     wire load: bool = false
-    wire b, u8_v, u16_v, u32_v, u64_v, s8_v, s16_v, s32_v, s64_v, u7_v, s5_v: u1 // dummy types for broad declaration
+    wire b: u1
+    wire u8_v: u1
+    wire u16_v: u1
+    wire u32_v: u1
+    wire u64_v: u1
+    wire s8_v: u1
+    wire s16_v: u1
+    wire s32_v: u1
+    wire s64_v: u1
+    wire u7_v: u1
+    wire s5_v: u1 // dummy types for broad declaration
     // (Correcting type for harness)
     wire bi: bool = false
     wire u8i: u8 = 0

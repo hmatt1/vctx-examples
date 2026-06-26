@@ -48,7 +48,7 @@ sim TestArrayIndexBoundaries {
     assert(single_arr[s_idx] == -42, "dynamic single element array index 0")
 
     // 5. Indexing via arithmetic (Comptime folding required for static indices)
-    wire len_minus_1_u8 = u8_arr[4 - 1]
+    wire len_minus_1_u8: u8 = u8_arr[4 - 1]
     assert(len_minus_1_u8 == 40, "indexing via comptime arithmetic")
 
     // 6. Mutating boundaries (Registers)

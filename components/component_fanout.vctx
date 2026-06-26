@@ -59,7 +59,11 @@ sim TestComponentFanout {
 
     // --- PHASE 4: Extreme Fanout ---
     // Instantiate 5 identical components driven by the same source
-    wire c1, c2, c3, c4, c5: u8
+    wire c1: u8
+    wire c2: u8
+    wire c3: u8
+    wire c4: u8
+    wire c5: u8
     Add10(source, c1)
     Add10(source, c2)
     Add10(source, c3)

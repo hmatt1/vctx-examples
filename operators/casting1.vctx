@@ -179,5 +179,4 @@ sim TestCast_Zero_Identity {
     wire uz4: u16 = uz3 as u16
     wire sz3: s8 = uz4 as s8
     assert(sz3 == 0, "u8 zero widened to u16 then narrowed to s8 is still zero")
-}")
 }
