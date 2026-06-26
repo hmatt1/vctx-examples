@@ -1,0 +1,18 @@
+// spec: §6
+// expect: fail check [E_SCHEDULE_ILLEGAL_WHEN]
+// Test case: Strict Context Semantics (if vs when)
+// This file tests that runtime 'if' is rejected in hardware functions!
+
+function bad_func(x: u8, y: u8) -> u8 {
+    wire z: u8
+    if (x == y) {
+        z := 1
+    } else {
+        z := 0
+    }
+    return z
+}
+
+component Top(in x: u8, in y: u8, out z: u8) {
+    z := bad_func(x, y)
+}

@@ -1,0 +1,10 @@
+component DynamicBracketSlice(in w: u8, in a: u3, in b: u3, out y1: u8, out y2: u8, out y3: u8) {
+    // 1. Dynamic hi index, constant lo index
+    y1 := w[a..0] as u8
+
+    // 2. Constant hi index, dynamic lo index
+    y2 := w[7..b] as u8
+
+    // 3. Both dynamic indices
+    y3 := w[a..b] as u8
+}

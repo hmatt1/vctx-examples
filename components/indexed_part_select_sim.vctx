@@ -1,0 +1,28 @@
+component IndexedPartSelectTest(in w: u8, in base: u3, out y1: u4, out y2: u4) {
+    y1 := w[base +: 4]
+    y2 := w[base -: 4]
+}
+
+sim SimIndexedPartSelect {
+    wire w_reg: u8 = 0xAF as u8
+    wire base_reg: u3 = 0 as u3
+    
+    wire y1_wire: u4
+    wire y2_wire: u4
+    
+    IndexedPartSelectTest(w -- w_reg, base -- base_reg, y1 -- y1_wire, y2 -- y2_wire)
+    
+    // Test case 1: base = 0
+    cycle()
+    assert(y1_wire == 0xF as u4, "base=0, +: 4") // lower 4 bits (1111) -> 0xF
+    
+    // Test case 2: base = 4
+    poke(base_reg, 4 as u3)
+    cycle()
+    assert(y1_wire == 0xA as u4, "base=4, +: 4") // upper 4 bits (1010) -> 0xA
+    
+    // Test case 3: base -: 4 with base = 7
+    poke(base_reg, 7 as u3)
+    cycle()
+    assert(y2_wire == 0xA as u4, "base=7, -: 4") // bits 7 downto 4 (1010) -> 0xA
+}

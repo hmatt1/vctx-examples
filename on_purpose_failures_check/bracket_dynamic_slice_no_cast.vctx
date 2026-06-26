@@ -1,0 +1,4 @@
+component DynamicBracketSliceNoCast(in w: u8, in a: u3, in b: u3, out y1: u8) {
+    // Relying on assignment target type (u8) directly
+    y1 := w[a..b]
+}
