@@ -1,7 +1,8 @@
 // spec: §5.5, §7.3
 // expect: pass
 function id_ty<Type T>(x: T) -> T {
-    return x
+    wire tmp: T = x
+    return tmp
 }
 
 component MlirTypeGenericHarness(in x: u8, out y: u8) {

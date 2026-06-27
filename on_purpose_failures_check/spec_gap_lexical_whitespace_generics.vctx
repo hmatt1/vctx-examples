@@ -16,7 +16,7 @@ component Top() {
     wire z3: u [ 8 ] // Spaced carrier (Spec gap)
 
     // Whitespace around generic delimiters (Spec gap)
-    // Adder < 8 > (a -- x, b -- y, sum -- z1)
+    Adder < 8 > (a -- x, b -- y, sum -- z1)
     
     // Unparenthesized expression in generic argument (Spec gap)
     Adder<4 + 4>(a -- x, b -- y, sum -- z2)
