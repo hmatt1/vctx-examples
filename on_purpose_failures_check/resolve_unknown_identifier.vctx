@@ -5,5 +5,6 @@
 component UnknownIdentifier(out y: u1) {
     // `nope` is not declared anywhere in this component or imports.
     y := nope
+    wire overflow_wire: u4 = 32
 }
 
