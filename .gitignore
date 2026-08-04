@@ -23,3 +23,7 @@ venv/
 
 # Runner output logs
 on_purpose_failures_run.log
+
+# Cascade disk cache / regenerated debug dumps
+.cascade_cache/
+linked_debug.mlir
