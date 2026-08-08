@@ -59,7 +59,7 @@ sim TestWidthInArithmetic {
 component ScaledArray(out l: u32) {
     wire base: u8 = 0
     // width(base) is 8, and is comptime-known here.
-    wire scaled_arr: u8[width(base)]
+    wire scaled_arr: u8[width(base)] = 0
     
     l := len(scaled_arr)
 }

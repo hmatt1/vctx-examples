@@ -4,14 +4,14 @@
 
 // Comptime `cond` → folded dimension.
 component DimTernaryConst(out x: u8) {
-    wire t: u8[(true ? 8 : 4)]
+    wire t: u8[(true ? 8 : 4)] = 0
     x := t[0]
 }
 
 // Cast in dimension: `0x1234 as u8` in bracket size.
 component DimCastNarrow(out x: u8) {
-    wire wide: u16[0x00FF]
-    wire c: u8[(0x1234 as u8)]
+    wire wide: u16[0x00FF] = 0
+    wire c: u8[(0x1234 as u8)] = 0
     x := (wide[0] as u8) | c[0]
 }
 

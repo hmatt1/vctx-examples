@@ -3,20 +3,20 @@
 // Teaches: comptime integer math in array dimensions (`+`, `-`, `*`, parens) and `width()` in a dimension. (Design notes: `top priority checklist.md` → DOCS.)
 
 component DimExprAddSubMul(out x: u8) {
-    wire a: u8[(3 + 5)]
-    wire b: u8[(10 - 2)]
-    wire c: u8[(4 * 2)]
+    wire a: u8[(3 + 5)] = 0
+    wire b: u8[(10 - 2)] = 0
+    wire c: u8[(4 * 2)] = 0
     x := (a[0] | b[0]) | c[0]
 }
 
 component DimExprParen(out x: u8) {
-    wire p: u8[((2 + 3) * 2)]
+    wire p: u8[((2 + 3) * 2)] = 0
     x := p[0]
 }
 
 // `width(sample)` is comptime from the argument's type.
 component DimExprWidthIntrinsic(in sample: u27, out x: u1) {
-    wire w: u1[width(sample)]
+    wire w: u1[width(sample)] = 0
     x := w[0]
 }
 

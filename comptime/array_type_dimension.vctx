@@ -4,10 +4,10 @@
 
 component ArrayDimLiterals(out lo: u1, out mid: u1, out hi: u1) {
     // Dimension 0 is invalid; not used here.
-    wire a1: u8[1]
-    wire a4: u8[4]
-    wire a256: u8[256]
-    wire sep: u16[1_000]
+    wire a1: u8[1] = 0
+    wire a4: u8[4] = 0
+    wire a256: u8[256] = 0
+    wire sep: u16[1_000] = 0
 
     lo := a1[0] as u1
     mid := a4[0] as u1
@@ -15,13 +15,13 @@ component ArrayDimLiterals(out lo: u1, out mid: u1, out hi: u1) {
 }
 
 component ArrayDimHexBinary(out x: u8) {
-    wire h: u8[0x10]
-    wire b: u8[0b1000]
+    wire h: u8[0x10] = 0
+    wire b: u8[0b1000] = 0
     x := h[0] | b[0]
 }
 
 component ArrayDimExpr(out x: u8) {
-    wire e: u8[(2 + 2)]
+    wire e: u8[(2 + 2)] = 0
     x := e[0]
 }
 
